@@ -4,6 +4,7 @@ from flask_migrate import Migrate
 from config.config import Config
 
 from extensions.database import db
+from extensions.jwt import jwt
 
 from routes.auth import auth_routes
 
@@ -25,6 +26,7 @@ def config_app(app):
 def register_extensions(app):
     db.init_app(app)
     migrate = Migrate(app, db)
+    jwt.init_app(app)
 
 
 def register_blueprints(app):

@@ -2,6 +2,7 @@ from http import HTTPStatus
 
 from flask import Blueprint
 from flask import request
+from flask_jwt_extended import create_access_token
 
 from marshmallow import ValidationError
 
@@ -9,6 +10,8 @@ from extensions.database import db
 
 from schemas.user import user_schema
 from models.user import User
+
+from utils.password import check_password
 
 auth_routes = Blueprint('author_routes', __name__)
 
@@ -33,3 +36,23 @@ def signup():
     db.session.commit()
 
     return user_schema.dump(user), HTTPStatus.CREATED
+
+
+@auth_routes.route('/login', methods=['POST'])
+def login():
+    json_data = request.get_json()
+    
+    username = json_data['username']
+    password = json_data['password']
+
+    user = User.query.filter_by(username=username).first()
+
+    if not user:
+        return {'message': 'Incorrect username'}, HTTPStatus.UNAUTHORIZED
+    
+    if not check_password(password, user.password):
+        return {'message': 'Incorrect password'}, HTTPStatus.UNAUTHORIZED
+    
+    access_token = create_access_token(identity=user.id)
+    
+    return {'access_token': access_token}, HTTPStatus.OK
