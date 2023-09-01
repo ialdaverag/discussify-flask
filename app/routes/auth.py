@@ -15,7 +15,7 @@ from models.user import User
 
 from utils.password import check_password
 
-auth_routes = Blueprint('author_routes', __name__)
+auth_routes = Blueprint('auth_routes', __name__)
 
 black_list = set()
 
