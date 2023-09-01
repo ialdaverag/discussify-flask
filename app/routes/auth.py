@@ -3,6 +3,8 @@ from http import HTTPStatus
 from flask import Blueprint
 from flask import request
 from flask_jwt_extended import create_access_token
+from flask_jwt_extended import jwt_required
+from flask_jwt_extended import get_jwt
 
 from marshmallow import ValidationError
 
@@ -14,6 +16,8 @@ from models.user import User
 from utils.password import check_password
 
 auth_routes = Blueprint('author_routes', __name__)
+
+black_list = set()
 
 
 @auth_routes.route('/signup', methods=['POST'])
@@ -56,3 +60,12 @@ def login():
     access_token = create_access_token(identity=user.id)
     
     return {'access_token': access_token}, HTTPStatus.OK
+
+
+@auth_routes.route('/logout', methods=['POST'])
+@jwt_required()
+def logout():
+    jti = get_jwt()["jti"]
+    black_list.add(jti)
+
+    return {'message': 'Successfully logged out'}, HTTPStatus.OK
