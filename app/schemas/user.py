@@ -44,3 +44,4 @@ class UserSchema(Schema):
     
 
 user_schema = UserSchema()
+users_schema = UserSchema(many=True)

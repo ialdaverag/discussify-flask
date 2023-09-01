@@ -5,7 +5,7 @@ from flask_jwt_extended import jwt_required
 
 from models.user import User
 from schemas.user import user_schema
-
+from schemas.user import users_schema
 
 user_routes = Blueprint('user_routes', __name__)
 
@@ -19,3 +19,11 @@ def read_user(username):
         return {'message': 'User not found'}, HTTPStatus.NOT_FOUND
 
     return user_schema.dump(user), HTTPStatus.OK
+
+
+@user_routes.route('/', methods=['GET'])
+@jwt_required(optional=True)
+def read_users():
+    users = User.query.all()
+
+    return users_schema.dump(users), HTTPStatus.OK
