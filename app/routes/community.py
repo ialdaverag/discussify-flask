@@ -39,3 +39,14 @@ def create_community():
     db.session.commit()
 
     return community_schema.dump(community), HTTPStatus.CREATED
+
+
+@community_routes.route('/<string:name>', methods=['GET'])
+@jwt_required(optional=True)
+def read_community(name):
+    community = Community.query.filter_by(name=name).first()
+
+    if not community:
+        return {'message': 'Community not found'}, HTTPStatus.NOT_FOUND
+    
+    return community_schema.dump(community), HTTPStatus.OK
