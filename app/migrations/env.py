@@ -40,6 +40,7 @@ config.set_main_option('sqlalchemy.url', get_engine_url())
 target_db = current_app.extensions['migrate'].db
 
 from models.user import User
+from models.community import Community
 
 # other values from the config, defined by the needs of env.py,
 # can be acquired:

@@ -1,0 +1,31 @@
+from marshmallow import Schema
+from marshmallow import fields
+from marshmallow import validate
+
+from schemas.user import UserSchema
+
+
+class CommunitySchema(Schema):
+    class Meta:
+        ordered = True
+
+    id = fields.Integer()
+    name = fields.Str(
+        required=True,
+        validate=[
+            validate.Length(min=3, max=20, error='name must be between 3 and 20 characters'),
+            validate.Regexp(
+                r'^[a-zA-Z0-9_]*$', 
+                error='name must consist of letters, numbers, and underscores only')
+        ]
+    )
+    about = fields.Str(
+        validate=validate.Length(max=1000, error='maximum 1000 characters')
+    )
+    created_at = fields.DateTime(dump_only=True)
+    updated_at = fields.DateTime(dump_only=True)
+
+    owner = fields.Nested(UserSchema, attribute='owner')
+
+
+community_schema = CommunitySchema()

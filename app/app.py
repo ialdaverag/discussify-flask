@@ -9,6 +9,7 @@ from extensions.jwt import jwt
 from routes.auth import black_list
 from routes.auth import auth_routes
 from routes.user import user_routes
+from routes.community import community_routes
 
 
 def create_app():
@@ -40,3 +41,4 @@ def register_extensions(app):
 def register_blueprints(app):
     app.register_blueprint(auth_routes, url_prefix='/auth')
     app.register_blueprint(user_routes, url_prefix='/user')
+    app.register_blueprint(community_routes, url_prefix='/community')
