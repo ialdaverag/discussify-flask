@@ -9,8 +9,9 @@ from marshmallow import ValidationError
 
 from extensions.database import db
 
-from schemas.community import community_schema
 from models.community import Community
+from schemas.community import community_schema
+from schemas.community import communities_schema
 
 community_routes = Blueprint('community_routes', __name__)
 
@@ -50,3 +51,11 @@ def read_community(name):
         return {'message': 'Community not found'}, HTTPStatus.NOT_FOUND
     
     return community_schema.dump(community), HTTPStatus.OK
+
+
+@community_routes.route('/', methods=['GET'])
+@jwt_required(optional=True)
+def read_communities():
+    communities = Community.query.all()
+
+    return communities_schema.dump(communities), HTTPStatus.OK

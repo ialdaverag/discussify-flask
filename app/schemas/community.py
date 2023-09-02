@@ -29,3 +29,4 @@ class CommunitySchema(Schema):
 
 
 community_schema = CommunitySchema()
+communities_schema = CommunitySchema(many=True)
