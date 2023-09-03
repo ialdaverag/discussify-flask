@@ -94,3 +94,27 @@ def read_subscribers(name):
         return {'message': 'Community not found'}, HTTPStatus.NOT_FOUND
 
     return users_schema.dump(community.subscribers), HTTPStatus.OK
+
+
+@community_routes.route('/<string:name>/unsubscribe', methods=['POST'])
+@jwt_required()
+def unsubscribe(name):
+    community = Community.query.filter_by(name=name).first()
+
+    if not community:
+        return {'message': 'Community not found'}, HTTPStatus.NOT_FOUND
+    
+    current_user = get_jwt_identity()
+
+    if current_user == community.user_id:
+        return {'message': 'User is the owner of this community and cannot unsubscribe'}, HTTPStatus.BAD_REQUEST
+    
+    current_user = User.query.get(current_user)
+
+    if current_user not in community.subscribers:
+        return {'message': 'User is not subscribed to this community'}, HTTPStatus.BAD_REQUEST
+    
+    community.subscribers.remove(current_user)
+    db.session.commit()
+
+    return {}, HTTPStatus.NO_CONTENT
