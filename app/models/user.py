@@ -1,6 +1,7 @@
 from extensions.database import db
 
 from models.community import Community
+from models.community import community_subscribers
 
 
 class User(db.Model):
@@ -13,3 +14,5 @@ class User(db.Model):
     updated_at = db.Column(db.DateTime, default=db.func.now(), onupdate=db.func.now())
 
     communities = db.relationship('Community', backref='owner', lazy='dynamic')
+
+    #subscriptions = db.relationship('User', secondary=community_subscribers, backref='subscribers')

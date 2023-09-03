@@ -1,6 +1,13 @@
 from extensions.database import db
 
 
+community_subscribers = db.Table(
+    'community_subscribers',
+    db.Column('user_id', db.Integer, db.ForeignKey('users.id')),
+    db.Column('community_id', db.Integer, db.ForeignKey('communities.id'))
+)
+
+
 class Community(db.Model):
     __tablename__ = 'communities'
 
@@ -11,3 +18,5 @@ class Community(db.Model):
     updated_at = db.Column(db.DateTime, default=db.func.now(), onupdate=db.func.now())
 
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+
+    subscribers = db.relationship('User', secondary=community_subscribers, backref='subscriptions')

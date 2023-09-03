@@ -10,6 +10,8 @@ from marshmallow import ValidationError
 from extensions.database import db
 
 from models.community import Community
+from models.user import User
+
 from schemas.community import community_schema
 from schemas.community import communities_schema
 
@@ -32,9 +34,10 @@ def create_community():
         return {'message': 'Name already used'}, HTTPStatus.BAD_REQUEST
     
     current_user = get_jwt_identity()
-    
-    community = Community(**data)
-    community.user_id = current_user
+    current_user = User.query.get(current_user)
+
+    community = Community(**data, user_id=current_user.id)
+    community.subscribers.append(current_user)
 
     db.session.add(community)
     db.session.commit()
@@ -59,3 +62,23 @@ def read_communities():
     communities = Community.query.all()
 
     return communities_schema.dump(communities), HTTPStatus.OK
+
+
+@community_routes.route('/<string:name>/subscribe', methods=['POST'])
+@jwt_required()
+def subscribe(name):
+    community = Community.query.filter_by(name=name).first()
+
+    if not community:
+        return {'message': 'Community not found'}, HTTPStatus.NOT_FOUND
+    
+    current_user = get_jwt_identity()
+    current_user = User.query.get(current_user)
+
+    if current_user in community.subscribers:
+        return {'message': 'User is already subscribed to this community'}, HTTPStatus.BAD_REQUEST
+
+    community.subscribers.append(current_user)
+    db.session.commit()
+
+    return {}, HTTPStatus.CREATED
