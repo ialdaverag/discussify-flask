@@ -14,6 +14,7 @@ from models.user import User
 
 from schemas.community import community_schema
 from schemas.community import communities_schema
+from schemas.user import users_schema
 
 community_routes = Blueprint('community_routes', __name__)
 
@@ -81,4 +82,15 @@ def subscribe(name):
     community.subscribers.append(current_user)
     db.session.commit()
 
-    return {}, HTTPStatus.CREATED
+    return {}, HTTPStatus.NO_CONTENT
+
+
+@community_routes.route('/<string:name>/subscribers', methods=['GET'])
+@jwt_required(optional=True)
+def read_subscribers(name):
+    community = Community.query.filter_by(name=name).first()
+
+    if not community:
+        return {'message': 'Community not found'}, HTTPStatus.NOT_FOUND
+
+    return users_schema.dump(community.subscribers), HTTPStatus.OK
