@@ -39,6 +39,7 @@ def create_community():
 
     community = Community(**data, user_id=current_user.id)
     community.subscribers.append(current_user)
+    community.moderators.append(current_user)
 
     db.session.add(community)
     db.session.commit()
@@ -114,7 +115,41 @@ def unsubscribe(name):
     if current_user not in community.subscribers:
         return {'message': 'User is not subscribed to this community'}, HTTPStatus.BAD_REQUEST
     
+    if current_user in community.moderators:
+        community.moderators.remove(current_user)
+    
     community.subscribers.remove(current_user)
+    db.session.commit()
+
+    return {}, HTTPStatus.NO_CONTENT
+
+
+@community_routes.route('/<string:name>/mod/<string:username>', methods=['POST'])
+@jwt_required()
+def mod(name, username):
+    community = Community.query.filter_by(name=name).first()
+
+    if not community:
+        return {'message': 'Community not found'}, HTTPStatus.NOT_FOUND
+    
+    current_user = get_jwt_identity()
+    current_user = User.query.get(current_user)
+
+    if current_user not in community.subscribers:
+        return {'message': 'Current user is not a moderator of this community'}, HTTPStatus.UNAUTHORIZED
+    
+    user = User.query.filter_by(username=username).first()
+
+    if not user:
+        return {'message': 'User not found'}, HTTPStatus.NOT_FOUND
+    
+    if user not in community.subscribers:
+        return {'message': 'User is not subscribed to this community'}, HTTPStatus.BAD_REQUEST
+
+    if user in community.moderators:
+        return {'message': 'User is already a moderator of this community'}, HTTPStatus.BAD_REQUEST
+    
+    community.moderators.append(user)
     db.session.commit()
 
     return {}, HTTPStatus.NO_CONTENT

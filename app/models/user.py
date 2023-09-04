@@ -2,6 +2,7 @@ from extensions.database import db
 
 from models.community import Community
 from models.community import community_subscribers
+from models.community import community_moderators
 
 
 class User(db.Model):
@@ -15,4 +16,5 @@ class User(db.Model):
 
     communities = db.relationship('Community', backref='owner', lazy='dynamic')
 
-    #subscriptions = db.relationship('User', secondary=community_subscribers, backref='subscribers')
+    #subscriptions = db.relationship('Community', secondary=community_subscribers, backref='subscribers')
+    #moderations = db.relationship('Community', secondary=community_moderators, backref='moderators')
