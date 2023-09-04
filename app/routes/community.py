@@ -164,3 +164,35 @@ def read_moderators(name):
         return {'message': 'Community not found'}, HTTPStatus.NOT_FOUND
 
     return users_schema.dump(community.moderators), HTTPStatus.OK
+
+
+@community_routes.route('/<string:name>/unmod/<string:username>', methods=['POST'])
+@jwt_required()
+def unmod(name, username):
+    community = Community.query.filter_by(name=name).first()
+
+    if not community:
+        return {'message': 'Community not found'}, HTTPStatus.NOT_FOUND
+    
+    current_user = get_jwt_identity()
+
+    if current_user == community.user_id:
+        return {'message': 'Current user is the owner of this community and cannot unmod'}, HTTPStatus.BAD_REQUEST
+    
+    current_user = User.query.get(current_user)
+
+    if current_user not in community.moderators:
+        return {'message': 'Current user is not a moderator of this community'}, HTTPStatus.UNAUTHORIZED
+    
+    user = User.query.filter_by(username=username).first()
+
+    if not user:
+        return {'message': 'User not found'}, HTTPStatus.NOT_FOUND
+    
+    if user not in community.moderators:
+        return {'message': 'User is not a moderator of this community'}, HTTPStatus.BAD_REQUEST
+    
+    community.moderators.remove(user)
+    db.session.commit()
+
+    return {}, HTTPStatus.NO_CONTENT
