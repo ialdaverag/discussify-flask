@@ -135,7 +135,7 @@ def mod(name, username):
     current_user = get_jwt_identity()
     current_user = User.query.get(current_user)
 
-    if current_user not in community.subscribers:
+    if current_user not in community.moderators:
         return {'message': 'Current user is not a moderator of this community'}, HTTPStatus.UNAUTHORIZED
     
     user = User.query.filter_by(username=username).first()
@@ -153,3 +153,14 @@ def mod(name, username):
     db.session.commit()
 
     return {}, HTTPStatus.NO_CONTENT
+
+
+@community_routes.route('/<string:name>/moderators', methods=['GET'])
+@jwt_required(optional=True)
+def read_moderators(name):
+    community = Community.query.filter_by(name=name).first()
+
+    if not community:
+        return {'message': 'Community not found'}, HTTPStatus.NOT_FOUND
+
+    return users_schema.dump(community.moderators), HTTPStatus.OK
