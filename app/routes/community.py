@@ -186,6 +186,9 @@ def unmod(name, username):
     
     user = User.query.filter_by(username=username).first()
 
+    if user.id == community.user_id:
+        return {'message': 'User is the owner of this community'}, HTTPStatus.BAD_REQUEST
+
     if not user:
         return {'message': 'User not found'}, HTTPStatus.NOT_FOUND
     
@@ -237,3 +240,14 @@ def ban(name, username):
     db.session.commit()
 
     return {}, HTTPStatus.NO_CONTENT
+
+
+@community_routes.route('/<string:name>/banned', methods=['GET'])
+@jwt_required(optional=True)
+def read_banned(name):
+    community = Community.query.filter_by(name=name).first()
+
+    if not community:
+        return {'message': 'Community not found'}, HTTPStatus.NOT_FOUND
+
+    return users_schema.dump(community.banned), HTTPStatus.OK
