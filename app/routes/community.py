@@ -251,3 +251,33 @@ def read_banned(name):
         return {'message': 'Community not found'}, HTTPStatus.NOT_FOUND
 
     return users_schema.dump(community.banned), HTTPStatus.OK
+
+
+@community_routes.route('/<string:name>/unban/<string:username>', methods=['POST'])
+@jwt_required()
+def unban(name, username):
+    community = Community.query.filter_by(name=name).first()
+
+    if not community:
+        return {'message': 'Community not found'}, HTTPStatus.NOT_FOUND
+    
+    current_user = get_jwt_identity()
+    current_user = User.query.get(current_user)
+
+    if current_user not in community.moderators:
+        return {'message': 'Current user is not a moderator of this community'}, HTTPStatus.UNAUTHORIZED
+    
+    user = User.query.filter_by(username=username).first()
+
+    if not user:
+        return {'message': 'User not found'}, HTTPStatus.NOT_FOUND
+    
+    if user not in community.banned:
+        return {'message': 'The user is not banned from this community.'}, HTTPStatus.BAD_REQUEST
+    
+    community.banned.remove(user)
+    community.subscribers.append(user)
+
+    db.session.commit()
+
+    return {}, HTTPStatus.NO_CONTENT
