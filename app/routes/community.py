@@ -196,3 +196,44 @@ def unmod(name, username):
     db.session.commit()
 
     return {}, HTTPStatus.NO_CONTENT
+
+
+@community_routes.route('/<string:name>/ban/<string:username>', methods=['POST'])
+@jwt_required()
+def ban(name, username):
+    community = Community.query.filter_by(name=name).first()
+
+    if not community:
+        return {'message': 'Community not found'}, HTTPStatus.NOT_FOUND
+    
+    current_user = get_jwt_identity()
+    current_user = User.query.get(current_user)
+
+    if current_user not in community.moderators:
+        return {'message': 'Current user is not a moderator of this community'}, HTTPStatus.UNAUTHORIZED
+    
+    user = User.query.filter_by(username=username).first()
+
+    if current_user is user:
+        return {'message': 'User cannot ban themselves'}, HTTPStatus.BAD_REQUEST
+    
+    if not user:
+        return {'message': 'User not found'}, HTTPStatus.NOT_FOUND
+    
+    if user.id == community.user_id:
+        return {'message': 'User is the owner of this community'}, HTTPStatus.BAD_REQUEST
+    
+    if user in community.banned:
+        return {'message': 'User is already banned from this community'}, HTTPStatus.BAD_REQUEST
+    
+    if user not in community.subscribers:
+        return {'message': 'User is not subscribed to this community'}, HTTPStatus.BAD_REQUEST
+    
+    if user in community.moderators:
+        community.moderators.remove(user)
+    
+    community.subscribers.remove(user)
+    community.banned.append(user)
+    db.session.commit()
+
+    return {}, HTTPStatus.NO_CONTENT

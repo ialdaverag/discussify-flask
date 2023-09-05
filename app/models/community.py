@@ -12,6 +12,12 @@ community_moderators = db.Table(
     db.Column('community_id', db.Integer, db.ForeignKey('communities.id'))
 )
 
+community_bans = db.Table(
+    'community_bans',
+    db.Column('user_id', db.Integer, db.ForeignKey('users.id')),
+    db.Column('community_id', db.Integer, db.ForeignKey('communities.id'))
+)
+
 
 class Community(db.Model):
     __tablename__ = 'communities'
@@ -26,3 +32,4 @@ class Community(db.Model):
 
     subscribers = db.relationship('User', secondary=community_subscribers, backref='subscriptions')
     moderators = db.relationship('User', secondary=community_moderators, backref='moderations')
+    banned = db.relationship('User', secondary=community_bans, backref='bans')
