@@ -108,7 +108,7 @@ def unsubscribe(name):
     current_user = get_jwt_identity()
 
     if current_user == community.user_id:
-        return {'message': 'User is the owner of this community and cannot unsubscribe'}, HTTPStatus.BAD_REQUEST
+        return {'message': 'You are the owner of this community and cannot unsubscribe'}, HTTPStatus.BAD_REQUEST
     
     current_user = User.query.get(current_user)
 
@@ -136,7 +136,7 @@ def mod(name, username):
     current_user = User.query.get(current_user)
 
     if current_user not in community.moderators:
-        return {'message': 'Current user is not a moderator of this community'}, HTTPStatus.UNAUTHORIZED
+        return {'message': 'You are not a moderator of this community'}, HTTPStatus.UNAUTHORIZED
     
     user = User.query.filter_by(username=username).first()
 
@@ -177,12 +177,12 @@ def unmod(name, username):
     current_user = get_jwt_identity()
 
     if current_user == community.user_id:
-        return {'message': 'Current user is the owner of this community and cannot unmod'}, HTTPStatus.BAD_REQUEST
+        return {'message': 'You are the owner of this community and cannot unmod'}, HTTPStatus.BAD_REQUEST
     
     current_user = User.query.get(current_user)
 
     if current_user not in community.moderators:
-        return {'message': 'Current user is not a moderator of this community'}, HTTPStatus.UNAUTHORIZED
+        return {'message': 'You are not a moderator of this community'}, HTTPStatus.UNAUTHORIZED
     
     user = User.query.filter_by(username=username).first()
 
@@ -213,7 +213,7 @@ def ban(name, username):
     current_user = User.query.get(current_user)
 
     if current_user not in community.moderators:
-        return {'message': 'Current user is not a moderator of this community'}, HTTPStatus.UNAUTHORIZED
+        return {'message': 'You are not a moderator of this community'}, HTTPStatus.UNAUTHORIZED
     
     user = User.query.filter_by(username=username).first()
 
@@ -265,7 +265,7 @@ def unban(name, username):
     current_user = User.query.get(current_user)
 
     if current_user not in community.moderators:
-        return {'message': 'Current user is not a moderator of this community'}, HTTPStatus.UNAUTHORIZED
+        return {'message': 'You are not a moderator of this community'}, HTTPStatus.UNAUTHORIZED
     
     user = User.query.filter_by(username=username).first()
 
@@ -273,7 +273,7 @@ def unban(name, username):
         return {'message': 'User not found'}, HTTPStatus.NOT_FOUND
     
     if user not in community.banned:
-        return {'message': 'The user is not banned from this community.'}, HTTPStatus.BAD_REQUEST
+        return {'message': 'User is not banned from this community.'}, HTTPStatus.BAD_REQUEST
     
     community.banned.remove(user)
     community.subscribers.append(user)
@@ -294,7 +294,7 @@ def transfer(name, username):
     current_user = get_jwt_identity()
     
     if current_user != community.user_id:
-        return {'message': 'Current user is not the owner of this community'}, HTTPStatus.BAD_REQUEST
+        return {'message': 'You are not the owner of this community'}, HTTPStatus.BAD_REQUEST
     
     user = User.query.filter_by(username=username).first()
 
