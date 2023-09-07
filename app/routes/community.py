@@ -77,10 +77,11 @@ def subscribe(name):
     current_user = get_jwt_identity()
     current_user = User.query.get(current_user)
 
-    # What if target user is banned?
+    if current_user in community.banned:
+        return {'message': 'You are banned from this community'}, HTTPStatus.BAD_REQUEST
 
     if current_user in community.subscribers:
-        return {'message': 'User is already subscribed to this community'}, HTTPStatus.BAD_REQUEST
+        return {'message': 'You are already subscribed to this community'}, HTTPStatus.BAD_REQUEST
 
     community.subscribers.append(current_user)
     db.session.commit()
@@ -115,7 +116,7 @@ def unsubscribe(name):
     current_user = User.query.get(current_user)
 
     if current_user not in community.subscribers:
-        return {'message': 'User is not subscribed to this community'}, HTTPStatus.BAD_REQUEST
+        return {'message': 'You are not subscribed to this community'}, HTTPStatus.BAD_REQUEST
     
     if current_user in community.moderators:
         community.moderators.remove(current_user)
