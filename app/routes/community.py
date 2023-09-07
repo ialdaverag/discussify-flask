@@ -77,6 +77,8 @@ def subscribe(name):
     current_user = get_jwt_identity()
     current_user = User.query.get(current_user)
 
+    # What if target user is banned?
+
     if current_user in community.subscribers:
         return {'message': 'User is already subscribed to this community'}, HTTPStatus.BAD_REQUEST
 
@@ -143,6 +145,8 @@ def mod(name, username):
     if not user:
         return {'message': 'User not found'}, HTTPStatus.NOT_FOUND
     
+    # What if target user is banned?
+    
     if user not in community.subscribers:
         return {'message': 'User is not subscribed to this community'}, HTTPStatus.BAD_REQUEST
 
@@ -186,11 +190,11 @@ def unmod(name, username):
     
     user = User.query.filter_by(username=username).first()
 
-    if user.id == community.user_id:
-        return {'message': 'User is the owner of this community'}, HTTPStatus.BAD_REQUEST
-
     if not user:
         return {'message': 'User not found'}, HTTPStatus.NOT_FOUND
+
+    if user.id == community.user_id:
+        return {'message': 'User is the owner of this community'}, HTTPStatus.BAD_REQUEST
     
     if user not in community.moderators:
         return {'message': 'User is not a moderator of this community'}, HTTPStatus.BAD_REQUEST
@@ -223,11 +227,11 @@ def ban(name, username):
     if not user:
         return {'message': 'User not found'}, HTTPStatus.NOT_FOUND
     
-    if user.id == community.user_id:
-        return {'message': 'User is the owner of this community'}, HTTPStatus.BAD_REQUEST
-    
     if user in community.banned:
         return {'message': 'User is already banned from this community'}, HTTPStatus.BAD_REQUEST
+    
+    if user.id == community.user_id:
+        return {'message': 'User is the owner of this community'}, HTTPStatus.BAD_REQUEST
     
     if user not in community.subscribers:
         return {'message': 'User is not subscribed to this community'}, HTTPStatus.BAD_REQUEST

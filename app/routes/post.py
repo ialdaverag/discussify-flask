@@ -37,6 +37,12 @@ def create_post():
     current_user = get_jwt_identity()
     current_user = User.query.get(current_user)
 
+    if current_user in community.banned:
+        return {'message': 'You are banned from this community'}, HTTPStatus.BAD_REQUEST
+
+    if current_user not in community.subscriptors:
+        return {'message': 'You are not subscribed to this community'}, HTTPStatus.BAD_REQUEST
+
     post = Post(**data, user_id=current_user.id)
 
     db.session.add(post)
