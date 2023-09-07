@@ -147,6 +147,8 @@ def mod(name, username):
         return {'message': 'User not found'}, HTTPStatus.NOT_FOUND
     
     # What if target user is banned?
+    if user in community.banned:
+        return {'message': 'User is banned from this community'}, HTTPStatus.BAD_REQUEST
     
     if user not in community.subscribers:
         return {'message': 'User is not subscribed to this community'}, HTTPStatus.BAD_REQUEST
