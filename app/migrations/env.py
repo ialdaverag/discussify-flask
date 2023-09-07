@@ -41,6 +41,7 @@ target_db = current_app.extensions['migrate'].db
 
 from models.user import User
 from models.community import Community
+from models.post import Post
 
 # other values from the config, defined by the needs of env.py,
 # can be acquired:

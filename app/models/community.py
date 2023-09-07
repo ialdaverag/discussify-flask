@@ -33,3 +33,4 @@ class Community(db.Model):
     subscribers = db.relationship('User', secondary=community_subscribers, backref='subscriptions')
     moderators = db.relationship('User', secondary=community_moderators, backref='moderations')
     banned = db.relationship('User', secondary=community_bans, backref='bans')
+    posts = db.relationship('Post', backref='community', lazy='dynamic')

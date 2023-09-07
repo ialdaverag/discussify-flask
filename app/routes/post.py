@@ -1,0 +1,45 @@
+from http import HTTPStatus
+
+from flask import Blueprint
+from flask import request
+from flask_jwt_extended import jwt_required
+from flask_jwt_extended import get_jwt_identity
+
+from marshmallow import ValidationError
+
+from schemas.post import post_schema
+
+from extensions.database import db
+
+from models.community import Community
+from models.user import User
+from models.post import Post
+
+post_routes = Blueprint('post_routes', __name__)
+
+
+@post_routes.route('/', methods=['POST'])
+@jwt_required()
+def create_post():
+    json_data = request.get_json()
+
+    try:
+        data = post_schema.load(json_data)
+    except ValidationError as err:
+        return {'errors': err.messages}, HTTPStatus.BAD_REQUEST
+    
+    community_id = data['community_id']
+    community = Community.query.filter_by(id=community_id).first()
+
+    if not community:
+        return {'message': 'Community not found'}, HTTPStatus.NOT_FOUND
+    
+    current_user = get_jwt_identity()
+    current_user = User.query.get(current_user)
+
+    post = Post(**data, user_id=current_user.id)
+
+    db.session.add(post)
+    db.session.commit()
+
+    return post_schema.dump(post), HTTPStatus.CREATED
