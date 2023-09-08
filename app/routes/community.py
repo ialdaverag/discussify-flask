@@ -15,6 +15,7 @@ from models.user import User
 from schemas.community import community_schema
 from schemas.community import communities_schema
 from schemas.user import users_schema
+from schemas.post import posts_schema
 
 community_routes = Blueprint('community_routes', __name__)
 
@@ -312,3 +313,14 @@ def transfer(name, username):
     db.session.commit()
 
     return {}, HTTPStatus.NO_CONTENT
+
+
+@community_routes.route('/<string:name>/posts', methods=['GET'])
+@jwt_required(optional=True)
+def read_community_posts(name):
+    community = Community.query.filter_by(name=name).first()
+
+    if not community:
+        return {'message': 'Community not found'}, HTTPStatus.NOT_FOUND
+    
+    return posts_schema.dump(community.posts), HTTPStatus.OK

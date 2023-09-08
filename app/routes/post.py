@@ -69,11 +69,3 @@ def read_posts():
     posts = Post.query.all()
 
     return posts_schema.dump(posts), HTTPStatus.OK
-
-
-@post_routes.route('/', methods=['GET'])
-@jwt_required(optional=True)
-def read_posts():
-    posts = Post.query.all()
-
-    return posts_schema.dump(posts), HTTPStatus.OK
