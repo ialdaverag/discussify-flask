@@ -7,6 +7,7 @@ from models.user import User
 from schemas.user import user_schema
 from schemas.user import users_schema
 from schemas.community import communities_schema
+from schemas.post import posts_schema
 
 user_routes = Blueprint('user_routes', __name__)
 
@@ -39,3 +40,14 @@ def read_subscriptions(username):
         return {'message': 'User not found'}, HTTPStatus.NOT_FOUND
 
     return communities_schema.dump(user.subscriptions)
+
+
+@user_routes.route('/<string:username>/posts', methods=['GET'])
+@jwt_required(optional=True)
+def read_user_posts(username):
+    user = User.query.filter_by(username=username).first()
+
+    if not user:
+        return {'message': 'User not found'}, HTTPStatus.NOT_FOUND
+    
+    return posts_schema.dump(user.posts)
