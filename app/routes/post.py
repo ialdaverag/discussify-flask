@@ -8,6 +8,7 @@ from flask_jwt_extended import get_jwt_identity
 from marshmallow import ValidationError
 
 from schemas.post import post_schema
+from schemas.post import posts_schema
 
 from extensions.database import db
 
@@ -49,3 +50,14 @@ def create_post():
     db.session.commit()
 
     return post_schema.dump(post), HTTPStatus.CREATED
+
+
+@post_routes.route('/<int:id>', methods=['GET'])
+@jwt_required(optional=True)
+def read_post(id):
+    post = Post.query.get(id)
+
+    if not post:
+        return {'message': 'Post not found'}, HTTPStatus.NOT_FOUND
+
+    return post_schema.dump(post), HTTPStatus.OK
