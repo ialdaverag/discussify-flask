@@ -43,3 +43,4 @@ class PostSchema(Schema):
 
 
 post_schema = PostSchema()
+posts_schema = PostSchema(many=True)
