@@ -7,6 +7,17 @@ post_bookmarks = db.Table(
 )
 
 
+class PostVote(db.Model):
+    __tablename__ = 'post_votes'
+
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), primary_key=True)
+    post_id = db.Column(db.Integer, db.ForeignKey('posts.id'), primary_key=True)
+    direction = db.Column(db.Integer, nullable=False)
+
+    user = db.relationship('User', backref='votes')
+    post = db.relationship('Post', backref='votes')
+
+
 class Post(db.Model):
     __tablename__ = 'posts'
 
