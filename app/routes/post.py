@@ -89,3 +89,23 @@ def bookmark(id):
     db.session.commit()
 
     return {}, HTTPStatus.NO_CONTENT
+
+
+@post_routes.route('/<int:id>/unbookmark', methods=['POST'])
+@jwt_required()
+def unbookmark(id):
+    post = Post.query.get(id)
+
+    if not post:
+        return {'message': 'Post not found'}, HTTPStatus.NOT_FOUND
+    
+    current_user = get_jwt_identity()
+    current_user = User.query.get(current_user)
+
+    if post not in current_user.bookmarks:
+        return {'message': 'Post not bookmarked'}, HTTPStatus.BAD_REQUEST
+    
+    current_user.bookmarks.remove(post)
+    db.session.commit()
+    
+    return {}, HTTPStatus.NO_CONTENT
