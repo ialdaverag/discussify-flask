@@ -9,6 +9,7 @@ from marshmallow import ValidationError
 
 from schemas.post import post_schema
 from schemas.post import posts_schema
+from schemas.user import users_schema
 
 from extensions.database import db
 
@@ -134,3 +135,18 @@ def upvote(id):
     db.session.commit()
 
     return {}, HTTPStatus.NO_CONTENT
+
+
+@post_routes.route('/<int:id>/upvoters', methods=['GET'])
+@jwt_required(optional=True)
+def read_upvoters(id):
+    post = Post.query.get(id)
+
+    if not post:
+        return {'message': 'Post not found'}, HTTPStatus.NOT_FOUND
+    
+    upvotes = PostVote.query.filter_by(post_id=id, direction=1).all()
+
+    upvoters = [vote.user for vote in upvotes]
+
+    return users_schema.dump(upvoters), HTTPStatus.OK
