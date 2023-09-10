@@ -1,5 +1,11 @@
 from extensions.database import db
 
+post_bookmarks = db.Table(
+    'post_bookmarks',
+    db.Column('user_id', db.Integer, db.ForeignKey('users.id')),
+    db.Column('post_id', db.Integer, db.ForeignKey('posts.id'))
+)
+
 
 class Post(db.Model):
     __tablename__ = 'posts'
@@ -11,3 +17,5 @@ class Post(db.Model):
     community_id = db.Column(db.Integer, db.ForeignKey('communities.id'))
     created_at = db.Column(db.DateTime, default=db.func.now())
     updated_at = db.Column(db.DateTime, default=db.func.now(), onupdate=db.func.now())
+
+    bookmarkers = db.relationship('User', secondary=post_bookmarks, backref='bookmarks')

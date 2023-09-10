@@ -69,3 +69,23 @@ def read_posts():
     posts = Post.query.all()
 
     return posts_schema.dump(posts), HTTPStatus.OK
+
+
+@post_routes.route('/<int:id>/bookmark', methods=['POST'])
+@jwt_required()
+def bookmark(id):
+    post = Post.query.get(id)
+
+    if not post:
+        return {'message': 'Post not found'}, HTTPStatus.NOT_FOUND
+    
+    current_user = get_jwt_identity()
+    current_user = User.query.get(current_user)
+
+    if post in current_user.bookmarks:
+        return {'message': 'Post already bookmarked'}, HTTPStatus.BAD_REQUEST
+    
+    current_user.bookmarks.append(post)
+    db.session.commit()
+
+    return {}, HTTPStatus.NO_CONTENT
