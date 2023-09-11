@@ -127,6 +127,13 @@ def upvote(id):
     vote = PostVote.query.filter_by(user_id=current_user.id, post_id=post.id).first()
 
     if vote:
+        if vote.direction == -1:
+            vote.direction = 1
+
+            db.session.commit()
+
+            return {'message': 'Vote changed'}, HTTPStatus.NO_CONTENT
+
         return {'message': 'You have already upvoted this publication'}, HTTPStatus.NOT_FOUND
     
     vote = PostVote(user_id=current_user.id, post_id=post.id, direction=1)
@@ -150,3 +157,36 @@ def read_upvoters(id):
     upvoters = [vote.user for vote in upvotes]
 
     return users_schema.dump(upvoters), HTTPStatus.OK
+
+
+@post_routes.route('/<int:id>/downvote', methods=['POST'])
+@jwt_required()
+def downvote(id):
+    post = Post.query.get(id)
+
+    if not post:
+        return {'message': 'Post not found'}, HTTPStatus.NOT_FOUND
+    
+    current_user = get_jwt_identity()
+    current_user = User.query.get(current_user)
+
+    vote = PostVote.query.filter_by(user_id=current_user.id, post_id=post.id).first()
+
+    if vote:
+        if vote.direction == 1:
+            vote.direction = -1
+
+            print(vote.direction)
+
+            db.session.commit()
+
+            return {'message': 'Vote changed'}, HTTPStatus.NO_CONTENT
+        
+        return {'message': 'You have already upvoted this publication'}, HTTPStatus.NOT_FOUND
+    
+    vote = PostVote(user_id=current_user.id, post_id=post.id, direction=-1)
+
+    db.session.add(vote)
+    db.session.commit()
+
+    return {}, HTTPStatus.NO_CONTENT
