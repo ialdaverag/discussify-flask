@@ -113,7 +113,7 @@ def unbookmark(id):
     return {}, HTTPStatus.NO_CONTENT
 
 
-@post_routes.route('/<int:id>/upvote', methods=['POST'])
+@post_routes.route('/<int:id>/vote/up', methods=['POST'])
 @jwt_required()
 def upvote(id):
     post = Post.query.get(id)
@@ -159,7 +159,7 @@ def read_upvoters(id):
     return users_schema.dump(upvoters), HTTPStatus.OK
 
 
-@post_routes.route('/<int:id>/downvote', methods=['POST'])
+@post_routes.route('/<int:id>/vote/down', methods=['POST'])
 @jwt_required()
 def downvote(id):
     post = Post.query.get(id)
@@ -190,3 +190,18 @@ def downvote(id):
     db.session.commit()
 
     return {}, HTTPStatus.NO_CONTENT
+
+
+@post_routes.route('/<int:id>/downvoters', methods=['GET'])
+@jwt_required(optional=True)
+def read_downvoters(id):
+    post = Post.query.get(id)
+
+    if not post:
+        return {'message': 'Post not found'}, HTTPStatus.NOT_FOUND
+    
+    downvotes = PostVote.query.filter_by(post_id=id, direction=-1).all()
+
+    downvoters = [vote.user for vote in downvotes]
+
+    return users_schema.dump(downvoters), HTTPStatus.OK
