@@ -5,6 +5,7 @@ from flask_jwt_extended import jwt_required
 from flask_jwt_extended import get_jwt_identity
 
 from models.user import User
+from models.post import PostVote
 
 from schemas.user import user_schema
 from schemas.user import users_schema
@@ -62,3 +63,16 @@ def read_user_bookmarks():
     current_user = User.query.get(current_user)
 
     return posts_schema.dump(current_user.bookmarks)
+
+
+@user_routes.route('/posts/upvoted', methods=['GET'])
+@jwt_required()
+def read_user_upvoted_posts():
+    current_user = get_jwt_identity()
+    current_user = User.query.get(current_user)
+
+    upvotes = PostVote.query.filter_by(user_id=current_user.id, direction=1).all()
+
+    posts = [upvote.post for upvote in upvotes]
+
+    return posts_schema.dump(posts), HTTPStatus.OK
