@@ -76,3 +76,16 @@ def read_user_upvoted_posts():
     posts = [upvote.post for upvote in upvotes]
 
     return posts_schema.dump(posts), HTTPStatus.OK
+
+
+@user_routes.route('/posts/downvoted', methods=['GET'])
+@jwt_required()
+def read_user_downvoted_posts():
+    current_user = get_jwt_identity()
+    current_user = User.query.get(current_user)
+
+    downvotes = PostVote.query.filter_by(user_id=current_user.id, direction=-1).all()
+
+    posts = [downvote.post for downvote in downvotes]
+
+    return posts_schema.dump(posts), HTTPStatus.OK
