@@ -309,6 +309,12 @@ def transfer(name, username):
     if not user:
         return {'message': 'User not found'}, HTTPStatus.NOT_FOUND
     
+    if user not in community.subscribers:
+        return {'message': 'User is not subscribed to this community'}, HTTPStatus.BAD_REQUEST
+    
+    if user not in community.moderators:
+        community.moderators.append(user)
+    
     community.user_id = user.id
     db.session.commit()
 
