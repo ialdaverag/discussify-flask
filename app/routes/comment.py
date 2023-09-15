@@ -8,6 +8,7 @@ from flask_jwt_extended import get_jwt_identity
 from marshmallow import ValidationError
 
 from schemas.comment import comment_schema
+from schemas.comment import comments_schema
 
 from models.post import Post
 from models.user import User
@@ -75,3 +76,11 @@ def read_comment(id):
         return {'message': 'Comment not found'}, HTTPStatus.NOT_FOUND
     
     return comment_schema.dump(comment), HTTPStatus.OK
+
+
+@comment_routes.route('/', methods=['GET'])
+@jwt_required(optional=True)
+def read_comments():
+    comments = Comment.query.all()
+
+    return comments_schema.dump(comments), HTTPStatus.OK
