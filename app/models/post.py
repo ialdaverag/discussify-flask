@@ -1,5 +1,7 @@
 from extensions.database import db
 
+from models.comment import Comment
+
 post_bookmarks = db.Table(
     'post_bookmarks',
     db.Column('user_id', db.Integer, db.ForeignKey('users.id')),
@@ -30,3 +32,4 @@ class Post(db.Model):
     updated_at = db.Column(db.DateTime, default=db.func.now(), onupdate=db.func.now())
 
     bookmarkers = db.relationship('User', secondary=post_bookmarks, backref='bookmarks')
+    comments = db.relationship('Comment', backref='post', lazy='dynamic')

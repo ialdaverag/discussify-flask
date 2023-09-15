@@ -11,6 +11,7 @@ from routes.auth import auth_routes
 from routes.user import user_routes
 from routes.community import community_routes
 from routes.post import post_routes
+from routes.comment import comment_routes
 
 
 def create_app():
@@ -44,3 +45,4 @@ def register_blueprints(app):
     app.register_blueprint(user_routes, url_prefix='/user')
     app.register_blueprint(community_routes, url_prefix='/community')
     app.register_blueprint(post_routes, url_prefix='/post')
+    app.register_blueprint(comment_routes, url_prefix='/comment')

@@ -18,6 +18,7 @@ class User(db.Model):
 
     communities = db.relationship('Community', backref='owner', lazy='dynamic')
     posts = db.relationship('Post', backref='owner', lazy='dynamic')
+    comments = db.relationship('Comment', backref='owner', lazy='dynamic')
 
     #subscriptions = db.relationship('Community', secondary=community_subscribers, backref='subscribers')
     #moderations = db.relationship('Community', secondary=community_moderators, backref='moderators')
