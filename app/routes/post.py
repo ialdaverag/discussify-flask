@@ -237,6 +237,16 @@ def cancel(id):
     current_user = get_jwt_identity()
     current_user = User.query.get(current_user)
 
+    community_id = post.community_id
+    community = Community.query.get(community_id)
+
+    if current_user in community.banned:
+        return {'message': 'You are banned from this community'}, HTTPStatus.BAD_REQUEST
+
+    if current_user not in community.subscribers:
+        return {'message': 'You are not subscribed to this community'}, HTTPStatus.BAD_REQUEST
+
+
     vote = PostVote.query.filter_by(user_id=current_user.id, post_id=post.id).first()
 
     if vote:
