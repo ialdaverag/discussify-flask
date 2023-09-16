@@ -1,5 +1,11 @@
 from extensions.database import db
 
+comment_bookmarks = db.Table(
+    'comment_bookmarks',
+    db.Column('user_id', db.Integer, db.ForeignKey('users.id')),
+    db.Column('comment_id', db.Integer, db.ForeignKey('comments.id'))
+)
+
 
 class Comment(db.Model):
     __tablename__ = 'comments'
@@ -13,3 +19,4 @@ class Comment(db.Model):
     updated_at = db.Column(db.DateTime, default=db.func.now(), onupdate=db.func.now())
 
     replies = db.relationship('Comment', backref=db.backref('comment', remote_side=[id]), lazy='dynamic')
+    comment_bookmarkers = db.relationship('User', secondary=comment_bookmarks, backref='comment_bookmarks')

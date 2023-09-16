@@ -84,3 +84,23 @@ def read_comments():
     comments = Comment.query.all()
 
     return comments_schema.dump(comments), HTTPStatus.OK
+
+
+@comment_routes.route('/<int:id>/bookmark', methods=['POST'])
+@jwt_required()
+def bookmark_comment(id):
+    comment = Comment.query.get(id)
+
+    if not comment:
+        return {'message': 'Comment not found'}, HTTPStatus.NOT_FOUND
+    
+    current_user = get_jwt_identity()
+    current_user = User.query.get(current_user)
+
+    if comment in current_user.comment_bookmarks:
+        return {'message': 'Comment already bookmarked'}, HTTPStatus.BAD_REQUEST
+    
+    current_user.comment_bookmarks.append(comment)
+    db.session.commit()
+
+    return {}, HTTPStatus.NO_CONTENT
