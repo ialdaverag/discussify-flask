@@ -11,6 +11,7 @@ from schemas.user import user_schema
 from schemas.user import users_schema
 from schemas.community import communities_schema
 from schemas.post import posts_schema
+from schemas.comment import comments_schema
 
 user_routes = Blueprint('user_routes', __name__)
 
@@ -89,3 +90,14 @@ def read_user_downvoted_posts():
     posts = [downvote.post for downvote in downvotes]
 
     return posts_schema.dump(posts), HTTPStatus.OK
+
+
+@user_routes.route('/<string:username>/comments', methods=['GET'])
+@jwt_required(optional=True)
+def read_user_comments(username):
+    user = User.query.filter_by(username=username).first()
+
+    if not user:
+        return {'message': 'User not found'}, HTTPStatus.NOT_FOUND
+    
+    return comments_schema.dump(user.comments)
