@@ -229,6 +229,21 @@ def downvote_comment(id):
     return {}, HTTPStatus.NO_CONTENT
 
 
+@comment_routes.route('/<int:id>/downvoters', methods=['GET'])
+@jwt_required(optional=True)
+def read_comment_downvoters(id):
+    comment = Comment.query.get(id)
+
+    if not comment:
+        return {'message': 'Comment not found'}, HTTPStatus.NOT_FOUND
+    
+    downvotes = CommentVote.query.filter_by(comment_id=id, direction=-1).all()
+
+    downvoters = [vote.user for vote in downvotes]
+
+    return users_schema.dump(downvoters), HTTPStatus.OK
+
+
 @comment_routes.route('/<int:id>/vote/cancel', methods=['POST'])
 @jwt_required()
 def cancel_comment_vote(id):
