@@ -7,6 +7,17 @@ comment_bookmarks = db.Table(
 )
 
 
+class CommentVote(db.Model):
+    __tablename__ = 'comment_votes'
+
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), primary_key=True)
+    comment_id = db.Column(db.Integer, db.ForeignKey('comments.id'), primary_key=True)
+    direction = db.Column(db.Integer, nullable=False)
+
+    user = db.relationship('User', backref='comment_votes')
+    comment = db.relationship('Comment', backref='comment_votes')
+
+
 class Comment(db.Model):
     __tablename__ = 'comments'
 

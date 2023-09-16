@@ -14,6 +14,7 @@ from models.post import Post
 from models.user import User
 from models.community import Community
 from models.comment import Comment
+from models.comment import CommentVote
 
 from extensions.database import db
 
@@ -121,6 +122,49 @@ def unbookmark_comment(id):
         return {'message': 'Comment not bookmarked'}, HTTPStatus.BAD_REQUEST
     
     current_user.comment_bookmarks.remove(comment)
+    db.session.commit()
+
+    return {}, HTTPStatus.NO_CONTENT
+
+
+@comment_routes.route('/<int:id>/vote/up', methods=['POST'])
+@jwt_required()
+def upvote_comment(id):
+    comment = Comment.query.get(id)
+
+    if not comment:
+        return {'message': 'Comment not found'}, HTTPStatus.NOT_FOUND
+    
+    current_user = get_jwt_identity()
+    current_user = User.query.get(current_user)
+
+    post_id = comment.post_id
+    post = Post.query.get(post_id)
+
+    community_id = post.community_id
+    community = Community.query.get(community_id)
+
+    if current_user in community.banned:
+        return {'message': 'You are banned from this community'}, HTTPStatus.BAD_REQUEST
+
+    if current_user not in community.subscribers:
+        return {'message': 'You are not subscribed to this community'}, HTTPStatus.BAD_REQUEST
+    
+    vote = CommentVote.query.filter_by(user_id=current_user.id, comment_id=comment.id).first()
+
+    if vote:
+        if vote.direction == -1 or vote.direction == 0:
+            vote.direction = 1
+
+            db.session.commit()
+
+            return {'message': 'Vote changed'}, HTTPStatus.NO_CONTENT
+
+        return {'message': 'You have already upvoted this comment'}, HTTPStatus.BAD_REQUEST
+    
+    vote = CommentVote(user_id=current_user.id, comment_id=comment.id, direction=1)
+
+    db.session.add(vote)
     db.session.commit()
 
     return {}, HTTPStatus.NO_CONTENT
