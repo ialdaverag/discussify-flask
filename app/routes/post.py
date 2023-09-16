@@ -10,6 +10,7 @@ from marshmallow import ValidationError
 from schemas.post import post_schema
 from schemas.post import posts_schema
 from schemas.user import users_schema
+from schemas.comment import comments_schema
 
 from extensions.database import db
 
@@ -258,3 +259,14 @@ def cancel(id):
         return {}, HTTPStatus.NO_CONTENT
 
     return {'message': 'You have not voted this post'}, HTTPStatus.BAD_REQUEST
+
+
+@post_routes.route('/<int:id>/comments', methods=['GET'])
+@jwt_required(optional=True)
+def read_post_comments(id):
+    post = Post.query.get(id)
+
+    if not post:
+        return {'message': 'Post not found'}, HTTPStatus.NOT_FOUND
+    
+    return comments_schema.dump(post.comments)
