@@ -188,7 +188,6 @@ def downvote(id):
     if current_user not in community.subscribers:
         return {'message': 'You are not subscribed to this community'}, HTTPStatus.BAD_REQUEST
 
-
     vote = PostVote.query.filter_by(user_id=current_user.id, post_id=post.id).first()
 
     if vote:
@@ -245,7 +244,6 @@ def cancel(id):
 
     if current_user not in community.subscribers:
         return {'message': 'You are not subscribed to this community'}, HTTPStatus.BAD_REQUEST
-
 
     vote = PostVote.query.filter_by(user_id=current_user.id, post_id=post.id).first()
 
