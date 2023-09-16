@@ -9,6 +9,7 @@ from marshmallow import ValidationError
 
 from schemas.comment import comment_schema
 from schemas.comment import comments_schema
+from schemas.user import users_schema
 
 from models.post import Post
 from models.user import User
@@ -168,6 +169,21 @@ def upvote_comment(id):
     db.session.commit()
 
     return {}, HTTPStatus.NO_CONTENT
+
+
+@comment_routes.route('/<int:id>/upvoters', methods=['GET'])
+@jwt_required(optional=True)
+def read_comment_upvoters(id):
+    comment = Comment.query.get(id)
+
+    if not comment:
+        return {'message': 'Comment not found'}, HTTPStatus.NOT_FOUND
+    
+    upvotes = CommentVote.query.filter_by(comment_id=id, direction=1).all()
+
+    upvoters = [vote.user for vote in upvotes]
+
+    return users_schema.dump(upvoters), HTTPStatus.OK
 
 
 @comment_routes.route('/<int:id>/vote/down', methods=['POST'])
