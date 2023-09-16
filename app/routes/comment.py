@@ -104,3 +104,23 @@ def bookmark_comment(id):
     db.session.commit()
 
     return {}, HTTPStatus.NO_CONTENT
+
+
+@comment_routes.route('/<int:id>/unbookmark', methods=['POST'])
+@jwt_required()
+def unbookmark_comment(id):
+    comment = Comment.query.get(id)
+
+    if not comment:
+        return {'message': 'Comment not found'}, HTTPStatus.NOT_FOUND
+    
+    current_user = get_jwt_identity()
+    current_user = User.query.get(current_user)
+
+    if comment not in current_user.comment_bookmarks:
+        return {'message': 'Comment not bookmarked'}, HTTPStatus.BAD_REQUEST
+    
+    current_user.comment_bookmarks.remove(comment)
+    db.session.commit()
+
+    return {}, HTTPStatus.NO_CONTENT
