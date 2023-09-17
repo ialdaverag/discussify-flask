@@ -58,7 +58,7 @@ def read_user_posts(username):
     return posts_schema.dump(user.posts)
 
 
-@user_routes.route('/bookmarks', methods=['GET'])
+@user_routes.route('/posts/bookmarked', methods=['GET'])
 @jwt_required()
 def read_user_bookmarks():
     current_user = get_jwt_identity()
@@ -128,3 +128,12 @@ def read_user_downvoted_comments():
     comments = [downvote.comment for downvote in downvotes]
 
     return comments_schema.dump(comments), HTTPStatus.OK
+
+
+@user_routes.route('/comments/bookmarked', methods=['GET'])
+@jwt_required()
+def read_user_bookmarked_comments():
+    current_user = get_jwt_identity()
+    current_user = User.query.get(current_user)
+
+    return comments_schema.dump(current_user.comment_bookmarks)
