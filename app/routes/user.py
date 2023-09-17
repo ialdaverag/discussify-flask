@@ -6,6 +6,7 @@ from flask_jwt_extended import get_jwt_identity
 
 from models.user import User
 from models.post import PostVote
+from models.comment import CommentVote
 
 from schemas.user import user_schema
 from schemas.user import users_schema
@@ -101,3 +102,16 @@ def read_user_comments(username):
         return {'message': 'User not found'}, HTTPStatus.NOT_FOUND
     
     return comments_schema.dump(user.comments)
+
+
+@user_routes.route('/comments/upvoted', methods=['GET'])
+@jwt_required()
+def read_user_upvoted_comments():
+    current_user = get_jwt_identity()
+    current_user = User.query.get(current_user)
+
+    upvotes = CommentVote.query.filter_by(user_id=current_user.id, direction=1).all()
+
+    comments = [upvote.comment for upvote in upvotes]
+
+    return comments_schema.dump(comments), HTTPStatus.OK
