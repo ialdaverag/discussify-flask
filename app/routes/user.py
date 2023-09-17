@@ -115,3 +115,16 @@ def read_user_upvoted_comments():
     comments = [upvote.comment for upvote in upvotes]
 
     return comments_schema.dump(comments), HTTPStatus.OK
+
+
+@user_routes.route('/comments/downvoted', methods=['GET'])
+@jwt_required()
+def read_user_downvoted_comments():
+    current_user = get_jwt_identity()
+    current_user = User.query.get(current_user)
+
+    downvotes = CommentVote.query.filter_by(user_id=current_user.id, direction=-1).all()
+
+    comments = [downvote.comment for downvote in downvotes]
+
+    return comments_schema.dump(comments), HTTPStatus.OK
