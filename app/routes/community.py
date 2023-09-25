@@ -14,7 +14,6 @@ from models.user import User
 
 from schemas.community import community_schema
 from schemas.community import communities_schema
-from schemas.community import community_schema_patch
 from schemas.user import users_schema
 from schemas.post import posts_schema
 
