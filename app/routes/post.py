@@ -9,7 +9,6 @@ from marshmallow import ValidationError
 
 from schemas.post import post_schema
 from schemas.post import posts_schema
-from schemas.post import post_schema_patch
 from schemas.user import users_schema
 from schemas.comment import comments_schema
 
@@ -92,7 +91,7 @@ def update_post(id):
     json_data = request.get_json()
 
     try:
-        data = post_schema_patch.load(json_data)
+        data = post_schema.load(json_data, partial=('title', 'content'))
     except ValidationError as err:
         return {'errors': err.messages}, HTTPStatus.BAD_REQUEST
     
