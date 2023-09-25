@@ -44,3 +44,4 @@ class PostSchema(Schema):
 
 post_schema = PostSchema()
 posts_schema = PostSchema(many=True)
+post_schema_patch = PostSchema(only=('title', 'content'))

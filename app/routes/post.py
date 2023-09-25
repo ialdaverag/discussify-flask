@@ -9,6 +9,7 @@ from marshmallow import ValidationError
 
 from schemas.post import post_schema
 from schemas.post import posts_schema
+from schemas.post import post_schema_patch
 from schemas.user import users_schema
 from schemas.comment import comments_schema
 
@@ -72,6 +73,35 @@ def read_posts():
     posts = Post.query.all()
 
     return posts_schema.dump(posts), HTTPStatus.OK
+
+
+@post_routes.route('/<int:id>', methods=['PATCH'])
+@jwt_required(optional=True)
+def update_post(id):
+    post = Post.query.get(id)
+
+    if not post:
+        return {'message': 'Post not found'}, HTTPStatus.NOT_FOUND
+    
+    current_user = get_jwt_identity()
+    current_user = User.query.get(current_user)
+
+    if current_user.id != post.user_id:
+        return {'message': 'Access is not allowed'}, HTTPStatus.FORBIDDEN
+    
+    json_data = request.get_json()
+
+    try:
+        data = post_schema_patch.load(json_data)
+    except ValidationError as err:
+        return {'errors': err.messages}, HTTPStatus.BAD_REQUEST
+    
+    post.title = data.get('title') or post.title
+    post.content = data.get('content') or post.content
+
+    db.session.commit()
+
+    return post_schema.dump(post), HTTPStatus.OK
 
 
 @post_routes.route('/<int:id>/bookmark', methods=['POST'])

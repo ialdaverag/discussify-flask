@@ -90,7 +90,7 @@ def read_comments():
 
 
 @comment_routes.route('/<string:id>', methods=['PATCH'])
-@jwt_required(optional=True)
+@jwt_required()
 def update_comment(id):
     comment = Comment.query.get(id)
 
