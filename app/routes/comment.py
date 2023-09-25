@@ -114,6 +114,26 @@ def update_comment(id):
     db.session.commit()
 
     return comment_schema.dump(comment), HTTPStatus.OK
+
+
+@comment_routes.route('/<string:id>', methods=['DELETE'])
+@jwt_required()
+def delete_comment(id):
+    comment = Comment.query.get(id)
+
+    if not comment:
+        return {'message': 'Comment not found'}, HTTPStatus.NOT_FOUND
+    
+    current_user = get_jwt_identity()
+    current_user = User.query.get(current_user)
+
+    if current_user.id != comment.user_id:
+        return {'message': 'Access is not allowed'}, HTTPStatus.FORBIDDEN
+    
+    db.session.delete(comment)
+    db.session.commit()
+
+    return {}, HTTPStatus.NO_CONTENT
     
 
 @comment_routes.route('/<int:id>/bookmark', methods=['POST'])

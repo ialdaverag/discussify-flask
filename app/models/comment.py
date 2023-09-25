@@ -15,7 +15,7 @@ class CommentVote(db.Model):
     direction = db.Column(db.Integer, nullable=False)
 
     user = db.relationship('User', backref='comment_votes')
-    comment = db.relationship('Comment', backref='comment_votes')
+    #comment = db.relationship('Comment', backref='comment_votes')
 
 
 class Comment(db.Model):
@@ -31,3 +31,4 @@ class Comment(db.Model):
 
     replies = db.relationship('Comment', backref=db.backref('comment', remote_side=[id]), lazy='dynamic')
     comment_bookmarkers = db.relationship('User', secondary=comment_bookmarks, backref='comment_bookmarks')
+    comment_votes = db.relationship('CommentVote', cascade='all, delete', backref='comment')
