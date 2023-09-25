@@ -30,3 +30,4 @@ class CommunitySchema(Schema):
 
 community_schema = CommunitySchema()
 communities_schema = CommunitySchema(many=True)
+community_schema_patch = CommunitySchema(only=('name', 'about'))

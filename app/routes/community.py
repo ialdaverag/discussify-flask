@@ -14,6 +14,7 @@ from models.user import User
 
 from schemas.community import community_schema
 from schemas.community import communities_schema
+from schemas.community import community_schema_patch
 from schemas.user import users_schema
 from schemas.post import posts_schema
 
@@ -65,6 +66,45 @@ def read_communities():
     communities = Community.query.all()
 
     return communities_schema.dump(communities), HTTPStatus.OK
+
+
+@community_routes.route('/<string:name>', methods=['PATCH'])
+@jwt_required()
+def update_community(name):
+    community = Community.query.filter_by(name=name).first()
+
+    if not community:
+        return {'message': 'Community not found'}, HTTPStatus.NOT_FOUND
+    
+    current_user = get_jwt_identity()
+    current_user = User.query.get(current_user)
+
+    if current_user.id != community.user_id:
+        return {'message': 'Access is not allowed'}, HTTPStatus.FORBIDDEN
+    
+    json_data = request.get_json()
+
+    try:
+        data = community_schema.load(json_data, partial=('name',))
+    except ValidationError as err:
+        return {'errors': err.messages}, HTTPStatus.BAD_REQUEST
+    
+    new_name = data.get('name')
+
+    if new_name is not None:
+        existing_community = Community.query.filter_by(name=new_name).first()
+        
+        if existing_community and existing_community != community:
+            return {'message': 'Name already used'}, HTTPStatus.BAD_REQUEST
+        
+        community.name = new_name
+
+    community.about = data.get('about') or community.about
+
+    db.session.commit()
+    
+    return community_schema.dump(community), HTTPStatus.OK
+
 
 
 @community_routes.route('/<string:name>/subscribe', methods=['POST'])
