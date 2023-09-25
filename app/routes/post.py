@@ -91,7 +91,7 @@ def update_post(id):
     json_data = request.get_json()
 
     try:
-        data = post_schema.load(json_data, partial=('title', 'content'))
+        data = post_schema.load(json_data, partial=('title', 'content', 'community_id'))
     except ValidationError as err:
         return {'errors': err.messages}, HTTPStatus.BAD_REQUEST
     
