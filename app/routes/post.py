@@ -75,7 +75,7 @@ def read_posts():
 
 
 @post_routes.route('/<int:id>', methods=['PATCH'])
-@jwt_required(optional=True)
+@jwt_required()
 def update_post(id):
     post = Post.query.get(id)
 
@@ -101,6 +101,26 @@ def update_post(id):
     db.session.commit()
 
     return post_schema.dump(post), HTTPStatus.OK
+
+
+@post_routes.route('/<int:id>', methods=['DELETE'])
+@jwt_required()
+def delete_post(id):
+    post = Post.query.get(id)
+
+    if not post:
+        return {'message': 'Post not found'}, HTTPStatus.NOT_FOUND
+    
+    current_user = get_jwt_identity()
+    current_user = User.query.get(current_user)
+
+    if current_user.id != post.user_id:
+        return {'message': 'Access is not allowed'}, HTTPStatus.FORBIDDEN
+    
+    db.session.delete(post)
+    db.session.commit()
+
+    return {}, HTTPStatus.NO_CONTENT
 
 
 @post_routes.route('/<int:id>/bookmark', methods=['POST'])

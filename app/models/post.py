@@ -17,7 +17,7 @@ class PostVote(db.Model):
     direction = db.Column(db.Integer, nullable=False)
 
     user = db.relationship('User', backref='votes')
-    post = db.relationship('Post', backref='votes')
+    #post = db.relationship('Post', backref='votes')
 
 
 class Post(db.Model):
@@ -32,4 +32,5 @@ class Post(db.Model):
     updated_at = db.Column(db.DateTime, default=db.func.now(), onupdate=db.func.now())
 
     bookmarkers = db.relationship('User', secondary=post_bookmarks, backref='bookmarks')
-    comments = db.relationship('Comment', backref='post', lazy='dynamic')
+    comments = db.relationship('Comment', cascade='all, delete', backref='post', lazy='dynamic')
+    post_votes = db.relationship('PostVote', cascade='all, delete', backref='post')
