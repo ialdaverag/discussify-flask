@@ -105,6 +105,25 @@ def update_community(name):
     return community_schema.dump(community), HTTPStatus.OK
 
 
+@community_routes.route('/<string:name>', methods=['DELETE'])
+@jwt_required()
+def delete_community(name):
+    community = Community.query.filter_by(name=name).first()
+
+    if not community:
+        return {'message': 'Community not found'}, HTTPStatus.NOT_FOUND
+    
+    current_user = get_jwt_identity()
+    current_user = User.query.get(current_user)
+
+    if current_user.id != community.user_id:
+        return {'message': 'Access is not allowed'}, HTTPStatus.FORBIDDEN
+    
+    db.session.delete(community)
+    db.session.commit()
+
+    return {}, HTTPStatus.NO_CONTENT
+
 
 @community_routes.route('/<string:name>/subscribe', methods=['POST'])
 @jwt_required()
