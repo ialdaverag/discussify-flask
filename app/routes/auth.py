@@ -108,4 +108,4 @@ def confirm_email(token):
     
     db.session.commit()
 
-    return {'message': 'email confirmed'}, HTTPStatus.OK
+    return {'message': 'Email confirmed'}, HTTPStatus.OK
