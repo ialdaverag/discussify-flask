@@ -39,6 +39,11 @@ def signup():
     if user:
         return {'message': 'Username already used'}, HTTPStatus.BAD_REQUEST
     
+    email = User.query.filter_by(email=data['email']).first()
+
+    if email:
+        return {'message': 'Email already in use'}, HTTPStatus.BAD_REQUEST
+    
     user = User(**data)
 
     token = generate_verification_token(user.email, salt='activate')
