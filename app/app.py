@@ -5,6 +5,7 @@ from config.config import Config
 
 from extensions.database import db
 from extensions.jwt import jwt
+from extensions.email import mail
 
 from routes.auth import black_list
 from routes.auth import auth_routes
@@ -32,6 +33,7 @@ def register_extensions(app):
     db.init_app(app)
     migrate = Migrate(app, db)
     jwt.init_app(app)
+    mail.init_app(app)
 
     @jwt.token_in_blocklist_loader
     def check_if_token_in_blacklist(jwt_header, jwt_payload):

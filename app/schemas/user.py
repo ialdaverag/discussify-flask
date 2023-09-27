@@ -20,6 +20,7 @@ class UserSchema(Schema):
                 error='username must consist of letters, numbers, and underscores only')
         ]
     )
+    email = fields.Email(required=True)
     password = fields.Str(
         required=True,
         load_only=True,

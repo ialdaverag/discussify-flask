@@ -2,6 +2,8 @@ from http import HTTPStatus
 
 from flask import Blueprint
 from flask import request
+from flask import render_template
+from flask import url_for
 from flask_jwt_extended import create_access_token
 from flask_jwt_extended import jwt_required
 from flask_jwt_extended import get_jwt
@@ -14,6 +16,9 @@ from schemas.user import user_schema
 from models.user import User
 
 from utils.password import check_password
+from utils.email import send_email
+from utils.token import generate_verification_token
+from utils.token import confirm_verification_token
 
 auth_routes = Blueprint('auth_routes', __name__)
 
@@ -35,6 +40,16 @@ def signup():
         return {'message': 'Username already used'}, HTTPStatus.BAD_REQUEST
     
     user = User(**data)
+
+    token = generate_verification_token(user.email, salt='activate')
+    subject = 'Please confirm your registration'
+    link = url_for('auth_routes.confirm_email', token=token, _external=True)
+
+    send_email(
+        to=user.email, 
+        subject=subject, 
+        template=render_template('email/confirmation.html', link=link)
+    )
     
     db.session.add(user)
     db.session.commit()
@@ -57,6 +72,9 @@ def login():
     if not check_password(password, user.password):
         return {'message': 'Incorrect password'}, HTTPStatus.UNAUTHORIZED
     
+    if user.is_verified is False:
+            return {'message': 'The user account is not activated yet'}, HTTPStatus.FORBIDDEN
+    
     access_token = create_access_token(identity=user.id)
     
     return {'access_token': access_token}, HTTPStatus.OK
@@ -69,3 +87,25 @@ def logout():
     black_list.add(jti)
 
     return {'message': 'Successfully logged out'}, HTTPStatus.OK
+
+
+@auth_routes.route('/email/confirm/<string:token>', methods=['GET'])
+def confirm_email(token):
+    email = confirm_verification_token(token, salt="activate")
+
+    if email is False:
+            return {'message': 'Invalid token or token expired'}, HTTPStatus.BAD_REQUEST
+    
+    user = User.query.filter_by(email=email).first()
+
+    if not user:
+        return {'message': 'User not found'}, HTTPStatus.NOT_FOUND
+
+    if user.is_verified is True:
+        return {'message': 'The user account is already activated'}, HTTPStatus.BAD_REQUEST
+    
+    user.is_verified = True
+    
+    db.session.commit()
+
+    return {'message': 'email confirmed'}, HTTPStatus.OK
