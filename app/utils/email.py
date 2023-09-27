@@ -6,15 +6,18 @@ from flask_mail import Message
 from extensions.email import mail
 
 
-def send_email_async(to, subject, template):
-    msg = Message(subject, 
-                  recipients=[to], 
-                  html=template, 
-                  sender=('Discussify', 'api.discussify@gmail.com'))
-    
-    mail.send(msg)
-
+def send_async_email(app, msg):
+    with app.app_context():
+        mail.send(msg)
 
 def send_email(to, subject, template):
-    email_thread = Thread(target=send_email_async, args=(to, subject, template))
-    email_thread.start()
+    app = current_app._get_current_object()
+    
+    msg = Message(
+        subject, 
+        recipients=[to], 
+        html=template, 
+        sender=('Discussify', 'api.discussify@gmail.com')
+    )
+
+    Thread(target=send_async_email, args=(app, msg)).start()

@@ -42,7 +42,7 @@ def signup():
     email = User.query.filter_by(email=data['email']).first()
 
     if email:
-        return {'message': 'Email already in use'}, HTTPStatus.BAD_REQUEST
+        return {'message': 'Email already used'}, HTTPStatus.BAD_REQUEST
     
     user = User(**data)
 
