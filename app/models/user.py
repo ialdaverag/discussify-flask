@@ -6,6 +6,12 @@ from models.community import community_moderators
 
 from models.post import Post
 
+follows = db.Table(
+    'follows',
+    db.Column('follower_id', db.Integer, db.ForeignKey('users.id')),
+    db.Column('followed_id', db.Integer, db.ForeignKey('users.id'))
+)
+
 
 class User(db.Model):
     __tablename__ = 'users'
@@ -21,6 +27,14 @@ class User(db.Model):
     communities = db.relationship('Community', backref='owner', lazy='dynamic')
     posts = db.relationship('Post', backref='owner', lazy='dynamic')
     comments = db.relationship('Comment', backref='owner', lazy='dynamic')
+    followed = db.relationship(
+        'User',
+        secondary=follows,
+        primaryjoin=(follows.c.follower_id == id),
+        secondaryjoin=(follows.c.followed_id == id),
+        backref=db.backref('followers', lazy='dynamic'),
+        lazy='dynamic'
+    )
 
     #subscriptions = db.relationship('Community', secondary=community_subscribers, backref='subscribers')
     #moderations = db.relationship('Community', secondary=community_moderators, backref='moderators')
