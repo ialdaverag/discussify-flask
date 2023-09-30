@@ -84,6 +84,17 @@ def unfollow_user(username):
     return {'message': 'You are no longer following this user'}, HTTPStatus.CREATED
 
 
+@user_routes.route('/<string:username>/following', methods=['GET'])
+@jwt_required(optional=True)
+def read_following(username):
+    user = User.query.filter_by(username=username).first()
+
+    if not user:
+        return {'message': 'User not found'}, HTTPStatus.NOT_FOUND
+    
+    return users_schema.dump(user.followed)
+
+
 @user_routes.route('/<string:username>/subscriptions', methods=['GET'])
 @jwt_required(optional=True)
 def read_subscriptions(username):
