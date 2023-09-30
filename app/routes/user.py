@@ -61,6 +61,29 @@ def follow_user(username):
     return {'message': 'You are now following the user'}, HTTPStatus.CREATED
 
 
+@user_routes.route('/<string:username>/unfollow', methods=['POST'])
+@jwt_required()
+def unfollow_user(username):
+    user_to_unfollow = User.query.filter_by(username=username).first()
+
+    if not user_to_unfollow:
+        return {'message': 'User to unfollow not found'}, HTTPStatus.NOT_FOUND
+    
+    current_user = get_jwt_identity()
+    current_user = User.query.get(current_user)
+
+    if user_to_unfollow == current_user:
+        return {'message': 'You cannot unfollow yourself'}, HTTPStatus.BAD_REQUEST
+    
+    if user_to_unfollow not in current_user.followed:
+            return {'message': 'You are not following this user'}, HTTPStatus.BAD_REQUEST
+    
+    current_user.followed.remove(user_to_unfollow)
+    db.session.commit()
+    
+    return {'message': 'You are no longer following this user'}, HTTPStatus.CREATED
+
+
 @user_routes.route('/<string:username>/subscriptions', methods=['GET'])
 @jwt_required(optional=True)
 def read_subscriptions(username):
