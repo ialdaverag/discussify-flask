@@ -1,4 +1,4 @@
-from extensions.database import db
+from app.extensions.database import db
 
 community_subscribers = db.Table(
     'community_subscribers',

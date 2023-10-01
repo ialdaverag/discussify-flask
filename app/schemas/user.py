@@ -3,7 +3,7 @@ from marshmallow import fields
 from marshmallow import validate
 from marshmallow import post_load
 
-from utils.password import hash_password
+from app.utils.password import hash_password
 
 
 class UserSchema(Schema):

@@ -2,7 +2,7 @@ from marshmallow import Schema
 from marshmallow import fields
 from marshmallow import validate
 
-from schemas.user import UserSchema
+from app.schemas.user import UserSchema
 
 
 class CommunitySchema(Schema):

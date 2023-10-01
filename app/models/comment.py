@@ -1,4 +1,4 @@
-from extensions.database import db
+from app.extensions.database import db
 
 comment_bookmarks = db.Table(
     'comment_bookmarks',

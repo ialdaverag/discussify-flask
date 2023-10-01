@@ -1,8 +1,8 @@
 from marshmallow import Schema
 from marshmallow import fields
 
-from schemas.user import UserSchema
-from schemas.post import PostSchema
+from app.schemas.user import UserSchema
+from app.schemas.post import PostSchema
 
 
 class CommentSchema(Schema):

@@ -2,8 +2,8 @@ from marshmallow import Schema
 from marshmallow import fields
 from marshmallow import validate
 
-from schemas.user import UserSchema
-from schemas.community import CommunitySchema
+from app.schemas.user import UserSchema
+from app.schemas.community import CommunitySchema
 
 
 class PostSchema(Schema):

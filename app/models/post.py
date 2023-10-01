@@ -1,6 +1,6 @@
-from extensions.database import db
+from app.extensions.database import db
 
-from models.comment import Comment
+from app.models.comment import Comment
 
 post_bookmarks = db.Table(
     'post_bookmarks',

@@ -1,0 +1,2 @@
+FLASK_APP=discussify.py
+FLASK_DEBUG=1

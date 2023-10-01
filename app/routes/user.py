@@ -4,17 +4,17 @@ from flask import Blueprint
 from flask_jwt_extended import jwt_required
 from flask_jwt_extended import get_jwt_identity
 
-from extensions.database import db
+from app.extensions.database import db
 
-from models.user import User
-from models.post import PostVote
-from models.comment import CommentVote
+from app.models.user import User
+from app.models.post import PostVote
+from app.models.comment import CommentVote
 
-from schemas.user import user_schema
-from schemas.user import users_schema
-from schemas.community import communities_schema
-from schemas.post import posts_schema
-from schemas.comment import comments_schema
+from app.schemas.user import user_schema
+from app.schemas.user import users_schema
+from app.schemas.community import communities_schema
+from app.schemas.post import posts_schema
+from app.schemas.comment import comments_schema
 
 user_routes = Blueprint('user_routes', __name__)
 

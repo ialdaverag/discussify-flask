@@ -39,10 +39,10 @@ def get_engine_url():
 config.set_main_option('sqlalchemy.url', get_engine_url())
 target_db = current_app.extensions['migrate'].db
 
-from models.user import User
-from models.community import Community
-from models.post import Post
-from models.comment import Comment
+from app.models.user import User
+from app.models.community import Community
+from app.models.post import Post
+from app.models.comment import Comment
 
 # other values from the config, defined by the needs of env.py,
 # can be acquired:

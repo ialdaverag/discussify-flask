@@ -7,17 +7,17 @@ from flask_jwt_extended import get_jwt_identity
 
 from marshmallow import ValidationError
 
-from schemas.comment import comment_schema
-from schemas.comment import comments_schema
-from schemas.user import users_schema
+from app.schemas.comment import comment_schema
+from app.schemas.comment import comments_schema
+from app.schemas.user import users_schema
 
-from models.post import Post
-from models.user import User
-from models.community import Community
-from models.comment import Comment
-from models.comment import CommentVote
+from app.models.post import Post
+from app.models.user import User
+from app.models.community import Community
+from app.models.comment import Comment
+from app.models.comment import CommentVote
 
-from extensions.database import db
+from app.extensions.database import db
 
 comment_routes = Blueprint('comment_routes', __name__)
 

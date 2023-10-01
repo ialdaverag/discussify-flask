@@ -3,12 +3,13 @@ from threading import Thread
 from flask import current_app
 from flask_mail import Message
 
-from extensions.email import mail
+from app.extensions.email import mail
 
 
 def send_async_email(app, msg):
     with app.app_context():
         mail.send(msg)
+
 
 def send_email(to, subject, template):
     app = current_app._get_current_object()

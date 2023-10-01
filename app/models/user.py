@@ -1,10 +1,10 @@
-from extensions.database import db
+from app.extensions.database import db
 
-from models.community import Community
-from models.community import community_subscribers
-from models.community import community_moderators
+from app.models.community import Community
+from app.models.community import community_subscribers
+from app.models.community import community_moderators
 
-from models.post import Post
+from app.models.post import Post
 
 follows = db.Table(
     'follows',

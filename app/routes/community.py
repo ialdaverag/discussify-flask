@@ -7,15 +7,15 @@ from flask_jwt_extended import get_jwt_identity
 
 from marshmallow import ValidationError
 
-from extensions.database import db
+from app.extensions.database import db
 
-from models.community import Community
-from models.user import User
+from app.models.community import Community
+from app.models.user import User
 
-from schemas.community import community_schema
-from schemas.community import communities_schema
-from schemas.user import users_schema
-from schemas.post import posts_schema
+from app.schemas.community import community_schema
+from app.schemas.community import communities_schema
+from app.schemas.user import users_schema
+from app.schemas.post import posts_schema
 
 community_routes = Blueprint('community_routes', __name__)
 

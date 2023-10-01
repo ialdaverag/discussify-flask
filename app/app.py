@@ -1,18 +1,18 @@
 from flask import Flask
 from flask_migrate import Migrate
 
-from config.config import Config
+from app.config.config import Config
 
-from extensions.database import db
-from extensions.jwt import jwt
-from extensions.email import mail
+from app.extensions.database import db
+from app.extensions.jwt import jwt
+from app.extensions.email import mail
 
-from routes.auth import black_list
-from routes.auth import auth_routes
-from routes.user import user_routes
-from routes.community import community_routes
-from routes.post import post_routes
-from routes.comment import comment_routes
+from app.routes.auth import black_list
+from app.routes.auth import auth_routes
+from app.routes.user import user_routes
+from app.routes.community import community_routes
+from app.routes.post import post_routes
+from app.routes.comment import comment_routes
 
 
 def create_app():

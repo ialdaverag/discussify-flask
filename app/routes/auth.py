@@ -10,15 +10,15 @@ from flask_jwt_extended import get_jwt
 
 from marshmallow import ValidationError
 
-from extensions.database import db
+from app.extensions.database import db
 
-from schemas.user import user_schema
-from models.user import User
+from app.schemas.user import user_schema
+from app.models.user import User
 
-from utils.password import check_password
-from utils.email import send_email
-from utils.token import generate_verification_token
-from utils.token import confirm_verification_token
+from app.utils.password import check_password
+from app.utils.email import send_email
+from app.utils.token import generate_verification_token
+from app.utils.token import confirm_verification_token
 
 auth_routes = Blueprint('auth_routes', __name__)
 
