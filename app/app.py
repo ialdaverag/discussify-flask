@@ -1,7 +1,7 @@
 from flask import Flask
 from flask_migrate import Migrate
 
-from app.config.config import Config
+from app.config.development import DevelopmentConfig
 
 from app.extensions.database import db
 from app.extensions.jwt import jwt
@@ -15,18 +15,14 @@ from app.routes.post import post_routes
 from app.routes.comment import comment_routes
 
 
-def create_app():
+def create_app(config_class=DevelopmentConfig):
     app = Flask(__name__)
+    app.config.from_object(config_class)
 
-    config_app(app)
     register_extensions(app)
     register_blueprints(app)
 
     return app
-
-
-def config_app(app):
-    app.config.from_object(Config)
 
 
 def register_extensions(app):
