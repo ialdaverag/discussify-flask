@@ -22,10 +22,9 @@ class CommunitySchema(Schema):
     about = fields.Str(
         validate=validate.Length(max=1000, error='maximum 1000 characters')
     )
+    owner = fields.Nested(UserSchema, attribute='owner')
     created_at = fields.DateTime(dump_only=True)
     updated_at = fields.DateTime(dump_only=True)
-
-    owner = fields.Nested(UserSchema, attribute='owner')
 
 
 community_schema = CommunitySchema()
