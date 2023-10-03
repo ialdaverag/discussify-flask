@@ -16,14 +16,14 @@ class PostSchema(Schema):
         validate=validate.Length(
             min=3, 
             max=70, 
-            error=''
+            error='title must be between 8 and 40 characters'
         )
     )
     content = fields.Str(
         required=True, 
         validate=validate.Length(
             min=1, 
-            error=''
+            error='content must contain at least 1 character'
         )
     )
     community_id = fields.Integer(
