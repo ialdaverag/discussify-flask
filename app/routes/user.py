@@ -38,6 +38,17 @@ def read_users():
     return users_schema.dump(users), HTTPStatus.OK
 
 
+@user_routes.route('/<string:username>/available', methods=['GET'])
+@jwt_required()
+def is_username_available(username):
+    user = User.query.filter_by(username=username).first()
+
+    if user:
+        return {'message': False}, HTTPStatus.OK
+
+    return {'message': True}, HTTPStatus.OK
+
+
 @user_routes.route('/<string:username>/follow', methods=['POST'])
 @jwt_required()
 def follow_user(username):
