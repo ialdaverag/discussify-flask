@@ -18,7 +18,8 @@ class UserSchema(Schema):
             validate.Regexp(
                 r'^[a-zA-Z0-9_]*$', 
                 error='username must consist of letters, numbers, and underscores only')
-        ]
+        ],
+        #error_messages={'required': 'Please provide a name.'}
     )
     email = fields.Email(required=True)
     password = fields.Str(
