@@ -65,6 +65,12 @@ def signup():
 @auth_routes.route('/login', methods=['POST'])
 def login():
     json_data = request.get_json()
+
+    if 'username' not in json_data:
+        return {'message': 'Username required'}, HTTPStatus.BAD_REQUEST
+
+    if 'password' not in json_data:
+        return {'message': 'Password required'}, HTTPStatus.BAD_REQUEST
     
     username = json_data['username']
     password = json_data['password']
