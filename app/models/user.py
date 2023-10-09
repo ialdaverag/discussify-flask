@@ -36,5 +36,10 @@ class User(db.Model):
         lazy='dynamic'
     )
 
-    #subscriptions = db.relationship('Community', secondary=community_subscribers, backref='subscribers')
-    #moderations = db.relationship('Community', secondary=community_moderators, backref='moderators')
+    @staticmethod
+    def is_username_available(username):
+        return User.query.filter_by(username=username).first() is None
+    
+    @staticmethod
+    def is_email_available(email):
+        return User.query.filter_by(email=email).first() is None

@@ -34,14 +34,14 @@ def signup():
     except ValidationError as err:
         return {'errors': err.messages}, HTTPStatus.BAD_REQUEST
     
-    user = User.query.filter_by(username=data['username']).first()
+    user = User.is_username_available(data['username'])
 
-    if user:
+    if not user:
         return {'message': 'Username already used'}, HTTPStatus.BAD_REQUEST
     
-    email = User.query.filter_by(email=data['email']).first()
+    email = User.is_email_available(data['email'])
 
-    if email:
+    if not email:
         return {'message': 'Email already used'}, HTTPStatus.BAD_REQUEST
     
     user = User(**data)
