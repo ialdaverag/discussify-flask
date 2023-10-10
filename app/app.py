@@ -17,10 +17,14 @@ from app.routes.comment import comment_routes
 from app.errors.user import UserNotFoundError
 from app.errors.user import UserSelfFollowError
 from app.errors.user import UserAlreadyFollowedError
+from app.errors.user import UserSelfUnfollowError
+from app.errors.user import UserNotFollowedError
 
 from app.handlers.errors import handler_user_not_found
 from app.handlers.errors import handler_user_self_follow
 from app.handlers.errors import handler_user_already_followed
+from app.handlers.errors import handler_user_self_unfollow
+from app.handlers.errors import handler_user_not_followed
 
 
 def create_app(config_class=DevelopmentConfig):
@@ -59,3 +63,5 @@ def register_handlers(app):
     app.register_error_handler(UserNotFoundError, handler_user_not_found)
     app.register_error_handler(UserSelfFollowError, handler_user_self_follow)
     app.register_error_handler(UserAlreadyFollowedError, handler_user_already_followed)
+    app.register_error_handler(UserSelfUnfollowError, handler_user_self_unfollow)
+    app.register_error_handler(UserNotFollowedError, handler_user_not_followed)

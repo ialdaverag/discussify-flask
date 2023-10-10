@@ -8,6 +8,8 @@ from app.models.post import Post
 from app.errors.user import UserNotFoundError
 from app.errors.user import UserSelfFollowError
 from app.errors.user import UserAlreadyFollowedError
+from app.errors.user import UserSelfUnfollowError
+from app.errors.user import UserNotFollowedError
 
 follows = db.Table(
     'follows',
@@ -57,6 +59,15 @@ class User(db.Model):
         return user
     
     @classmethod
+    def get_by_id(cls, id):
+        user = User.query.get(id)
+
+        if user is None:
+            raise UserNotFoundError
+
+        return user
+    
+    @classmethod
     def get_all(cls):
         return User.query.all()
     
@@ -68,6 +79,16 @@ class User(db.Model):
             raise UserAlreadyFollowedError
         
         self.followed.append(other)
+        db.session.commit()
+
+    def unfollow(self, other):
+        if other is self:
+            raise UserSelfUnfollowError
+        
+        if not self.is_following(other):
+            raise UserNotFollowedError
+        
+        self.followed.remove(other)
         db.session.commit()
 
     def is_following(self, other):
