@@ -3,8 +3,9 @@ from app.extensions.database import db
 from app.models.community import Community
 from app.models.community import community_subscribers
 from app.models.community import community_moderators
-
 from app.models.post import Post
+
+from app.errors.user import UserNotFoundError
 
 follows = db.Table(
     'follows',
@@ -43,3 +44,12 @@ class User(db.Model):
     @staticmethod
     def is_email_available(email):
         return User.query.filter_by(email=email).first() is None
+    
+    @classmethod
+    def get_by_username(cls, username):
+        user = User.query.filter_by(username=username).first()
+
+        if user is None:
+            raise UserNotFoundError
+
+        return user

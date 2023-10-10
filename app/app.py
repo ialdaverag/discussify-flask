@@ -14,6 +14,10 @@ from app.routes.community import community_routes
 from app.routes.post import post_routes
 from app.routes.comment import comment_routes
 
+from app.errors.user import UserNotFoundError
+
+from app.handlers.errors import handler_user_not_found
+
 
 def create_app(config_class=DevelopmentConfig):
     app = Flask(__name__)
@@ -21,6 +25,7 @@ def create_app(config_class=DevelopmentConfig):
 
     register_extensions(app)
     register_blueprints(app)
+    register_handlers(app)
 
     return app
 
@@ -44,3 +49,7 @@ def register_blueprints(app):
     app.register_blueprint(community_routes, url_prefix='/community')
     app.register_blueprint(post_routes, url_prefix='/post')
     app.register_blueprint(comment_routes, url_prefix='/comment')
+
+
+def register_handlers(app):
+    app.register_error_handler(UserNotFoundError, handler_user_not_found)

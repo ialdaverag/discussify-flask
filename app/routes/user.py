@@ -22,10 +22,7 @@ user_routes = Blueprint('user_routes', __name__)
 @user_routes.route('/<string:username>', methods=['GET'])
 @jwt_required(optional=True)
 def read_user(username):
-    user = User.query.filter_by(username=username).first()
-
-    if not user:
-        return {'message': 'User not found'}, HTTPStatus.NOT_FOUND
+    user = User.get_by_username(username)
 
     return user_schema.dump(user), HTTPStatus.OK
 
