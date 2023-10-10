@@ -30,20 +30,10 @@ def create_community():
     except ValidationError as err:
         return {'errors': err.messages}, HTTPStatus.BAD_REQUEST
     
-    community = Community.query.filter_by(name=data['name']).first()
+    current_user_id = get_jwt_identity()
+    current_user = User.get_by_id(current_user_id)
 
-    if community:
-        return {'message': 'Name already used'}, HTTPStatus.BAD_REQUEST
-    
-    current_user = get_jwt_identity()
-    current_user = User.query.get(current_user)
-
-    community = Community(**data, user_id=current_user.id)
-    community.subscribers.append(current_user)
-    community.moderators.append(current_user)
-
-    db.session.add(community)
-    db.session.commit()
+    community = current_user.create_community(**data)
 
     return community_schema.dump(community), HTTPStatus.CREATED
 
@@ -70,10 +60,7 @@ def read_communities():
 @community_routes.route('/<string:name>', methods=['PATCH'])
 @jwt_required()
 def update_community(name):
-    community = Community.query.filter_by(name=name).first()
-
-    if not community:
-        return {'message': 'Community not found'}, HTTPStatus.NOT_FOUND
+    community = Community.get_by_name(name=name)
     
     current_user = get_jwt_identity()
     current_user = User.query.get(current_user)

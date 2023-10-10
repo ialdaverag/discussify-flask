@@ -19,3 +19,7 @@ def handler_user_self_unfollow(error):
 
 def handler_user_not_followed(error):
     return {'message': 'You are not following this user'}, HTTPStatus.BAD_REQUEST
+
+
+def handler_community_name_already_exists(error):
+    return {'message': 'Name already used'}, HTTPStatus.BAD_REQUEST

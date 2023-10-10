@@ -1,0 +1,2 @@
+class CommunityNameAlreadyUsedError(Exception):
+    pass

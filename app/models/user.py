@@ -10,6 +10,7 @@ from app.errors.user import UserSelfFollowError
 from app.errors.user import UserAlreadyFollowedError
 from app.errors.user import UserSelfUnfollowError
 from app.errors.user import UserNotFollowedError
+from app.errors.community import CommunityNameAlreadyUsedError
 
 follows = db.Table(
     'follows',
@@ -93,3 +94,18 @@ class User(db.Model):
 
     def is_following(self, other):
         return other in self.followed
+    
+    def create_community(self, name, about = ''):
+        name_available = Community.is_name_available(name)
+
+        if not name_available:
+            raise CommunityNameAlreadyUsedError
+
+        community = Community(name=name, about=about, owner=self)
+        community.subscribers.append(self)
+        community.moderators.append(self)
+
+        db.session.add(community)
+        db.session.commit()
+
+        return community
