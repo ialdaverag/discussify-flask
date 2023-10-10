@@ -49,22 +49,12 @@ def is_username_available(username):
 @user_routes.route('/<string:username>/follow', methods=['POST'])
 @jwt_required()
 def follow_user(username):
-    user_to_follow = User.query.filter_by(username=username).first()
+    user_to_follow = User.get_by_username(username=username)
+    
+    current_user_id = get_jwt_identity()
+    current_user = User.query.get(current_user_id)
 
-    if not user_to_follow:
-        return {'message': 'User to follow not found'}, HTTPStatus.NOT_FOUND
-    
-    current_user = get_jwt_identity()
-    current_user = User.query.get(current_user)
-
-    if user_to_follow == current_user:
-        return {'message': 'You cannot follow yourself'}, HTTPStatus.BAD_REQUEST
-    
-    if user_to_follow in current_user.followed:
-            return {'message': 'You are already following this user'}, HTTPStatus.BAD_REQUEST
-    
-    current_user.followed.append(user_to_follow)
-    db.session.commit()
+    current_user.follow(user_to_follow)
     
     return {'message': 'You are now following the user'}, HTTPStatus.CREATED
 

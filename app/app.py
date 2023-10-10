@@ -15,8 +15,12 @@ from app.routes.post import post_routes
 from app.routes.comment import comment_routes
 
 from app.errors.user import UserNotFoundError
+from app.errors.user import UserSelfFollowError
+from app.errors.user import UserAlreadyFollowedError
 
 from app.handlers.errors import handler_user_not_found
+from app.handlers.errors import handler_user_self_follow
+from app.handlers.errors import handler_user_already_followed
 
 
 def create_app(config_class=DevelopmentConfig):
@@ -53,3 +57,5 @@ def register_blueprints(app):
 
 def register_handlers(app):
     app.register_error_handler(UserNotFoundError, handler_user_not_found)
+    app.register_error_handler(UserSelfFollowError, handler_user_self_follow)
+    app.register_error_handler(UserAlreadyFollowedError, handler_user_already_followed)
