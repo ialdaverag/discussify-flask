@@ -30,8 +30,8 @@ def read_user(username):
 @user_routes.route('/', methods=['GET'])
 @jwt_required(optional=True)
 def read_users():
-    users = User.query.all()
-
+    users = User.get_all()
+    
     return users_schema.dump(users), HTTPStatus.OK
 
 

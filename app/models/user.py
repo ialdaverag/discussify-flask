@@ -53,3 +53,7 @@ class User(db.Model):
             raise UserNotFoundError
 
         return user
+    
+    @classmethod
+    def get_all(cls):
+        return User.query.all()
