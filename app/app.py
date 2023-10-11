@@ -14,29 +14,21 @@ from app.routes.community import community_routes
 from app.routes.post import post_routes
 from app.routes.comment import comment_routes
 
-from app.errors.user import UserNotFoundError
-from app.errors.user import UserSelfFollowError
-from app.errors.user import UserAlreadyFollowedError
-from app.errors.user import UserSelfUnfollowError
-from app.errors.user import UserNotFollowedError
-from app.errors.user import UserBannedError
-from app.errors.user import UserAlreadySubscribedError
-from app.errors.user import UserNotSubscribedError
-from app.errors.community import CommunityNotFoundError
-from app.errors.community import CommunityNameAlreadyUsedError
-from app.errors.community import CommunityNotBelongsToUserError
+from app.errors.errors import NotFoundError
+from app.errors.errors import NameError
+from app.errors.errors import FollowError
+from app.errors.errors import SubscriptionError
+from app.errors.errors import ModeratorError
+from app.errors.errors import BanError
+from app.errors.errors import OwnershipError
 
-from app.handlers.errors import handler_user_not_found
-from app.handlers.errors import handler_user_self_follow
-from app.handlers.errors import handler_user_already_followed
-from app.handlers.errors import handler_user_self_unfollow
-from app.handlers.errors import handler_user_not_followed
-from app.handlers.errors import handler_user_banned
-from app.handlers.errors import handler_user_already_subscribied
-from app.handlers.errors import handler_user_not_subscribied
-from app.handlers.errors import handler_community_not_found
-from app.handlers.errors import handler_community_name_already_exists
-from app.handlers.errors import handler_community_not_belongs_to_user
+from app.handlers.errors import handler_not_found
+from app.handlers.errors import handler_name_error
+from app.handlers.errors import handler_follow_error
+from app.handlers.errors import handler_subscription_error
+from app.handlers.errors import handler_moderator_error
+from app.handlers.errors import handler_ban_error
+from app.handlers.errors import handler_ownership_error
 
 
 def create_app(config_class=DevelopmentConfig):
@@ -72,14 +64,10 @@ def register_blueprints(app):
 
 
 def register_handlers(app):
-    app.register_error_handler(UserNotFoundError, handler_user_not_found)
-    app.register_error_handler(UserSelfFollowError, handler_user_self_follow)
-    app.register_error_handler(UserAlreadyFollowedError, handler_user_already_followed)
-    app.register_error_handler(UserSelfUnfollowError, handler_user_self_unfollow)
-    app.register_error_handler(UserNotFollowedError, handler_user_not_followed)
-    app.register_error_handler(UserBannedError, handler_user_banned)
-    app.register_error_handler(UserAlreadySubscribedError, handler_user_already_subscribied)
-    app.register_error_handler(UserNotSubscribedError, handler_user_not_subscribied)
-    app.register_error_handler(CommunityNotFoundError, handler_community_not_found)
-    app.register_error_handler(CommunityNameAlreadyUsedError, handler_community_name_already_exists)
-    app.register_error_handler(CommunityNotBelongsToUserError, handler_community_not_belongs_to_user)
+    app.register_error_handler(NotFoundError, handler_not_found)
+    app.register_error_handler(NameError, handler_name_error)
+    app.register_error_handler(FollowError, handler_follow_error)
+    app.register_error_handler(SubscriptionError, handler_subscription_error)
+    app.register_error_handler(ModeratorError, handler_moderator_error)
+    app.register_error_handler(BanError, handler_ban_error)
+    app.register_error_handler(OwnershipError, handler_ownership_error)

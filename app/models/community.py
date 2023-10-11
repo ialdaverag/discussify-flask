@@ -1,5 +1,5 @@
 from app.extensions.database import db
-from app.errors.community import CommunityNotFoundError
+from app.errors.errors import NotFoundError
 
 community_subscribers = db.Table(
     'community_subscribers',
@@ -45,7 +45,7 @@ class Community(db.Model):
         user = Community.query.filter_by(name=name).first()
 
         if user is None:
-            raise CommunityNotFoundError
+            raise NotFoundError('Community not found')
 
         return user
     

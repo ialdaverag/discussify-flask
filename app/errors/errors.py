@@ -1,0 +1,30 @@
+class NotFoundError(Exception):
+    pass
+
+
+class NameError(Exception):
+    pass
+
+
+class FollowError(Exception):
+    pass
+
+
+class BanError(Exception):
+    pass
+
+
+class ModeratorError(Exception):
+    pass
+
+
+class OwnershipError(Exception):
+    pass
+
+
+class SubscriptionError(Exception):
+    pass
+
+
+class UnauthorizedError(Exception):
+    pass

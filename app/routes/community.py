@@ -133,34 +133,14 @@ def unsubscribe(name):
 @community_routes.route('/<string:name>/mod/<string:username>', methods=['POST'])
 @jwt_required()
 def mod(name, username):
-    community = Community.query.filter_by(name=name).first()
+    community = Community.get_by_name(name)
 
-    if not community:
-        return {'message': 'Community not found'}, HTTPStatus.NOT_FOUND
-    
     current_user = get_jwt_identity()
     current_user = User.query.get(current_user)
-
-    if current_user not in community.moderators:
-        return {'message': 'You are not a moderator of this community'}, HTTPStatus.UNAUTHORIZED
     
-    user = User.query.filter_by(username=username).first()
-
-    if not user:
-        return {'message': 'User not found'}, HTTPStatus.NOT_FOUND
+    user = User.get_by_username(username)
     
-    # What if target user is banned?
-    if user in community.banned:
-        return {'message': 'User is banned from this community'}, HTTPStatus.BAD_REQUEST
-    
-    if user not in community.subscribers:
-        return {'message': 'User is not subscribed to this community'}, HTTPStatus.BAD_REQUEST
-
-    if user in community.moderators:
-        return {'message': 'User is already a moderator of this community'}, HTTPStatus.BAD_REQUEST
-    
-    community.moderators.append(user)
-    db.session.commit()
+    current_user.appoint_moderator(user, community)
 
     return {}, HTTPStatus.NO_CONTENT
 

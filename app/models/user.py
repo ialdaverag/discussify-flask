@@ -5,19 +5,13 @@ from app.models.community import community_subscribers
 from app.models.community import community_moderators
 from app.models.post import Post
 
-from app.errors.user import UserNotFoundError
-from app.errors.user import UserSelfFollowError
-from app.errors.user import UserAlreadyFollowedError
-from app.errors.user import UserSelfUnfollowError
-from app.errors.user import UserNotFollowedError
-from app.errors.user import UserBannedError
-from app.errors.user import UserAlreadySubscribedError
-from app.errors.user import UserNotSubscribedError
-from app.errors.user import UserNotModeratingError
-from app.errors.community import CommunityNameAlreadyUsedError
-from app.errors.community import CommunityNameAlreadyUsedError
-from app.errors.community import CommunityBelongsToUserError
-from app.errors.community import CommunityNotBelongsToUserError
+from app.errors.errors import NotFoundError
+from app.errors.errors import FollowError
+from app.errors.errors import NameError
+from app.errors.errors import ModeratorError
+from app.errors.errors import OwnershipError
+from app.errors.errors import SubscriptionError
+from app.errors.errors import BanError
 
 follows = db.Table(
     'follows',
@@ -62,7 +56,7 @@ class User(db.Model):
         user = User.query.filter_by(username=username).first()
 
         if user is None:
-            raise UserNotFoundError
+            raise NotFoundError('User not found')
 
         return user
     
@@ -71,7 +65,7 @@ class User(db.Model):
         user = User.query.get(id)
 
         if user is None:
-            raise UserNotFoundError
+            raise NotFoundError('User not found')
 
         return user
     
@@ -84,20 +78,20 @@ class User(db.Model):
     
     def follow(self, other): 
         if other is self:
-            raise UserSelfFollowError
+            raise FollowError('You cannot follow yourself')
 
         if self.is_following(other):
-            raise UserAlreadyFollowedError
+            raise FollowError('You are already following this user')
         
         self.followed.append(other)
         db.session.commit()
 
     def unfollow(self, other):
         if other is self:
-            raise UserSelfUnfollowError
+            raise FollowError('You cannot unfollow yourself')
         
         if not self.is_following(other):
-            raise UserNotFollowedError
+            raise FollowError('You are not following this user')
         
         self.followed.remove(other)
         db.session.commit()
@@ -106,7 +100,7 @@ class User(db.Model):
         name_available = Community.is_name_available(name)
 
         if not name_available:
-            raise CommunityNameAlreadyUsedError
+            raise NameError('Name is already used')
 
         community = Community(name=name, about=about, owner=self)
         community.subscribers.append(self)
@@ -119,7 +113,7 @@ class User(db.Model):
 
     def update_community(self, community, name, about):
         if not community.belongs_to(self):
-            raise CommunityNotBelongsToUserError
+            raise OwnershipError('')
         
         new_name = name
 
@@ -127,7 +121,7 @@ class User(db.Model):
             existing_community = Community.query.filter_by(name=new_name).first()
 
             if existing_community and existing_community != community:
-                raise CommunityNameAlreadyUsedError
+                raise NameError('')
 
             community.name = new_name
 
@@ -141,7 +135,7 @@ class User(db.Model):
         
     def delete_community(self, community):
         if not community.belongs_to(self):
-            raise CommunityNotBelongsToUserError
+            raise OwnershipError('You are not the owner of this community')
         
         db.session.delete(community)
         db.session.commit()
@@ -151,27 +145,42 @@ class User(db.Model):
 
     def subscribe_to(self, community):
         if self.is_banned_from(community):
-            raise UserBannedError
+            raise BanError('You are banned from this community')
 
         if self.is_subscribed_to(community):
-            raise UserAlreadySubscribedError
+            raise SubscriptionError('You are already subscribed to this community')
 
         community.append_subscriber(self)
 
     def unsubscribe_to(self, community):
         if community.belongs_to(self):
-            raise CommunityBelongsToUserError
+            raise OwnershipError('You are the owner of this community and cannot unsubscribe')
         
         if not self.is_subscribed_to(community):
-            raise UserNotSubscribedError
+            raise SubscriptionError('You are not subscribed to this community')
         
         if self.is_moderator_of(community):
             community.remove_moderator(self)
 
         community.remove_subscriber(self)
-        
-    def is_banned_from(self, community):
-        return self in community.banned
 
     def is_moderator_of(self, community):
+        return self in community.moderators
+    
+    def appoint_moderator(self, user, community):
+        if not community.belongs_to(self):
+            raise OwnershipError('You are not the owner of this community')
+
+        if user.is_banned_from(community):
+            raise BanError('The user is banned from this community')
+        
+        if not user.is_subscribed_to(community):
+            raise SubscriptionError('The user is not subscribed to this community')
+
+        if user.is_moderator_of(community):
+            raise ModeratorError('The user is already a moderator of this community')
+
+        community.append_moderator(user)
+        
+    def is_banned_from(self, community):
         return self in community.banned
