@@ -56,6 +56,14 @@ class Community(db.Model):
         self.subscribers.append(user)
         db.session.commit()
 
+    def remove_subscriber(self, user):
+        self.subscribers.remove(user)
+        db.session.commit()
+
     def append_moderator(self, user):
         self.moderators.append(user)
+        db.session.commit()
+
+    def remove_moderator(self, user):
+        self.moderators.remove(user)
         db.session.commit()

@@ -29,8 +29,20 @@ def handler_user_already_subscribied(error):
     return {'message': 'You are already subscribed to this community'}, HTTPStatus.BAD_REQUEST
 
 
+def handler_user_not_subscribied(error):
+    return {'message': 'You are not subscribed to this community'}, HTTPStatus.BAD_REQUEST
+
+
+def handler_user_not_morating(error):
+    return {'message': 'You are not subscribed to this community'}, HTTPStatus.BAD_REQUEST
+
+
 def handler_community_not_found(error):
     return {'message': 'Community not found'}, HTTPStatus.NOT_FOUND
+
+
+def handler_community_belongs_to_user(error):
+    return {'message': 'You are the owner of this community and cannot unsubscribe'}, HTTPStatus.BAD_REQUEST
 
 
 def handler_community_name_already_exists(error):

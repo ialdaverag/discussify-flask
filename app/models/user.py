@@ -12,8 +12,11 @@ from app.errors.user import UserSelfUnfollowError
 from app.errors.user import UserNotFollowedError
 from app.errors.user import UserBannedError
 from app.errors.user import UserAlreadySubscribedError
+from app.errors.user import UserNotSubscribedError
+from app.errors.user import UserNotModeratingError
 from app.errors.community import CommunityNameAlreadyUsedError
 from app.errors.community import CommunityNameAlreadyUsedError
+from app.errors.community import CommunityBelongsToUserError
 from app.errors.community import CommunityNotBelongsToUserError
 
 follows = db.Table(
@@ -153,7 +156,22 @@ class User(db.Model):
         if self.is_subscribed_to(community):
             raise UserAlreadySubscribedError
 
-        community.append_subscriber(community)
+        community.append_subscriber(self)
 
+    def unsubscribe_to(self, community):
+        if community.belongs_to(self):
+            raise CommunityBelongsToUserError
+        
+        if not self.is_subscribed_to(community):
+            raise UserNotSubscribedError
+        
+        if self.is_moderator_of(community):
+            community.remove_moderator(self)
+
+        community.remove_subscriber(self)
+        
     def is_banned_from(self, community):
+        return self in community.banned
+
+    def is_moderator_of(self, community):
         return self in community.banned

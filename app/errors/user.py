@@ -24,3 +24,11 @@ class UserBannedError(Exception):
 
 class UserAlreadySubscribedError(Exception):
     pass
+
+
+class UserNotSubscribedError(Exception):
+    pass
+
+
+class UserNotModeratingError(Exception):
+    pass

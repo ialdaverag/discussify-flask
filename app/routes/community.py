@@ -101,14 +101,7 @@ def subscribe(name):
     current_user_id = get_jwt_identity()
     current_user = User.query.get(current_user_id)
 
-    if current_user in community.banned:
-        return {'message': 'You are banned from this community'}, HTTPStatus.BAD_REQUEST
-
-    if current_user in community.subscribers:
-        return {'message': 'You are already subscribed to this community'}, HTTPStatus.BAD_REQUEST
-
-    community.subscribers.append(current_user)
-    db.session.commit()
+    current_user.subscribe_to(community)
 
     return {}, HTTPStatus.NO_CONTENT
 
@@ -127,26 +120,12 @@ def read_subscribers(name):
 @community_routes.route('/<string:name>/unsubscribe', methods=['POST'])
 @jwt_required()
 def unsubscribe(name):
-    community = Community.query.filter_by(name=name).first()
+    community = Community.get_by_name(name)
 
-    if not community:
-        return {'message': 'Community not found'}, HTTPStatus.NOT_FOUND
-    
     current_user = get_jwt_identity()
-
-    if current_user == community.user_id:
-        return {'message': 'You are the owner of this community and cannot unsubscribe'}, HTTPStatus.BAD_REQUEST
-    
     current_user = User.query.get(current_user)
 
-    if current_user not in community.subscribers:
-        return {'message': 'You are not subscribed to this community'}, HTTPStatus.BAD_REQUEST
-    
-    if current_user in community.moderators:
-        community.moderators.remove(current_user)
-    
-    community.subscribers.remove(current_user)
-    db.session.commit()
+    current_user.unsubscribe_to(community)
 
     return {}, HTTPStatus.NO_CONTENT
 
