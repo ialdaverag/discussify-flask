@@ -96,13 +96,10 @@ def delete_community(name):
 @community_routes.route('/<string:name>/subscribe', methods=['POST'])
 @jwt_required()
 def subscribe(name):
-    community = Community.query.filter_by(name=name).first()
-
-    if not community:
-        return {'message': 'Community not found'}, HTTPStatus.NOT_FOUND
+    community = Community.get_by_name(name)
     
-    current_user = get_jwt_identity()
-    current_user = User.query.get(current_user)
+    current_user_id = get_jwt_identity()
+    current_user = User.query.get(current_user_id)
 
     if current_user in community.banned:
         return {'message': 'You are banned from this community'}, HTTPStatus.BAD_REQUEST

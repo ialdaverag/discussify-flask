@@ -21,6 +21,14 @@ def handler_user_not_followed(error):
     return {'message': 'You are not following this user'}, HTTPStatus.BAD_REQUEST
 
 
+def handler_user_banned(error):
+    return {'message': 'Banned user'}, HTTPStatus.BAD_REQUEST
+
+
+def handler_user_already_subscribied(error):
+    return {'message': 'You are already subscribed to this community'}, HTTPStatus.BAD_REQUEST
+
+
 def handler_community_not_found(error):
     return {'message': 'Community not found'}, HTTPStatus.NOT_FOUND
 

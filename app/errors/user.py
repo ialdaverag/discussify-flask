@@ -16,3 +16,11 @@ class UserSelfUnfollowError(Exception):
 
 class UserNotFollowedError(Exception):
     pass
+
+
+class UserBannedError(Exception):
+    pass
+
+
+class UserAlreadySubscribedError(Exception):
+    pass

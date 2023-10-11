@@ -10,6 +10,8 @@ from app.errors.user import UserSelfFollowError
 from app.errors.user import UserAlreadyFollowedError
 from app.errors.user import UserSelfUnfollowError
 from app.errors.user import UserNotFollowedError
+from app.errors.user import UserBannedError
+from app.errors.user import UserAlreadySubscribedError
 from app.errors.community import CommunityNameAlreadyUsedError
 from app.errors.community import CommunityNameAlreadyUsedError
 from app.errors.community import CommunityNotBelongsToUserError
@@ -74,6 +76,9 @@ class User(db.Model):
     def get_all(cls):
         return User.query.all()
     
+    def is_following(self, other):
+        return other in self.followed
+    
     def follow(self, other): 
         if other is self:
             raise UserSelfFollowError
@@ -93,9 +98,6 @@ class User(db.Model):
         
         self.followed.remove(other)
         db.session.commit()
-
-    def is_following(self, other):
-        return other in self.followed
     
     def create_community(self, name, about = ''):
         name_available = Community.is_name_available(name)
@@ -140,3 +142,18 @@ class User(db.Model):
         
         db.session.delete(community)
         db.session.commit()
+
+    def is_subscribed_to(self, community):
+        return self in community.subscribers
+
+    def subscribe_to(self, community):
+        if self.is_banned_from(community):
+            raise UserBannedError
+
+        if self.is_subscribed_to(community):
+            raise UserAlreadySubscribedError
+
+        community.append_subscriber(community)
+
+    def is_banned_from(self, community):
+        return self in community.banned
