@@ -38,3 +38,11 @@ class Community(db.Model):
     @staticmethod
     def is_name_available(name):
         return Community.query.filter_by(name=name).first() is None
+    
+    def append_subscriber(self, user):
+        self.subscribers.append(user)
+        db.session.commit()
+
+    def append_moderator(self, user):
+        self.moderators.append(user)
+        db.session.commit()

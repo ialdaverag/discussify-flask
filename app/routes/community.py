@@ -288,9 +288,8 @@ def ban(name, username):
     if user in community.moderators:
         community.moderators.remove(user)
     
-    community.subscribers.remove(user)
-    community.banned.append(user)
-    db.session.commit()
+    community.append_subscriber(user)
+    community.append_moderator(user)
 
     return {}, HTTPStatus.NO_CONTENT
 
