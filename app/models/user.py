@@ -11,6 +11,8 @@ from app.errors.user import UserAlreadyFollowedError
 from app.errors.user import UserSelfUnfollowError
 from app.errors.user import UserNotFollowedError
 from app.errors.community import CommunityNameAlreadyUsedError
+from app.errors.community import CommunityNameAlreadyUsedError
+from app.errors.community import CommunityNotBelongsToUserError
 
 follows = db.Table(
     'follows',
@@ -109,3 +111,27 @@ class User(db.Model):
         db.session.commit()
 
         return community
+
+    def update_community(self, community, name, about):
+        if not community.belongs_to(self):
+            raise CommunityNotBelongsToUserError
+        
+        new_name = name
+
+        if new_name is not None:
+            existing_community = Community.query.filter_by(name=new_name).first()
+
+            if existing_community and existing_community != community:
+                raise CommunityNameAlreadyUsedError
+
+            community.name = new_name
+
+        new_about = about
+
+        community.about = new_about or community.about
+
+        db.session.commit()
+
+        return community
+        
+

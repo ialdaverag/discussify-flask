@@ -1,4 +1,5 @@
 from app.extensions.database import db
+from app.errors.community import CommunityNotFoundError
 
 community_subscribers = db.Table(
     'community_subscribers',
@@ -38,6 +39,18 @@ class Community(db.Model):
     @staticmethod
     def is_name_available(name):
         return Community.query.filter_by(name=name).first() is None
+    
+    @classmethod
+    def get_by_name(cls, name):
+        user = Community.query.filter_by(name=name).first()
+
+        if user is None:
+            raise CommunityNotFoundError
+
+        return user
+    
+    def belongs_to(self, user):
+        return self.owner is user
     
     def append_subscriber(self, user):
         self.subscribers.append(user)

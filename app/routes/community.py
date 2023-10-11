@@ -65,9 +65,6 @@ def update_community(name):
     current_user = get_jwt_identity()
     current_user = User.query.get(current_user)
 
-    if current_user.id != community.user_id:
-        return {'message': 'Access is not allowed'}, HTTPStatus.FORBIDDEN
-    
     json_data = request.get_json()
 
     try:
@@ -76,19 +73,10 @@ def update_community(name):
         return {'errors': err.messages}, HTTPStatus.BAD_REQUEST
     
     new_name = data.get('name')
-
-    if new_name is not None:
-        existing_community = Community.query.filter_by(name=new_name).first()
-        
-        if existing_community and existing_community != community:
-            return {'message': 'Name already used'}, HTTPStatus.BAD_REQUEST
-        
-        community.name = new_name
-
-    community.about = data.get('about') or community.about
-
-    db.session.commit()
+    new_about = data.get('about')
     
+    current_user.update_community(community, name=new_name, about=new_about)
+
     return community_schema.dump(community), HTTPStatus.OK
 
 

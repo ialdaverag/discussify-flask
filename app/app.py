@@ -19,14 +19,18 @@ from app.errors.user import UserSelfFollowError
 from app.errors.user import UserAlreadyFollowedError
 from app.errors.user import UserSelfUnfollowError
 from app.errors.user import UserNotFollowedError
+from app.errors.community import CommunityNotFoundError
 from app.errors.community import CommunityNameAlreadyUsedError
+from app.errors.community import CommunityNotBelongsToUserError
 
 from app.handlers.errors import handler_user_not_found
 from app.handlers.errors import handler_user_self_follow
 from app.handlers.errors import handler_user_already_followed
 from app.handlers.errors import handler_user_self_unfollow
 from app.handlers.errors import handler_user_not_followed
+from app.handlers.errors import handler_community_not_found
 from app.handlers.errors import handler_community_name_already_exists
+from app.handlers.errors import handler_community_not_belongs_to_user
 
 
 def create_app(config_class=DevelopmentConfig):
@@ -67,4 +71,6 @@ def register_handlers(app):
     app.register_error_handler(UserAlreadyFollowedError, handler_user_already_followed)
     app.register_error_handler(UserSelfUnfollowError, handler_user_self_unfollow)
     app.register_error_handler(UserNotFollowedError, handler_user_not_followed)
+    app.register_error_handler(CommunityNotFoundError, handler_community_not_found)
     app.register_error_handler(CommunityNameAlreadyUsedError, handler_community_name_already_exists)
+    app.register_error_handler(CommunityNotBelongsToUserError, handler_community_not_belongs_to_user)
