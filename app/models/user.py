@@ -134,4 +134,9 @@ class User(db.Model):
 
         return community
         
-
+    def delete_community(self, community):
+        if not community.belongs_to(self):
+            raise CommunityNotBelongsToUserError
+        
+        db.session.delete(community)
+        db.session.commit()

@@ -62,8 +62,8 @@ def read_communities():
 def update_community(name):
     community = Community.get_by_name(name=name)
     
-    current_user = get_jwt_identity()
-    current_user = User.query.get(current_user)
+    current_user_id = get_jwt_identity()
+    current_user = User.query.get(current_user_id)
 
     json_data = request.get_json()
 
@@ -83,19 +83,12 @@ def update_community(name):
 @community_routes.route('/<string:name>', methods=['DELETE'])
 @jwt_required()
 def delete_community(name):
-    community = Community.query.filter_by(name=name).first()
+    community = Community.get_by_name(name=name)
 
-    if not community:
-        return {'message': 'Community not found'}, HTTPStatus.NOT_FOUND
-    
-    current_user = get_jwt_identity()
-    current_user = User.query.get(current_user)
+    current_user_id = get_jwt_identity()
+    current_user = User.query.get(current_user_id)
 
-    if current_user.id != community.user_id:
-        return {'message': 'Access is not allowed'}, HTTPStatus.FORBIDDEN
-    
-    db.session.delete(community)
-    db.session.commit()
+    current_user.delete_community(community)
 
     return {}, HTTPStatus.NO_CONTENT
 
