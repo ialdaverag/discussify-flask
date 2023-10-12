@@ -215,29 +215,14 @@ def unban(name, username):
 @community_routes.route('/<string:name>/transfer/<string:username>', methods=['POST'])
 @jwt_required()
 def transfer(name, username):
-    community = Community.query.filter_by(name=name).first()
-
-    if not community:
-        return {'message': 'Community not found'}, HTTPStatus.NOT_FOUND
+    community = Community.get_by_name(name=name)
     
-    current_user = get_jwt_identity()
+    current_user_id = get_jwt_identity()
+    current_user = User.query.get(current_user_id)
     
-    if current_user != community.user_id:
-        return {'message': 'You are not the owner of this community'}, HTTPStatus.BAD_REQUEST
+    user = User.get_by_username(username=username)
     
-    user = User.query.filter_by(username=username).first()
-
-    if not user:
-        return {'message': 'User not found'}, HTTPStatus.NOT_FOUND
-    
-    if user not in community.subscribers:
-        return {'message': 'User is not subscribed to this community'}, HTTPStatus.BAD_REQUEST
-    
-    if user not in community.moderators:
-        community.moderators.append(user)
-    
-    community.user_id = user.id
-    db.session.commit()
+    current_user.transfer_community(community, user)
 
     return {}, HTTPStatus.NO_CONTENT
 

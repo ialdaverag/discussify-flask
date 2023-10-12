@@ -227,3 +227,22 @@ class User(db.Model):
             raise BanError('The user is not banned from the community')
         
         community.remove_banned(user)
+
+    def transfer_community(self, community, user):
+        if not community.belongs_to(self):
+            raise OwnershipError('You are not the owner of this community')
+        
+        if user is self:
+            raise OwnershipError('You are already the owner of this community')
+        
+        if user.is_banned_from(community):
+            raise BanError('You cannot transfer the community to a banned user')
+        
+        if not user.is_subscribed_to(community):
+            raise SubscriptionError('The user is not subscribed to this community')
+        
+        if not user.is_moderator_of(community):
+            community.append_moderator(user)
+
+        community.change_ownership_to(user)
+        db.session.commit()

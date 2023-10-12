@@ -52,6 +52,10 @@ class Community(db.Model):
     def belongs_to(self, user):
         return self.owner is user
     
+    def change_ownership_to(self, user):
+        self.owner = user
+        db.session.commit()
+    
     def append_subscriber(self, user):
         self.subscribers.append(user)
         db.session.commit()
