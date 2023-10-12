@@ -12,6 +12,7 @@ from app.errors.errors import ModeratorError
 from app.errors.errors import OwnershipError
 from app.errors.errors import SubscriptionError
 from app.errors.errors import BanError
+from app.errors.errors import UnauthorizedError
 
 follows = db.Table(
     'follows',
@@ -196,3 +197,25 @@ class User(db.Model):
         
     def is_banned_from(self, community):
         return self in community.banned
+
+    def ban_from(self, user, community):
+        if not self.is_moderator_of(community):
+            raise UnauthorizedError('You are not a moderator of this community')
+        
+        if self is user:
+            raise BanError('You cannot ban yourself')
+        
+        if user.is_banned_from(community):
+            raise BanError('The user is already banned from the community')
+        
+        if user is community.owner:
+            raise BanError('You cannot ban the owner of the community')
+        
+        if user in community.moderators:
+            community.remove_moderator(user)
+        
+        if not user.is_subscribed_to(community):
+            raise SubscriptionError('The user is not subscribed to this community')
+        
+        community.append_banned(user)
+

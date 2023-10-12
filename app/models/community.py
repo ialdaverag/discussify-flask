@@ -67,3 +67,7 @@ class Community(db.Model):
     def remove_moderator(self, user):
         self.moderators.remove(user)
         db.session.commit()
+
+    def append_banned(self, user):
+        self.banned.append(user)
+        db.session.commit()

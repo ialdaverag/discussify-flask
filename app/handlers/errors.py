@@ -30,4 +30,4 @@ def handler_ownership_error(error):
 
 
 def handler_unauthorized_error(error):
-    return {'message': str(error)}, HTTPStatus.FORBIDDEN
+    return {'message': str(error)}, HTTPStatus.UNAUTHORIZED
