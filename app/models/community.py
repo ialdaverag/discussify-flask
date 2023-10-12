@@ -71,3 +71,7 @@ class Community(db.Model):
     def append_banned(self, user):
         self.banned.append(user)
         db.session.commit()
+
+    def remove_banned(self, user):
+        self.banned.remove(user)
+        db.session.commit()

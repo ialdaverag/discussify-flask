@@ -219,3 +219,11 @@ class User(db.Model):
         
         community.append_banned(user)
 
+    def unban_from(self, user, community):
+        if not self.is_moderator_of(community):
+            raise UnauthorizedError('You are not a moderator of this community')
+        
+        if not user.is_banned_from(community):
+            raise BanError('The user is not banned from the community')
+        
+        community.remove_banned(user)
