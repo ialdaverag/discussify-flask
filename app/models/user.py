@@ -181,6 +181,18 @@ class User(db.Model):
             raise ModeratorError('The user is already a moderator of this community')
 
         community.append_moderator(user)
+
+    def dismiss_moderator(self, user, community):
+        if not community.belongs_to(self):
+            raise OwnershipError('You are not the owner of this community')
+        
+        if community.belongs_to(user):
+            raise OwnershipError('You are the owner of this community and cannot unmod yourself')
+        
+        if not user.is_moderator_of(community):
+            raise ModeratorError('The user is not a moderator of this community')
+        
+        community.remove_moderator(user)
         
     def is_banned_from(self, community):
         return self in community.banned

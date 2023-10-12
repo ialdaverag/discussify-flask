@@ -135,8 +135,8 @@ def unsubscribe(name):
 def mod(name, username):
     community = Community.get_by_name(name)
 
-    current_user = get_jwt_identity()
-    current_user = User.query.get(current_user)
+    current_user_id = get_jwt_identity()
+    current_user = User.get_by_id(current_user_id)
     
     user = User.get_by_username(username)
     
@@ -159,34 +159,14 @@ def read_moderators(name):
 @community_routes.route('/<string:name>/unmod/<string:username>', methods=['POST'])
 @jwt_required()
 def unmod(name, username):
-    community = Community.query.filter_by(name=name).first()
-
-    if not community:
-        return {'message': 'Community not found'}, HTTPStatus.NOT_FOUND
+    community = Community.get_by_name(name)
     
-    current_user = get_jwt_identity()
+    current_user_id = get_jwt_identity()
+    current_user = User.get_by_id(current_user_id)
 
-    if current_user == community.user_id:
-        return {'message': 'You are the owner of this community and cannot unmod'}, HTTPStatus.BAD_REQUEST
+    user = User.get_by_username(username)
     
-    current_user = User.query.get(current_user)
-
-    if current_user not in community.moderators:
-        return {'message': 'You are not a moderator of this community'}, HTTPStatus.UNAUTHORIZED
-    
-    user = User.query.filter_by(username=username).first()
-
-    if not user:
-        return {'message': 'User not found'}, HTTPStatus.NOT_FOUND
-
-    if user.id == community.user_id:
-        return {'message': 'User is the owner of this community'}, HTTPStatus.BAD_REQUEST
-    
-    if user not in community.moderators:
-        return {'message': 'User is not a moderator of this community'}, HTTPStatus.BAD_REQUEST
-    
-    community.moderators.remove(user)
-    db.session.commit()
+    current_user.dismiss_moderator(user, community)
 
     return {}, HTTPStatus.NO_CONTENT
 
