@@ -1,4 +1,5 @@
 from app.extensions.database import db
+from app.errors.errors import NotFoundError
 
 comment_bookmarks = db.Table(
     'comment_bookmarks',
@@ -32,3 +33,12 @@ class Comment(db.Model):
     replies = db.relationship('Comment', backref=db.backref('comment', remote_side=[id]), lazy='dynamic')
     comment_bookmarkers = db.relationship('User', secondary=comment_bookmarks, backref='comment_bookmarks')
     comment_votes = db.relationship('CommentVote', cascade='all, delete', backref='comment')
+
+    @classmethod
+    def get_by_id(cls, id):
+        comment = Comment.query.get(id)
+
+        if comment is None:
+            raise NotFoundError('Comment not found')
+        
+        return comment

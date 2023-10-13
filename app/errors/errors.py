@@ -14,6 +14,10 @@ class BanError(Exception):
     pass
 
 
+class NotInError(Exception):
+    pass
+
+
 class ModeratorError(Exception):
     pass
 

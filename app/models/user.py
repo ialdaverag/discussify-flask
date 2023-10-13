@@ -4,6 +4,7 @@ from app.models.community import Community
 from app.models.community import community_subscribers
 from app.models.community import community_moderators
 from app.models.post import Post
+from app.models.comment import Comment
 
 from app.errors.errors import NotFoundError
 from app.errors.errors import FollowError
@@ -260,3 +261,23 @@ class User(db.Model):
         db.session.commit()
 
         return post
+
+    def create_comment(self, content, post, comment=None):
+        community = post.community
+
+        if self in community.banned:
+            raise BanError('You are banned from this community')
+
+        if not self.is_subscribed_to(community):
+            raise SubscriptionError('You are not subscribed to this community')
+        
+        if comment is not None:
+            if comment not in post.comments:
+                raise NotIn('The comment to reply is not in the post')
+        
+        new_comment = Comment(content=content, post=post, owner=self, comment=comment)
+
+        db.session.add(new_comment)
+        db.session.commit()
+
+        return new_comment

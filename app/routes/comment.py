@@ -31,42 +31,25 @@ def create_comment():
         data = comment_schema.load(json_data)
     except ValidationError as err:
         return {'errors': err.messages}, HTTPStatus.BAD_REQUEST
-    
+
     post_id = data['post_id']
-    post = Post.query.get(post_id)
+    post = Post.get_by_id(post_id)
 
-    if not post:
-        return {'message': 'Post not found'}, HTTPStatus.NOT_FOUND
-    
-    current_user = get_jwt_identity()
-    current_user = User.query.get(current_user)
+    current_user_id = get_jwt_identity()
+    current_user = User.get_by_id(current_user_id)
 
-    community_id = post.community_id
-    community = Community.query.get(community_id)
-
-    if current_user in community.banned:
-        return {'message': 'You are banned from this community'}, HTTPStatus.BAD_REQUEST
-
-    if current_user not in community.subscribers:
-        return {'message': 'You are not subscribed to this community'}, HTTPStatus.BAD_REQUEST
-    
     comment_id = data.get('comment_id')
-    
+
+    comment_to_reply = None
+
     if comment_id is not None:
-        comment = Comment.query.get(comment_id)
+        comment_to_reply = Comment.get_by_id(comment_id)
 
-        if not comment:
-            return {'message': 'Comment not found'}, HTTPStatus.NOT_FOUND
-        
-        if comment not in post.comments:
-            return {'message': 'Comment not in post'}, HTTPStatus.BAD_REQUEST
-    
-    comment = Comment(**data, user_id=current_user.id)
+    content = data.get('content')
 
-    db.session.add(comment)
-    db.session.commit()
+    new_comment = current_user.create_comment(content, post, comment_to_reply)
 
-    return comment_schema.dump(comment), HTTPStatus.CREATED
+    return comment_schema.dump(new_comment), HTTPStatus.CREATED
 
 
 @comment_routes.route('/<string:id>', methods=['GET'])
