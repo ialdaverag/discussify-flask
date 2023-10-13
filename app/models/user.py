@@ -255,9 +255,23 @@ class User(db.Model):
         if not self.is_subscribed_to(community):
             raise SubscriptionError('You are not subscribed to this community')
         
-        post = Post(title=title, content=content, community=community)
+        post = Post(title=title, content=content, community=community, owner=self)
         
         db.session.add(community)
+        db.session.commit()
+
+        return post
+    
+    def update_post(self, post, title, content):
+        if not post.belongs_to(self):
+            raise OwnershipError('This post is not yours')
+        
+        new_title = title
+        new_content = content
+        
+        post.title = new_title or post.title
+        post.content = new_content or post.title
+
         db.session.commit()
 
         return post

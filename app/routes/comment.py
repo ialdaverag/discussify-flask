@@ -74,10 +74,7 @@ def read_comments():
 @comment_routes.route('/<string:id>', methods=['PATCH'])
 @jwt_required()
 def update_comment(id):
-    comment = Comment.query.get(id)
-
-    if not comment:
-        return {'message': 'Comment not found'}, HTTPStatus.NOT_FOUND
+    comment = Comment.get_by_id(id)
     
     current_user = get_jwt_identity()
     current_user = User.query.get(current_user)

@@ -73,12 +73,9 @@ def update_post(id):
     if not post:
         return {'message': 'Post not found'}, HTTPStatus.NOT_FOUND
     
-    current_user = get_jwt_identity()
-    current_user = User.query.get(current_user)
+    current_user_id = get_jwt_identity()
+    current_user = User.query.get(current_user_id)
 
-    if current_user.id != post.user_id:
-        return {'message': 'Access is not allowed'}, HTTPStatus.FORBIDDEN
-    
     json_data = request.get_json()
 
     try:
@@ -86,10 +83,13 @@ def update_post(id):
     except ValidationError as err:
         return {'errors': err.messages}, HTTPStatus.BAD_REQUEST
     
-    post.title = data.get('title') or post.title
-    post.content = data.get('content') or post.content
+    title = data.get('title')
+    content = data.get('content')
 
-    db.session.commit()
+    print(title)
+    print(content)
+    
+    post = current_user.update_post(post, title, content)
 
     return post_schema.dump(post), HTTPStatus.OK
 

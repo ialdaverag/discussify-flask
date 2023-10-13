@@ -43,3 +43,6 @@ class Post(db.Model):
             raise NotFoundError('Post not found')
         
         return post
+    
+    def belongs_to(self, user):
+        return self.owner is user
