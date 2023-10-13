@@ -41,13 +41,22 @@ class Community(db.Model):
         return Community.query.filter_by(name=name).first() is None
     
     @classmethod
-    def get_by_name(cls, name):
-        user = Community.query.filter_by(name=name).first()
+    def get_by_id(cls, id):
+        community = Community.query.get(id)
 
-        if user is None:
+        if community is None:
             raise NotFoundError('Community not found')
 
-        return user
+        return community
+    
+    @classmethod
+    def get_by_name(cls, name):
+        community = Community.query.filter_by(name=name).first()
+
+        if community is None:
+            raise NotFoundError('Community not found')
+
+        return community
     
     def belongs_to(self, user):
         return self.owner is user

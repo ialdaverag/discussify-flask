@@ -246,3 +246,17 @@ class User(db.Model):
 
         community.change_ownership_to(user)
         db.session.commit()
+
+    def create_post(self, title, content, community):
+        if self.is_banned_from(community):
+            raise BanError('You are banned from this community')
+        
+        if not self.is_subscribed_to(community):
+            raise SubscriptionError('You are not subscribed to this community')
+        
+        post = Post(title=title, content=content, community=community)
+        
+        db.session.add(community)
+        db.session.commit()
+
+        return post

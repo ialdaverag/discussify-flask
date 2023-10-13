@@ -33,24 +33,15 @@ def create_post():
         return {'errors': err.messages}, HTTPStatus.BAD_REQUEST
     
     community_id = data['community_id']
-    community = Community.query.filter_by(id=community_id).first()
-
-    if not community:
-        return {'message': 'Community not found'}, HTTPStatus.NOT_FOUND
+    community = Community.get_by_id(community_id)
     
     current_user = get_jwt_identity()
     current_user = User.query.get(current_user)
 
-    if current_user in community.banned:
-        return {'message': 'You are banned from this community'}, HTTPStatus.BAD_REQUEST
+    title = data.get('title')
+    content = data.get('content')
 
-    if current_user not in community.subscribers:
-        return {'message': 'You are not subscribed to this community'}, HTTPStatus.BAD_REQUEST
-
-    post = Post(**data, user_id=current_user.id)
-
-    db.session.add(post)
-    db.session.commit()
+    post = current_user.create_post(title, content, community)
 
     return post_schema.dump(post), HTTPStatus.CREATED
 

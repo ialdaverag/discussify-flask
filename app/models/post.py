@@ -1,5 +1,5 @@
 from app.extensions.database import db
-
+from app.errors.errors import NotFoundError
 from app.models.comment import Comment
 
 post_bookmarks = db.Table(
@@ -34,3 +34,12 @@ class Post(db.Model):
     bookmarkers = db.relationship('User', secondary=post_bookmarks, backref='bookmarks')
     comments = db.relationship('Comment', cascade='all, delete', backref='post', lazy='dynamic')
     post_votes = db.relationship('PostVote', cascade='all, delete', backref='post')
+
+    @classmethod
+    def get_by_id(self, id):
+        post = Post.query.get(id)
+
+        if post is None:
+            raise NotFoundError('Post not found')
+        
+        return post
