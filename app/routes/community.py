@@ -218,9 +218,6 @@ def transfer(name, username):
 @community_routes.route('/<string:name>/posts', methods=['GET'])
 @jwt_required(optional=True)
 def read_community_posts(name):
-    community = Community.query.filter_by(name=name).first()
-
-    if not community:
-        return {'message': 'Community not found'}, HTTPStatus.NOT_FOUND
+    community = Community.get_by_name(name)
     
     return posts_schema.dump(community.posts), HTTPStatus.OK
