@@ -106,10 +106,7 @@ def subscribe(name):
 @community_routes.route('/<string:name>/subscribers', methods=['GET'])
 @jwt_required(optional=True)
 def read_subscribers(name):
-    community = Community.query.filter_by(name=name).first()
-
-    if not community:
-        return {'message': 'Community not found'}, HTTPStatus.NOT_FOUND
+    community = Community.get_by_name(name)
 
     return users_schema.dump(community.subscribers), HTTPStatus.OK
 

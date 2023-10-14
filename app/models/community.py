@@ -35,7 +35,7 @@ class Community(db.Model):
     moderators = db.relationship('User', secondary=community_moderators, backref='moderations')
     banned = db.relationship('User', secondary=community_bans, backref='bans')
     posts = db.relationship('Post', cascade='all, delete', backref='community', lazy='dynamic')
-
+    
     @staticmethod
     def is_name_available(name):
         return Community.query.filter_by(name=name).first() is None
