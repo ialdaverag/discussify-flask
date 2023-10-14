@@ -112,8 +112,8 @@ def read_user_comments(username):
 @user_routes.route('/posts/bookmarked', methods=['GET'])
 @jwt_required()
 def read_user_bookmarks():
-    current_user = get_jwt_identity()
-    current_user = User.query.get(current_user)
+    current_user_id = get_jwt_identity()
+    current_user = User.get_by_id(current_user_id)
 
     return posts_schema.dump(current_user.bookmarks)
 
