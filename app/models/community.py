@@ -58,6 +58,10 @@ class Community(db.Model):
 
         return community
     
+    @classmethod
+    def get_all(cls):
+        return Community.query.all()
+    
     def belongs_to(self, user):
         return self.owner is user
     

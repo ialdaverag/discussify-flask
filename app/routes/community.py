@@ -49,7 +49,7 @@ def read_community(name):
 @community_routes.route('/', methods=['GET'])
 @jwt_required(optional=True)
 def read_communities():
-    communities = Community.query.all()
+    communities = Community.get_all()
 
     return communities_schema.dump(communities), HTTPStatus.OK
 
