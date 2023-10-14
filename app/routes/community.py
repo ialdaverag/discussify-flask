@@ -178,12 +178,9 @@ def ban(name, username):
 
 
 @community_routes.route('/<string:name>/banned', methods=['GET'])
-@jwt_required(optional=True)
+@jwt_required()
 def read_banned(name):
-    community = Community.query.filter_by(name=name).first()
-
-    if not community:
-        return {'message': 'Community not found'}, HTTPStatus.NOT_FOUND
+    community = Community.get_by_name(name)
 
     return users_schema.dump(community.banned), HTTPStatus.OK
 
