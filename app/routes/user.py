@@ -80,10 +80,7 @@ def read_following(username):
 @user_routes.route('/<string:username>/followers', methods=['GET'])
 @jwt_required(optional=True)
 def read_followers(username):
-    user = User.query.filter_by(username=username).first()
-
-    if not user:
-        return {'message': 'User not found'}, HTTPStatus.NOT_FOUND
+    user = User.get_by_username(username)
     
     return users_schema.dump(user.followers)
 
