@@ -173,7 +173,7 @@ def read_user_downvoted_comments():
 @user_routes.route('/comments/bookmarked', methods=['GET'])
 @jwt_required()
 def read_user_bookmarked_comments():
-    current_user = get_jwt_identity()
-    current_user = User.query.get(current_user)
+    current_user_id = get_jwt_identity()
+    current_user = User.get_by_id(current_user_id)
 
     return comments_schema.dump(current_user.comment_bookmarks)
