@@ -46,3 +46,6 @@ class Post(db.Model):
     
     def belongs_to(self, user):
         return self.owner is user
+    
+    def is_bookmarked_by(self, user):
+        return user in self.bookmarkers

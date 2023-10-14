@@ -15,6 +15,7 @@ from app.errors.errors import OwnershipError
 from app.errors.errors import SubscriptionError
 from app.errors.errors import BanError
 from app.errors.errors import UnauthorizedError
+from app.errors.errors import BookmarkError
 
 follows = db.Table(
     'follows',
@@ -282,6 +283,20 @@ class User(db.Model):
             raise OwnershipError('You cannot delete this post')
         
         db.session.delete(post)
+        db.session.commit()
+
+    def bookmark_post(self, post):
+        if post.is_bookmarked_by(self):
+            raise BookmarkError('Post already bookmarked')
+        
+        self.bookmarks.append(post)
+        db.session.commit()
+
+    def unbookmark_post(self, post):
+        if not post.is_bookmarked_by(self):
+            raise BookmarkError('Post not bookmarked')
+        
+        self.bookmarks.remove(post)
         db.session.commit()
 
     def create_comment(self, content, post, comment=None):

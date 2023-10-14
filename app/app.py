@@ -23,6 +23,7 @@ from app.errors.errors import BanError
 from app.errors.errors import NotInError
 from app.errors.errors import OwnershipError
 from app.errors.errors import UnauthorizedError
+from app.errors.errors import BookmarkError
 
 from app.handlers.errors import handler_not_found
 from app.handlers.errors import handler_name_error
@@ -33,6 +34,7 @@ from app.handlers.errors import handler_ban_error
 from app.handlers.errors import handler_not_in_error
 from app.handlers.errors import handler_ownership_error
 from app.handlers.errors import handler_unauthorized_error
+from app.handlers.errors import handler_bookmark_error
 
 
 def create_app(config_class=DevelopmentConfig):
@@ -77,3 +79,4 @@ def register_handlers(app):
     app.register_error_handler(OwnershipError, handler_ownership_error)
     app.register_error_handler(UnauthorizedError, handler_unauthorized_error)
     app.register_error_handler(NotInError, handler_not_in_error)
+    app.register_error_handler(BookmarkError, handler_bookmark_error)

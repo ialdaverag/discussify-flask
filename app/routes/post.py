@@ -107,19 +107,12 @@ def delete_post(id):
 @post_routes.route('/<int:id>/bookmark', methods=['POST'])
 @jwt_required()
 def bookmark(id):
-    post = Post.query.get(id)
-
-    if not post:
-        return {'message': 'Post not found'}, HTTPStatus.NOT_FOUND
+    post = Post.get_by_id(id)
     
-    current_user = get_jwt_identity()
-    current_user = User.query.get(current_user)
+    current_user_id = get_jwt_identity()
+    current_user = User.get_by_id(current_user_id)
 
-    if post in current_user.bookmarks:
-        return {'message': 'Post already bookmarked'}, HTTPStatus.BAD_REQUEST
-    
-    current_user.bookmarks.append(post)
-    db.session.commit()
+    current_user.bookmark_post(post)
 
     return {}, HTTPStatus.NO_CONTENT
 
@@ -127,19 +120,12 @@ def bookmark(id):
 @post_routes.route('/<int:id>/unbookmark', methods=['POST'])
 @jwt_required()
 def unbookmark(id):
-    post = Post.query.get(id)
-
-    if not post:
-        return {'message': 'Post not found'}, HTTPStatus.NOT_FOUND
+    post = Post.get_by_id(id)
     
-    current_user = get_jwt_identity()
-    current_user = User.query.get(current_user)
+    current_user_id = get_jwt_identity()
+    current_user = User.get_by_id(current_user_id)
 
-    if post not in current_user.bookmarks:
-        return {'message': 'Post not bookmarked'}, HTTPStatus.BAD_REQUEST
-    
-    current_user.bookmarks.remove(post)
-    db.session.commit()
+    current_user.unbookmark_post(post)
     
     return {}, HTTPStatus.NO_CONTENT
 

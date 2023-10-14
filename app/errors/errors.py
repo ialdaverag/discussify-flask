@@ -32,3 +32,6 @@ class SubscriptionError(Exception):
 
 class UnauthorizedError(Exception):
     pass
+
+class BookmarkError(Exception):
+    pass

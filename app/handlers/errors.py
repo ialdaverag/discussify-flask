@@ -29,6 +29,10 @@ def handler_not_in_error(error):
     return {'message': str(error)}, HTTPStatus.BAD_REQUEST
 
 
+def handler_bookmark_error(error):
+    return {'message': str(error)}, HTTPStatus.BAD_REQUEST
+
+
 def handler_ownership_error(error):
     return {'message': str(error)}, HTTPStatus.FORBIDDEN
 
