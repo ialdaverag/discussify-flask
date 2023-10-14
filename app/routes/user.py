@@ -88,10 +88,7 @@ def read_followers(username):
 @user_routes.route('/<string:username>/subscriptions', methods=['GET'])
 @jwt_required(optional=True)
 def read_subscriptions(username):
-    user = User.query.filter_by(username=username).first()
-
-    if not user:
-        return {'message': 'User not found'}, HTTPStatus.NOT_FOUND
+    user = User.get_by_username(username)
 
     return communities_schema.dump(user.subscriptions)
 
