@@ -318,3 +318,10 @@ class User(db.Model):
         comment.content = new_content or comment.content
 
         return comment
+
+    def delete_comment(self, comment):
+        if not (comment.belongs_to(self) or self.is_moderator_of(comment.post.community)):
+            raise OwnershipError('You cannot delete this comment')
+        
+        db.session.delete(comment)
+        db.session.commit()

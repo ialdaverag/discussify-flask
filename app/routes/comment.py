@@ -96,19 +96,12 @@ def update_comment(id):
 @comment_routes.route('/<string:id>', methods=['DELETE'])
 @jwt_required()
 def delete_comment(id):
-    comment = Comment.query.get(id)
-
-    if not comment:
-        return {'message': 'Comment not found'}, HTTPStatus.NOT_FOUND
+    comment = Comment.get_by_id(id)
     
-    current_user = get_jwt_identity()
-    current_user = User.query.get(current_user)
+    current_user_id = get_jwt_identity()
+    current_user = User.query.get(current_user_id)
 
-    if current_user.id != comment.user_id:
-        return {'message': 'Access is not allowed'}, HTTPStatus.FORBIDDEN
-    
-    db.session.delete(comment)
-    db.session.commit()
+    current_user.delete_comment(comment)
 
     return {}, HTTPStatus.NO_CONTENT
     
