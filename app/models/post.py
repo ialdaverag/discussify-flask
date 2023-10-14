@@ -49,3 +49,9 @@ class Post(db.Model):
     
     def is_bookmarked_by(self, user):
         return user in self.bookmarkers
+    
+    def is_upvoted_by(self, user):
+        return PostVote.query.filter_by(user=user, direction=1).first() is None
+
+    def is_downvoted_by(self, user):
+        return PostVote.query.filter_by(user=user, direction=-1).first() is None

@@ -35,8 +35,8 @@ def create_post():
     community_id = data['community_id']
     community = Community.get_by_id(community_id)
     
-    current_user = get_jwt_identity()
-    current_user = User.query.get(current_user)
+    current_user_id = get_jwt_identity()
+    current_user = User.query.get(current_user_id)
 
     title = data.get('title')
     content = data.get('content')
@@ -133,22 +133,12 @@ def unbookmark(id):
 @post_routes.route('/<int:id>/vote/up', methods=['POST'])
 @jwt_required()
 def upvote(id):
-    post = Post.query.get(id)
-
-    if not post:
-        return {'message': 'Post not found'}, HTTPStatus.NOT_FOUND
+    post = Post.get_by_id(id)
     
-    current_user = get_jwt_identity()
-    current_user = User.query.get(current_user)
+    current_user_id = get_jwt_identity()
+    current_user = User.query.get(current_user_id)
 
-    community_id = post.community_id
-    community = Community.query.get(community_id)
-
-    if current_user in community.banned:
-        return {'message': 'You are banned from this community'}, HTTPStatus.BAD_REQUEST
-
-    if current_user not in community.subscribers:
-        return {'message': 'You are not subscribed to this community'}, HTTPStatus.BAD_REQUEST
+    current_user.upvote_post()
 
     vote = PostVote.query.filter_by(user_id=current_user.id, post_id=post.id).first()
 

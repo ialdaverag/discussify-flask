@@ -354,3 +354,24 @@ class User(db.Model):
         
         self.comment_bookmarks.remove(comment)
         db.session.commit()
+
+    def upvote_post(self, post):
+        community = post.community
+
+        if self.is_banned_from(community):
+            raise BanError('You are banned from this community')
+
+        if not self.is_subscribed_to(community):
+            raise SubscriptionError('You are not subscribed to this community')
+        
+        if post.is_upvoted_by(self):
+            raise VoteError('Post already upvoted')
+        
+        if post.is_downvoted_by(self):
+            direction = 1
+
+    def downvote_post(self, post):
+        pass
+
+    def cancel_vote(self, post):
+        pass

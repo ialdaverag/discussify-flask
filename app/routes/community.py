@@ -41,11 +41,8 @@ def create_community():
 @community_routes.route('/<string:name>', methods=['GET'])
 @jwt_required(optional=True)
 def read_community(name):
-    community = Community.query.filter_by(name=name).first()
+    community = Community.get_by_name(name)
 
-    if not community:
-        return {'message': 'Community not found'}, HTTPStatus.NOT_FOUND
-    
     return community_schema.dump(community), HTTPStatus.OK
 
 
