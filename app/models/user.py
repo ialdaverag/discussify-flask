@@ -276,6 +276,13 @@ class User(db.Model):
         db.session.commit()
 
         return post
+    
+    def delete_post(self, post):
+        if not (post.belongs_to(self) or self.is_moderator_of(post.community)):
+            raise OwnershipError('You cannot delete this post')
+        
+        db.session.delete(post)
+        db.session.commit()
 
     def create_comment(self, content, post, comment=None):
         community = post.community
@@ -311,5 +318,3 @@ class User(db.Model):
         comment.content = new_content or comment.content
 
         return comment
-        
-

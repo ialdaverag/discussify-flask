@@ -74,7 +74,7 @@ def update_post(id):
         return {'message': 'Post not found'}, HTTPStatus.NOT_FOUND
     
     current_user_id = get_jwt_identity()
-    current_user = User.query.get(current_user_id)
+    current_user = User.get_by_id(current_user_id)
 
     json_data = request.get_json()
 
@@ -94,19 +94,12 @@ def update_post(id):
 @post_routes.route('/<int:id>', methods=['DELETE'])
 @jwt_required()
 def delete_post(id):
-    post = Post.query.get(id)
-
-    if not post:
-        return {'message': 'Post not found'}, HTTPStatus.NOT_FOUND
+    post = Post.get_by_id(id)
     
-    current_user = get_jwt_identity()
-    current_user = User.query.get(current_user)
+    current_user_id = get_jwt_identity()
+    current_user = User.get_by_id(current_user_id)
 
-    if current_user.id != post.user_id:
-        return {'message': 'Access is not allowed'}, HTTPStatus.FORBIDDEN
-    
-    db.session.delete(post)
-    db.session.commit()
+    current_user.delete_post(post)
 
     return {}, HTTPStatus.NO_CONTENT
 
