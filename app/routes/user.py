@@ -96,10 +96,7 @@ def read_subscriptions(username):
 @user_routes.route('/<string:username>/posts', methods=['GET'])
 @jwt_required(optional=True)
 def read_user_posts(username):
-    user = User.query.filter_by(username=username).first()
-
-    if not user:
-        return {'message': 'User not found'}, HTTPStatus.NOT_FOUND
+    user = User.get_by_username(username)
     
     return posts_schema.dump(user.posts)
 
