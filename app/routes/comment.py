@@ -109,19 +109,12 @@ def delete_comment(id):
 @comment_routes.route('/<int:id>/bookmark', methods=['POST'])
 @jwt_required()
 def bookmark_comment(id):
-    comment = Comment.query.get(id)
-
-    if not comment:
-        return {'message': 'Comment not found'}, HTTPStatus.NOT_FOUND
+    comment = Comment.get_by_id(id)
     
-    current_user = get_jwt_identity()
-    current_user = User.query.get(current_user)
-
-    if comment in current_user.comment_bookmarks:
-        return {'message': 'Comment already bookmarked'}, HTTPStatus.BAD_REQUEST
+    current_user_id = get_jwt_identity()
+    current_user = User.get_by_id(current_user_id)
     
-    current_user.comment_bookmarks.append(comment)
-    db.session.commit()
+    current_user.bookmark_comment(comment)
 
     return {}, HTTPStatus.NO_CONTENT
 
@@ -129,19 +122,12 @@ def bookmark_comment(id):
 @comment_routes.route('/<int:id>/unbookmark', methods=['POST'])
 @jwt_required()
 def unbookmark_comment(id):
-    comment = Comment.query.get(id)
-
-    if not comment:
-        return {'message': 'Comment not found'}, HTTPStatus.NOT_FOUND
+    comment = Comment.get_by_id(id)
     
-    current_user = get_jwt_identity()
-    current_user = User.query.get(current_user)
+    current_user_id = get_jwt_identity()
+    current_user = User.get_by_id(current_user_id)
 
-    if comment not in current_user.comment_bookmarks:
-        return {'message': 'Comment not bookmarked'}, HTTPStatus.BAD_REQUEST
-    
-    current_user.comment_bookmarks.remove(comment)
-    db.session.commit()
+    current_user.unbookmark_comment(comment)
 
     return {}, HTTPStatus.NO_CONTENT
 

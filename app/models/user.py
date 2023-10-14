@@ -340,3 +340,17 @@ class User(db.Model):
         
         db.session.delete(comment)
         db.session.commit()
+
+    def bookmark_comment(self, comment):
+        if comment.is_bookmarked_by(self):
+            raise BookmarkError('Comment already bookmarked')
+        
+        self.comment_bookmarks.append(comment)
+        db.session.commit()
+
+    def unbookmark_comment(self, comment):
+        if not comment.is_bookmarked_by(self):
+            raise BookmarkError('Comment not bookmarked')
+        
+        self.comment_bookmarks.remove(comment)
+        db.session.commit()
