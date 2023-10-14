@@ -104,10 +104,7 @@ def read_user_posts(username):
 @user_routes.route('/<string:username>/comments', methods=['GET'])
 @jwt_required(optional=True)
 def read_user_comments(username):
-    user = User.query.filter_by(username=username).first()
-
-    if not user:
-        return {'message': 'User not found'}, HTTPStatus.NOT_FOUND
+    user = User.get_by_username(username)
     
     return comments_schema.dump(user.comments)
 
