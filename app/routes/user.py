@@ -38,12 +38,9 @@ def read_users():
 @user_routes.route('/<string:username>/available', methods=['GET'])
 @jwt_required(optional=True)
 def is_username_available(username):
-    user = User.is_username_available(username)
+    true_or_false = User.is_username_available(username)
 
-    if not user:
-        return {'message': False}, HTTPStatus.OK
-
-    return {'message': True}, HTTPStatus.OK
+    return {'message': true_or_false}, HTTPStatus.OK
 
 
 @user_routes.route('/<string:username>/follow', methods=['POST'])
@@ -75,10 +72,7 @@ def unfollow_user(username):
 @user_routes.route('/<string:username>/following', methods=['GET'])
 @jwt_required(optional=True)
 def read_following(username):
-    user = User.query.filter_by(username=username).first()
-
-    if not user:
-        return {'message': 'User not found'}, HTTPStatus.NOT_FOUND
+    user = User.get_by_username(username)
     
     return users_schema.dump(user.followed)
 
@@ -116,6 +110,17 @@ def read_user_posts(username):
     return posts_schema.dump(user.posts)
 
 
+@user_routes.route('/<string:username>/comments', methods=['GET'])
+@jwt_required(optional=True)
+def read_user_comments(username):
+    user = User.query.filter_by(username=username).first()
+
+    if not user:
+        return {'message': 'User not found'}, HTTPStatus.NOT_FOUND
+    
+    return comments_schema.dump(user.comments)
+
+
 @user_routes.route('/posts/bookmarked', methods=['GET'])
 @jwt_required()
 def read_user_bookmarks():
@@ -149,17 +154,6 @@ def read_user_downvoted_posts():
     posts = [downvote.post for downvote in downvotes]
 
     return posts_schema.dump(posts), HTTPStatus.OK
-
-
-@user_routes.route('/<string:username>/comments', methods=['GET'])
-@jwt_required(optional=True)
-def read_user_comments(username):
-    user = User.query.filter_by(username=username).first()
-
-    if not user:
-        return {'message': 'User not found'}, HTTPStatus.NOT_FOUND
-    
-    return comments_schema.dump(user.comments)
 
 
 @user_routes.route('/comments/upvoted', methods=['GET'])
