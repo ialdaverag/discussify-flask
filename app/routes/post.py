@@ -270,9 +270,6 @@ def cancel(id):
 @post_routes.route('/<int:id>/comments', methods=['GET'])
 @jwt_required(optional=True)
 def read_post_comments(id):
-    post = Post.query.get(id)
-
-    if not post:
-        return {'message': 'Post not found'}, HTTPStatus.NOT_FOUND
+    post = Post.get_by_id(id)
     
     return comments_schema.dump(post.comments)
