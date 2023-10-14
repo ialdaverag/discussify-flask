@@ -9,6 +9,7 @@ from app.models.comment import Comment
 from app.errors.errors import NotFoundError
 from app.errors.errors import FollowError
 from app.errors.errors import NameError
+from app.errors.errors import NotInError
 from app.errors.errors import ModeratorError
 from app.errors.errors import OwnershipError
 from app.errors.errors import SubscriptionError
@@ -279,7 +280,7 @@ class User(db.Model):
     def create_comment(self, content, post, comment=None):
         community = post.community
 
-        if self in community.banned:
+        if self.is_banned_from(community):
             raise BanError('You are banned from this community')
 
         if not self.is_subscribed_to(community):
@@ -287,7 +288,7 @@ class User(db.Model):
         
         if comment is not None:
             if comment not in post.comments:
-                raise NotIn('The comment to reply is not in the post')
+                raise NotInError('The comment to reply is not in the post')
         
         new_comment = Comment(content=content, post=post, owner=self, comment=comment)
 
@@ -295,3 +296,20 @@ class User(db.Model):
         db.session.commit()
 
         return new_comment
+    
+    def update_comment(self, content, comment):
+        if not comment.belongs_to(self):
+            raise OwnershipError('This post is not yours')
+        
+        community = comment.post.community
+        
+        if self.is_banned_from(community):
+            raise BanError('You are banned from this community')
+        
+        new_content = content
+
+        comment.content = new_content or comment.content
+
+        return comment
+        
+

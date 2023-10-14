@@ -76,12 +76,9 @@ def read_comments():
 def update_comment(id):
     comment = Comment.get_by_id(id)
     
-    current_user = get_jwt_identity()
-    current_user = User.query.get(current_user)
+    current_user_id = get_jwt_identity()
+    current_user = User.get_by_id(current_user_id)
 
-    if current_user.id != comment.user_id:
-        return {'message': 'Access is not allowed'}, HTTPStatus.FORBIDDEN
-    
     json_data = request.get_json()
 
     try:
@@ -89,9 +86,9 @@ def update_comment(id):
     except ValidationError as err:
         return {'errors': err.messages}, HTTPStatus.BAD_REQUEST
     
-    comment.content = data.get('content') or comment.content
+    content = data.get('content')
 
-    db.session.commit()
+    comment = current_user.update_comment(content, comment)
 
     return comment_schema.dump(comment), HTTPStatus.OK
 

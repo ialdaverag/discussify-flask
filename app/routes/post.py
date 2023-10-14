@@ -85,9 +85,6 @@ def update_post(id):
     
     title = data.get('title')
     content = data.get('content')
-
-    print(title)
-    print(content)
     
     post = current_user.update_post(post, title, content)
 

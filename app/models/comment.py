@@ -42,3 +42,6 @@ class Comment(db.Model):
             raise NotFoundError('Comment not found')
         
         return comment
+    
+    def belongs_to(self, user):
+        return self.owner is user
