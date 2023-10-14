@@ -142,10 +142,7 @@ def mod(name, username):
 @community_routes.route('/<string:name>/moderators', methods=['GET'])
 @jwt_required(optional=True)
 def read_moderators(name):
-    community = Community.query.filter_by(name=name).first()
-
-    if not community:
-        return {'message': 'Community not found'}, HTTPStatus.NOT_FOUND
+    community = Community.get_by_name(name)
 
     return users_schema.dump(community.moderators), HTTPStatus.OK
 
