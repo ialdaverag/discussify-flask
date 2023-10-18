@@ -138,6 +138,29 @@ class UpdateCommunityTests(CommunityTests):
 
         self.assertEqual(200, response.status_code)
 
+    def test_update_non_existent_community(self):
+        access_token = login(user=self.user)
+        community = 'non_existent'
+        
+        route = f'community/{community}'
+        content_type='application/json'
+        json = {
+            'name': 'UpdatedCommunity',
+            'about': 'A updated community for tests'
+        }
+        headers={
+            'Authorization': f'Bearer {access_token}'
+        }
+
+        response = self.client.patch(
+            route, 
+            content_type=content_type, 
+            json=json,
+            headers=headers
+        )
+
+        self.assertEqual(404, response.status_code)
+
     def test_update_community_incorrect_owner(self):
         access_token = login(user=self.user2)
         community = self.community.name
@@ -205,4 +228,53 @@ class UpdateCommunityTests(CommunityTests):
         )
 
         self.assertEqual(400, response.status_code)
-    
+
+
+class DeleteCommunityTests(CommunityTests):
+    def test_delete_community(self):
+        access_token = login(user=self.user)
+        community = self.community.name
+        
+        route = f'community/{community}'
+        headers={
+            'Authorization': f'Bearer {access_token}'
+        }
+
+        response = self.client.delete(
+            route, 
+            headers=headers
+        )
+
+        self.assertEqual(204, response.status_code)
+
+    def test_delete_non_existent_community(self):
+        access_token = login(user=self.user)
+        community = 'non_existent'
+        
+        route = f'community/{community}'
+        headers={
+            'Authorization': f'Bearer {access_token}'
+        }
+
+        response = self.client.delete(
+            route, 
+            headers=headers
+        )
+
+        self.assertEqual(404, response.status_code)
+
+    def test_delete_community_incorrect_owner(self):
+        access_token = login(user=self.user)
+        community = self.community2.name
+
+        route = f'community/{community}'
+        headers={
+            'Authorization': f'Bearer {access_token}'
+        }
+
+        response = self.client.delete(
+            route, 
+            headers=headers
+        )
+
+        self.assertEqual(403, response.status_code)
