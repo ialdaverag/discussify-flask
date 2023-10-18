@@ -170,3 +170,63 @@ class SignUpTests(AuthTests):
         )
 
         self.assertEqual(400, response.status_code)
+
+
+class LogInTests(AuthTests):
+    def test_log_in(self):
+        username = self.user.username
+        password = 'TestPassword123'
+
+        route = 'auth/login'
+        content_type='application/json'
+        json = {
+            'username': username,
+            'password': password
+        }
+
+        response = self.client.post(
+            route, 
+            content_type=content_type, 
+            json=json
+        )
+
+        self.assertEqual(200, response.status_code)
+
+    def test_log_in_incorrect_username(self):
+        username = 'test2'
+        password = 'TestPassword123'
+
+        route = 'auth/login'
+        content_type='application/json'
+        json = {
+            'username': username,
+            'password': password
+        }
+
+        response = self.client.post(
+            route, 
+            content_type=content_type, 
+            json=json
+        )
+
+        self.assertEqual(401, response.status_code)
+
+    def test_log_in_incorrect_password(self):
+        username = 'test'
+        password = 'TestPassword321'
+
+        route = 'auth/login'
+        content_type='application/json'
+        json = {
+            'username': username,
+            'password': password
+        }
+
+        response = self.client.post(
+            route, 
+            content_type=content_type, 
+            json=json
+        )
+
+        self.assertEqual(401, response.status_code)
+    
