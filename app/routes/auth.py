@@ -46,6 +46,7 @@ def signup():
     
     user = User(**data)
 
+    '''
     token = generate_verification_token(user.email, salt='activate')
     subject = 'Please confirm your registration'
     link = url_for('auth_routes.confirm_email', token=token, _external=True)
@@ -55,7 +56,8 @@ def signup():
         subject=subject, 
         template=render_template('email/confirmation.html', link=link)
     )
-    
+    '''
+
     db.session.add(user)
     db.session.commit()
 
@@ -83,8 +85,10 @@ def login():
     if not check_password(password, user.password):
         return {'message': 'Incorrect password'}, HTTPStatus.UNAUTHORIZED
     
+    '''
     if user.is_verified is False:
             return {'message': 'The user account is not activated yet'}, HTTPStatus.FORBIDDEN
+    '''
     
     access_token = create_access_token(identity=user.id)
     
