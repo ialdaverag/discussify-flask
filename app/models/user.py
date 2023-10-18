@@ -355,6 +355,7 @@ class User(db.Model):
         self.comment_bookmarks.remove(comment)
         db.session.commit()
 
+    '''
     def upvote_post(self, post):
         community = post.community
 
@@ -369,7 +370,8 @@ class User(db.Model):
         
         if post.is_downvoted_by(self):
             direction = 1
-
+    '''
+    
     def downvote_post(self, post):
         pass
 
