@@ -1,4 +1,5 @@
 from ..base_test_case import BaseTestCase
+from tests.utils.login import login
 
 from app.models.user import User
 from app.extensions.database import db
@@ -230,3 +231,21 @@ class LogInTests(AuthTests):
 
         self.assertEqual(401, response.status_code)
     
+
+class LogOutTests(AuthTests):
+    def test_logout(self):
+        access_token = login(self.user)
+
+        route = 'auth/logout'
+        content_type='application/json'
+        headers={
+            'Authorization': f'Bearer {access_token}'
+        }
+
+        response = self.client.post(
+            route, 
+            content_type=content_type, 
+            headers=headers
+        )
+
+        self.assertEqual(200, response.status_code)
