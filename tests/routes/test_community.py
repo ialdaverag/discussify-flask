@@ -24,8 +24,6 @@ class CommunityTests(BaseTestCase):
         community = user.create_community(name='TestCommunity', about='A community created for tests')
         community2 = user2.create_community(name='TestCommunity2',about='Another community created for tests')
 
-        user2.ban_from(user3, community2)
-
         self.user = user
         self.user2 = user2
         self.user3 = user3
@@ -289,10 +287,12 @@ class DeleteCommunityTests(CommunityTests):
 class SubscribeToCommunityTests(CommunityTests):
     def setUp(self) -> None:
         super().setUp()
-        user2 = self.user2
-        user3 = self.user
+
+        community = self.community
+        community.append_subscriber(self.user2)
 
         community2 = self.community2
+        community2.append_banned(self.user3)
 
     def test_subscribe_to_community(self):
         access_token = login(user=self.user)
@@ -327,9 +327,9 @@ class SubscribeToCommunityTests(CommunityTests):
         self.assertEqual(404, response.status_code)
 
     def test_subscribe_to_community_banned(self):
-        access_token = login(user=self.user)
-        community = 'non_existent'
-        
+        access_token = login(user=self.user3)
+        community = self.community2.name
+
         route = f'community/{community}/subscribe'
         headers={
             'Authorization': f'Bearer {access_token}'
@@ -340,4 +340,20 @@ class SubscribeToCommunityTests(CommunityTests):
             headers=headers
         )
 
-        self.assertEqual(404, response.status_code)
+        self.assertEqual(400, response.status_code)
+
+    def test_subscribe_to_community_already_subscribed(self):
+        access_token = login(user=self.user2)
+        community = self.community.name
+
+        route = f'community/{community}/subscribe'
+        headers={
+            'Authorization': f'Bearer {access_token}'
+        }
+
+        response = self.client.post(
+            route, 
+            headers=headers
+        )
+
+        self.assertEqual(400, response.status_code)
