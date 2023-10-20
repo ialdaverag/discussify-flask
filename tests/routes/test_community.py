@@ -13,9 +13,7 @@ class CommunityTests(BaseTestCase):
         super().setUp()
 
         user = User(username='test', email='test@example.com', password=hash_password('TestPassword123'))
-        #community = Community(name='TestCommunity', about='A community created for tests', owner=user)
         user2 = User(username='test2', email='test2@example.com', password=hash_password('TestPassword132'))
-        #community2 = Community(name='TestCommunity2',about='Another community created for tests', owner=user2)
         user3 = User(username='test3', email='test3@example.com', password=hash_password('TestPassword132'))
 
         db.session.add_all([user, user2, user3])
@@ -357,3 +355,75 @@ class SubscribeToCommunityTests(CommunityTests):
         )
 
         self.assertEqual(400, response.status_code)
+
+
+class UbsubscribeToCommunityTests(CommunityTests):
+    def setUp(self) -> None:
+        super().setUp()
+
+        community = self.community
+        community.append_subscriber(self.user2)
+
+    def test_unsubscribe_to_community(self):
+        access_token = login(user=self.user2)
+        community = self.community.name
+        
+        route = f'community/{community}/unsubscribe'
+        headers={
+            'Authorization': f'Bearer {access_token}'
+        }
+
+        response = self.client.post(
+            route, 
+            headers=headers
+        )
+
+        self.assertEqual(204, response.status_code)
+
+    def test_unsubscribe_to_community_not_subscribed(self):
+        access_token = login(user=self.user)
+        community = self.community2.name
+
+        route = f'community/{community}/unsubscribe'
+        headers={
+            'Authorization': f'Bearer {access_token}'
+        }
+
+        response = self.client.post(
+            route, 
+            headers=headers
+        )
+
+        self.assertEqual(400, response.status_code)
+
+    def test_unsusbcribe_to_non_existent_community(self):
+        access_token = login(user=self.user)
+        community = 'non_existent'
+        
+        route = f'community/{community}/unsubscribe'
+        headers={
+            'Authorization': f'Bearer {access_token}'
+        }
+
+        response = self.client.post(
+            route, 
+            headers=headers
+        )
+
+        self.assertEqual(404, response.status_code)
+
+    def test_unsusbcribe_to_community_owner(self):
+        access_token = login(user=self.user)
+        community = self.community.name
+
+        route = f'community/{community}/unsubscribe'
+        headers={
+            'Authorization': f'Bearer {access_token}'
+        }
+
+        response = self.client.post(
+            route, 
+            headers=headers
+        )
+
+        self.assertEqual(403, response.status_code)
