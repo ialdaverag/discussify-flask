@@ -427,3 +427,143 @@ class UbsubscribeToCommunityTests(CommunityTests):
         )
 
         self.assertEqual(403, response.status_code)
+
+
+class ModTests(CommunityTests):
+    def setUp(self) -> None:
+        super().setUp()
+
+        community = self.community
+        community.append_subscriber(self.user2)
+        community.append_moderator(self.user3)
+
+        community2 = self.community2
+        community2.append_banned(self.user3)
+
+    def test_mod_to_community(self):
+        access_token = login(user=self.user)
+        community = self.community.name
+        user_to_mod = self.user2.username
+
+        print('suscriptores',self.community.subscribers)
+        print('moderadores',self.community.moderators)
+
+        route = f'community/{community}/mod/{user_to_mod}'
+        headers={
+            'Authorization': f'Bearer {access_token}'
+        }
+
+        response = self.client.post(
+            route, 
+            headers=headers
+        )
+
+        self.assertEqual(204, response.status_code)
+
+    def test_mod_to_non_existent_community(self):
+        access_token = login(user=self.user)
+        community = 'non_existent'
+        user_to_mod = self.user2.username
+
+        print('suscriptores',self.community.subscribers)
+        print('moderadores',self.community.moderators)
+
+        route = f'community/{community}/mod/{user_to_mod}'
+        headers={
+            'Authorization': f'Bearer {access_token}'
+        }
+
+        response = self.client.post(
+            route, 
+            headers=headers
+        )
+
+        self.assertEqual(404, response.status_code)
+
+    def test_mod_not_mod(self):
+        access_token = login(user=self.user)
+        community = self.community2.name
+        user_to_mod = self.user3.username
+
+        route = f'community/{community}/mod/{user_to_mod}'
+        headers={
+            'Authorization': f'Bearer {access_token}'
+        }
+
+        response = self.client.post(
+            route, 
+            headers=headers
+        )
+
+        self.assertEqual(403, response.status_code)
+
+    def test_mod_to_non_existent_user(self):
+        access_token = login(user=self.user)
+        community = self.community.name
+        user_to_mod = 'user5'
+
+        print('suscriptores',self.community.subscribers)
+        print('moderadores',self.community.moderators)
+
+        route = f'community/{community}/mod/{user_to_mod}'
+        headers={
+            'Authorization': f'Bearer {access_token}'
+        }
+
+        response = self.client.post(
+            route, 
+            headers=headers
+        )
+
+        self.assertEqual(404, response.status_code)
+
+    def test_mod_to_not_subscribed_user(self):
+        access_token = login(user=self.user2)
+        community = self.community2.name
+        user_to_mod = self.user.username
+
+        route = f'community/{community}/mod/{user_to_mod}'
+        headers={
+            'Authorization': f'Bearer {access_token}'
+        }
+
+        response = self.client.post(
+            route, 
+            headers=headers
+        )
+
+        self.assertEqual(400, response.status_code)
+
+    def test_mod_to_banned_user(self):
+        access_token = login(user=self.user2)
+        community = self.community2.name
+        user_to_mod = self.user3.username
+
+        route = f'community/{community}/mod/{user_to_mod}'
+        headers={
+            'Authorization': f'Bearer {access_token}'
+        }
+
+        response = self.client.post(
+            route, 
+            headers=headers
+        )
+
+        self.assertEqual(400, response.status_code)
+
+    def test_mod_to_community_already_mod(self):
+        access_token = login(user=self.user)
+        community = self.community.name
+        user_to_mod = self.user3.username
+
+        route = f'community/{community}/mod/{user_to_mod}'
+        headers={
+            'Authorization': f'Bearer {access_token}'
+        }
+
+        response = self.client.post(
+            route, 
+            headers=headers
+        )
+
+        self.assertEqual(400, response.status_code)
