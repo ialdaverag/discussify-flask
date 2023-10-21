@@ -916,3 +916,100 @@ class UnbanTests(CommunityTests):
         )
 
         self.assertEqual(401, response.status_code)
+
+
+class TransferTests(CommunityTests):
+    def setUp(self) -> None:
+        super().setUp()
+
+        community = self.community
+        community.append_subscriber(self.user2)
+        community.append_moderator(self.user3)
+
+        community2 = self.community2
+        community2.append_banned(self.user3)
+
+    def test_transfer_community_to_user(self):
+        access_token = login(user=self.user)
+        community = self.community.name
+        user = self.user2.username
+
+        route = f'community/{community}/transfer/{user}'
+        headers={
+            'Authorization': f'Bearer {access_token}'
+        }
+
+        response = self.client.post(
+            route, 
+            headers=headers
+        )
+
+        self.assertEqual(204, response.status_code)
+
+    def test_transfer_non_existent_community_to_user(self):
+        access_token = login(user=self.user)
+        community = 'non_existent'
+        user = self.user2.username
+
+        route = f'community/{community}/transfer/{user}'
+        headers={
+            'Authorization': f'Bearer {access_token}'
+        }
+
+        response = self.client.post(
+            route, 
+            headers=headers
+        )
+
+        self.assertEqual(404, response.status_code)
+
+    def test_transfer_community_to_non_existent_user(self):
+        access_token = login(user=self.user)
+        community = self.community.name
+        user = 'non_existent'
+
+        route = f'community/{community}/transfer/{user}'
+        headers={
+            'Authorization': f'Bearer {access_token}'
+        }
+
+        response = self.client.post(
+            route, 
+            headers=headers
+        )
+
+        self.assertEqual(404, response.status_code)
+
+    def test_transfer_community_to_user_being_not_owner(self):
+        access_token = login(user=self.user2)
+        community = self.community.name
+        user = self.user3.username
+
+        route = f'community/{community}/transfer/{user}'
+        headers={
+            'Authorization': f'Bearer {access_token}'
+        }
+
+        response = self.client.post(
+            route, 
+            headers=headers
+        )
+
+        self.assertEqual(403, response.status_code)
+
+    def test_transfer_community_to_user_not_subscribed(self):
+        access_token = login(user=self.user2)
+        community = self.community2.name
+        user = self.user.username
+
+        route = f'community/{community}/transfer/{user}'
+        headers={
+            'Authorization': f'Bearer {access_token}'
+        }
+
+        response = self.client.post(
+            route, 
+            headers=headers
+        )
+
+        self.assertEqual(400, response.status_code)

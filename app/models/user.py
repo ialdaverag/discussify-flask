@@ -248,7 +248,7 @@ class User(db.Model):
             community.append_moderator(user)
 
         community.change_ownership_to(user)
-        db.session.commit()
+        #db.session.commit()
 
     def create_post(self, title, content, community):
         if self.is_banned_from(community):
