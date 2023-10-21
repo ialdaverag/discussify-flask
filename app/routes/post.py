@@ -36,7 +36,7 @@ def create_post():
     community = Community.get_by_id(community_id)
     
     current_user_id = get_jwt_identity()
-    current_user = User.query.get(current_user_id)
+    current_user = User.get_by_id(current_user_id)
 
     title = data.get('title')
     content = data.get('content')

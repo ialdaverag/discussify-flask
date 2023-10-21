@@ -60,7 +60,7 @@ def update_community(name):
     community = Community.get_by_name(name=name)
     
     current_user_id = get_jwt_identity()
-    current_user = User.query.get(current_user_id)
+    current_user = User.get_by_id(current_user_id)
 
     json_data = request.get_json()
 
@@ -83,7 +83,7 @@ def delete_community(name):
     community = Community.get_by_name(name=name)
 
     current_user_id = get_jwt_identity()
-    current_user = User.query.get(current_user_id)
+    current_user = User.get_by_id(current_user_id)
 
     current_user.delete_community(community)
 
@@ -96,7 +96,7 @@ def subscribe(name):
     community = Community.get_by_name(name)
     
     current_user_id = get_jwt_identity()
-    current_user = User.query.get(current_user_id)
+    current_user = User.get_by_id(current_user_id)
 
     current_user.subscribe_to(community)
 
@@ -116,8 +116,8 @@ def read_subscribers(name):
 def unsubscribe(name):
     community = Community.get_by_name(name)
 
-    current_user = get_jwt_identity()
-    current_user = User.query.get(current_user)
+    current_user_id = get_jwt_identity()
+    current_user = User.get_by_id(current_user_id)
 
     current_user.unsubscribe_to(community)
 
@@ -167,8 +167,8 @@ def unmod(name, username):
 def ban(name, username):
     community = Community.get_by_name(name)
     
-    current_user = get_jwt_identity()
-    current_user = User.query.get(current_user)
+    current_user_id = get_jwt_identity()
+    current_user = User.get_by_id(current_user_id)
     
     user = User.get_by_username(username)
     
@@ -190,8 +190,8 @@ def read_banned(name):
 def unban(name, username):
     community = Community.get_by_name(name)
     
-    current_user = get_jwt_identity()
-    current_user = User.query.get(current_user)
+    current_user_id = get_jwt_identity()
+    current_user = User.get_by_id(current_user_id)
     
     user = User.get_by_username(username)
     
@@ -206,7 +206,7 @@ def transfer(name, username):
     community = Community.get_by_name(name=name)
     
     current_user_id = get_jwt_identity()
-    current_user = User.query.get(current_user_id)
+    current_user = User.get_by_id(current_user_id)
     
     user = User.get_by_username(username=username)
     

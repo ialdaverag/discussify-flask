@@ -42,7 +42,8 @@ class Community(db.Model):
     
     @classmethod
     def get_by_id(cls, id):
-        community = Community.query.get(id)
+        #community = Community.query.get(id)
+        community = db.session.get(Community, id)
 
         if community is None:
             raise NotFoundError('Community not found')
@@ -51,7 +52,8 @@ class Community(db.Model):
     
     @classmethod
     def get_by_name(cls, name):
-        community = Community.query.filter_by(name=name).first()
+        #community = Community.query.filter_by(name=name).first()
+        community = db.session.execute(db.select(Community).filter_by(name=name)).scalar()
 
         if community is None:
             raise NotFoundError('Community not found')
@@ -60,7 +62,8 @@ class Community(db.Model):
     
     @classmethod
     def get_all(cls):
-        return Community.query.all()
+        #return Community.query.all()
+        return db.session.scalars(db.select(Community)).all()
     
     def belongs_to(self, user):
         return self.owner is user

@@ -1,0 +1,250 @@
+from ..base_test_case import BaseTestCase
+from tests.utils.login import login
+
+from app.models.user import User
+from app.models.community import Community
+
+from app.extensions.database import db
+from app.utils.password import hash_password
+
+
+class PostTests(BaseTestCase):
+    def setUp(self) -> None:
+        super().setUp()
+
+        user = User(username='test', email='test@example.com', password=hash_password('TestPassword123'))
+        user2 = User(username='test2', email='test2@example.com', password=hash_password('TestPassword132'))
+        user3 = User(username='test3', email='test3@example.com', password=hash_password('TestPassword132'))
+
+        db.session.add_all([user, user2, user3])
+        db.session.commit()
+    
+        community = user.create_community(name='TestCommunity', about='A community created for tests')
+        community2 = user2.create_community(name='TestCommunity2',about='Another community created for tests')
+
+        community.append_subscriber(user2)
+        community.append_moderator(user3)
+        community2.append_banned(user3)
+
+        self.user = user
+        self.user2 = user2
+        self.user3 = user3
+        self.community = community
+        self.community2 = community2
+
+
+class CreatePostTests(PostTests):
+    def test_create_post(self):
+        access_token = login(user=self.user2)
+        community_id = self.community.id
+        
+        route = 'post/'
+        content_type='application/json'
+        json = {
+            'title': 'New Post',
+            'content': 'A new post in the community',
+            'community_id': community_id
+        }
+        headers={
+            'Authorization': f'Bearer {access_token}'
+        }
+
+        response = self.client.post(
+            route, 
+            content_type=content_type, 
+            json=json,
+            headers=headers
+        )
+
+        self.assertEqual(201, response.status_code)
+
+    def test_create_post_no_title(self):
+        access_token = login(user=self.user2)
+        community_id = self.community.id
+        
+        route = 'post/'
+        content_type='application/json'
+        json = {
+            'content': 'A new post in the community',
+            'community_id': community_id
+        }
+        headers={
+            'Authorization': f'Bearer {access_token}'
+        }
+
+        response = self.client.post(
+            route, 
+            content_type=content_type, 
+            json=json,
+            headers=headers
+        )
+
+        self.assertEqual(400, response.status_code)
+
+    def test_create_post_no_content(self):
+        access_token = login(user=self.user2)
+        community_id = self.community.id
+        
+        route = 'post/'
+        content_type='application/json'
+        json = {
+            'title': 'New Post',
+            'community_id': community_id
+        }
+        headers={
+            'Authorization': f'Bearer {access_token}'
+        }
+
+        response = self.client.post(
+            route, 
+            content_type=content_type, 
+            json=json,
+            headers=headers
+        )
+
+        self.assertEqual(400, response.status_code)
+
+    def test_create_post_no_community_id(self):
+        access_token = login(user=self.user2)
+        community_id = self.community.id
+        
+        route = 'post/'
+        content_type='application/json'
+        json = {
+            'title': 'New Post',
+            'content': 'A new post in the community'
+        }
+        headers={
+            'Authorization': f'Bearer {access_token}'
+        }
+
+        response = self.client.post(
+            route, 
+            content_type=content_type, 
+            json=json,
+            headers=headers
+        )
+
+        self.assertEqual(400, response.status_code)
+
+    def test_create_post_incorrect_title(self):
+        access_token = login(user=self.user2)
+        community_id = self.community.id
+        
+        route = 'post/'
+        content_type='application/json'
+        json = {
+            'title': 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed diam metus, varius eget porta at, tincidunt ac dui.',
+            'content': 'A new post in the community',
+            'community_id': community_id
+        }
+        headers={
+            'Authorization': f'Bearer {access_token}'
+        }
+
+        response = self.client.post(
+            route, 
+            content_type=content_type, 
+            json=json,
+            headers=headers
+        )
+
+        self.assertEqual(400, response.status_code)
+
+    def test_create_post_incorrect_content(self):
+        access_token = login(user=self.user2)
+        community_id = self.community.id
+        
+        route = 'post/'
+        content_type='application/json'
+        json = {
+            'title': 'New Post',
+            'content': '',
+            'community_id': community_id
+        }
+        headers={
+            'Authorization': f'Bearer {access_token}'
+        }
+
+        response = self.client.post(
+            route, 
+            content_type=content_type, 
+            json=json,
+            headers=headers
+        )
+
+        self.assertEqual(400, response.status_code)
+
+    def test_create_post_community_not_found(self):
+        access_token = login(user=self.user2)
+        community_id = 999
+        
+        route = 'post/'
+        content_type='application/json'
+        json = {
+            'title': 'New Post',
+            'content': 'A new post in the community',
+            'community_id': community_id
+        }
+        headers={
+            'Authorization': f'Bearer {access_token}'
+        }
+
+        response = self.client.post(
+            route, 
+            content_type=content_type, 
+            json=json,
+            headers=headers
+        )
+
+        self.assertEqual(404, response.status_code)
+
+    def test_create_post_not_subscribed(self):
+        access_token = login(user=self.user)
+        community_id = self.community2.id
+        
+        route = 'post/'
+        content_type='application/json'
+        json = {
+            'title': 'New Post',
+            'content': 'A new post in the community',
+            'community_id': community_id
+        }
+        headers={
+            'Authorization': f'Bearer {access_token}'
+        }
+
+        response = self.client.post(
+            route, 
+            content_type=content_type, 
+            json=json,
+            headers=headers
+        )
+
+        self.assertEqual(400, response.status_code)
+
+    def test_create_post_banned_user(self):
+        access_token = login(user=self.user3)
+        community_id = self.community2.id
+        
+        route = 'post/'
+        content_type='application/json'
+        json = {
+            'title': 'New Post',
+            'content': 'A new post in the community',
+            'community_id': community_id
+        }
+        headers={
+            'Authorization': f'Bearer {access_token}'
+        }
+
+        response = self.client.post(
+            route, 
+            content_type=content_type, 
+            json=json,
+            headers=headers
+        )
+
+        self.assertEqual(400, response.status_code)
+
+    

@@ -57,7 +57,8 @@ class User(db.Model):
     
     @classmethod
     def get_by_username(cls, username):
-        user = User.query.filter_by(username=username).first()
+        #user = User.query.filter_by(username=username).first()
+        user = db.session.execute(db.select(User).filter_by(username=username)).scalar()
 
         if user is None:
             raise NotFoundError('User not found')
@@ -66,7 +67,8 @@ class User(db.Model):
     
     @classmethod
     def get_by_id(cls, id):
-        user = User.query.get(id)
+        #user = User.query.get(id)
+        user = db.session.get(User, id)
 
         if user is None:
             raise NotFoundError('User not found')
@@ -75,7 +77,7 @@ class User(db.Model):
     
     @classmethod
     def get_all(cls):
-        return User.query.all()
+        return db.session.scalars(db.select(User)).all()
     
     def is_following(self, other):
         return other in self.followed
