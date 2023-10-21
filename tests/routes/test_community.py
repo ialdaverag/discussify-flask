@@ -691,3 +691,149 @@ class UnmodTests(CommunityTests):
         self.assertEqual(403, response.status_code)
 
     
+class BanTests(CommunityTests):
+    def setUp(self) -> None:
+        super().setUp()
+
+        community = self.community
+        community.append_subscriber(self.user2)
+        community.append_moderator(self.user3)
+
+        community2 = self.community2
+        community2.append_banned(self.user3)
+
+    def test_ban_user_from_community(self):
+        access_token = login(user=self.user)
+        community = self.community.name
+        user_to_ban = self.user2.username
+
+        route = f'community/{community}/ban/{user_to_ban}'
+        headers={
+            'Authorization': f'Bearer {access_token}'
+        }
+
+        response = self.client.post(
+            route, 
+            headers=headers
+        )
+
+        self.assertEqual(204, response.status_code)
+
+    def test_ban_user_from_non_existent_community(self):
+        access_token = login(user=self.user)
+        community = 'non_existent'
+        user_to_ban = self.user2.username
+
+        route = f'community/{community}/ban/{user_to_ban}'
+        headers={
+            'Authorization': f'Bearer {access_token}'
+        }
+
+        response = self.client.post(
+            route, 
+            headers=headers
+        )
+
+        self.assertEqual(404, response.status_code)
+
+    def test_ban_non_existent_user_from_community(self):
+        access_token = login(user=self.user)
+        community = self.community.name
+        user_to_ban = 'non_existent'
+
+        route = f'community/{community}/ban/{user_to_ban}'
+        headers={
+            'Authorization': f'Bearer {access_token}'
+        }
+
+        response = self.client.post(
+            route, 
+            headers=headers
+        )
+
+        self.assertEqual(404, response.status_code)
+
+    def test_ban_user_from_community_not_being_mod(self):
+        access_token = login(user=self.user2)
+        community = self.community.name
+        user_to_ban = self.user3.username
+
+        route = f'community/{community}/ban/{user_to_ban}'
+        headers={
+            'Authorization': f'Bearer {access_token}'
+        }
+
+        response = self.client.post(
+            route, 
+            headers=headers
+        )
+
+        self.assertEqual(401, response.status_code)
+
+    def test_ban_user_already_banned_from_community(self):
+        access_token = login(user=self.user2)
+        community = self.community2.name
+        user_to_ban = self.user3.username
+
+        route = f'community/{community}/ban/{user_to_ban}'
+        headers={
+            'Authorization': f'Bearer {access_token}'
+        }
+
+        response = self.client.post(
+            route, 
+            headers=headers
+        )
+
+        self.assertEqual(400, response.status_code)
+
+    def test_ban_user_not_subscribed_to_community(self):
+        access_token = login(user=self.user2)
+        community = self.community2.name
+        user_to_ban = self.user.username
+
+        route = f'community/{community}/ban/{user_to_ban}'
+        headers={
+            'Authorization': f'Bearer {access_token}'
+        }
+
+        response = self.client.post(
+            route, 
+            headers=headers
+        )
+
+        self.assertEqual(400, response.status_code)
+
+    def test_ban_user_already_banned_from_community(self):
+        access_token = login(user=self.user3)
+        community = self.community.name
+        user_to_ban = self.user.username
+
+        route = f'community/{community}/ban/{user_to_ban}'
+        headers={
+            'Authorization': f'Bearer {access_token}'
+        }
+
+        response = self.client.post(
+            route, 
+            headers=headers
+        )
+
+        self.assertEqual(400, response.status_code)
+
+    def test_ban_user_themselves(self):
+        access_token = login(user=self.user3)
+        community = self.community.name
+        user_to_ban = self.user3.username
+
+        route = f'community/{community}/ban/{user_to_ban}'
+        headers={
+            'Authorization': f'Bearer {access_token}'
+        }
+
+        response = self.client.post(
+            route, 
+            headers=headers
+        )
+
+        self.assertEqual(400, response.status_code)
