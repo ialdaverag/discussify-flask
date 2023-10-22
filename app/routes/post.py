@@ -68,10 +68,7 @@ def read_posts():
 @post_routes.route('/<int:id>', methods=['PATCH'])
 @jwt_required()
 def update_post(id):
-    post = Post.query.get(id)
-
-    if not post:
-        return {'message': 'Post not found'}, HTTPStatus.NOT_FOUND
+    post = Post.get_by_id(id)
     
     current_user_id = get_jwt_identity()
     current_user = User.get_by_id(current_user_id)

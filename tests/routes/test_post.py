@@ -26,11 +26,18 @@ class PostTests(BaseTestCase):
         community.append_moderator(user3)
         community2.append_banned(user3)
 
+        post = user2.create_post(
+            title='My first post', 
+            content='This is my first post in this community', 
+            community=community
+        )
+
         self.user = user
         self.user2 = user2
         self.user3 = user3
         self.community = community
         self.community2 = community2
+        self.post = post
 
 
 class CreatePostTests(PostTests):
@@ -248,3 +255,116 @@ class CreatePostTests(PostTests):
         self.assertEqual(400, response.status_code)
 
     
+class UpdatePostTests(PostTests):
+    def test_update_post(self):
+        access_token = login(user=self.user2)
+        post = self.post
+        
+        route = f'post/{post.id}'
+        content_type='application/json'
+        json = {
+            'title': 'My first updated Post',
+            'content': 'A updated post in the community'
+        }
+        headers={
+            'Authorization': f'Bearer {access_token}'
+        }
+
+        response = self.client.patch(
+            route, 
+            content_type=content_type, 
+            json=json,
+            headers=headers
+        )
+
+        self.assertEqual(200, response.status_code)
+
+    def test_update_non_existent_post(self):
+        access_token = login(user=self.user2)
+        post = 999
+        
+        route = f'post/{post}'
+        content_type='application/json'
+        json = {
+            'title': 'My first updated Post',
+            'content': 'A updated post in the community'
+        }
+        headers={
+            'Authorization': f'Bearer {access_token}'
+        }
+
+        response = self.client.patch(
+            route, 
+            content_type=content_type, 
+            json=json,
+            headers=headers
+        )
+
+        self.assertEqual(404, response.status_code)
+
+    def test_update_post_incorrect_title(self):
+        access_token = login(user=self.user2)
+        post = self.post
+        
+        route = f'post/{post.id}'
+        content_type='application/json'
+        json = {
+            'title': 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed diam metus, varius eget porta at, tincidunt ac dui.',
+        }
+        headers={
+            'Authorization': f'Bearer {access_token}'
+        }
+
+        response = self.client.patch(
+            route, 
+            content_type=content_type, 
+            json=json,
+            headers=headers
+        )
+
+        self.assertEqual(400, response.status_code)
+
+    def test_update_post_incorrect_content(self):
+        access_token = login(user=self.user2)
+        post = self.post
+        
+        route = f'post/{post.id}'
+        content_type='application/json'
+        json = {
+            'content': ''
+        }
+        headers={
+            'Authorization': f'Bearer {access_token}'
+        }
+
+        response = self.client.patch(
+            route, 
+            content_type=content_type, 
+            json=json,
+            headers=headers
+        )
+
+        self.assertEqual(400, response.status_code)
+
+    def test_update_post_not_owner(self):
+        access_token = login(user=self.user)
+        post = self.post
+        
+        route = f'post/{post.id}'
+        content_type='application/json'
+        json = {
+            'title': 'My first updated Post',
+            'content': 'A updated post in the community'
+        }
+        headers={
+            'Authorization': f'Bearer {access_token}'
+        }
+
+        response = self.client.patch(
+            route, 
+            content_type=content_type, 
+            json=json,
+            headers=headers
+        )
+
+        self.assertEqual(403, response.status_code)
