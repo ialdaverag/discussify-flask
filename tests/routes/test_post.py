@@ -32,12 +32,19 @@ class PostTests(BaseTestCase):
             community=community
         )
 
+        post2 = user2.create_post(
+            title='A simple test post',
+            content='...',
+            community=community2
+        )
+
         self.user = user
         self.user2 = user2
         self.user3 = user3
         self.community = community
         self.community2 = community2
         self.post = post
+        self.post2 = post2
 
 
 class CreatePostTests(PostTests):
@@ -368,3 +375,72 @@ class UpdatePostTests(PostTests):
         )
 
         self.assertEqual(403, response.status_code)
+
+    
+class DeletePost(PostTests):
+    def test_delete_post_being_owner(self):
+        access_token = login(user=self.user2)
+        post_id = self.post.id
+        
+        route = f'post/{post_id}'
+        headers={
+            'Authorization': f'Bearer {access_token}'
+        }
+
+        response = self.client.delete(
+            route,
+            headers=headers
+        )
+
+        self.assertEqual(204, response.status_code)
+
+    def test_delete_post_being_mod(self):
+        access_token = login(user=self.user)
+        post_id = self.post.id
+        
+        route = f'post/{post_id}'
+        headers={
+            'Authorization': f'Bearer {access_token}'
+        }
+
+        response = self.client.delete(
+            route,
+            headers=headers
+        )
+
+        self.assertEqual(204, response.status_code)
+
+
+    def test_delete_non_existent_post(self):
+        access_token = login(user=self.user2)
+        post_id = 999
+        
+        route = f'post/{post_id}'
+        headers={
+            'Authorization': f'Bearer {access_token}'
+        }
+
+        response = self.client.delete(
+            route,
+            headers=headers
+        )
+
+        self.assertEqual(404, response.status_code)
+
+    def test_delete_not_being_owner_or_mod(self):
+        access_token = login(user=self.user)
+        post_id = self.post2.id
+        
+        route = f'post/{post_id}'
+        headers={
+            'Authorization': f'Bearer {access_token}'
+        }
+
+        response = self.client.delete(
+            route,
+            headers=headers
+        )
+
+        self.assertEqual(403, response.status_code)
+
+    
