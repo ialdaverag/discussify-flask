@@ -186,6 +186,7 @@ def read_upvoters(id):
 @post_routes.route('/<int:id>/vote/down', methods=['POST'])
 @jwt_required()
 def downvote(id):
+    '''
     post = Post.query.get(id)
 
     if not post:
@@ -221,6 +222,14 @@ def downvote(id):
 
     db.session.add(vote)
     db.session.commit()
+    '''
+
+    post = Post.get_by_id(id)
+    
+    current_user_id = get_jwt_identity()
+    current_user = User.get_by_id(current_user_id)
+
+    current_user.downvote_post(post)
 
     return {}, HTTPStatus.NO_CONTENT
 
