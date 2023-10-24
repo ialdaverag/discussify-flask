@@ -573,7 +573,6 @@ class UpvotePostTests(PostTests):
         user3 = self.user3
         user3.downvote_post(post)
         
-
     def test_upvote_post(self):
         access_token = login(user=self.user)
         post_id = self.post.id
@@ -605,7 +604,6 @@ class UpvotePostTests(PostTests):
         )
 
         self.assertEqual(204, response.status_code)
-
 
     def test_upvote_non_existent_post(self):
         access_token = login(user=self.user)
@@ -660,6 +658,115 @@ class UpvotePostTests(PostTests):
         post_id = self.post.id
 
         route = f'post/{post_id}/vote/up'
+        headers={
+            'Authorization': f'Bearer {access_token}'
+        }
+
+        response = self.client.post(
+            route,
+            headers=headers
+        )
+
+        self.assertEqual(400, response.status_code)
+
+
+class DownvotePostTests(PostTests):
+    def setUp(self) -> None:
+        super().setUp()
+
+        post = self.post
+        
+        user2 = self.user2
+        user2.downvote_post(post)
+
+        user3 = self.user3
+        user3.upvote_post(post)
+
+    def test_downvote_post(self):
+        access_token = login(user=self.user)
+        post_id = self.post.id
+
+        route = f'post/{post_id}/vote/down'
+        headers={
+            'Authorization': f'Bearer {access_token}'
+        }
+
+        response = self.client.post(
+            route,
+            headers=headers
+        )
+
+        self.assertEqual(204, response.status_code)
+
+    def test_downvote_upvoted_post(self):
+        access_token = login(user=self.user3)
+        post_id = self.post.id
+
+        route = f'post/{post_id}/vote/down'
+        headers={
+            'Authorization': f'Bearer {access_token}'
+        }
+
+        response = self.client.post(
+            route,
+            headers=headers
+        )
+
+        self.assertEqual(204, response.status_code)
+
+    def test_downvote_non_existent_post(self):
+        access_token = login(user=self.user)
+        post_id = 999
+
+        route = f'post/{post_id}/vote/down'
+        headers={
+            'Authorization': f'Bearer {access_token}'
+        }
+
+        response = self.client.post(
+            route,
+            headers=headers
+        )
+
+        self.assertEqual(404, response.status_code)
+
+    def test_downvote_post_already_downvoted(self):
+        access_token = login(user=self.user2)
+        post_id = self.post.id
+
+        route = f'post/{post_id}/vote/down'
+        headers={
+            'Authorization': f'Bearer {access_token}'
+        }
+
+        response = self.client.post(
+            route,
+            headers=headers
+        )
+
+        self.assertEqual(400, response.status_code)
+
+    def test_upvote_post_being_banned(self):
+        access_token = login(user=self.user3)
+        post_id = self.post2.id
+
+        route = f'post/{post_id}/vote/down'
+        headers={
+            'Authorization': f'Bearer {access_token}'
+        }
+
+        response = self.client.post(
+            route,
+            headers=headers
+        )
+
+        self.assertEqual(400, response.status_code)
+
+    def test_upvote_post_not_subscribed(self):
+        access_token = login(user=self.user4)
+        post_id = self.post.id
+
+        route = f'post/{post_id}/vote/down'
         headers={
             'Authorization': f'Bearer {access_token}'
         }
