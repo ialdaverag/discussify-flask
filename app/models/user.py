@@ -346,6 +346,18 @@ class User(db.Model):
         
         vote = PostVote(user=self, post=post, direction=1)
         vote.create()
+
+    def cancel_post_vote(self, post):
+        community = post.community
+
+        if self.is_banned_from(community):
+            raise BanError('You are banned from this community')
+
+        if not self.is_subscribed_to(community):
+            raise SubscriptionError('You are not subscribed to this community')
+        
+        vote = PostVote.get_by_user_and_post(user=self, post=post)
+        vote.delete()
         
     def create_comment(self, content, post, comment=None):
         community = post.community
