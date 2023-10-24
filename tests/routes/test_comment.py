@@ -45,6 +45,11 @@ class CommentTests(BaseTestCase):
             post=post
         )
 
+        comment2 = user2.create_comment(
+            content='Awesome post!',
+            post=post
+        )
+
         self.user = user
         self.user2 = user2
         self.user3 = user3
@@ -54,6 +59,7 @@ class CommentTests(BaseTestCase):
         self.post = post
         self.post2 = post2
         self.comment = comment
+        self.comment2 = comment2
 
 
 class CreateCommentTests(CommentTests):
@@ -104,6 +110,29 @@ class CreateCommentTests(CommentTests):
         )
 
         self.assertEqual(201, response.status_code)
+
+    def test_create_comment_incorrect_content(self):
+        access_token = login(user=self.user2)
+        post_id = self.post.id
+        
+        route = 'comment/'
+        content_type='application/json'
+        json = {
+            'content': '',
+            'post_id': post_id
+        }
+        headers={
+            'Authorization': f'Bearer {access_token}'
+        }
+
+        response = self.client.post(
+            route, 
+            content_type=content_type, 
+            json=json,
+            headers=headers
+        )
+
+        self.assertEqual(400, response.status_code)
 
     def test_create_comment_on_non_existent_post(self):
         access_token = login(user=self.user2)
@@ -199,3 +228,117 @@ class CreateCommentTests(CommentTests):
 
         self.assertEqual(400, response.status_code)
 
+
+class UpdateCommentTests(CommentTests):
+    def test_update_comment(self):
+        access_token = login(user=self.user)
+        comment_id = self.comment.id
+        
+        route = f'comment/{comment_id}'
+        content_type='application/json'
+        json = {
+            'content': 'An updated comment!'
+        }
+        headers={
+            'Authorization': f'Bearer {access_token}'
+        }
+
+        response = self.client.patch(
+            route, 
+            content_type=content_type, 
+            json=json,
+            headers=headers
+        )
+
+        self.assertEqual(200, response.status_code)
+
+    def test_update_non_existent_comment(self):
+        access_token = login(user=self.user)
+        comment_id = 999
+        
+        route = f'comment/{comment_id}'
+        content_type='application/json'
+        json = {
+            'content': 'An updated comment!'
+        }
+        headers={
+            'Authorization': f'Bearer {access_token}'
+        }
+
+        response = self.client.patch(
+            route, 
+            content_type=content_type, 
+            json=json,
+            headers=headers
+        )
+
+        self.assertEqual(404, response.status_code)
+
+    def test_update_comment_not_owner(self):
+        access_token = login(user=self.user2)
+        comment_id = self.comment.id
+        
+        route = f'comment/{comment_id}'
+        content_type='application/json'
+        json = {
+            'content': 'An updated comment!'
+        }
+        headers={
+            'Authorization': f'Bearer {access_token}'
+        }
+
+        response = self.client.patch(
+            route, 
+            content_type=content_type, 
+            json=json,
+            headers=headers
+        )
+
+        self.assertEqual(403, response.status_code)
+
+    def test_update_comment_being_banned(self):
+        community = self.community
+        community.append_banned(self.user2)
+
+        access_token = login(user=self.user2)
+        comment_id = self.comment2.id
+        
+        route = f'comment/{comment_id}'
+        content_type='application/json'
+        json = {
+            'content': 'An updated comment!'
+        }
+        headers={
+            'Authorization': f'Bearer {access_token}'
+        }
+
+        response = self.client.patch(
+            route, 
+            content_type=content_type, 
+            json=json,
+            headers=headers
+        )
+
+        self.assertEqual(400, response.status_code)
+
+    def test_update_comment_incorrect_content(self):
+        access_token = login(user=self.user)
+        comment_id = self.comment.id
+        
+        route = f'comment/{comment_id}'
+        content_type='application/json'
+        json = {
+            'content': ''
+        }
+        headers={
+            'Authorization': f'Bearer {access_token}'
+        }
+
+        response = self.client.patch(
+            route, 
+            content_type=content_type, 
+            json=json,
+            headers=headers
+        )
+
+        self.assertEqual(400, response.status_code)

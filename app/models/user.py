@@ -379,10 +379,10 @@ class User(db.Model):
         db.session.commit()
 
         return new_comment
-    
+
     def update_comment(self, content, comment):
         if not comment.belongs_to(self):
-            raise OwnershipError('This post is not yours')
+            raise OwnershipError('This comment is not yours')
         
         community = comment.post.community
         
