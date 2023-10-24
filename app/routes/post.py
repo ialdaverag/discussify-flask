@@ -130,6 +130,7 @@ def unbookmark(id):
 @post_routes.route('/<int:id>/vote/up', methods=['POST'])
 @jwt_required()
 def upvote(id):
+    '''
     post = Post.get_by_id(id)
     
     current_user_id = get_jwt_identity()
@@ -153,6 +154,16 @@ def upvote(id):
 
     db.session.add(vote)
     db.session.commit()
+
+    return {}, HTTPStatus.NO_CONTENT
+    '''
+
+    post = Post.get_by_id(id)
+    
+    current_user_id = get_jwt_identity()
+    current_user = User.get_by_id(current_user_id)
+
+    current_user.upvote_post(post)
 
     return {}, HTTPStatus.NO_CONTENT
 

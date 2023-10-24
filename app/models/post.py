@@ -19,6 +19,19 @@ class PostVote(db.Model):
     user = db.relationship('User', backref='votes')
     #post = db.relationship('Post', backref='votes')
 
+    def is_upvote(self):
+        return self.direction == 1
+    
+    def is_downvote(self):
+        return self.direction == -1
+    
+    def is_canceled_vote(self):
+        return self.direction == 0
+    
+    def create(self):
+        db.session.add(self)
+        db.session.commit()
+
 
 class Post(db.Model):
     __tablename__ = 'posts'
@@ -50,8 +63,10 @@ class Post(db.Model):
     def is_bookmarked_by(self, user):
         return user in self.bookmarkers
     
+    '''
     def is_upvoted_by(self, user):
         return PostVote.query.filter_by(user=user, direction=1).first() is None
 
     def is_downvoted_by(self, user):
         return PostVote.query.filter_by(user=user, direction=-1).first() is None
+    '''

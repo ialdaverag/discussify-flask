@@ -4,6 +4,7 @@ from app.models.community import Community
 from app.models.community import community_subscribers
 from app.models.community import community_moderators
 from app.models.post import Post
+from app.models.post import PostVote
 from app.models.comment import Comment
 
 from app.errors.errors import NotFoundError
@@ -16,6 +17,7 @@ from app.errors.errors import SubscriptionError
 from app.errors.errors import BanError
 from app.errors.errors import UnauthorizedError
 from app.errors.errors import BookmarkError
+from app.errors.errors import VoteError
 
 follows = db.Table(
     'follows',
@@ -301,6 +303,28 @@ class User(db.Model):
         self.bookmarks.remove(post)
         db.session.commit()
 
+    def upvote_post(self, post):
+        community = post.community
+
+        if self.is_banned_from(community):
+            raise BanError('You are banned from this community')
+
+        if not self.is_subscribed_to(community):
+            raise SubscriptionError('You are not subscribed to this community')
+        
+        vote = PostVote.query.filter_by(user=self, post=post).first()
+
+        if vote:
+            if vote.is_downvote() or vote.is_canceled_vote():
+                vote.direction = 1
+
+                db.session.commit()
+            
+            raise VoteError
+        
+        vote = PostVote(user=self, post=post, direction=1)
+        vote.create()
+        
     def create_comment(self, content, post, comment=None):
         community = post.community
 
@@ -356,26 +380,3 @@ class User(db.Model):
         
         self.comment_bookmarks.remove(comment)
         db.session.commit()
-
-    '''
-    def upvote_post(self, post):
-        community = post.community
-
-        if self.is_banned_from(community):
-            raise BanError('You are banned from this community')
-
-        if not self.is_subscribed_to(community):
-            raise SubscriptionError('You are not subscribed to this community')
-        
-        if post.is_upvoted_by(self):
-            raise VoteError('Post already upvoted')
-        
-        if post.is_downvoted_by(self):
-            direction = 1
-    '''
-    
-    def downvote_post(self, post):
-        pass
-
-    def cancel_vote(self, post):
-        pass
