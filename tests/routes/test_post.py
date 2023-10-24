@@ -777,3 +777,112 @@ class DownvotePostTests(PostTests):
         )
 
         self.assertEqual(400, response.status_code)
+
+
+class CancelPostVoteTests(PostTests):
+    def setUp(self) -> None:
+        super().setUp()
+
+        post = self.post
+        
+        user2 = self.user2
+        user2.downvote_post(post)
+
+        user3 = self.user3
+        user3.upvote_post(post)
+
+    def test_cancel_downvoted_post(self):
+        access_token = login(user=self.user2)
+        post_id = self.post.id
+
+        route = f'post/{post_id}/vote/cancel'
+        headers={
+            'Authorization': f'Bearer {access_token}'
+        }
+
+        response = self.client.post(
+            route,
+            headers=headers
+        )
+
+        self.assertEqual(204, response.status_code)
+
+    def test_cancel_upvoted_post(self):
+        access_token = login(user=self.user3)
+        post_id = self.post.id
+
+        route = f'post/{post_id}/vote/cancel'
+        headers={
+            'Authorization': f'Bearer {access_token}'
+        }
+
+        response = self.client.post(
+            route,
+            headers=headers
+        )
+
+        self.assertEqual(204, response.status_code)
+
+    def test_downvote_non_existent_post(self):
+        access_token = login(user=self.user)
+        post_id = 999
+
+        route = f'post/{post_id}/vote/cancel'
+        headers={
+            'Authorization': f'Bearer {access_token}'
+        }
+
+        response = self.client.post(
+            route,
+            headers=headers
+        )
+
+        self.assertEqual(404, response.status_code)
+    
+    def test_cancel_non_voted_post(self):
+        access_token = login(user=self.user)
+        post_id = self.post.id
+
+        route = f'post/{post_id}/vote/cancel'
+        headers={
+            'Authorization': f'Bearer {access_token}'
+        }
+
+        response = self.client.post(
+            route,
+            headers=headers
+        )
+
+        self.assertEqual(400, response.status_code)
+
+    def test_cancel_post_vote_being_banned(self):
+        access_token = login(user=self.user3)
+        post_id = self.post2.id
+
+        route = f'post/{post_id}/vote/cancel'
+        headers={
+            'Authorization': f'Bearer {access_token}'
+        }
+
+        response = self.client.post(
+            route,
+            headers=headers
+        )
+
+        self.assertEqual(400, response.status_code)
+
+    def test_cancel_post_vote_not_subscribed(self):
+        access_token = login(user=self.user4)
+        post_id = self.post.id
+
+        route = f'post/{post_id}/vote/cancel'
+        headers={
+            'Authorization': f'Bearer {access_token}'
+        }
+
+        response = self.client.post(
+            route,
+            headers=headers
+        )
+
+        self.assertEqual(400, response.status_code)

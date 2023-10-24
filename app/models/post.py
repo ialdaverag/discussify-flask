@@ -57,7 +57,7 @@ class Post(db.Model):
 
     @classmethod
     def get_by_id(self, id):
-        post = Post.query.get(id)
+        post = db.session.get(Post, id)
 
         if post is None:
             raise NotFoundError('Post not found')

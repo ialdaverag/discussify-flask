@@ -352,9 +352,13 @@ class User(db.Model):
 
         if not self.is_subscribed_to(community):
             raise SubscriptionError('You are not subscribed to this community')
-        
+
         vote = PostVote.get_by_user_and_post(user=self, post=post)
-        vote.delete()
+
+        if vote:
+            vote.delete()
+        else:
+            raise VoteError('You have not voted on this post')
 
     def create_comment(self, content, post, comment=None):
         community = post.community
