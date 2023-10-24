@@ -36,7 +36,7 @@ class Comment(db.Model):
 
     @classmethod
     def get_by_id(cls, id):
-        comment = Comment.query.get(id)
+        comment = db.session.get(Comment, id)
 
         if comment is None:
             raise NotFoundError('Comment not found')
