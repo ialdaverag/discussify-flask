@@ -14,15 +14,17 @@ class PostTests(BaseTestCase):
 
         user = User(username='test', email='test@example.com', password=hash_password('TestPassword123'))
         user2 = User(username='test2', email='test2@example.com', password=hash_password('TestPassword132'))
-        user3 = User(username='test3', email='test3@example.com', password=hash_password('TestPassword132'))
+        user3 = User(username='test3', email='test3@example.com', password=hash_password('TestPassword213'))
+        user4 = User(username='test4', email='test4@example.com', password=hash_password('TestPassword231'))
 
-        db.session.add_all([user, user2, user3])
+        db.session.add_all([user, user2, user3, user4])
         db.session.commit()
     
         community = user.create_community(name='TestCommunity', about='A community created for tests')
         community2 = user2.create_community(name='TestCommunity2',about='Another community created for tests')
 
         community.append_subscriber(user2)
+        community.append_subscriber(user3)
         community.append_moderator(user3)
         community2.append_banned(user3)
 
@@ -41,6 +43,7 @@ class PostTests(BaseTestCase):
         self.user = user
         self.user2 = user2
         self.user3 = user3
+        self.user4 = user4
         self.community = community
         self.community2 = community2
         self.post = post
@@ -546,6 +549,117 @@ class UnbookmarkPosts(PostTests):
         post_id = self.post.id
         
         route = f'post/{post_id}/unbookmark'
+        headers={
+            'Authorization': f'Bearer {access_token}'
+        }
+
+        response = self.client.post(
+            route,
+            headers=headers
+        )
+
+        self.assertEqual(400, response.status_code)
+
+class UpvotePostTests(PostTests):
+    def setUp(self) -> None:
+        super().setUp()
+
+        post = self.post
+
+        
+        user2 = self.user2
+        user2.upvote_post(post)
+
+        user3 = self.user3
+        user3.downvote_post(post)
+        
+
+    def test_upvote_post(self):
+        access_token = login(user=self.user)
+        post_id = self.post.id
+
+        route = f'post/{post_id}/vote/up'
+        headers={
+            'Authorization': f'Bearer {access_token}'
+        }
+
+        response = self.client.post(
+            route,
+            headers=headers
+        )
+
+        self.assertEqual(204, response.status_code)
+
+    def test_upvote_downvoted_post(self):
+        access_token = login(user=self.user3)
+        post_id = self.post.id
+
+        route = f'post/{post_id}/vote/up'
+        headers={
+            'Authorization': f'Bearer {access_token}'
+        }
+
+        response = self.client.post(
+            route,
+            headers=headers
+        )
+
+        self.assertEqual(204, response.status_code)
+
+
+    def test_upvote_non_existent_post(self):
+        access_token = login(user=self.user)
+        post_id = 999
+
+        route = f'post/{post_id}/vote/up'
+        headers={
+            'Authorization': f'Bearer {access_token}'
+        }
+
+        response = self.client.post(
+            route,
+            headers=headers
+        )
+
+        self.assertEqual(404, response.status_code)
+
+    def test_upvote_post_already_upvoted(self):
+        access_token = login(user=self.user2)
+        post_id = self.post.id
+
+        route = f'post/{post_id}/vote/up'
+        headers={
+            'Authorization': f'Bearer {access_token}'
+        }
+
+        response = self.client.post(
+            route,
+            headers=headers
+        )
+
+        self.assertEqual(400, response.status_code)
+
+    def test_upvote_post_being_banned(self):
+        access_token = login(user=self.user3)
+        post_id = self.post2.id
+
+        route = f'post/{post_id}/vote/up'
+        headers={
+            'Authorization': f'Bearer {access_token}'
+        }
+
+        response = self.client.post(
+            route,
+            headers=headers
+        )
+
+        self.assertEqual(400, response.status_code)
+
+    def test_upvote_post_not_subscribed(self):
+        access_token = login(user=self.user4)
+        post_id = self.post.id
+
+        route = f'post/{post_id}/vote/up'
         headers={
             'Authorization': f'Bearer {access_token}'
         }

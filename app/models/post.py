@@ -23,9 +23,6 @@ class PostVote(db.Model):
     def get_by_user_and_post(self, user, post):
         vote = PostVote.query.filter_by(user=user, post=post).first()
 
-        if vote is None:
-            NotFoundError('Vote not found')
-
         return vote
 
     def is_upvote(self):

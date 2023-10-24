@@ -252,6 +252,7 @@ def read_downvoters(id):
 @post_routes.route('/<int:id>/vote/cancel', methods=['POST'])
 @jwt_required()
 def cancel(id):
+    '''
     post = Post.query.get(id)
 
     if not post:
@@ -282,6 +283,16 @@ def cancel(id):
         return {}, HTTPStatus.NO_CONTENT
 
     return {'message': 'You have not voted this post'}, HTTPStatus.BAD_REQUEST
+    '''
+
+    post = Post.get_by_id(id)
+    
+    current_user_id = get_jwt_identity()
+    current_user = User.get_by_id(current_user_id)
+
+    current_user.cancel_post_vote(post)
+
+    return {}, HTTPStatus.NO_CONTENT
 
 
 @post_routes.route('/<int:id>/comments', methods=['GET'])

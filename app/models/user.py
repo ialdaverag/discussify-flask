@@ -311,41 +311,38 @@ class User(db.Model):
 
         if not self.is_subscribed_to(community):
             raise SubscriptionError('You are not subscribed to this community')
-        
+
         vote = PostVote.get_by_user_and_post(user=self, post=post)
 
         if vote:
             if vote.is_downvote():
                 vote.direction = 1
-
                 db.session.commit()
-            
-            raise VoteError
-        
-        vote = PostVote(user=self, post=post, direction=1)
-        vote.create()
+            else:
+                raise VoteError('You have already upvoted this post')
+        else:
+            new_vote = PostVote(user=self, post=post, direction=1)
+            new_vote.create()
 
     def downvote_post(self, post):
         community = post.community
-
         if self.is_banned_from(community):
             raise BanError('You are banned from this community')
 
         if not self.is_subscribed_to(community):
             raise SubscriptionError('You are not subscribed to this community')
-        
+
         vote = PostVote.get_by_user_and_post(user=self, post=post)
 
         if vote:
             if vote.is_upvote():
                 vote.direction = -1
-
                 db.session.commit()
-            
-            raise VoteError
-        
-        vote = PostVote(user=self, post=post, direction=1)
-        vote.create()
+            else:
+                raise VoteError('You have already downvoted this post')
+        else:
+            new_vote = PostVote(user=self, post=post, direction=-1)
+            new_vote.create()
 
     def cancel_post_vote(self, post):
         community = post.community
@@ -358,7 +355,7 @@ class User(db.Model):
         
         vote = PostVote.get_by_user_and_post(user=self, post=post)
         vote.delete()
-        
+
     def create_comment(self, content, post, comment=None):
         community = post.community
 
