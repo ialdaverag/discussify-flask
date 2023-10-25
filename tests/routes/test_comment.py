@@ -229,6 +229,22 @@ class CreateCommentTests(CommentTests):
         self.assertEqual(400, response.status_code)
 
 
+class ReadCommentTests(CommentTests):
+    def test_read_comment(self):
+        comment_id = self.comment.id
+
+        response = self.client.get(f'/comment/{comment_id}')
+
+        self.assertEqual(200, response.status_code)
+
+    def test_read_non_existent_comment(self):
+        comment_id = 999
+
+        response = self.client.get(f'/comment/{comment_id}')
+
+        self.assertEqual(404, response.status_code)
+
+
 class ReadCommentsTests(CommentTests):
     def test_read_comments(self):
         response = self.client.get('/comment/')
