@@ -6,6 +6,7 @@ from app.models.community import community_moderators
 from app.models.post import Post
 from app.models.post import PostVote
 from app.models.comment import Comment
+from app.models.comment import CommentVote
 
 from app.errors.errors import NotFoundError
 from app.errors.errors import FollowError
@@ -415,3 +416,24 @@ class User(db.Model):
         
         self.comment_bookmarks.remove(comment)
         db.session.commit()
+
+    def upvote_comment(self, comment):
+        community = comment.post.community
+
+        if self.is_banned_from(community):
+            raise BanError('You are banned from this community')
+
+        if not self.is_subscribed_to(community):
+            raise SubscriptionError('You are not subscribed to this community')
+
+        vote = CommentVote.get_by_user_and_comment(user=self, comment=comment)
+
+        if vote:
+            if vote.is_downvote():
+                vote.direction = 1
+                db.session.commit()
+            else:
+                raise VoteError('You have already upvoted this post')
+        else:
+            new_vote = PostVote(user=self, comment=comment, direction=1)
+            new_vote.create()

@@ -135,42 +135,12 @@ def unbookmark_comment(id):
 @comment_routes.route('/<int:id>/vote/up', methods=['POST'])
 @jwt_required()
 def upvote_comment(id):
-    comment = Comment.query.get(id)
+    comment = Comment.get_by_id(id)
 
-    if not comment:
-        return {'message': 'Comment not found'}, HTTPStatus.NOT_FOUND
-    
-    current_user = get_jwt_identity()
-    current_user = User.query.get(current_user)
+    current_user_id = get_jwt_identity()
+    current_user = User.get_by_id(current_user_id)
 
-    post_id = comment.post_id
-    post = Post.query.get(post_id)
-
-    community_id = post.community_id
-    community = Community.query.get(community_id)
-
-    if current_user in community.banned:
-        return {'message': 'You are banned from this community'}, HTTPStatus.BAD_REQUEST
-
-    if current_user not in community.subscribers:
-        return {'message': 'You are not subscribed to this community'}, HTTPStatus.BAD_REQUEST
-    
-    vote = CommentVote.query.filter_by(user_id=current_user.id, comment_id=comment.id).first()
-
-    if vote:
-        if vote.direction == -1 or vote.direction == 0:
-            vote.direction = 1
-
-            db.session.commit()
-
-            return {'message': 'Vote changed'}, HTTPStatus.NO_CONTENT
-
-        return {'message': 'You have already upvoted this comment'}, HTTPStatus.BAD_REQUEST
-    
-    vote = CommentVote(user_id=current_user.id, comment_id=comment.id, direction=1)
-
-    db.session.add(vote)
-    db.session.commit()
+    current_user.upvote_comment(comment)
 
     return {}, HTTPStatus.NO_CONTENT
 

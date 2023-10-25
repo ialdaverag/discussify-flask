@@ -18,6 +18,26 @@ class CommentVote(db.Model):
     user = db.relationship('User', backref='comment_votes')
     #comment = db.relationship('Comment', backref='comment_votes')
 
+    @classmethod
+    def get_by_user_and_comment(self, user, comment):
+        vote = CommentVote.query.filter_by(user=user, comment=comment).first()
+
+        return vote
+    
+    def is_upvote(self):
+        return self.direction == 1
+    
+    def is_downvote(self):
+        return self.direction == -1
+    
+    def create(self):
+        db.session.add(self)
+        db.session.commit()
+
+    def delete(self):
+        db.session.delete(self)
+        db.session.commit()
+
 
 class Comment(db.Model):
     __tablename__ = 'comments'
