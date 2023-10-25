@@ -99,7 +99,7 @@ def delete_comment(id):
     comment = Comment.get_by_id(id)
     
     current_user_id = get_jwt_identity()
-    current_user = User.query.get(current_user_id)
+    current_user = User.get_by_id(current_user_id)
 
     current_user.delete_comment(comment)
 

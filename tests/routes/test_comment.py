@@ -342,3 +342,84 @@ class UpdateCommentTests(CommentTests):
         )
 
         self.assertEqual(400, response.status_code)
+
+class DeleteCommentTests(CommentTests):
+    def test_delete_comment_being_owner(self):
+        access_token = login(user=self.user)
+        comment_id = self.comment.id
+        
+        route = f'comment/{comment_id}'
+        headers={
+            'Authorization': f'Bearer {access_token}'
+        }
+
+        response = self.client.delete(
+            route, 
+            headers=headers
+        )
+
+        self.assertEqual(204, response.status_code)
+
+    def test_delete_comment_being_mod(self):
+        access_token = login(user=self.user3)
+        comment_id = self.comment.id
+        
+        route = f'comment/{comment_id}'
+        headers={
+            'Authorization': f'Bearer {access_token}'
+        }
+
+        response = self.client.delete(
+            route, 
+            headers=headers
+        )
+
+        self.assertEqual(204, response.status_code)
+
+    def test_delete_non_existent_comment(self):
+        access_token = login(user=self.user)
+        comment_id = 999
+        
+        route = f'comment/{comment_id}'
+        headers={
+            'Authorization': f'Bearer {access_token}'
+        }
+
+        response = self.client.delete(
+            route, 
+            headers=headers
+        )
+
+        self.assertEqual(404, response.status_code)
+    
+    def test_delete_comment_not_owner(self):
+        access_token = login(user=self.user2)
+        comment_id = self.comment.id
+        
+        route = f'comment/{comment_id}'
+        headers={
+            'Authorization': f'Bearer {access_token}'
+        }
+
+        response = self.client.delete(
+            route, 
+            headers=headers
+        )
+
+        self.assertEqual(403, response.status_code)
+
+    def test_delete_comment_not_mod(self):
+        access_token = login(user=self.user2)
+        comment_id = self.comment.id
+        
+        route = f'comment/{comment_id}'
+        headers={
+            'Authorization': f'Bearer {access_token}'
+        }
+
+        response = self.client.delete(
+            route, 
+            headers=headers
+        )
+
+        self.assertEqual(403, response.status_code)
