@@ -280,6 +280,13 @@ class ReadPostTests(PostTests):
 
         self.assertEqual(404, response.status_code)
 
+
+class ReadPostsTests(PostTests):
+    def test_read_post(self):
+        response = self.client.get('/post/')
+
+        self.assertEqual(200, response.status_code)
+
     
 class UpdatePostTests(PostTests):
     def test_update_post(self):
