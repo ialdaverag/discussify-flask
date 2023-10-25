@@ -423,3 +423,60 @@ class DeleteCommentTests(CommentTests):
         )
 
         self.assertEqual(403, response.status_code)
+
+
+class BookmarkCommentTests(CommentTests):
+    def setUp(self) -> None:
+        super().setUp()
+        user3 = self.user3
+        comment = self.comment
+
+        user3.bookmark_comment(comment)
+    
+    def test_bookmark_comment(self):
+        access_token = login(user=self.user2)
+        comment_id = self.comment.id
+        
+        route = f'comment/{comment_id}/bookmark'
+        headers={
+            'Authorization': f'Bearer {access_token}'
+        }
+
+        response = self.client.post(
+            route, 
+            headers=headers
+        )
+
+        self.assertEqual(204, response.status_code)
+
+    def test_bookmark_non_existent_comment(self):
+        access_token = login(user=self.user2)
+        comment_id = 999
+        
+        route = f'comment/{comment_id}/bookmark'
+        headers={
+            'Authorization': f'Bearer {access_token}'
+        }
+
+        response = self.client.post(
+            route, 
+            headers=headers
+        )
+
+        self.assertEqual(404, response.status_code)
+
+    def test_bookmark_comment_already_bookmarked(self):
+        access_token = login(user=self.user3)
+        comment_id = self.comment.id
+        
+        route = f'comment/{comment_id}/bookmark'
+        headers={
+            'Authorization': f'Bearer {access_token}'
+        }
+
+        response = self.client.post(
+            route, 
+            headers=headers
+        )
+
+        self.assertEqual(400, response.status_code)
