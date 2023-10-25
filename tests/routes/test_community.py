@@ -1037,3 +1037,19 @@ class TransferTests(CommunityTests):
         )
 
         self.assertEqual(400, response.status_code)
+
+
+class ReadCommunitySubscribersTests(CommunityTests):
+    def test_read_community_subscribers(self):
+        community = self.community.name
+
+        response = self.client.get(f'/community/{community}')
+
+        self.assertEqual(200, response.status_code)
+
+    def test_read_non_existent_community_subscribers(self):
+        community = 'non_existent'
+
+        response = self.client.get(f'/community/{community}')
+
+        self.assertEqual(404, response.status_code)
