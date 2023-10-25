@@ -117,6 +117,23 @@ class CreateCommunityTests(CommunityTests):
 
         self.assertEqual(400, response.status_code)
 
+
+class ReadCommunityTests(CommunityTests):
+    def test_read_community(self):
+        community = self.community.name
+
+        response = self.client.get(f'/comment/{community}')
+
+        self.assertEqual(200, response.status_code)
+
+    def test_read_non_existent_community(self):
+        community = 'non_existent'
+
+        response = self.client.get(f'/comment/{community}')
+
+        self.assertEqual(404, response.status_code)
+
+
 class UpdateCommunityTests(CommunityTests):
     def test_update_community(self):
         access_token = login(user=self.user)
