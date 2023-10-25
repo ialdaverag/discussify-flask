@@ -1069,3 +1069,36 @@ class ReadCommunityModeratorsTests(CommunityTests):
         response = self.client.get(f'/community/{community}/moderators')
 
         self.assertEqual(404, response.status_code)
+
+
+class ReadCommunityBansTests(CommunityTests):
+    def test_read_community_moderators(self):
+        access_token = login(user=self.user)
+        community = self.community.name
+
+        headers={
+            'Authorization': f'Bearer {access_token}'
+        }
+
+        response = self.client.get(
+            f'/community/{community}/banned',
+            headers=headers
+        )
+
+        self.assertEqual(200, response.status_code)
+
+    def test_read_non_existent_community_moderators(self):
+        access_token = login(user=self.user)
+
+        community = 'non_existent'
+
+        headers={
+            'Authorization': f'Bearer {access_token}'
+        }
+
+        response = self.client.get(
+            f'/community/{community}/banned',
+            headers=headers
+        )
+
+        self.assertEqual(404, response.status_code)
