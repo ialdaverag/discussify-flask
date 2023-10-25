@@ -1043,13 +1043,29 @@ class ReadCommunitySubscribersTests(CommunityTests):
     def test_read_community_subscribers(self):
         community = self.community.name
 
-        response = self.client.get(f'/community/{community}')
+        response = self.client.get(f'/community/{community}/subscribers')
 
         self.assertEqual(200, response.status_code)
 
     def test_read_non_existent_community_subscribers(self):
         community = 'non_existent'
 
-        response = self.client.get(f'/community/{community}')
+        response = self.client.get(f'/community/{community}/subscribers')
+
+        self.assertEqual(404, response.status_code)
+
+
+class ReadCommunityModeratorsTests(CommunityTests):
+    def test_read_community_moderators(self):
+        community = self.community.name
+
+        response = self.client.get(f'/community/{community}/moderators')
+
+        self.assertEqual(200, response.status_code)
+
+    def test_read_non_existent_community_moderators(self):
+        community = 'non_existent'
+
+        response = self.client.get(f'/community/{community}/moderators')
 
         self.assertEqual(404, response.status_code)
