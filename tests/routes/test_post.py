@@ -909,3 +909,19 @@ class CancelPostVoteTests(PostTests):
         )
 
         self.assertEqual(400, response.status_code)
+
+
+class ReadPostCommentTests(PostTests):
+    def test_read_post(self):
+        post_id = self.post.id
+
+        response = self.client.get(f'/post/{post_id}/comments')
+
+        self.assertEqual(200, response.status_code)
+
+    def test_read_non_existent_post(self):
+        post_id = 999
+
+        response = self.client.get(f'/post/{post_id}/comments')
+
+        self.assertEqual(404, response.status_code)

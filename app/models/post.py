@@ -69,3 +69,8 @@ class Post(db.Model):
     
     def is_bookmarked_by(self, user):
         return user in self.bookmarkers
+    
+    def read_root_comments(self):
+        root_comments = Comment.query.filter_by(post_id=self.id, comment_id=None).all()
+
+        return root_comments
