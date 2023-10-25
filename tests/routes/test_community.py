@@ -122,16 +122,23 @@ class ReadCommunityTests(CommunityTests):
     def test_read_community(self):
         community = self.community.name
 
-        response = self.client.get(f'/comment/{community}')
+        response = self.client.get(f'/community/{community}')
 
         self.assertEqual(200, response.status_code)
 
     def test_read_non_existent_community(self):
         community = 'non_existent'
 
-        response = self.client.get(f'/comment/{community}')
+        response = self.client.get(f'/community/{community}')
 
         self.assertEqual(404, response.status_code)
+
+
+class ReadCommunitiesTests(CommunityTests):
+    def test_read_communities(self):
+        response = self.client.get('/community/')
+
+        self.assertEqual(200, response.status_code)
 
 
 class UpdateCommunityTests(CommunityTests):
