@@ -435,5 +435,27 @@ class User(db.Model):
             else:
                 raise VoteError('You have already upvoted this post')
         else:
-            new_vote = PostVote(user=self, comment=comment, direction=1)
+            new_vote = CommentVote(user=self, comment=comment, direction=1)
             new_vote.create()
+
+    def downvote_comment(self, comment):
+        community = comment.post.community
+
+        if self.is_banned_from(community):
+            raise BanError('You are banned from this community')
+
+        if not self.is_subscribed_to(community):
+            raise SubscriptionError('You are not subscribed to this community')
+
+        vote = CommentVote.get_by_user_and_comment(user=self, comment=comment)
+
+        if vote:
+            if vote.is_upvote():
+                vote.direction = -1
+                db.session.commit()
+            else:
+                raise VoteError('You have already upvoted this post')
+        else:
+            new_vote = CommentVote(user=self, comment=comment, direction=-1)
+            new_vote.create()
+        

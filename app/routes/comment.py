@@ -55,10 +55,7 @@ def create_comment():
 @comment_routes.route('/<string:id>', methods=['GET'])
 @jwt_required(optional=True)
 def read_comment(id):
-    comment = Comment.query.get(id)
-
-    if not comment:
-        return {'message': 'Comment not found'}, HTTPStatus.NOT_FOUND
+    comment = Comment.get_by_id(id)
     
     return comment_schema.dump(comment), HTTPStatus.OK
 
@@ -66,7 +63,7 @@ def read_comment(id):
 @comment_routes.route('/', methods=['GET'])
 @jwt_required(optional=True)
 def read_comments():
-    comments = Comment.query.all()
+    comments = Comment.get_all()
 
     return comments_schema.dump(comments), HTTPStatus.OK
 

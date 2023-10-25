@@ -229,6 +229,14 @@ class CreateCommentTests(CommentTests):
         self.assertEqual(400, response.status_code)
 
 
+class ReadCommentsTests(CommentTests):
+    def test_read_comments(self):
+        response = self.client.get('/comment/')
+
+        self.assertEqual(200, response.status_code)
+        self.assertEqual('application/json', response.content_type)
+
+
 class UpdateCommentTests(CommentTests):
     def test_update_comment(self):
         access_token = login(user=self.user)
@@ -533,6 +541,82 @@ class UnbookmarkCommentTests(CommentTests):
 
         response = self.client.post(
             route, 
+            headers=headers
+        )
+
+        self.assertEqual(400, response.status_code)
+
+
+class UpvoteCommentTests(CommentTests):
+    def setUp(self) -> None:
+        super().setUp()
+        comment = self.comment
+
+        user2 = self.user2
+        user2.upvote_comment(comment)
+
+        user3 = self.user3
+        user3.downvote_comment(comment)
+
+    def test_upvote_comment(self):
+        access_token = login(user=self.user)
+        comment_id = self.comment.id
+
+        route = f'comment/{comment_id}/vote/up'
+        headers={
+            'Authorization': f'Bearer {access_token}'
+        }
+
+        response = self.client.post(
+            route,
+            headers=headers
+        )
+
+        self.assertEqual(204, response.status_code)
+
+    def test_upvote_downvoted_comment(self):
+        access_token = login(user=self.user)
+        comment_id = self.comment.id
+
+        route = f'comment/{comment_id}/vote/up'
+        headers={
+            'Authorization': f'Bearer {access_token}'
+        }
+
+        response = self.client.post(
+            route,
+            headers=headers
+        )
+
+        self.assertEqual(204, response.status_code)
+
+    def test_upvote_non_existent_comment(self):
+        access_token = login(user=self.user)
+        comment_id = 999
+
+        route = f'comment/{comment_id}/vote/up'
+        headers={
+            'Authorization': f'Bearer {access_token}'
+        }
+
+        response = self.client.post(
+            route,
+            headers=headers
+        )
+
+        self.assertEqual(404, response.status_code)
+
+    def test_upvote_comment_already_upvoted(self):
+        access_token = login(user=self.user2)
+        comment_id = self.comment.id
+
+        route = f'comment/{comment_id}/vote/up'
+        headers={
+            'Authorization': f'Bearer {access_token}'
+        }
+
+        response = self.client.post(
+            route,
             headers=headers
         )
 

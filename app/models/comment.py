@@ -63,6 +63,10 @@ class Comment(db.Model):
         
         return comment
     
+    @classmethod
+    def get_all(cls):
+        return db.session.scalars(db.select(Comment)).all()
+    
     def belongs_to(self, user):
         return self.owner is user
     
