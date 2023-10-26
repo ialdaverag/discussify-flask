@@ -28,7 +28,9 @@ class ReadUserTests(UserTests):
 
         route = f'/user/{user}'
 
-        response = self.client.get(route)
+        response = self.client.get(
+            route
+        )
 
         self.assertEqual(200, response.status_code)
 
@@ -37,7 +39,18 @@ class ReadUserTests(UserTests):
 
         route = f'/user/{user}'
 
-        response = self.client.get(route)
+        response = self.client.get(
+            route
+        )
 
         self.assertEqual(404, response.status_code)
-        
+
+class ReadUsersTests(UserTests):
+    def test_read_user(self):
+        route = '/user/'
+
+        response = self.client.get(
+            route
+        )
+
+        self.assertEqual(200, response.status_code)
