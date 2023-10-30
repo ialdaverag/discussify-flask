@@ -1,3 +1,5 @@
+from flask_jwt_extended import current_user
+
 from app.extensions.database import db
 
 from app.models.community import Community
@@ -82,8 +84,25 @@ class User(db.Model):
     def get_all(cls):
         return db.session.scalars(db.select(User)).all()
     
+    @property
+    def following(self):
+        if current_user:            
+            return current_user.is_following(self)
+        
+        return None
+    
+    @property
+    def followed_by(self):
+        if current_user:
+            return current_user.is_followed_by(self)
+        
+        return None
+    
     def is_following(self, other):
         return other in self.followed
+    
+    def is_followed_by(self, other):
+        return self in other.followed
     
     def follow(self, other): 
         if other is self:

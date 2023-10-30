@@ -33,6 +33,8 @@ class UserSchema(Schema):
             )
         ]
     )
+    following = fields.Boolean()
+    followed_by = fields.Boolean()
     created_at = fields.DateTime(dump_only=True)
     updated_at = fields.DateTime(dump_only=True)
 

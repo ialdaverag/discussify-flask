@@ -14,6 +14,8 @@ from app.routes.community import community_routes
 from app.routes.post import post_routes
 from app.routes.comment import comment_routes
 
+from app.models.user import User
+
 from app.errors.errors import NotFoundError
 from app.errors.errors import NameError
 from app.errors.errors import FollowError
@@ -55,6 +57,14 @@ def register_extensions(app):
     migrate = Migrate(app, db)
     jwt.init_app(app)
     mail.init_app(app)
+    
+
+    @jwt.user_lookup_loader
+    def user_lookup_callback(_jwt_header, jwt_data):
+        identity = jwt_data["sub"]
+
+        return User.query.filter_by(id=identity).one_or_none()
+
 
     @jwt.token_in_blocklist_loader
     def check_if_token_in_blacklist(jwt_header, jwt_payload):

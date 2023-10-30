@@ -22,6 +22,7 @@ class UserTests(BaseTestCase):
         self.user2 = user2
         self.user3 = user3
 
+
 class ReadUserTests(UserTests):
     def test_read_user(self):
         user = self.user.username
@@ -45,6 +46,7 @@ class ReadUserTests(UserTests):
 
         self.assertEqual(404, response.status_code)
 
+
 class ReadUsersTests(UserTests):
     def test_read_user(self):
         route = '/user/'
@@ -54,3 +56,77 @@ class ReadUsersTests(UserTests):
         )
 
         self.assertEqual(200, response.status_code)
+
+
+class FollowUserTests(UserTests):
+    def setUp(self) -> None:
+        super().setUp()
+
+        user = self.user
+        user3 = self.user3
+
+        user.follow(user3)
+
+    def test_follow_user(self):
+        access_token = login(self.user)
+        user = self.user2.username
+
+        route = f'/user/{user}/follow'
+        headers={
+            'Authorization': f'Bearer {access_token}'
+        }
+
+        response = self.client.post(
+            route,
+            headers=headers
+        )
+
+        self.assertEqual(204, response.status_code)
+
+    def test_follow_non_existent_user(self):
+        access_token = login(self.user)
+        user = 'non_existent'
+
+        route = f'/user/{user}/follow'
+        headers={
+            'Authorization': f'Bearer {access_token}'
+        }
+
+        response = self.client.post(
+            route,
+            headers=headers
+        )
+
+        self.assertEqual(404, response.status_code)
+
+    def test_follow_self_user(self):
+        access_token = login(self.user)
+        user = self.user.username
+
+        route = f'/user/{user}/follow'
+        headers={
+            'Authorization': f'Bearer {access_token}'
+        }
+
+        response = self.client.post(
+            route,
+            headers=headers
+        )
+
+        self.assertEqual(400, response.status_code)
+
+    def test_follow_user_already_following(self):
+        access_token = login(self.user)
+        user = self.user3.username
+
+        route = f'/user/{user}/follow'
+        headers={
+            'Authorization': f'Bearer {access_token}'
+        }
+
+        response = self.client.post(
+            route,
+            headers=headers
+        )
+
+        self.assertEqual(400, response.status_code)

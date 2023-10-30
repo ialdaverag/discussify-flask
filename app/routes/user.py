@@ -41,11 +41,11 @@ def follow_user(username):
     user_to_follow = User.get_by_username(username=username)
     
     current_user_id = get_jwt_identity()
-    current_user = User.query.get(current_user_id)
+    current_user = User.get_by_id(current_user_id)
 
     current_user.follow(user_to_follow)
     
-    return {'message': 'You are now following the user'}, HTTPStatus.CREATED
+    return {'message': 'You are now following the user'}, HTTPStatus.NO_CONTENT
 
 
 @user_routes.route('/<string:username>/unfollow', methods=['POST'])
@@ -54,11 +54,11 @@ def unfollow_user(username):
     user_to_unfollow = User.get_by_username(username=username)
 
     current_user_id = get_jwt_identity()
-    current_user = User.query.get(current_user_id)
+    current_user = User.get_by_id(current_user_id)
     
     current_user.unfollow(user_to_unfollow)
     
-    return {'message': 'You are no longer following this user'}, HTTPStatus.CREATED
+    return {'message': 'You are no longer following this user'}, HTTPStatus.NO_CONTENT
 
 
 @user_routes.route('/<string:username>/following', methods=['GET'])
