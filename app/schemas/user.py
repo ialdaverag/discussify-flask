@@ -47,5 +47,6 @@ class UserSchema(Schema):
         return data
     
 
+me_schema = UserSchema(exclude=('email',))
 user_schema = UserSchema()
 users_schema = UserSchema(many=True)

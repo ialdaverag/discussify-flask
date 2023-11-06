@@ -12,6 +12,7 @@ from app.models.comment import CommentVote
 
 from app.schemas.user import user_schema
 from app.schemas.user import users_schema
+from app.schemas.user import me_schema
 from app.schemas.community import communities_schema
 from app.schemas.post import posts_schema
 from app.schemas.comment import comments_schema
@@ -99,6 +100,15 @@ def read_user_comments(username):
     user = User.get_by_username(username)
     
     return comments_schema.dump(user.comments)
+
+
+@user_routes.route('/me', methods=['GET'])
+@jwt_required()
+def me():
+    current_user_id = get_jwt_identity()
+    current_user = User.get_by_id(current_user_id)
+
+    return me_schema.dump(current_user)
 
 
 @user_routes.route('/posts/bookmarked', methods=['GET'])
