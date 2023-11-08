@@ -1,11 +1,18 @@
 from http import HTTPStatus
 
+from werkzeug.http import dump_cookie
+
 from flask import Blueprint
 from flask import request
 from flask import render_template
 from flask import url_for
+from flask import make_response
+from flask import jsonify
+from flask import current_app
 from flask_jwt_extended import create_access_token
+from flask_jwt_extended import create_refresh_token
 from flask_jwt_extended import jwt_required
+from flask_jwt_extended import get_jwt_identity
 from flask_jwt_extended import get_jwt
 from flask_jwt_extended import current_user
 
@@ -91,9 +98,36 @@ def login():
             return {'message': 'The user account is not activated yet'}, HTTPStatus.FORBIDDEN
     '''
     
-    access_token = create_access_token(identity=user.id)
+    access_token = create_access_token(identity=user.id)   
+    refresh_token = create_refresh_token(identity=user.id)
+
+    data = {
+        'access_token': access_token
+    }
+
+    json_response = jsonify(data)
+
+    resp = make_response(json_response)
+
+    resp.set_cookie(
+        'refresh_token', 
+        value=refresh_token,
+        httponly=True,
+        secure=True,
+        path='/auth/refresh'
+    )
+
+    headers = {}
+    headers['Set-Cookie'] = dump_cookie(
+        'refresh_token', 
+        refresh_token, 
+        path=url_for('auth_routes.get_new_access_token'),
+        secure=not current_app.debug,
+        httponly=False,
+        samesite='none' if not current_app.debug else 'lax'
+    )
     
-    return {'access_token': access_token}, HTTPStatus.OK
+    return resp, HTTPStatus.OK
 
 
 @auth_routes.route('/logout', methods=['POST'])
@@ -103,6 +137,16 @@ def logout():
     black_list.add(jti)
 
     return {'message': 'Successfully logged out'}, HTTPStatus.OK
+
+
+@auth_routes.route('/refresh', methods=['POST'])
+@jwt_required(refresh=True, locations=['cookies'])
+def get_new_access_token():
+    current_user = get_jwt_identity()
+
+    token = create_access_token(identity=current_user)
+
+    return {'access_token': token}, HTTPStatus.OK
 
 
 @auth_routes.route('/email/confirm/<string:token>', methods=['GET'])
