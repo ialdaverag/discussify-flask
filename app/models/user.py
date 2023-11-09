@@ -92,7 +92,7 @@ class User(db.Model):
         return None
     
     @property
-    def followed_by(self):
+    def follower(self):
         if current_user and current_user != self:
             return current_user.is_followed_by(self)
         

@@ -1,3 +1,5 @@
+from flask_jwt_extended import current_user
+
 from app.extensions.database import db
 from app.errors.errors import NotFoundError
 
@@ -64,6 +66,27 @@ class Community(db.Model):
     def get_all(cls):
         #return Community.query.all()
         return db.session.scalars(db.select(Community)).all()
+    
+    @property
+    def subscriber(self):
+        if current_user:
+            return current_user.is_subscribed_to(self)
+        
+        return None
+    
+    @property
+    def moderator(self):
+        if current_user:
+            return current_user.is_moderator_of(self)
+        
+        return None
+    
+    @property
+    def ban(self):
+        if current_user:
+            return current_user.is_banned_from(self)
+        
+        return None
     
     def belongs_to(self, user):
         return self.owner is user
