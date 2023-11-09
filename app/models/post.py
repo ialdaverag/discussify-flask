@@ -1,3 +1,5 @@
+from flask_jwt_extended import current_user
+
 from app.extensions.database import db
 from app.errors.errors import NotFoundError
 from app.models.comment import Comment
@@ -64,11 +66,42 @@ class Post(db.Model):
         
         return post
     
+    @property
+    def bookmarked(self):
+        if current_user:
+            return self.is_bookmarked_by(current_user)
+
+        return None
+    
+    @property
+    def upvoted(self):
+        if current_user:
+            return self.is_upvoted_by(current_user)
+
+        return None
+    
+    @property
+    def downvoted(self):
+        if current_user:
+            return self.is_downvoted_by(current_user)
+
+        return None
+    
     def belongs_to(self, user):
         return self.owner is user
     
     def is_bookmarked_by(self, user):
         return user in self.bookmarkers
+    
+    def is_upvoted_by(self, user):
+        vote = PostVote.get_by_user_and_post(user, self)
+
+        return vote.is_upvote() if vote else False
+    
+    def is_downvoted_by(self, user):
+        vote = PostVote.get_by_user_and_post(user, self)
+
+        return vote.is_downvote() if vote else False
     
     def read_root_comments(self):
         root_comments = Comment.query.filter_by(post_id=self.id, comment_id=None).all()

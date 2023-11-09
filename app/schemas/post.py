@@ -38,6 +38,9 @@ class PostSchema(Schema):
         CommunitySchema, 
         dump_only=True
     )
+    bookmarked = fields.Boolean()
+    upvoted = fields.Boolean()
+    downvoted = fields.Boolean()
     created_at = fields.DateTime(dump_only=True)
     updated_at = fields.DateTime(dump_only=True)
 
