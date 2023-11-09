@@ -1,3 +1,5 @@
+from flask_jwt_extended import current_user
+
 from app.extensions.database import db
 from app.errors.errors import NotFoundError
 
@@ -19,8 +21,8 @@ class CommentVote(db.Model):
     #comment = db.relationship('Comment', backref='comment_votes')
 
     @classmethod
-    def get_by_user_and_comment(self, user, comment):
-        vote = CommentVote.query.filter_by(user=user, comment=comment).first()
+    def get_by_user_and_comment(cls, user, comment):
+        vote = CommentVote.query.filter_by(user_id=user.id, comment_id=comment.id).first()
 
         return vote
     
@@ -67,8 +69,30 @@ class Comment(db.Model):
     def get_all(cls):
         return db.session.scalars(db.select(Comment)).all()
     
+    @property
+    def bookmarked(self):
+        return self.is_bookmarked_by(current_user)
+    
+    @property
+    def upvoted(self):
+        return self.is_upvoted_by(current_user)
+    
+    @property
+    def downvoted(self):
+        return self.is_downvoted_by(current_user)
+    
     def belongs_to(self, user):
         return self.owner is user
     
     def is_bookmarked_by(self, user):
         return user in self.comment_bookmarkers
+
+    def is_upvoted_by(self, user):
+        vote = CommentVote.get_by_user_and_comment(user, self)
+
+        return vote.is_upvote() if vote else False
+
+    def is_downvoted_by(self, user):
+        vote = CommentVote.get_by_user_and_comment(user, self)
+
+        return vote.is_downvote() if vote else False

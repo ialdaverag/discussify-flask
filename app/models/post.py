@@ -22,9 +22,9 @@ class PostVote(db.Model):
     #post = db.relationship('Post', backref='votes')
 
     @classmethod
-    def get_by_user_and_post(self, user, post):
-        vote = PostVote.query.filter_by(user=user, post=post).first()
-
+    def get_by_user_and_post(cls, user, post):
+        vote = PostVote.query.filter_by(user_id=user.id, post_id=post.id).first()
+        
         return vote
 
     def is_upvote(self):
