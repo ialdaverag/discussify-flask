@@ -62,7 +62,6 @@ class User(db.Model):
     
     @classmethod
     def get_by_username(cls, username):
-        #user = User.query.filter_by(username=username).first()
         user = db.session.execute(db.select(User).filter_by(username=username)).scalar()
 
         if user is None:
@@ -72,7 +71,6 @@ class User(db.Model):
     
     @classmethod
     def get_by_id(cls, id):
-        #user = User.query.get(id)
         user = db.session.get(User, id)
 
         if user is None:
@@ -111,8 +109,7 @@ class User(db.Model):
         if self.is_following(other):
             raise FollowError('You are already following this user')
         
-        self.followed.append(other)
-        db.session.commit()
+        other.append_follower(self)
 
     def unfollow(self, other):
         if other is self:
@@ -121,7 +118,14 @@ class User(db.Model):
         if not self.is_following(other):
             raise FollowError('You are not following this user')
         
-        self.followed.remove(other)
+        other.remove_follower(self)
+
+    def append_follower(self, user):
+        self.followers.append(user)
+        db.session.commit()
+
+    def remove_follower(self, user):
+        self.followers.remove(user)
         db.session.commit()
     
     def create_community(self, name, about = ''):
@@ -272,7 +276,6 @@ class User(db.Model):
             community.append_moderator(user)
 
         community.change_ownership_to(user)
-        #db.session.commit()
 
     def create_post(self, title, content, community):
         if self.is_banned_from(community):
