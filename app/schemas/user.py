@@ -33,11 +33,16 @@ class UserSchema(Schema):
             )
         ]
     )
-    following = fields.Boolean()
-    follower = fields.Boolean()
+    following = fields.Boolean(dump_only=True)
+    follower = fields.Boolean(dump_only=True)
+    following_count = fields.Integer(dump_only=True)
+    followers_count = fields.Integer(dump_only=True)
+    communities_count = fields.Integer(dump_only=True)
+    posts_count = fields.Integer(dump_only=True)
+    comments_count = fields.Integer(dump_only=True)
+    subscriptions_count = fields.Integer(dump_only=True)
     created_at = fields.DateTime(dump_only=True)
     updated_at = fields.DateTime(dump_only=True)
-
 
     @post_load
     def hash_password(self, data, **kwargs):

@@ -96,6 +96,26 @@ class User(db.Model):
         
         return None
     
+    @property
+    def following_count(self):
+        return self.followed.count()
+    
+    @property
+    def followers_count(self):
+        return self.followers.count()
+    
+    @property
+    def communities_count(self):
+        return self.communities.count()
+    
+    @property
+    def posts_count(self):
+        return self.posts.count()
+    
+    @property
+    def comments_count(self):
+        return self.comments.count()
+    
     def is_following(self, other):
         return other in self.followed
     
@@ -285,8 +305,8 @@ class User(db.Model):
             raise SubscriptionError('You are not subscribed to this community')
         
         post = Post(title=title, content=content, community=community, owner=self)
-        
-        db.session.add(community)
+
+        db.session.add(post)
         db.session.commit()
 
         return post
@@ -480,4 +500,3 @@ class User(db.Model):
         else:
             new_vote = CommentVote(user=self, comment=comment, direction=-1)
             new_vote.create()
-        

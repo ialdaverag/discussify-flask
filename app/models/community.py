@@ -88,6 +88,22 @@ class Community(db.Model):
         
         return None
     
+    @property
+    def posts_count(self):
+        return self.posts.count()
+    
+    @property
+    def comments_count(self):
+        return sum([post.comments.count() for post in self.posts])
+    
+    @property
+    def subscribers_count(self):
+        return len(self.subscribers)
+    
+    @property
+    def moderators_count(self):
+        return len(self.moderators)
+    
     def belongs_to(self, user):
         return self.owner is user
     
@@ -118,3 +134,4 @@ class Community(db.Model):
     def remove_banned(self, user):
         self.banned.remove(user)
         db.session.commit()
+

@@ -81,6 +81,18 @@ class Comment(db.Model):
     def downvoted(self):
         return self.is_downvoted_by(current_user)
     
+    @property
+    def bookmarks_count(self):
+        return len(self.comment_bookmarkers)
+    
+    @property
+    def upvotes_count(self):
+        return len(self.comment_votes.filter_by(direction=1).all())
+    
+    @property
+    def downvotes_count(self):
+        return len(self.comment_votes.filter_by(direction=-1).all())
+    
     def belongs_to(self, user):
         return self.owner is user
     

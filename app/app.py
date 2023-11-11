@@ -45,6 +45,7 @@ from app.handlers.errors import handler_vote_error
 def create_app(config_class=DevelopmentConfig):
     app = Flask(__name__)
     app.config.from_object(config_class)
+    app.json.sort_keys = False
 
     register_extensions(app)
     register_blueprints(app)

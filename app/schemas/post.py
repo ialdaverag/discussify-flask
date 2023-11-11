@@ -41,6 +41,10 @@ class PostSchema(Schema):
     bookmarked = fields.Boolean(dump_only=True)
     upvoted = fields.Boolean(dump_only=True)
     downvoted = fields.Boolean(dump_only=True)
+    comments_count = fields.Integer(dump_only=True)
+    bookmarks_count = fields.Integer(dump_only=True)
+    upvotes_count = fields.Integer(dump_only=True)
+    downvotes_count = fields.Integer(dump_only=True)
     created_at = fields.DateTime(dump_only=True)
     updated_at = fields.DateTime(dump_only=True)
 
