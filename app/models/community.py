@@ -28,16 +28,15 @@ class Community(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(255), nullable=False, unique=True)
     about = db.Column(db.String(1023), default='')
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     created_at = db.Column(db.DateTime, default=db.func.now())
     updated_at = db.Column(db.DateTime, default=db.func.now(), onupdate=db.func.now())
-
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
 
     subscribers = db.relationship('User', secondary=community_subscribers, backref='subscriptions')
     moderators = db.relationship('User', secondary=community_moderators, backref='moderations')
     banned = db.relationship('User', secondary=community_bans, backref='bans')
     posts = db.relationship('Post', cascade='all, delete', backref='community', lazy='dynamic')
-    
+
     @staticmethod
     def is_name_available(name):
         return Community.query.filter_by(name=name).first() is None
@@ -87,22 +86,6 @@ class Community(db.Model):
             return current_user.is_banned_from(self)
         
         return None
-    
-    @property
-    def posts_count(self):
-        return self.posts.count()
-    
-    @property
-    def comments_count(self):
-        return sum([post.comments.count() for post in self.posts])
-    
-    @property
-    def subscribers_count(self):
-        return len(self.subscribers)
-    
-    @property
-    def moderators_count(self):
-        return len(self.moderators)
     
     def belongs_to(self, user):
         return self.owner is user

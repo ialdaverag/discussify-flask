@@ -87,22 +87,6 @@ class Post(db.Model):
 
         return None
     
-    @property
-    def comments_count(self):
-        return self.comments.count()
-    
-    @property
-    def bookmarks_count(self):
-        return self.bookmarkers.count()
-    
-    @property
-    def upvotes_count(self):
-        return len([vote for vote in self.post_votes if vote.is_upvote()])
-    
-    @property
-    def downvotes_count(self):
-        return len([vote for vote in self.post_votes if vote.is_downvote()])
-    
     def belongs_to(self, user):
         return self.owner is user
     

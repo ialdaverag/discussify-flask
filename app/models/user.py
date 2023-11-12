@@ -40,6 +40,7 @@ class User(db.Model):
     created_at = db.Column(db.DateTime, default=db.func.now())
     updated_at = db.Column(db.DateTime, default=db.func.now(), onupdate=db.func.now())
 
+    
     communities = db.relationship('Community', backref='owner', lazy='dynamic')
     posts = db.relationship('Post', backref='owner', lazy='dynamic')
     comments = db.relationship('Comment', backref='owner', lazy='dynamic')
@@ -51,6 +52,7 @@ class User(db.Model):
         backref=db.backref('followers', lazy='dynamic'),
         lazy='dynamic'
     )
+    
 
     @staticmethod
     def is_username_available(username):
@@ -95,26 +97,6 @@ class User(db.Model):
             return current_user.is_followed_by(self)
         
         return None
-    
-    @property
-    def following_count(self):
-        return self.followed.count()
-    
-    @property
-    def followers_count(self):
-        return self.followers.count()
-    
-    @property
-    def communities_count(self):
-        return self.communities.count()
-    
-    @property
-    def posts_count(self):
-        return self.posts.count()
-    
-    @property
-    def comments_count(self):
-        return self.comments.count()
     
     def is_following(self, other):
         return other in self.followed
