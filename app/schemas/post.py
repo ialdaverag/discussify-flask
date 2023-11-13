@@ -6,6 +6,17 @@ from app.schemas.user import UserSchema
 from app.schemas.community import CommunitySchema
 
 
+class PostStatsSchema(Schema):
+    class Meta:
+        ordered = True
+
+    id = fields.Integer()
+    comments_count = fields.Integer()
+    bookmarks_count = fields.Integer()
+    upvotes_count = fields.Integer()
+    downvotes_count = fields.Integer()
+
+
 class PostSchema(Schema):
     class Meta:
         ordered = True
@@ -41,10 +52,7 @@ class PostSchema(Schema):
     bookmarked = fields.Boolean(dump_only=True)
     upvoted = fields.Boolean(dump_only=True)
     downvoted = fields.Boolean(dump_only=True)
-    comments_count = fields.Integer(dump_only=True)
-    bookmarks_count = fields.Integer(dump_only=True)
-    upvotes_count = fields.Integer(dump_only=True)
-    downvotes_count = fields.Integer(dump_only=True)
+    stats = fields.Nested(PostStatsSchema, dump_only=True)
     created_at = fields.DateTime(dump_only=True)
     updated_at = fields.DateTime(dump_only=True)
 

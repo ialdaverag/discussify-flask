@@ -6,6 +6,22 @@ from marshmallow import post_load
 from app.utils.password import hash_password
 
 
+class UserStatsSchema(Schema):
+    class Meta:
+        ordered = True
+
+    id = fields.Integer()
+    following_count = fields.Integer()
+    followers_count = fields.Integer()
+    communities_count = fields.Integer()
+    posts_count = fields.Integer()
+    comments_count = fields.Integer()
+    subscriptions_count = fields.Integer()
+    moderations_count = fields.Integer()
+    created_at = fields.DateTime(dump_only=True)
+    updated_at = fields.DateTime(dump_only=True)
+
+
 class UserSchema(Schema):
     class Meta:
         ordered = True
@@ -35,12 +51,7 @@ class UserSchema(Schema):
     )
     following = fields.Boolean(dump_only=True)
     follower = fields.Boolean(dump_only=True)
-    following_count = fields.Integer(dump_only=True)
-    followers_count = fields.Integer(dump_only=True)
-    communities_count = fields.Integer(dump_only=True)
-    posts_count = fields.Integer(dump_only=True)
-    comments_count = fields.Integer(dump_only=True)
-    subscriptions_count = fields.Integer(dump_only=True)
+    stats = fields.Nested(UserStatsSchema, dump_only=True)
     created_at = fields.DateTime(dump_only=True)
     updated_at = fields.DateTime(dump_only=True)
 

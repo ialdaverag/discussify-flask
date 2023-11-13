@@ -5,6 +5,18 @@ from marshmallow import validate
 from app.schemas.user import UserSchema
 
 
+class CommunityStatsSchema(Schema):
+    class Meta:
+        ordered = True
+
+    id = fields.Integer()
+    posts_count = fields.Integer()
+    comments_count = fields.Integer()
+    subscribers_count = fields.Integer()
+    moderators_count = fields.Integer()
+    banned_count = fields.Integer()
+
+
 class CommunitySchema(Schema):
     class Meta:
         ordered = True
@@ -25,11 +37,8 @@ class CommunitySchema(Schema):
     subscriber = fields.Boolean()
     moderator = fields.Boolean()
     ban = fields.Boolean()
-    posts_count = fields.Integer()
-    comments_count = fields.Integer()
-    subscribers_count = fields.Integer()
-    moderators_count = fields.Integer()
     owner = fields.Nested(UserSchema, attribute='owner')
+    stats = fields.Nested(CommunityStatsSchema, dump_only=True)
     created_at = fields.DateTime(dump_only=True)
     updated_at = fields.DateTime(dump_only=True)
 

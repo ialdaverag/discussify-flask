@@ -6,6 +6,16 @@ from app.schemas.user import UserSchema
 from app.schemas.post import PostSchema
 
 
+class CommentStatsSchema(Schema):
+    class Meta:
+        ordered = True
+
+    id = fields.Integer()
+    bookmarks_count = fields.Integer()
+    upvotes_count = fields.Integer()
+    downvotes_count = fields.Integer()
+
+
 class CommentSchema(Schema):
     class Meta:
         ordered = True
@@ -25,12 +35,10 @@ class CommentSchema(Schema):
     bookmarked = fields.Boolean(dump_only=True)
     upvoted = fields.Boolean(dump_only=True)
     downvoted = fields.Boolean(dump_only=True)
-    bookmarks_count = fields.Integer(dump_only=True)
-    upvotes_count = fields.Integer(dump_only=True)
-    downvotes_count = fields.Integer(dump_only=True)
+    replies = fields.List(fields.Nested(lambda: CommentSchema()))
+    stats = fields.Nested(CommentStatsSchema, dump_only=True)
     created_at = fields.DateTime(dump_only=True)
     updated_at = fields.DateTime(dump_only=True)
-    replies = fields.List(fields.Nested(lambda: CommentSchema()))
 
 
 comment_schema = CommentSchema()

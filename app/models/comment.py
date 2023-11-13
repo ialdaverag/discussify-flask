@@ -17,8 +17,14 @@ class CommentVote(db.Model):
     comment_id = db.Column(db.Integer, db.ForeignKey('comments.id'), primary_key=True)
     direction = db.Column(db.Integer, nullable=False)
 
-    user = db.relationship('User', backref='comment_votes')
+    # User
+    #user = db.relationship('User', backref='comment_votes')
+    user = db.relationship('User', back_populates='comment_votes')
+
+    # Comment
     #comment = db.relationship('Comment', backref='comment_votes')
+    comment = db.relationship('Comment', back_populates='comment_votes')
+
 
     @classmethod
     def get_by_user_and_comment(cls, user, comment):
@@ -41,6 +47,16 @@ class CommentVote(db.Model):
         db.session.commit()
 
 
+class CommentStats(db.Model):
+    __tablename__ = 'comment_stats'
+
+    id = db.Column(db.Integer, primary_key=True)
+    comment_id = db.Column(db.Integer, db.ForeignKey('comments.id'), unique=True)
+    bookmarks_count = db.Column(db.Integer, default=0)
+    upvotes_count = db.Column(db.Integer, default=0)
+    downvotes_count = db.Column(db.Integer, default=0)
+
+
 class Comment(db.Model):
     __tablename__ = 'comments'
 
@@ -52,9 +68,26 @@ class Comment(db.Model):
     created_at = db.Column(db.DateTime, default=db.func.now())
     updated_at = db.Column(db.DateTime, default=db.func.now(), onupdate=db.func.now())
 
+    # User
+    owner = db.relationship('User', back_populates='comments')
+    comment_bookmarkers = db.relationship('User', secondary=comment_bookmarks, back_populates='comment_bookmarks')
+
+    # Post
+    post = db.relationship('Post', back_populates='comments')
+
+    # Comment
     replies = db.relationship('Comment', backref=db.backref('comment', remote_side=[id]), lazy='dynamic')
-    comment_bookmarkers = db.relationship('User', secondary=comment_bookmarks, backref='comment_bookmarks')
-    comment_votes = db.relationship('CommentVote', cascade='all, delete', backref='comment')
+
+    # CommentVote
+    comment_votes = db.relationship('CommentVote', back_populates='comment', cascade='all, delete')
+
+    # Stats
+    stats = db.relationship('CommentStats', backref='comment', uselist=False, cascade='all, delete')
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        
+        self.stats = CommentStats(comment=self)
 
     @classmethod
     def get_by_id(cls, id):
@@ -96,3 +129,149 @@ class Comment(db.Model):
         vote = CommentVote.get_by_user_and_comment(user, self)
 
         return vote.is_downvote() if vote else False
+    
+    
+    def append_bookmarker(self, user):
+        self.comment_bookmarkers.append(user)
+
+        db.session.commit()
+
+    def remove_bookmarker(self, user):
+        self.comment_bookmarkers.remove(user)
+
+        db.session.commit()
+    
+    
+
+@db.event.listens_for(Comment, 'after_insert')
+def increment_comments_count_on_user_stats(mapper, connection, target):
+    from app.models.user import UserStats
+
+    user_stats_table = UserStats.__table__
+
+    update_query = user_stats_table.update().where(
+        user_stats_table.c.user_id == target.user_id
+    ).values(
+        comments_count=user_stats_table.c.comments_count + 1
+    )
+
+    connection.execute(update_query)
+
+
+@db.event.listens_for(Comment, 'after_delete')
+def decrement_comments_count_on_user_stats(mapper, connection, target):
+    from app.models.user import UserStats
+
+    user_stats_table = UserStats.__table__
+
+    update_query = user_stats_table.update().where(
+        user_stats_table.c.user_id == target.user_id
+    ).values(
+        comments_count=user_stats_table.c.comments_count - 1
+    )
+
+    connection.execute(update_query)
+
+
+@db.event.listens_for(Comment, 'after_insert')
+def increment_comments_count_on_community_stats(mapper, connection, target):
+    from app.models.community import CommunityStats
+
+    community_stats_table = CommunityStats.__table__
+
+    update_query = community_stats_table.update().where(
+        community_stats_table.c.community_id == target.post.community_id
+    ).values(
+        comments_count=community_stats_table.c.comments_count + 1
+    )
+
+    connection.execute(update_query)
+
+
+@db.event.listens_for(Comment, 'after_delete')
+def decrement_comments_count_on_community_stats(mapper, connection, target):
+    from app.models.community import CommunityStats
+
+    community_stats_table = CommunityStats.__table__
+
+    update_query = community_stats_table.update().where(
+        community_stats_table.c.community_id == target.post.community_id
+    ).values(
+        comments_count=community_stats_table.c.comments_count - 1
+    )
+
+    connection.execute(update_query)
+
+
+@db.event.listens_for(Comment, 'after_insert')
+def increment_comments_count_on_post_stats(mapper, connection, target):
+    from app.models.post import PostStats
+
+    post_stats_table = PostStats.__table__
+
+    update_query = post_stats_table.update().where(
+        post_stats_table.c.post_id == target.post_id
+    ).values(
+        comments_count=post_stats_table.c.comments_count + 1
+    )
+
+    connection.execute(update_query)
+
+
+@db.event.listens_for(Comment, 'after_delete')
+def decrement_comments_count_on_post_stats(mapper, connection, target):
+    from app.models.post import PostStats
+
+    post_stats_table = PostStats.__table__
+
+    update_query = post_stats_table.update().where(
+        post_stats_table.c.post_id == target.post_id
+    ).values(
+        comments_count=post_stats_table.c.comments_count - 1
+    )
+
+    connection.execute(update_query)
+
+
+@db.event.listens_for(CommentVote, 'after_insert')
+def increment_upvotes_count_on_comment_stats(mapper, connection, target):
+    from app.models.comment import CommentStats
+
+    comment_stats_table = CommentStats.__table__
+
+    update_query = comment_stats_table.update().where(
+        comment_stats_table.c.comment_id == target.comment_id
+    ).values(
+        upvotes_count=comment_stats_table.c.upvotes_count + 1
+    )
+
+    connection.execute(update_query)
+
+
+@db.event.listens_for(CommentVote, 'after_delete')
+def decrement_upvotes_count_on_comment_stats(mapper, connection, target):
+    from app.models.comment import CommentStats
+
+    comment_stats_table = CommentStats.__table__
+
+    update_query = comment_stats_table.update().where(
+        comment_stats_table.c.comment_id == target.comment_id
+    ).values(
+        upvotes_count=comment_stats_table.c.upvotes_count - 1
+    )
+
+    connection.execute(update_query)
+
+
+@db.event.listens_for(Comment.comment_bookmarkers, 'append')
+def increment_bookmarks_count_on_comment_stats(target, value, initiator):
+    target.stats.bookmarks_count += 1
+
+    db.session.commit()
+
+
+@db.event.listens_for(Comment.comment_bookmarkers, 'remove')
+def decrement_bookmarks_count_on_comment_stats(target, value, initiator):
+    target.stats.bookmarks_count -= 1
+
+    db.session.commit()

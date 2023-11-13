@@ -5,9 +5,11 @@ from app.extensions.database import db
 from app.models.community import Community
 from app.models.community import community_subscribers
 from app.models.community import community_moderators
+from app.models.community import community_bans
 from app.models.post import Post
 from app.models.post import PostVote
 from app.models.comment import Comment
+from app.models.comment import comment_bookmarks as c_bookmarks
 from app.models.comment import CommentVote
 
 from app.errors.errors import NotFoundError
@@ -29,6 +31,20 @@ follows = db.Table(
 )
 
 
+class UserStats(db.Model):
+    __tablename__ = 'user_stats'
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), unique=True)
+    followers_count = db.Column(db.Integer, default=0)
+    following_count = db.Column(db.Integer, default=0)
+    communities_count = db.Column(db.Integer, default=0)
+    posts_count = db.Column(db.Integer, default=0)
+    comments_count = db.Column(db.Integer, default=0)
+    subscriptions_count = db.Column(db.Integer, default=0)
+    moderations_count = db.Column(db.Integer, default=0)
+
+
 class User(db.Model):
     __tablename__ = 'users'
 
@@ -39,20 +55,39 @@ class User(db.Model):
     is_verified = db.Column(db.Boolean, default=False)
     created_at = db.Column(db.DateTime, default=db.func.now())
     updated_at = db.Column(db.DateTime, default=db.func.now(), onupdate=db.func.now())
-
     
-    communities = db.relationship('Community', backref='owner', lazy='dynamic')
-    posts = db.relationship('Post', backref='owner', lazy='dynamic')
-    comments = db.relationship('Comment', backref='owner', lazy='dynamic')
+    # User
     followed = db.relationship(
-        'User',
-        secondary=follows,
-        primaryjoin=(follows.c.follower_id == id),
-        secondaryjoin=(follows.c.followed_id == id),
-        backref=db.backref('followers', lazy='dynamic'),
+        'User', 
+        secondary=follows, primaryjoin=(follows.c.follower_id == id), 
+        secondaryjoin=(follows.c.followed_id == id), 
+        backref=db.backref('followers', lazy='dynamic'), 
         lazy='dynamic'
     )
-    
+
+    # Community
+    communities = db.relationship('Community', back_populates='owner', lazy='dynamic', cascade='all, delete')
+    subscriptions = db.relationship('Community', secondary=community_subscribers, back_populates='subscribers')
+    moderations = db.relationship('Community', secondary=community_moderators, back_populates='moderators')
+    bans = db.relationship('Community', secondary=community_bans, back_populates='banned')
+
+    # Post
+    posts = db.relationship('Post', back_populates='owner', lazy='dynamic')
+    bookmarks = db.relationship('Post', secondary='post_bookmarks', back_populates='bookmarkers')
+    post_votes = db.relationship('PostVote', back_populates='user')
+
+    # Comment
+    comments = db.relationship('Comment', back_populates='owner', lazy='dynamic')
+    comment_bookmarks = db.relationship('Comment', secondary=c_bookmarks, back_populates='comment_bookmarkers')
+    comment_votes = db.relationship('CommentVote', back_populates='user')
+
+    # Stats
+    stats = db.relationship('UserStats', backref='user', uselist=False, cascade='all, delete')
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.stats = UserStats(user=self)
 
     @staticmethod
     def is_username_available(username):
@@ -137,11 +172,11 @@ class User(db.Model):
             raise NameError('Name is already used')
 
         community = Community(name=name, about=about, owner=self)
-        community.subscribers.append(self)
-        community.moderators.append(self)
-
         db.session.add(community)
         db.session.commit()
+
+        community.append_subscriber(self)
+        community.append_moderator(self)
 
         return community
 
@@ -318,15 +353,13 @@ class User(db.Model):
         if post.is_bookmarked_by(self):
             raise BookmarkError('Post already bookmarked')
         
-        self.bookmarks.append(post)
-        db.session.commit()
+        post.append_bookmarker(self)
 
     def unbookmark_post(self, post):
         if not post.is_bookmarked_by(self):
             raise BookmarkError('Post not bookmarked')
         
-        self.bookmarks.remove(post)
-        db.session.commit()
+        post.remove_bookmarker(self)
 
     def upvote_post(self, post):
         community = post.community
@@ -431,15 +464,13 @@ class User(db.Model):
         if comment.is_bookmarked_by(self):
             raise BookmarkError('Comment already bookmarked')
         
-        self.comment_bookmarks.append(comment)
-        db.session.commit()
+        comment.append_bookmarker(self)
 
     def unbookmark_comment(self, comment):
         if not comment.is_bookmarked_by(self):
             raise BookmarkError('Comment not bookmarked')
         
-        self.comment_bookmarks.remove(comment)
-        db.session.commit()
+        comment.remove_bookmarker(self)
 
     def upvote_comment(self, comment):
         community = comment.post.community
@@ -482,3 +513,47 @@ class User(db.Model):
         else:
             new_vote = CommentVote(user=self, comment=comment, direction=-1)
             new_vote.create()
+
+
+@db.event.listens_for(User.followed, 'append')
+def increment_following_count_on_user_stats(target, value, initiator):
+    target.stats.following_count += 1
+    value.stats.followers_count += 1
+
+    db.session.commit()
+
+
+@db.event.listens_for(User.followed, 'remove')
+def decrement_following_count_on_user_stats(target, value, initiator):
+    target.stats.following_count -= 1
+    value.stats.followers_count -= 1
+
+    db.session.commit()
+
+
+@db.event.listens_for(User.subscriptions, 'append')
+def increment_subscriptions_count_on_user_stats(target, value, initiator):
+    target.stats.subscriptions_count += 1
+
+    db.session.commit()
+
+
+@db.event.listens_for(User.subscriptions, 'remove')
+def decrement_subscriptions_count_on_user_stats(target, value, initiator):
+    target.stats.subscriptions_count -= 1
+
+    db.session.commit()
+
+
+@db.event.listens_for(User.moderations, 'append')
+def increment_moderations_count_on_user_stats(target, value, initiator):
+    target.stats.moderations_count += 1
+
+    db.session.commit()
+
+
+@db.event.listens_for(User.moderations, 'remove')
+def decrement_moderations_count_on_user_stats(target, value, initiator):
+    target.stats.moderations_count -= 1
+
+    db.session.commit()

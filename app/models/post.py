@@ -18,8 +18,14 @@ class PostVote(db.Model):
     post_id = db.Column(db.Integer, db.ForeignKey('posts.id'), primary_key=True)
     direction = db.Column(db.Integer, nullable=False)
 
-    user = db.relationship('User', backref='votes')
+    # User
+    #user = db.relationship('User', backref='votes')
+    user = db.relationship('User', back_populates='post_votes')
+
+    # Post
     #post = db.relationship('Post', backref='votes')
+    #post = db.relationship('Post', back_populates='post_votes')
+    post = db.relationship('Post', back_populates='post_votes')
 
     @classmethod
     def get_by_user_and_post(cls, user, post):
@@ -42,6 +48,17 @@ class PostVote(db.Model):
         db.session.commit()
 
 
+class PostStats(db.Model):
+    __tablename__ = 'post_stats'
+
+    id = db.Column(db.Integer, primary_key=True)
+    post_id = db.Column(db.Integer, db.ForeignKey('posts.id'), unique=True)
+    comments_count = db.Column(db.Integer, default=0)
+    bookmarks_count = db.Column(db.Integer, default=0)
+    upvotes_count = db.Column(db.Integer, default=0)
+    downvotes_count = db.Column(db.Integer, default=0)
+
+
 class Post(db.Model):
     __tablename__ = 'posts'
 
@@ -53,9 +70,26 @@ class Post(db.Model):
     created_at = db.Column(db.DateTime, default=db.func.now())
     updated_at = db.Column(db.DateTime, default=db.func.now(), onupdate=db.func.now())
 
-    bookmarkers = db.relationship('User', secondary=post_bookmarks, backref='bookmarks')
-    comments = db.relationship('Comment', cascade='all, delete', backref='post', lazy='dynamic')
-    post_votes = db.relationship('PostVote', cascade='all, delete', backref='post')
+    # User
+    owner = db.relationship('User', back_populates='posts')
+    bookmarkers = db.relationship('User', secondary=post_bookmarks, back_populates='bookmarks')
+
+    # Community
+    community = db.relationship('Community', back_populates='posts')
+
+    # Comment
+    comments = db.relationship('Comment', cascade='all, delete', back_populates='post', lazy='dynamic')
+
+    # PostVote
+    post_votes = db.relationship('PostVote', cascade='all, delete', back_populates='post')
+
+    # Stats
+    stats = db.relationship('PostStats', backref='post', uselist=False, cascade='all, delete')
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        
+        self.stats = PostStats(post=self)
 
     @classmethod
     def get_by_id(self, id):
@@ -103,7 +137,123 @@ class Post(db.Model):
 
         return vote.is_downvote() if vote else False
     
+    
+    def append_bookmarker(self, user):
+        self.bookmarkers.append(user)
+
+        db.session.commit()
+
+    def remove_bookmarker(self, user):
+        self.bookmarkers.remove(user)
+
+        db.session.commit()
+    
+    
     def read_root_comments(self):
         root_comments = Comment.query.filter_by(post_id=self.id, comment_id=None).all()
 
         return root_comments
+
+
+@db.event.listens_for(Post, 'after_insert')
+def increment_posts_count_on_user_stats(mapper, connection, target):
+    from app.models.user import UserStats
+
+    user_stats_table = UserStats.__table__
+
+    update_query = user_stats_table.update().where(
+        user_stats_table.c.user_id == target.user_id
+    ).values(
+        posts_count=user_stats_table.c.posts_count + 1
+    )
+
+    connection.execute(update_query)
+
+
+@db.event.listens_for(Post, 'after_delete')
+def decrement_posts_count_on_user_stats(mapper, connection, target):
+    from app.models.user import UserStats
+
+    user_stats_table = UserStats.__table__
+
+    update_query = user_stats_table.update().where(
+        user_stats_table.c.user_id == target.user_id
+    ).values(
+        posts_count=user_stats_table.c.posts_count - 1
+    )
+
+    connection.execute(update_query)
+
+
+@db.event.listens_for(Post, 'after_insert')
+def increment_posts_count_on_community_stats(mapper, connection, target):
+    from app.models.community import CommunityStats
+
+    community_stats_table = CommunityStats.__table__
+
+    update_query = community_stats_table.update().where(
+        community_stats_table.c.community_id == target.community_id
+    ).values(
+        posts_count=community_stats_table.c.posts_count + 1
+    )
+
+    connection.execute(update_query)
+
+
+@db.event.listens_for(Post, 'after_delete')
+def decrement_posts_count_on_community_stats(mapper, connection, target):
+    from app.models.community import CommunityStats
+
+    community_stats_table = CommunityStats.__table__
+
+    update_query = community_stats_table.update().where(
+        community_stats_table.c.community_id == target.community_id
+    ).values(
+        posts_count=community_stats_table.c.posts_count - 1
+    )
+
+    connection.execute(update_query)
+
+
+@db.event.listens_for(PostVote, 'after_insert')
+def increment_upvotes_count_on_post_stats(mapper, connection, target):
+    from app.models.post import PostStats
+
+    post_stats_table = PostStats.__table__
+
+    update_query = post_stats_table.update().where(
+        post_stats_table.c.post_id == target.post_id
+    ).values(
+        upvotes_count=post_stats_table.c.upvotes_count + 1
+    )
+
+    connection.execute(update_query)
+
+
+@db.event.listens_for(PostVote, 'after_delete')
+def decrement_upvotes_count_on_post_stats(mapper, connection, target):
+    from app.models.post import PostStats
+
+    post_stats_table = PostStats.__table__
+
+    update_query = post_stats_table.update().where(
+        post_stats_table.c.post_id == target.post_id
+    ).values(
+        upvotes_count=post_stats_table.c.upvotes_count - 1
+    )
+
+    connection.execute(update_query)    
+
+
+@db.event.listens_for(Post.bookmarkers, 'append')
+def increment_bookmarks_count_on_post_stats(target, value, initiator):
+    target.stats.bookmarks_count += 1
+
+    db.session.commit()
+
+
+@db.event.listens_for(Post.bookmarkers, 'remove')
+def decrement_bookmarks_count_on_post_stats(target, value, initiator):
+    target.stats.bookmarks_count -= 1
+
+    db.session.commit()
