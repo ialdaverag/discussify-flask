@@ -209,6 +209,9 @@ class User(db.Model):
         db.session.delete(community)
         db.session.commit()
 
+    def is_owner_of(self, community):
+        return self is community.owner
+
     def is_subscribed_to(self, community):
         return self in community.subscribers
 
