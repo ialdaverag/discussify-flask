@@ -108,7 +108,9 @@ def subscribe(name):
 def read_subscribers(name):
     community = Community.get_by_name(name)
 
-    return users_schema.dump(community.subscribers), HTTPStatus.OK
+    only_subscribers = set(community.subscribers) - set(community.moderators) - set(community.banned)
+
+    return users_schema.dump(only_subscribers), HTTPStatus.OK
 
 
 @community_routes.route('/<string:name>/unsubscribe', methods=['POST'])
