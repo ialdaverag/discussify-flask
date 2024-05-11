@@ -216,33 +216,72 @@ def decrement_posts_count_on_community_stats(mapper, connection, target):
 
 
 @db.event.listens_for(PostVote, 'after_insert')
-def increment_upvotes_count_on_post_stats(mapper, connection, target):
+def increment_votes_count_on_post_stats(mapper, connection, target):
     from app.models.post import PostStats
 
     post_stats_table = PostStats.__table__
 
-    update_query = post_stats_table.update().where(
-        post_stats_table.c.post_id == target.post_id
-    ).values(
-        upvotes_count=post_stats_table.c.upvotes_count + 1
-    )
+    if target.direction == 1:  # upvote
+        update_query = post_stats_table.update().where(
+            post_stats_table.c.post_id == target.post_id
+        ).values(
+            upvotes_count=post_stats_table.c.upvotes_count + 1
+        )
+    elif target.direction == -1:  # downvote
+        update_query = post_stats_table.update().where(
+            post_stats_table.c.post_id == target.post_id
+        ).values(
+            downvotes_count=post_stats_table.c.downvotes_count + 1
+        )
 
     connection.execute(update_query)
 
 
 @db.event.listens_for(PostVote, 'after_delete')
-def decrement_upvotes_count_on_post_stats(mapper, connection, target):
+def decrement_votes_count_on_post_stats(mapper, connection, target):
     from app.models.post import PostStats
 
     post_stats_table = PostStats.__table__
 
-    update_query = post_stats_table.update().where(
-        post_stats_table.c.post_id == target.post_id
-    ).values(
-        upvotes_count=post_stats_table.c.upvotes_count - 1
-    )
+    if target.direction == 1:  # upvote
+        update_query = post_stats_table.update().where(
+            post_stats_table.c.post_id == target.post_id
+        ).values(
+            upvotes_count=post_stats_table.c.upvotes_count - 1
+        )
+    elif target.direction == -1:  # downvote
+        update_query = post_stats_table.update().where(
+            post_stats_table.c.post_id == target.post_id
+        ).values(
+            downvotes_count=post_stats_table.c.downvotes_count - 1
+        )
 
-    connection.execute(update_query)    
+    connection.execute(update_query)
+
+
+@db.event.listens_for(PostVote.direction, 'set')
+def update_votes_count_on_post_stats(target, value, oldvalue, initiator):
+    from app.models.post import PostStats
+
+    post_stats_table = PostStats.__table__
+
+    if oldvalue is not None and oldvalue != value:  # the vote direction has changed
+        if value == 1:  # changed to upvote
+            update_query = post_stats_table.update().where(
+                post_stats_table.c.post_id == target.post_id
+            ).values(
+                upvotes_count=post_stats_table.c.upvotes_count + 1,
+                downvotes_count=post_stats_table.c.downvotes_count - 1
+            )
+        elif value == -1:  # changed to downvote
+            update_query = post_stats_table.update().where(
+                post_stats_table.c.post_id == target.post_id
+            ).values(
+                upvotes_count=post_stats_table.c.upvotes_count - 1,
+                downvotes_count=post_stats_table.c.downvotes_count + 1
+            )
+
+        db.session.execute(update_query)
 
 
 @db.event.listens_for(Post.bookmarkers, 'append')
