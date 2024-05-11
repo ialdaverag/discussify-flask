@@ -1,4 +1,5 @@
 from flask_jwt_extended import current_user
+from sqlalchemy import func
 
 from app.extensions.database import db
 from app.errors.errors import NotFoundError
@@ -104,6 +105,13 @@ class Community(db.Model):
     def moderator(self):
         if current_user:
             return current_user.is_moderator_of(self)
+        
+        return None
+    
+    @property
+    def owned_by(self):
+        if current_user:
+            return current_user.is_owner_of(self)
         
         return None
     
@@ -216,28 +224,22 @@ def decrement_moderations_count_on_user_stats(mapper, connection, target):
 @db.event.listens_for(Community.subscribers, 'append')
 def increment_subscribers_count_on_community_stats(target, value, initiator):
     target.stats.subscribers_count += 1
-
     db.session.commit()
-
 
 @db.event.listens_for(Community.subscribers, 'remove')
 def decrement_subscribers_count_on_community_stats(target, value, initiator):
     target.stats.subscribers_count -= 1
-
     db.session.commit()
     
 
 @db.event.listens_for(Community.moderators, 'append')
 def increment_moderators_count_on_community_stats(target, value, initiator):
     target.stats.moderators_count += 1
-
     db.session.commit()
 
-
-@db.event.listens_for(Community.subscribers, 'remove')
+@db.event.listens_for(Community.moderators, 'remove')
 def decrement_moderators_count_on_community_stats(target, value, initiator):
-    target.stats.subscribers_count -= 1
-
+    target.stats.moderators_count -= 1
     db.session.commit()
 
 

@@ -34,6 +34,7 @@ class CommunitySchema(Schema):
     about = fields.Str(
         validate=validate.Length(max=1000, error='maximum 1000 characters')
     )
+    owned_by = fields.Boolean()
     subscriber = fields.Boolean()
     moderator = fields.Boolean()
     ban = fields.Boolean()
