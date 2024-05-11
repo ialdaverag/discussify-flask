@@ -83,12 +83,13 @@ def login():
         return {'message': 'Password required'}, HTTPStatus.BAD_REQUEST
     
     username = json_data['username']
-    password = json_data['password']
 
     user = User.query.filter_by(username=username).first()
 
     if not user:
         return {'message': 'Incorrect username'}, HTTPStatus.UNAUTHORIZED
+    
+    password = json_data['password']
     
     if not check_password(password, user.password):
         return {'message': 'Incorrect password'}, HTTPStatus.UNAUTHORIZED
@@ -99,35 +100,8 @@ def login():
     '''
     
     access_token = create_access_token(identity=user.id)   
-    refresh_token = create_refresh_token(identity=user.id)
 
-    data = {
-        'access_token': access_token
-    }
-
-    json_response = jsonify(data)
-
-    resp = make_response(json_response)
-
-    resp.set_cookie(
-        'refresh_token', 
-        value=refresh_token,
-        httponly=True,
-        secure=True,
-        path='/auth/refresh'
-    )
-
-    headers = {}
-    headers['Set-Cookie'] = dump_cookie(
-        'refresh_token', 
-        refresh_token, 
-        path=url_for('auth_routes.get_new_access_token'),
-        secure=not current_app.debug,
-        httponly=False,
-        samesite='none' if not current_app.debug else 'lax'
-    )
-    
-    return resp, HTTPStatus.OK
+    return {'access_token': access_token}, HTTPStatus.OK
 
 
 @auth_routes.route('/logout', methods=['POST'])

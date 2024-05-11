@@ -6,10 +6,7 @@ class Config:
     DEBUG = False
     SECRET_KEY = os.environ.get('SECRET_KEY')
 
-    JWT_ACCESS_TOKEN_EXPIRES = datetime.timedelta(days=30)
-    JWT_TOKEN_LOCATION = ["headers", "cookies", "json", "query_string"]
-    JWT_REFRESH_COOKIE_NAME = 'refresh_token'
-    JWT_COOKIE_CSRF_PROTECT = False
+    JWT_ACCESS_TOKEN_EXPIRES = datetime.timedelta(minutes=1)
 
     MAIL_SERVER = 'smtp.gmail.com'
     MAIL_PORT = 465
