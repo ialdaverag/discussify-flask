@@ -7,6 +7,7 @@ class Config:
     SECRET_KEY = os.environ.get('SECRET_KEY')
 
     JWT_ACCESS_TOKEN_EXPIRES = datetime.timedelta(minutes=1)
+    JWT_REFRESH_TOKEN_EXPIRES = datetime.timedelta(days=30)
 
     MAIL_SERVER = 'smtp.gmail.com'
     MAIL_PORT = 465

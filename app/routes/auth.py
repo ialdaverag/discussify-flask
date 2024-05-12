@@ -99,9 +99,10 @@ def login():
             return {'message': 'The user account is not activated yet'}, HTTPStatus.FORBIDDEN
     '''
     
-    access_token = create_access_token(identity=user.id)   
+    access_token = create_access_token(identity=user.id) 
+    refresh_token = create_refresh_token(identity=user.id)  
 
-    return {'access_token': access_token}, HTTPStatus.OK
+    return {'access_token': access_token, 'refresh_token': refresh_token}, HTTPStatus.OK
 
 
 @auth_routes.route('/logout', methods=['POST'])
@@ -114,8 +115,9 @@ def logout():
 
 
 @auth_routes.route('/refresh', methods=['POST'])
-@jwt_required(refresh=True, locations=['cookies'])
+@jwt_required(refresh=True)
 def get_new_access_token():
+    print('pidiendo nuevo access token')
     current_user = get_jwt_identity()
 
     token = create_access_token(identity=current_user)
