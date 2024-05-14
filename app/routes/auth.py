@@ -72,18 +72,13 @@ def signup():
     return user_schema.dump(user), HTTPStatus.CREATED
 
 
+from flask_jwt_extended import create_access_token, create_refresh_token, set_refresh_cookies
+
 @auth_routes.route('/login', methods=['POST'])
 def login():
     json_data = request.get_json()
 
-    if 'username' not in json_data:
-        return {'message': 'Username required'}, HTTPStatus.BAD_REQUEST
-
-    if 'password' not in json_data:
-        return {'message': 'Password required'}, HTTPStatus.BAD_REQUEST
-    
     username = json_data['username']
-
     user = User.query.filter_by(username=username).first()
 
     if not user:
@@ -94,16 +89,17 @@ def login():
     if not check_password(password, user.password):
         return {'message': 'Incorrect password'}, HTTPStatus.UNAUTHORIZED
     
-    '''
-    if user.is_verified is False:
-            return {'message': 'The user account is not activated yet'}, HTTPStatus.FORBIDDEN
-    '''
-    
-    access_token = create_access_token(identity=user.id) 
-    refresh_token = create_refresh_token(identity=user.id)  
+    access_token = create_access_token(identity=user.id)
+    refresh_token = create_refresh_token(identity=user.id) 
 
-    return {'access_token': access_token, 'refresh_token': refresh_token}, HTTPStatus.OK
+    response = make_response(jsonify({'access_token': access_token}), HTTPStatus.OK)
 
+    set_refresh_cookies(response, refresh_token)
+
+    return response
+
+
+from flask_jwt_extended import unset_jwt_cookies
 
 @auth_routes.route('/logout', methods=['POST'])
 @jwt_required()
@@ -111,11 +107,16 @@ def logout():
     jti = get_jwt()["jti"]
     black_list.add(jti)
 
-    return {'message': 'Successfully logged out'}, HTTPStatus.OK
+    response = make_response({'message': 'Successfully logged out'}, HTTPStatus.OK)
+
+    # Remove JWT cookies
+    unset_jwt_cookies(response)
+
+    return response
 
 
 @auth_routes.route('/refresh', methods=['POST'])
-@jwt_required(refresh=True)
+@jwt_required(refresh=True, locations=['cookies'])
 def get_new_access_token():
     print('pidiendo nuevo access token')
     current_user = get_jwt_identity()

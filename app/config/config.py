@@ -8,6 +8,7 @@ class Config:
 
     JWT_ACCESS_TOKEN_EXPIRES = datetime.timedelta(minutes=1)
     JWT_REFRESH_TOKEN_EXPIRES = datetime.timedelta(days=30)
+    JWT_REFRESH_COOKIE_NAME = 'refresh_token'
 
     MAIL_SERVER = 'smtp.gmail.com'
     MAIL_PORT = 465
