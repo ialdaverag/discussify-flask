@@ -21,8 +21,11 @@ from marshmallow import ValidationError
 from app.extensions.database import db
 
 from app.schemas.user import user_schema
+from app.schemas.user import login_schema
+
 from app.models.user import User
 
+from app.utils.password import hash_password
 from app.utils.password import check_password
 from app.utils.email import send_email
 from app.utils.token import generate_verification_token
@@ -52,7 +55,7 @@ def sign_up():
     if not User.is_email_available(email):
         return {'message': 'Email already taken.'}, HTTPStatus.BAD_REQUEST
     
-    user = User(**data)
+    user = User(username=username, email=email, password=hash_password(password))
 
     db.session.add(user)
     db.session.commit()
@@ -66,16 +69,18 @@ from flask_jwt_extended import create_access_token, create_refresh_token, set_re
 def login():
     json_data = request.get_json()
 
-    username = json_data['username']
-    user = User.query.filter_by(username=username).first()
+    try:
+        data = login_schema.load(json_data)
+    except Exception as err:
+        return {'errors': err.messages}, HTTPStatus.BAD_REQUEST
 
-    if not user:
-        return {'message': 'Incorrect username'}, HTTPStatus.UNAUTHORIZED
-    
-    password = json_data['password']
+    username = data.get('username')
+    password = data.get('password')
+
+    user = User.get_by_username(username)
     
     if not check_password(password, user.password):
-        return {'message': 'Incorrect password'}, HTTPStatus.UNAUTHORIZED
+        return {'message': 'Incorrect password.'}, HTTPStatus.UNAUTHORIZED
     
     access_token = create_access_token(identity=user.id)
     refresh_token = create_refresh_token(identity=user.id) 

@@ -55,14 +55,8 @@ class UserSchema(Schema):
     created_at = fields.DateTime(dump_only=True)
     updated_at = fields.DateTime(dump_only=True)
 
-    @post_load
-    def hash_password(self, data, **kwargs):
-        if 'password' in data:
-            data['password'] = hash_password(data['password'])
-
-        return data
-    
 
 me_schema = UserSchema(exclude=('email',))
 user_schema = UserSchema()
 users_schema = UserSchema(many=True)
+login_schema = UserSchema(only=('username', 'password'))

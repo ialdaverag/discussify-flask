@@ -1,9 +1,6 @@
 # Flask-JWT-Extended
 from flask_jwt_extended import current_user
 
-# Passlib
-from passlib.hash import pbkdf2_sha256
-
 # app.extensions
 from app.extensions.database import db
 
@@ -106,20 +103,12 @@ class User(db.Model):
     def is_email_available(email):
         return User.query.filter_by(email=email).first() is None
     
-    @staticmethod
-    def hash_password(password):
-        return pbkdf2_sha256.hash(password)
-    
-    @staticmethod
-    def check_password(password, hashed):
-        return pbkdf2_sha256.verify(password, hashed)
-    
     @classmethod
     def get_by_username(cls, username):
         user = db.session.execute(db.select(User).filter_by(username=username)).scalar()
 
         if user is None:
-            raise NotFoundError('User not found')
+            raise NotFoundError('User not found.')
 
         return user
     
@@ -128,7 +117,7 @@ class User(db.Model):
         user = db.session.get(User, id)
 
         if user is None:
-            raise NotFoundError('User not found')
+            raise NotFoundError('User not found.')
 
         return user
     
