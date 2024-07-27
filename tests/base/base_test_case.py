@@ -1,8 +1,10 @@
+# unittest
 import unittest
 
-from app.app import create_app
-from app.extensions.database import db
+# app
+from app import create_app
 from app.config.testing import TestingConfig
+from app.extensions.database import db
 
 
 class BaseTestCase(unittest.TestCase):

@@ -1,7 +1,13 @@
+# Flask-JWT-Extended
 from flask_jwt_extended import current_user
 
+# Passlib
+from passlib.hash import pbkdf2_sha256
+
+# app.extensions
 from app.extensions.database import db
 
+# app.models
 from app.models.community import Community
 from app.models.community import community_subscribers
 from app.models.community import community_moderators
@@ -12,6 +18,7 @@ from app.models.comment import Comment
 from app.models.comment import comment_bookmarks as c_bookmarks
 from app.models.comment import CommentVote
 
+# app.errors
 from app.errors.errors import NotFoundError
 from app.errors.errors import FollowError
 from app.errors.errors import NameError
@@ -43,6 +50,8 @@ class UserStats(db.Model):
     comments_count = db.Column(db.Integer, default=0)
     subscriptions_count = db.Column(db.Integer, default=0)
     moderations_count = db.Column(db.Integer, default=0)
+
+    user = db.relationship('User', back_populates='stats')
 
 
 class User(db.Model):
@@ -82,7 +91,7 @@ class User(db.Model):
     comment_votes = db.relationship('CommentVote', back_populates='user')
 
     # Stats
-    stats = db.relationship('UserStats', backref='user', uselist=False, cascade='all, delete')
+    stats = db.relationship('UserStats', uselist=False, back_populates='user')
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -96,6 +105,14 @@ class User(db.Model):
     @staticmethod
     def is_email_available(email):
         return User.query.filter_by(email=email).first() is None
+    
+    @staticmethod
+    def hash_password(password):
+        return pbkdf2_sha256.hash(password)
+    
+    @staticmethod
+    def check_password(password, hashed):
+        return pbkdf2_sha256.verify(password, hashed)
     
     @classmethod
     def get_by_username(cls, username):

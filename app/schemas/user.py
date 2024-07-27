@@ -30,10 +30,10 @@ class UserSchema(Schema):
     username = fields.Str(
         required=True,
         validate=[
-            validate.Length(min=3, max=20, error='username must be between 3 and 20 characters'),
+            validate.Length(min=3, max=20, error='Username must be between 3 and 20 characters.'),
             validate.Regexp(
                 r'^[a-zA-Z0-9_]*$', 
-                error='username must consist of letters, numbers, and underscores only')
+                error='Username must consist of letters, numbers, and underscores only.')
         ],
         #error_messages={'required': 'Please provide a name.'}
     )
@@ -42,10 +42,10 @@ class UserSchema(Schema):
         required=True,
         load_only=True,
         validate=[
-            validate.Length(min=8, max=40, error='password must be between 8 and 40 characters'),
+            validate.Length(min=8, max=40, error='Password must be between 8 and 40 characters.'),
             validate.Regexp(
                 r'^(?=.*[A-Z!@#$%^&*()_+{}\[\]:;<>,.?~\/-])[A-Za-z0-9!@#$%^&*()_+{}\[\]:;<>,.?~\/-]*[0-9][A-Za-z0-9!@#$%^&*()_+{}\[\]:;<>,.?~\/-]*$',
-                error='password must contain at least one uppercase letter or a special character, and at least one number'
+                error='Password must contain at least one uppercase letter or a special character, and at least one number.'
             )
         ]
     )

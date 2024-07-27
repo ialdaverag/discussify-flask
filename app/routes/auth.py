@@ -34,7 +34,7 @@ black_list = set()
 
 
 @auth_routes.route('/signup', methods=['POST'])
-def signup():
+def sign_up():
     json_data = request.get_json()
 
     try:
@@ -42,29 +42,17 @@ def signup():
     except ValidationError as err:
         return {'errors': err.messages}, HTTPStatus.BAD_REQUEST
     
-    user = User.is_username_available(data['username'])
+    username = data.get('username')
+    email = data.get('email')
+    password = data.get('password')
 
-    if not user:
-        return {'message': 'Username already used'}, HTTPStatus.BAD_REQUEST
-    
-    email = User.is_email_available(data['email'])
+    if not User.is_username_available(username):
+        return {'message': 'Username already taken.'}, HTTPStatus.BAD_REQUEST
 
-    if not email:
-        return {'message': 'Email already used'}, HTTPStatus.BAD_REQUEST
+    if not User.is_email_available(email):
+        return {'message': 'Email already taken.'}, HTTPStatus.BAD_REQUEST
     
     user = User(**data)
-
-    '''
-    token = generate_verification_token(user.email, salt='activate')
-    subject = 'Please confirm your registration'
-    link = url_for('auth_routes.confirm_email', token=token, _external=True)
-
-    send_email(
-        to=user.email, 
-        subject=subject, 
-        template=render_template('email/confirmation.html', link=link)
-    )
-    '''
 
     db.session.add(user)
     db.session.commit()
@@ -118,7 +106,6 @@ def logout():
 @auth_routes.route('/refresh', methods=['POST'])
 @jwt_required(refresh=True, locations=['cookies'])
 def get_new_access_token():
-    print('pidiendo nuevo access token')
     current_user = get_jwt_identity()
 
     token = create_access_token(identity=current_user)
