@@ -147,10 +147,10 @@ class User(db.Model):
     
     def follow(self, other): 
         if other is self:
-            raise FollowError('You cannot follow yourself')
+            raise FollowError('You cannot follow yourself.')
 
         if self.is_following(other):
-            raise FollowError('You are already following this user')
+            raise FollowError('You are already following this user.')
         
         other.append_follower(self)
 
