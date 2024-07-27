@@ -100,7 +100,7 @@ def logout():
     jti = get_jwt()["jti"]
     black_list.add(jti)
 
-    response = make_response({'message': 'Successfully logged out'}, HTTPStatus.OK)
+    response = make_response({'message': 'Successfully logged out.'}, HTTPStatus.OK)
 
     # Remove JWT cookies
     unset_jwt_cookies(response)
