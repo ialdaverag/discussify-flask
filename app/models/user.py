@@ -156,10 +156,10 @@ class User(db.Model):
 
     def unfollow(self, other):
         if other is self:
-            raise FollowError('You cannot unfollow yourself')
+            raise FollowError('You cannot unfollow yourself.')
         
         if not self.is_following(other):
-            raise FollowError('You are not following this user')
+            raise FollowError('You are not following this user.')
         
         other.remove_follower(self)
 

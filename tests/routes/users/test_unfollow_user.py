@@ -1,0 +1,99 @@
+# tests
+from tests.base.base_test_case import BaseTestCase
+
+# factories
+from tests.factories.user_factory import UserFactory
+
+# utils
+from tests.utils.tokens import get_access_token
+
+
+class TestUnfollowUser(BaseTestCase):
+    route = '/user/<string:username>/unfollow'
+
+    def test_unfollow_user(self):
+        # Create two users
+        user1 = UserFactory()
+        user2 = UserFactory()
+
+        # User1 follows user2
+        user1.follow(user2)
+
+        # Get access token for user1
+        access_token = get_access_token(user1)
+
+        # User1 unfollows user2
+        response = self.client.post(
+            f'/user/{user2.username}/unfollow', 
+            headers={'Authorization': f'Bearer {access_token}'}
+        )
+
+        # Assert that the response status code is 204 (No Content)
+        self.assertEqual(response.status_code, 204)
+
+    def test_unfollow_user_nonexistent(self):
+        # Create a user
+        user = UserFactory()
+
+        # Get access token for the user
+        access_token = get_access_token(user)
+
+        # Try to unfollow a nonexistent user
+        response = self.client.post(
+            '/user/inexistent/unfollow', 
+            headers={'Authorization': f'Bearer {access_token}'}
+        )
+
+        # Assert that the response status code is 404 (Not Found)
+        self.assertEqual(response.status_code, 404)
+
+        # Get response data
+        data = response.json
+
+        # Assert that the error message is 'User not found.'
+        self.assertEqual(data['message'], 'User not found.')
+
+    def test_unfollow_user_not_followed(self):
+        # Create two users
+        user1 = UserFactory()
+        user2 = UserFactory()
+
+        # Get access token for user1
+        access_token = get_access_token(user1)
+
+        # Try to unfollow user2 without following them
+        response = self.client.post(
+            f'/user/{user2.username}/unfollow', 
+            headers={'Authorization': f'Bearer {access_token}'}
+        )
+
+        # Assert that the response status code is 400 (Bad Request)
+        self.assertEqual(response.status_code, 400)
+
+        # Get response data
+        data = response.json
+
+        # Assert that the error message is 'User is not followed.'
+        self.assertEqual(data['message'], 'You are not following this user.')
+
+    def test_unfollow_user_self(self):
+        # Create a user
+        user = UserFactory()
+
+        # Get access token for the user
+        access_token = get_access_token(user)
+
+        # Try to unfollow oneself
+        response = self.client.post(
+            f'/user/{user.username}/unfollow', 
+            headers={'Authorization': f'Bearer {access_token}'}
+        )
+
+        # Assert that the response status code is 400 (Bad Request)
+        self.assertEqual(response.status_code, 400)
+
+        # Get response data
+        data = response.json
+
+        # Assert that the error message is 'You cannot unfollow yourself.'
+        self.assertEqual(data['message'], 'You cannot unfollow yourself.')
