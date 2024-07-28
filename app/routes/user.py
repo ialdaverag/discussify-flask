@@ -123,8 +123,8 @@ def read_user_bookmarks():
 @user_routes.route('/posts/upvoted', methods=['GET'])
 @jwt_required()
 def read_user_upvoted_posts():
-    current_user = get_jwt_identity()
-    current_user = User.query.get(current_user)
+    current_user_id = get_jwt_identity()
+    current_user = User.get_by_id(current_user_id)
 
     upvotes = PostVote.query.filter_by(user_id=current_user.id, direction=1).all()
 
@@ -136,8 +136,8 @@ def read_user_upvoted_posts():
 @user_routes.route('/posts/downvoted', methods=['GET'])
 @jwt_required()
 def read_user_downvoted_posts():
-    current_user = get_jwt_identity()
-    current_user = User.query.get(current_user)
+    current_user_id = get_jwt_identity()
+    current_user = User.get_by_id(current_user_id)
 
     downvotes = PostVote.query.filter_by(user_id=current_user.id, direction=-1).all()
 
@@ -149,8 +149,8 @@ def read_user_downvoted_posts():
 @user_routes.route('/comments/upvoted', methods=['GET'])
 @jwt_required()
 def read_user_upvoted_comments():
-    current_user = get_jwt_identity()
-    current_user = User.query.get(current_user)
+    current_user_id = get_jwt_identity()
+    current_user = User.get_by_id(current_user_id)
 
     upvotes = CommentVote.query.filter_by(user_id=current_user.id, direction=1).all()
 
@@ -162,8 +162,8 @@ def read_user_upvoted_comments():
 @user_routes.route('/comments/downvoted', methods=['GET'])
 @jwt_required()
 def read_user_downvoted_comments():
-    current_user = get_jwt_identity()
-    current_user = User.query.get(current_user)
+    current_user_id = get_jwt_identity()
+    current_user = User.get_by_id(current_user_id)
 
     downvotes = CommentVote.query.filter_by(user_id=current_user.id, direction=-1).all()
 
