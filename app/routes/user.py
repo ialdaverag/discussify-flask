@@ -20,7 +20,7 @@ from app.schemas.comment import comments_schema
 user_routes = Blueprint('user_routes', __name__)
 
 
-@user_routes.route('/<string:username>', methods=['GET'])
+@user_routes.get('/<string:username>')
 @jwt_required(optional=True)
 def read_user(username):
     user = User.get_by_username(username)
@@ -28,7 +28,7 @@ def read_user(username):
     return user_schema.dump(user), HTTPStatus.OK
 
 
-@user_routes.route('/', methods=['GET'])
+@user_routes.get('/')
 @jwt_required(optional=True)
 def read_users():
     users = User.get_all()
@@ -36,7 +36,7 @@ def read_users():
     return users_schema.dump(users), HTTPStatus.OK
 
 
-@user_routes.route('/<string:username>/follow', methods=['POST'])
+@user_routes.post('/<string:username>/follow')
 @jwt_required()
 def follow_user(username):
     user_to_follow = User.get_by_username(username=username)
@@ -49,7 +49,7 @@ def follow_user(username):
     return {'message': 'You are now following the user'}, HTTPStatus.NO_CONTENT
 
 
-@user_routes.route('/<string:username>/unfollow', methods=['POST'])
+@user_routes.post('/<string:username>/unfollow')
 @jwt_required()
 def unfollow_user(username):
     user_to_unfollow = User.get_by_username(username=username)
@@ -62,7 +62,7 @@ def unfollow_user(username):
     return {'message': 'You are no longer following this user'}, HTTPStatus.NO_CONTENT
 
 
-@user_routes.route('/<string:username>/following', methods=['GET'])
+@user_routes.get('/<string:username>/following')
 @jwt_required(optional=True)
 def read_following(username):
     user = User.get_by_username(username)
@@ -70,7 +70,7 @@ def read_following(username):
     return users_schema.dump(user.followed)
 
 
-@user_routes.route('/<string:username>/followers', methods=['GET'])
+@user_routes.get('/<string:username>/followers')
 @jwt_required(optional=True)
 def read_followers(username):
     user = User.get_by_username(username)
@@ -78,7 +78,7 @@ def read_followers(username):
     return users_schema.dump(user.followers)
 
 
-@user_routes.route('/<string:username>/subscriptions', methods=['GET'])
+@user_routes.get('/<string:username>/subscriptions')
 @jwt_required(optional=True)
 def read_subscriptions(username):
     user = User.get_by_username(username)
@@ -86,7 +86,7 @@ def read_subscriptions(username):
     return communities_schema.dump(user.subscriptions)
 
 
-@user_routes.route('/<string:username>/posts', methods=['GET'])
+@user_routes.get('/<string:username>/posts')
 @jwt_required(optional=True)
 def read_user_posts(username):
     user = User.get_by_username(username)
@@ -94,7 +94,7 @@ def read_user_posts(username):
     return posts_schema.dump(user.posts)
 
 
-@user_routes.route('/<string:username>/comments', methods=['GET'])
+@user_routes.get('/<string:username>/comments')
 @jwt_required(optional=True)
 def read_user_comments(username):
     user = User.get_by_username(username)
@@ -102,7 +102,7 @@ def read_user_comments(username):
     return comments_schema.dump(user.comments)
 
 
-@user_routes.route('/me', methods=['GET'])
+@user_routes.get('/me')
 @jwt_required()
 def me():
     current_user_id = get_jwt_identity()
@@ -111,7 +111,7 @@ def me():
     return me_schema.dump(current_user)
 
 
-@user_routes.route('/posts/bookmarked', methods=['GET'])
+@user_routes.get('/posts/bookmarked')
 @jwt_required()
 def read_user_bookmarks():
     current_user_id = get_jwt_identity()
@@ -120,7 +120,7 @@ def read_user_bookmarks():
     return posts_schema.dump(current_user.bookmarks)
 
 
-@user_routes.route('/posts/upvoted', methods=['GET'])
+@user_routes.get('/posts/upvoted')
 @jwt_required()
 def read_user_upvoted_posts():
     current_user_id = get_jwt_identity()
@@ -133,7 +133,7 @@ def read_user_upvoted_posts():
     return posts_schema.dump(posts), HTTPStatus.OK
 
 
-@user_routes.route('/posts/downvoted', methods=['GET'])
+@user_routes.get('/posts/downvoted')
 @jwt_required()
 def read_user_downvoted_posts():
     current_user_id = get_jwt_identity()
@@ -146,7 +146,7 @@ def read_user_downvoted_posts():
     return posts_schema.dump(posts), HTTPStatus.OK
 
 
-@user_routes.route('/comments/upvoted', methods=['GET'])
+@user_routes.get('/comments/upvoted')
 @jwt_required()
 def read_user_upvoted_comments():
     current_user_id = get_jwt_identity()
@@ -159,7 +159,7 @@ def read_user_upvoted_comments():
     return comments_schema.dump(comments), HTTPStatus.OK
 
 
-@user_routes.route('/comments/downvoted', methods=['GET'])
+@user_routes.get('/comments/downvoted')
 @jwt_required()
 def read_user_downvoted_comments():
     current_user_id = get_jwt_identity()
@@ -172,7 +172,7 @@ def read_user_downvoted_comments():
     return comments_schema.dump(comments), HTTPStatus.OK
 
 
-@user_routes.route('/comments/bookmarked', methods=['GET'])
+@user_routes.get('/comments/bookmarked')
 @jwt_required()
 def read_user_bookmarked_comments():
     current_user_id = get_jwt_identity()

@@ -175,7 +175,7 @@ class User(db.Model):
         name_available = Community.is_name_available(name)
 
         if not name_available:
-            raise NameError('Name is already used')
+            raise NameError('Name already taken.')
 
         community = Community(name=name, about=about, owner=self)
         db.session.add(community)
@@ -188,7 +188,7 @@ class User(db.Model):
 
     def update_community(self, community, name, about):
         if not community.belongs_to(self):
-            raise OwnershipError('')
+            raise OwnershipError('You are not the owner of this community.')
         
         new_name = name
 
@@ -196,7 +196,7 @@ class User(db.Model):
             existing_community = Community.query.filter_by(name=new_name).first()
 
             if existing_community and existing_community != community:
-                raise NameError('')
+                raise NameError('Name already taken.')
 
             community.name = new_name
 
@@ -210,7 +210,7 @@ class User(db.Model):
         
     def delete_community(self, community):
         if not community.belongs_to(self):
-            raise OwnershipError('You are not the owner of this community')
+            raise OwnershipError('You are not the owner of this community.')
         
         db.session.delete(community)
         db.session.commit()
@@ -223,19 +223,19 @@ class User(db.Model):
 
     def subscribe_to(self, community):
         if self.is_banned_from(community):
-            raise BanError('You are banned from this community')
+            raise BanError('You are banned from this community.')
 
         if self.is_subscribed_to(community):
-            raise SubscriptionError('You are already subscribed to this community')
+            raise SubscriptionError('You are already subscribed to this community.')
 
         community.append_subscriber(self)
 
     def unsubscribe_to(self, community):
         if community.belongs_to(self):
-            raise OwnershipError('You are the owner of this community and cannot unsubscribe')
+            raise OwnershipError('You are the owner of this community and cannot unsubscribe.')
         
         if not self.is_subscribed_to(community):
-            raise SubscriptionError('You are not subscribed to this community')
+            raise SubscriptionError('You are not subscribed to this community.')
         
         if self.is_moderator_of(community):
             community.remove_moderator(self)
@@ -247,28 +247,28 @@ class User(db.Model):
     
     def appoint_moderator(self, user, community):
         if not community.belongs_to(self):
-            raise OwnershipError('You are not the owner of this community')
+            raise OwnershipError('You are not the owner of this community.')
 
         if user.is_banned_from(community):
-            raise BanError('The user is banned from this community')
+            raise BanError('The user is banned from this community.')
         
         if not user.is_subscribed_to(community):
-            raise SubscriptionError('The user is not subscribed to this community')
+            raise SubscriptionError('The user is not subscribed to this community.')
 
         if user.is_moderator_of(community):
-            raise ModeratorError('The user is already a moderator of this community')
+            raise ModeratorError('The user is already a moderator of this community.')
 
         community.append_moderator(user)
 
     def dismiss_moderator(self, user, community):
         if not community.belongs_to(self):
-            raise OwnershipError('You are not the owner of this community')
+            raise OwnershipError('You are not the owner of this community.')
         
         if community.belongs_to(user):
-            raise OwnershipError('You are the owner of this community and cannot unmod yourself')
+            raise OwnershipError('You are the owner of this community and cannot unmod yourself.')
         
         if not user.is_moderator_of(community):
-            raise ModeratorError('The user is not a moderator of this community')
+            raise ModeratorError('The user is not a moderator of this community.')
         
         community.remove_moderator(user)
         
@@ -277,46 +277,46 @@ class User(db.Model):
 
     def ban_from(self, user, community):
         if not self.is_moderator_of(community):
-            raise UnauthorizedError('You are not a moderator of this community')
+            raise UnauthorizedError('You are not a moderator of this community.')
         
         if self is user:
-            raise BanError('You cannot ban yourself')
+            raise BanError('You cannot ban yourself.')
         
         if user.is_banned_from(community):
-            raise BanError('The user is already banned from the community')
+            raise BanError('The user is already banned from the community.')
         
         if user is community.owner:
-            raise BanError('You cannot ban the owner of the community')
+            raise BanError('You cannot ban the owner of the community.')
         
         if user in community.moderators:
             community.remove_moderator(user)
         
         if not user.is_subscribed_to(community):
-            raise SubscriptionError('The user is not subscribed to this community')
+            raise SubscriptionError('The user is not subscribed to this community.')
         
         community.append_banned(user)
 
     def unban_from(self, user, community):
         if not self.is_moderator_of(community):
-            raise UnauthorizedError('You are not a moderator of this community')
+            raise UnauthorizedError('You are not a moderator of this community.')
         
         if not user.is_banned_from(community):
-            raise BanError('The user is not banned from the community')
+            raise BanError('The user is not banned from the community.')
         
         community.remove_banned(user)
 
     def transfer_community(self, community, user):
         if not community.belongs_to(self):
-            raise OwnershipError('You are not the owner of this community')
+            raise OwnershipError('You are not the owner of this community.')
         
         if user is self:
-            raise OwnershipError('You are already the owner of this community')
+            raise OwnershipError('You are already the owner of this community.')
         
         if user.is_banned_from(community):
-            raise BanError('You cannot transfer the community to a banned user')
+            raise BanError('You cannot transfer the community to a banned user.')
         
         if not user.is_subscribed_to(community):
-            raise SubscriptionError('The user is not subscribed to this community')
+            raise SubscriptionError('The user is not subscribed to this community.')
         
         if not user.is_moderator_of(community):
             community.append_moderator(user)
@@ -328,7 +328,7 @@ class User(db.Model):
             raise BanError('You are banned from this community')
         
         if not self.is_subscribed_to(community):
-            raise SubscriptionError('You are not subscribed to this community')
+            raise SubscriptionError('You are not subscribed to this community.')
         
         post = Post(title=title, content=content, community=community, owner=self)
 
@@ -339,7 +339,7 @@ class User(db.Model):
     
     def update_post(self, post, title, content):
         if not post.belongs_to(self):
-            raise OwnershipError('This post is not yours')
+            raise OwnershipError('This post is not yours.')
         
         new_title = title
         new_content = content
@@ -353,20 +353,20 @@ class User(db.Model):
     
     def delete_post(self, post):
         if not (post.belongs_to(self) or self.is_moderator_of(post.community)):
-            raise OwnershipError('You cannot delete this post')
+            raise OwnershipError('You cannot delete this post.')
         
         db.session.delete(post)
         db.session.commit()
 
     def bookmark_post(self, post):
         if post.is_bookmarked_by(self):
-            raise BookmarkError('Post already bookmarked')
+            raise BookmarkError('Post already bookmarked.')
         
         post.append_bookmarker(self)
 
     def unbookmark_post(self, post):
         if not post.is_bookmarked_by(self):
-            raise BookmarkError('Post not bookmarked')
+            raise BookmarkError('Post not bookmarked.')
         
         post.remove_bookmarker(self)
 
@@ -374,10 +374,10 @@ class User(db.Model):
         community = post.community
 
         if self.is_banned_from(community):
-            raise BanError('You are banned from this community')
+            raise BanError('You are banned from this community.')
 
         if not self.is_subscribed_to(community):
-            raise SubscriptionError('You are not subscribed to this community')
+            raise SubscriptionError('You are not subscribed to this community.')
 
         vote = PostVote.get_by_user_and_post(user=self, post=post)
 
@@ -386,7 +386,7 @@ class User(db.Model):
                 vote.direction = 1
                 db.session.commit()
             else:
-                raise VoteError('You have already upvoted this post')
+                raise VoteError('You have already upvoted this post.')
         else:
             new_vote = PostVote(user=self, post=post, direction=1)
             new_vote.create()
@@ -394,10 +394,10 @@ class User(db.Model):
     def downvote_post(self, post):
         community = post.community
         if self.is_banned_from(community):
-            raise BanError('You are banned from this community')
+            raise BanError('You are banned from this community.')
 
         if not self.is_subscribed_to(community):
-            raise SubscriptionError('You are not subscribed to this community')
+            raise SubscriptionError('You are not subscribed to this community.')
 
         vote = PostVote.get_by_user_and_post(user=self, post=post)
 
@@ -406,7 +406,7 @@ class User(db.Model):
                 vote.direction = -1
                 db.session.commit()
             else:
-                raise VoteError('You have already downvoted this post')
+                raise VoteError('You have already downvoted this post.')
         else:
             new_vote = PostVote(user=self, post=post, direction=-1)
             new_vote.create()
@@ -415,30 +415,30 @@ class User(db.Model):
         community = post.community
 
         if self.is_banned_from(community):
-            raise BanError('You are banned from this community')
+            raise BanError('You are banned from this community.')
 
         if not self.is_subscribed_to(community):
-            raise SubscriptionError('You are not subscribed to this community')
+            raise SubscriptionError('You are not subscribed to this community.')
 
         vote = PostVote.get_by_user_and_post(user=self, post=post)
 
         if vote:
             vote.delete()
         else:
-            raise VoteError('You have not voted on this post')
+            raise VoteError('You have not voted on this post.')
 
     def create_comment(self, content, post, comment=None):
         community = post.community
 
         if self.is_banned_from(community):
-            raise BanError('You are banned from this community')
+            raise BanError('You are banned from this community.')
 
         if not self.is_subscribed_to(community):
-            raise SubscriptionError('You are not subscribed to this community')
+            raise SubscriptionError('You are not subscribed to this community.')
         
         if comment is not None:
             if comment not in post.comments:
-                raise NotInError('The comment to reply is not in the post')
+                raise NotInError('The comment to reply is not in the post.')
         
         new_comment = Comment(content=content, post=post, owner=self, comment=comment)
 
@@ -449,12 +449,12 @@ class User(db.Model):
 
     def update_comment(self, content, comment):
         if not comment.belongs_to(self):
-            raise OwnershipError('This comment is not yours')
+            raise OwnershipError('This comment is not yours.')
         
         community = comment.post.community
         
         if self.is_banned_from(community):
-            raise BanError('You are banned from this community')
+            raise BanError('You are banned from this community.')
         
         new_content = content
 
@@ -464,20 +464,20 @@ class User(db.Model):
 
     def delete_comment(self, comment):
         if not (comment.belongs_to(self) or self.is_moderator_of(comment.post.community)):
-            raise OwnershipError('You cannot delete this comment')
+            raise OwnershipError('You cannot delete this comment.')
         
         db.session.delete(comment)
         db.session.commit()
 
     def bookmark_comment(self, comment):
         if comment.is_bookmarked_by(self):
-            raise BookmarkError('Comment already bookmarked')
+            raise BookmarkError('Comment already bookmarked.')
         
         comment.append_bookmarker(self)
 
     def unbookmark_comment(self, comment):
         if not comment.is_bookmarked_by(self):
-            raise BookmarkError('Comment not bookmarked')
+            raise BookmarkError('Comment not bookmarked.')
         
         comment.remove_bookmarker(self)
 
@@ -497,7 +497,7 @@ class User(db.Model):
                 vote.direction = 1
                 db.session.commit()
             else:
-                raise VoteError('You have already upvoted this post')
+                raise VoteError('You have already upvoted this post.')
         else:
             new_vote = CommentVote(user=self, comment=comment, direction=1)
             new_vote.create()
@@ -506,10 +506,10 @@ class User(db.Model):
         community = comment.post.community
 
         if self.is_banned_from(community):
-            raise BanError('You are banned from this community')
+            raise BanError('You are banned from this community.')
 
         if not self.is_subscribed_to(community):
-            raise SubscriptionError('You are not subscribed to this community')
+            raise SubscriptionError('You are not subscribed to this community.')
 
         vote = CommentVote.get_by_user_and_comment(user=self, comment=comment)
 
@@ -518,7 +518,7 @@ class User(db.Model):
                 vote.direction = -1
                 db.session.commit()
             else:
-                raise VoteError('You have already upvoted this post')
+                raise VoteError('You have already upvoted this post.')
         else:
             new_vote = CommentVote(user=self, comment=comment, direction=-1)
             new_vote.create()
