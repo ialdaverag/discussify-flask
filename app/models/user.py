@@ -139,6 +139,14 @@ class User(db.Model):
         
         return None
     
+    def append_follower(self, user):
+        self.followers.append(user)
+        db.session.commit()
+
+    def remove_follower(self, user):
+        self.followers.remove(user)
+        db.session.commit()
+    
     def is_following(self, other):
         return other in self.followed
     
@@ -162,14 +170,6 @@ class User(db.Model):
             raise FollowError('You are not following this user.')
         
         other.remove_follower(self)
-
-    def append_follower(self, user):
-        self.followers.append(user)
-        db.session.commit()
-
-    def remove_follower(self, user):
-        self.followers.remove(user)
-        db.session.commit()
     
     def create_community(self, name, about = ''):
         name_available = Community.is_name_available(name)

@@ -9,22 +9,22 @@ class TestReadUsers(BaseTestCase):
     route = '/user/'
 
     def test_read_users(self):
-        # create multiple users using batch
+        # Create multiple users using batch
         users = UserFactory.create_batch(size=5)
 
-        # get the users
+        # Get the users
         response = self.client.get(self.route)
 
-        # assert response status code
+        # Assert response status code
         self.assertEqual(response.status_code, 200)
 
-        # get response data
+        # Get response data
         data = response.json
 
-        # assert the number of users
+        # Assert the number of users
         self.assertEqual(len(data), len(users))
 
-        # assert each user
+        # Assert each user
         for i, user in enumerate(users):
             self.assertEqual(data[i]['id'], user.id)
             self.assertEqual(data[i]['username'], user.username)
@@ -33,14 +33,14 @@ class TestReadUsers(BaseTestCase):
             self.assertEqual(data[i]['updated_at'], user.updated_at.strftime('%Y-%m-%dT%H:%M:%S'))
 
     def test_read_users_empty(self):
-        # get the users
+        # Get the users
         response = self.client.get(self.route)
 
-        # assert response status code
+        # Assert response status code
         self.assertEqual(response.status_code, 200)
 
-        # get response data
+        # Get response data
         data = response.json
 
-        # assert the user
-        self.assertEqual(len(data), 0)
+        # Assert the response data
+        self.assertEqual(data, [])

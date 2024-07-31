@@ -12,8 +12,10 @@ class TestUnfollowUser(BaseTestCase):
     route = '/user/<string:username>/unfollow'
 
     def test_unfollow_user(self):
-        # Create two users
+        # Create a users
         user1 = UserFactory()
+
+        # Create a user to follow
         user2 = UserFactory()
 
         # User1 follows user2
@@ -50,12 +52,17 @@ class TestUnfollowUser(BaseTestCase):
         # Get response data
         data = response.json
 
+        # Assert user data structure
+        self.assertIn('message', data)
+
         # Assert that the error message is 'User not found.'
         self.assertEqual(data['message'], 'User not found.')
 
     def test_unfollow_user_not_followed(self):
-        # Create two users
+        # Create a user
         user1 = UserFactory()
+
+        # Create a user to follow
         user2 = UserFactory()
 
         # Get access token for user1
@@ -72,6 +79,9 @@ class TestUnfollowUser(BaseTestCase):
 
         # Get response data
         data = response.json
+
+        # Assert user data structure
+        self.assertIn('message', data)
 
         # Assert that the error message is 'User is not followed.'
         self.assertEqual(data['message'], 'You are not following this user.')
@@ -94,6 +104,9 @@ class TestUnfollowUser(BaseTestCase):
 
         # Get response data
         data = response.json
+
+        # Assert user data structure
+        self.assertIn('message', data)
 
         # Assert that the error message is 'You cannot unfollow yourself.'
         self.assertEqual(data['message'], 'You cannot unfollow yourself.')

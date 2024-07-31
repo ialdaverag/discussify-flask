@@ -9,11 +9,13 @@ from tests.utils.tokens import get_access_token
 
 
 class TestFollowUser(BaseTestCase):
-    route = '/user/<string:username>/follow'
+    route = '/user/{}/follow'
 
     def test_follow_user(self):
-        # Create two users
+        # Create a user
         user1 = UserFactory()
+
+        # Create a user to follow
         user2 = UserFactory()
 
         # Get access token for user1
@@ -21,7 +23,7 @@ class TestFollowUser(BaseTestCase):
 
         # User1 follows user2
         response = self.client.post(
-            f'/user/{user2.username}/follow', 
+            self.route.format(user2.username), 
             headers={'Authorization': f'Bearer {access_token}'}
         )
 
@@ -37,17 +39,20 @@ class TestFollowUser(BaseTestCase):
 
         # Try to follow a nonexistent user
         response = self.client.post(
-            '/user/inexistent/follow', 
+            self.route.format('inexistent'), 
             headers={'Authorization': f'Bearer {access_token}'}
         )
 
-        # Assert that the response status code is 404 (Not Found)
+        # Assert response status
         self.assertEqual(response.status_code, 404)
 
         # Get response data
         data = response.json
 
-        # Assert that the error message is 'User not found.'
+        # Assert user data structure
+        self.assertIn('message', data)
+
+        # Assert the error message
         self.assertEqual(data['message'], 'User not found.')
 
     def test_follow_user_already_followed(self):
@@ -63,17 +68,20 @@ class TestFollowUser(BaseTestCase):
 
         # Try to follow user2 again
         response = self.client.post(
-            f'/user/{user2.username}/follow', 
+            self.route.format(user2.username), 
             headers={'Authorization': f'Bearer {access_token}'}
         )
 
-        # Assert that the response status code is 400 (Bad Request)
+        # Assert the response status code
         self.assertEqual(response.status_code, 400)
 
         # Get response data
         data = response.json
 
-        # Assert that the error message is 'You are already following this user.'
+        # Assert user data structure
+        self.assertIn('message', data)
+
+        # Assert the error message
         self.assertEqual(data['message'], 'You are already following this user.')
 
     def test_follow_user_self(self):
@@ -85,15 +93,18 @@ class TestFollowUser(BaseTestCase):
 
         # Try to follow oneself
         response = self.client.post(
-            f'/user/{user.username}/follow', 
+            self.route.format(user.username), 
             headers={'Authorization': f'Bearer {access_token}'}
         )
 
-        # Assert that the response status code is 400 (Bad Request)
+        # Assert the response status code
         self.assertEqual(response.status_code, 400)
 
         # Get response data
         data = response.json
 
-        # Assert that the error message is 'You cannot follow yourself.'
+        # Assert user data structure
+        self.assertIn('message', data)
+
+        # Assert the error message
         self.assertEqual(data['message'], 'You cannot follow yourself.')

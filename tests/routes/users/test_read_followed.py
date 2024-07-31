@@ -6,7 +6,7 @@ from tests.factories.user_factory import UserFactory
 
 
 class TestReadFollowed(BaseTestCase):
-    route = '/user/<string:username>/following'
+    route = '/user/{}/following'
 
     def test_read_followed(self):
         # Create a user
@@ -20,42 +20,45 @@ class TestReadFollowed(BaseTestCase):
             user_.append_follower(user)
 
         # Get user followed
-        response = self.client.get(f'/user/{user.username}/following')
+        response = self.client.get(self.route.format(user.username))
 
-        # Assert that the response status code is 200
+        # Assert the response status
         self.assertEqual(response.status_code, 200)
 
         # Get response data
         data = response.json
 
-        # Assert that the response data is a list
+        # Assert the response data
         self.assertIsInstance(data, list)
-
-    def test_read_followed_nonexistent_user(self):
-        # Try to get followed users of a nonexistent user
-        response = self.client.get('/user/inexistent/following')
-
-        # Assert that the response status code is 404
-        self.assertEqual(response.status_code, 404)
-
-        # Get response data
-        data = response.json
-
-        # Assert that the error message is 'User not found.'
-        self.assertEqual(data['message'], 'User not found.')
 
     def test_read_followed_empty(self):
         # Create a user
         user = UserFactory()
 
         # Get the user followed
-        response = self.client.get(f'/user/{user.username}/following')
+        response = self.client.get(self.route.format(user.username))
 
-        # Assert that the response status code is 200
+        # Assert the response status code
         self.assertEqual(response.status_code, 200)
 
         # Get response data
         data = response.json
 
-        # Assert that the response data is an empty list
+        # Assert the response data
         self.assertEqual(data, [])
+
+    def test_read_followed_nonexistent_user(self):
+        # Try to get followed users of a nonexistent user
+        response = self.client.get(self.route.format('inexistent'))
+
+        # Assert the response status code
+        self.assertEqual(response.status_code, 404)
+
+        # Get response data
+        data = response.json
+
+        # Assert user data structure
+        self.assertIn('message', data)
+
+        # Assert the error message
+        self.assertEqual(data['message'], 'User not found.')

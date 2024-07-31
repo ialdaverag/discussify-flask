@@ -6,22 +6,22 @@ from tests.factories.user_factory import UserFactory
 
 
 class TestReadUser(BaseTestCase):
-    route = '/user/<string:username>'
+    route = '/user/{}'
 
     def test_read_user(self):
-        # create a user
+        # Create a user
         user = UserFactory()
 
-        # get the user
-        response = self.client.get(f'/user/{user.username}')
+        # Get the user
+        response = self.client.get(self.route.format(user.username))
 
-        # assert response status code
+        # Assert response status code
         self.assertEqual(response.status_code, 200)
 
-        # get response data
+        # Get response data
         data = response.json
 
-        # assert the user
+        # Assert user data
         self.assertEqual(data['id'], user.id)
         self.assertEqual(data['username'], user.username)
         self.assertEqual(data['email'], user.email)
@@ -29,14 +29,14 @@ class TestReadUser(BaseTestCase):
         self.assertEqual(data['updated_at'], user.updated_at.strftime('%Y-%m-%dT%H:%M:%S'))
 
     def test_read_user_not_found(self):
-        # get the user
+        # Get the user
         response = self.client.get('/user/inexistent')
 
-        # assert response status code
+        # Assert response status code
         self.assertEqual(response.status_code, 404)
 
-        # get response data
+        # Get response data
         data = response.json
 
-        # assert the error
+        # Assert the error
         self.assertEqual(data['message'], 'User not found.')
