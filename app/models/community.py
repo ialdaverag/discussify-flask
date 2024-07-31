@@ -34,6 +34,8 @@ class CommunityStats(db.Model):
     moderators_count = db.Column(db.Integer, default=0)
     banned_count = db.Column(db.Integer, default=0)
 
+    community = db.relationship('Community', back_populates='stats')
+
 
 class Community(db.Model):
     __tablename__ = 'communities'
@@ -58,7 +60,7 @@ class Community(db.Model):
     posts = db.relationship('Post', cascade='all, delete', back_populates='community', lazy='dynamic')
 
     # Stats
-    stats = db.relationship('CommunityStats', backref='community', uselist=False, cascade='all, delete')
+    stats = db.relationship('CommunityStats', uselist=False, back_populates='community', cascade='all, delete-orphan')
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -75,7 +77,7 @@ class Community(db.Model):
         community = db.session.get(Community, id)
 
         if community is None:
-            raise NotFoundError('Community not found')
+            raise NotFoundError('Community not found.')
 
         return community
     
@@ -85,7 +87,7 @@ class Community(db.Model):
         community = db.session.execute(db.select(Community).filter_by(name=name)).scalar()
 
         if community is None:
-            raise NotFoundError('Community not found')
+            raise NotFoundError('Community not found.')
 
         return community
     

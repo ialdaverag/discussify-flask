@@ -25,14 +25,14 @@ class CommunitySchema(Schema):
     name = fields.Str(
         required=True,
         validate=[
-            validate.Length(min=3, max=20, error='name must be between 3 and 20 characters'),
+            validate.Length(min=3, max=20, error='Name must be between 3 and 20 characters.'),
             validate.Regexp(
                 r'^[a-zA-Z0-9_]*$', 
-                error='name must consist of letters, numbers, and underscores only')
+                error='Name must consist of letters, numbers, and underscores only.')
         ]
     )
     about = fields.Str(
-        validate=validate.Length(max=1000, error='maximum 1000 characters')
+        validate=validate.Length(max=1000, error='Maximum 1000 characters.')
     )
     owned_by = fields.Boolean()
     subscriber = fields.Boolean()
