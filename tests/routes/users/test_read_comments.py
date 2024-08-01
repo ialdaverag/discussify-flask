@@ -7,7 +7,7 @@ from tests.factories.comment_factory import CommentFactory
 
 
 class TestReadComments(BaseTestCase):
-    route = '/user/<string:username>/comments'
+    route = '/user/{}/comments'
 
     def test_read_comments(self):
         # Create a user
@@ -17,7 +17,7 @@ class TestReadComments(BaseTestCase):
         comments = CommentFactory.create_batch(5, owner=user)
 
         # Get user comments
-        response = self.client.get(f'/user/{user.username}/comments')
+        response = self.client.get(self.route.format(user.username))
 
         # Assert that the response status code is 200
         self.assertEqual(response.status_code, 200)
@@ -30,7 +30,7 @@ class TestReadComments(BaseTestCase):
 
     def test_read_comments_nonexistent_user(self):
         # Try to get comments of a nonexistent user
-        response = self.client.get('/user/inexistent/comments')
+        response = self.client.get(self.route.format('nonexistent'))
 
         # Assert that the response status code is 404
         self.assertEqual(response.status_code, 404)
@@ -46,7 +46,7 @@ class TestReadComments(BaseTestCase):
         user = UserFactory()
 
         # Get the user comments
-        response = self.client.get(f'/user/{user.username}/comments')
+        response = self.client.get(self.route.format(user.username))
 
         # Assert that the response status code is 200
         self.assertEqual(response.status_code, 200)

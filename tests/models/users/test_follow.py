@@ -1,7 +1,12 @@
+# Base
 from tests.base.base_test_case import BaseTestCase
+
+# Factories
 from tests.factories.user_factory import UserFactory
 
+# Errors
 from app.errors.errors import FollowError
+
 
 class TestFollow(BaseTestCase):
     def test_follow(self):

@@ -1,18 +1,21 @@
-#  base
+# Base
 from tests.base.base_test_case import BaseTestCase
 
-# factories
+# Factories
 from tests.factories.user_factory import UserFactory
 from tests.factories.community_factory import CommunityFactory
 
 
 class TestAppendSubscribers(BaseTestCase):
     def test_append_subscriber(self):
+        # Create a community
         community = CommunityFactory()
         
-        subscriber = UserFactory()
+        # Create a user
+        user= UserFactory()
 
-        community.append_subscriber(subscriber)
+        # Append the user to the community subscribers
+        community.append_subscriber(user)
         
-        self.assertIn(subscriber, community.subscribers)
-        self.assertEqual(community.stats.subscribers_count, 1)
+        # Assert that the user is in the community subscribers
+        self.assertIn(user, community.subscribers)

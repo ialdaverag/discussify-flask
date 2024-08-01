@@ -1,46 +1,56 @@
-# tests
+# Tests
 from tests.base.base_test_case import BaseTestCase
 
-# factories
+# Factories
 from tests.factories.user_factory import UserFactory
 from tests.factories.community_factory import CommunityFactory
 
-# utils
+# Utils
 from tests.utils.tokens import get_access_token
 
 
 class TestReadCommunity(BaseTestCase):
-    route = '/community/<string:name>/'
+    route = '/community/{}'
 
     def test_read_community(self):
-        # create a community
+        # Create a community
         community = CommunityFactory()
 
-        # get the community
-        response = self.client.get(f'/community/{community.name}')
+        # Get the community
+        response = self.client.get(self.route.format(community.name))
 
-        # assert response status code
+        # Assert the response status code
         self.assertEqual(response.status_code, 200)
 
-        # get response data
+        # Get the response data
         data = response.json
 
-        # assert the community
+        # Assert the response data
+        self.assertIn('id', data)
+        self.assertIn('name', data)
+        self.assertIn('about', data)
+        self.assertIn('created_at', data)
+        self.assertIn('updated_at', data)
+
+        # Assert the community data
         self.assertEqual(data['id'], community.id)
         self.assertEqual(data['name'], community.name)
         self.assertEqual(data['about'], community.about)
         self.assertEqual(data['created_at'], community.created_at.strftime('%Y-%m-%dT%H:%M:%S'))
         self.assertEqual(data['updated_at'], community.updated_at.strftime('%Y-%m-%dT%H:%M:%S'))
 
-    def test_read_community_not_found(self):
-        # get the community
-        response = self.client.get('/community/inexistent')
+    def test_read_community_nonexistent(self):
+        # Get the community
+        response = self.client.get(self.route.format('inexistent'))
 
-        # assert response status code
+        # Assert the response status code
         self.assertEqual(response.status_code, 404)
 
-        # get response data
+        # Get the response data
         data = response.json
 
-        # assert the error
+        # Assert the response data
+        self.assertIn('message', data)
+
+        # Assert the error
         self.assertEqual(data['message'], 'Community not found.')

@@ -32,7 +32,7 @@ class TestReadBookmarkedComments(BaseTestCase):
 
         # Get user bookmarked comments
         response = self.client.get(
-            f'/user/comments/bookmarked',
+            self.route,
             headers={'Authorization': f'Bearer {access_token}'}
         )
 
@@ -54,7 +54,7 @@ class TestReadBookmarkedComments(BaseTestCase):
 
         # Get the user bookmarked comments
         response = self.client.get(
-            f'/user/comments/bookmarked',
+            self.route,
             headers={'Authorization': f'Bearer {access_token}'}
         )
 

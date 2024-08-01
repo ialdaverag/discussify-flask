@@ -1,78 +1,85 @@
-# tests
+# Tests
 from tests.base.base_test_case import BaseTestCase
 
-# factories
+# Factories
 from tests.factories.user_factory import UserFactory
 from tests.factories.community_factory import CommunityFactory
 
-# utils
+# Utils
 from tests.utils.tokens import get_access_token
 
 
 class TestDeleteCommunity(BaseTestCase):
-    route = '/community/<string:name>/'
+    route = '/community/{}'
 
     def test_delete_community(self):
-        # create a community
+        # Create a community
         community = CommunityFactory()
 
-        # create a user
+        # Get the community owner
         owner = community.owner
 
-        # get user access token
+        # Get owner access token
         access_token = get_access_token(owner)
 
-        # delete the community
+        # Delete the community
         response = self.client.delete(
-            f'/community/{community.name}',
+            self.route.format(community.name),
             headers={'Authorization': f'Bearer {access_token}'}
         )
 
-        # assert response status code
+        # Rssert the response status code
         self.assertEqual(response.status_code, 204)
 
     def test_delete_community_nonexistent(self):
-        # create a user
+        # Create a user
         user = UserFactory()
 
-        # get user access token
+        # Get user access token
         access_token = get_access_token(user)
 
-        # delete the community
+        # Delete the community
         response = self.client.delete(
             '/community/inexistent',
             headers={'Authorization': f'Bearer {access_token}'}
         )
 
-        # assert response status code
+        # Assert the response status code
         self.assertEqual(response.status_code, 404)
-        # get response data
+
+        # Get the response data
         data = response.json
 
-        # assert the error
+        # Assert the response data
+        self.assertIn('message', data)
+
+        # Assert the error
         self.assertEqual(data['message'], 'Community not found.')
 
     def test_delete_community_not_being_owner(self):
-        # create a community
+        # Create a community
         community = CommunityFactory()
 
-        # create a user
+        # Create a user
         user = UserFactory()
 
-        # get user access token
+        # Get user access token
         access_token = get_access_token(user)
 
-        # delete the community
+        # Delete the community
         response = self.client.delete(
             f'/community/{community.name}',
             headers={'Authorization': f'Bearer {access_token}'}
         )
 
-        # assert response status code
+        # Assert response status code
         self.assertEqual(response.status_code, 403)
         
-        # get response data
+        # Get the response data
         data = response.json
 
-        # assert the error
+        # Assert the response data
+        self.assertIn('message', data)
+
+        # Assert the error
         self.assertEqual(data['message'], 'You are not the owner of this community.')

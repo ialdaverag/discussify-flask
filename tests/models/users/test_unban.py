@@ -4,7 +4,8 @@ from tests.factories.user_factory import UserFactory
 from tests.factories.community_factory import CommunityFactory
 
 # Errors
-from app.errors.errors import BanError, SubscriptionError, ModeratorError, BanError, OwnershipError, UnauthorizedError
+from app.errors.errors import BanError
+from app.errors.errors import UnauthorizedError
 
 
 class TestUnban(BaseTestCase):
@@ -21,6 +22,7 @@ class TestUnban(BaseTestCase):
         # Get the owner of the community
         owner = community.owner
 
+        # Append the owner to the community moderators
         community.append_moderator(owner)
 
         # Unban the user from the community
@@ -39,7 +41,7 @@ class TestUnban(BaseTestCase):
         # Create another user
         user2 = UserFactory()
 
-        # Ban the user from the community
+        # Append the user to the community banned users
         community.append_banned(user2)
 
         # Attempt to unban the user from the community
@@ -56,6 +58,7 @@ class TestUnban(BaseTestCase):
         # Get the owner of the community
         owner = community.owner
 
+        # Append the owner to the community moderators
         community.append_moderator(owner)
 
         # Attempt to unban the user from the community

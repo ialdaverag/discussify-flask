@@ -1,5 +1,7 @@
-# Factories
+# FBase
 from tests.base.base_test_case import BaseTestCase
+
+# Factories
 from tests.factories.user_factory import UserFactory
 from tests.factories.community_factory import CommunityFactory
 
@@ -15,20 +17,22 @@ class TestDeleteCommunity(BaseTestCase):
         # Create a community
         community = CommunityFactory()
 
+        # Get the owner of the community
         user = community.owner
 
+        # Get the community to delete
         community_to_delete = Community.get_by_id(community.id)
 
         # Delete the community
         user.delete_community(community_to_delete)
 
-        # Check that the community was deleted
+        # Assert that the community was deleted
         self.assertNotIn(community, user.communities)
 
-        # Check that the community was deleted from the database
+        # Assert that the community was deleted from the database
         self.assertNotIn(community, user.subscriptions)
 
-        # Check that the community was deleted from the database
+        # Assert that the community was deleted from the database
         self.assertNotIn(community, user.moderations)
 
     def test_delete_community_not_being_the_owner(self):

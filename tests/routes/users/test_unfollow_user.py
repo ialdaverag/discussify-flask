@@ -9,7 +9,7 @@ from tests.utils.tokens import get_access_token
 
 
 class TestUnfollowUser(BaseTestCase):
-    route = '/user/<string:username>/unfollow'
+    route = '/user/{}/unfollow'
 
     def test_unfollow_user(self):
         # Create a users
@@ -26,7 +26,7 @@ class TestUnfollowUser(BaseTestCase):
 
         # User1 unfollows user2
         response = self.client.post(
-            f'/user/{user2.username}/unfollow', 
+            self.route.format(user2.username), 
             headers={'Authorization': f'Bearer {access_token}'}
         )
 
@@ -42,7 +42,7 @@ class TestUnfollowUser(BaseTestCase):
 
         # Try to unfollow a nonexistent user
         response = self.client.post(
-            '/user/inexistent/unfollow', 
+            self.route.format('nonexistent'), 
             headers={'Authorization': f'Bearer {access_token}'}
         )
 
@@ -70,7 +70,7 @@ class TestUnfollowUser(BaseTestCase):
 
         # Try to unfollow user2 without following them
         response = self.client.post(
-            f'/user/{user2.username}/unfollow', 
+            self.route.format(user2.username), 
             headers={'Authorization': f'Bearer {access_token}'}
         )
 
@@ -95,7 +95,7 @@ class TestUnfollowUser(BaseTestCase):
 
         # Try to unfollow oneself
         response = self.client.post(
-            f'/user/{user.username}/unfollow', 
+            self.route.format(user.username), 
             headers={'Authorization': f'Bearer {access_token}'}
         )
 

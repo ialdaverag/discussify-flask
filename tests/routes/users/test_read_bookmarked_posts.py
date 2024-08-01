@@ -28,7 +28,7 @@ class TestReadBookmarkedPosts(BaseTestCase):
 
         # Get user bookmarked posts
         response = self.client.get(
-            f'/user/posts/bookmarked',
+            self.route,
             headers={'Authorization': f'Bearer {access_token}'}
         )
 
@@ -50,7 +50,7 @@ class TestReadBookmarkedPosts(BaseTestCase):
 
         # Get the user bookmarked posts
         response = self.client.get(
-            f'/user/posts/bookmarked',
+            self.route,
             headers={'Authorization': f'Bearer {access_token}'}
         )
 

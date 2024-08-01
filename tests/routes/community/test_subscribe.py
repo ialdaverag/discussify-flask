@@ -1,104 +1,119 @@
-# tests
+# Tests
 from tests.base.base_test_case import BaseTestCase
 
-# factories
+# Factories
 from tests.factories.user_factory import UserFactory
 from tests.factories.community_factory import CommunityFactory
 
-# utils
+# Utils
 from tests.utils.tokens import get_access_token
 
 
 class TestSubscribe(BaseTestCase):
-    route = '/community/<string:name>/subscribe/'
+    route = '/community/{}/subscribe'
 
     def test_subscribe(self):
-        # create a community
+        # Create a community
         community = CommunityFactory()
 
-        # create a user
+        # Create a user
         user = UserFactory()
 
-        # get user access token
+        # Get the user access token
         access_token = get_access_token(user)
 
-        # subscribe to the community
+        # Subscribe to the community
         response = self.client.post(
-            f'/community/{community.name}/subscribe',
+            self.route.format(community.name),
             headers={'Authorization': f'Bearer {access_token}'}
         )
 
-        # assert response status code
+        # Assert the response status code
         self.assertEqual(response.status_code, 204)
 
     def test_subscribe_nonexistent(self):
-        # create a user
+        # Create a user
         user = UserFactory()
 
-        # get user access token
+        # Get the user access token
         access_token = get_access_token(user)
 
-        # subscribe to the community
+        # Subscribe to the community
         response = self.client.post(
-            '/community/nonexistent/subscribe',
+            self.route.format('nonexistent'),
             headers={'Authorization': f'Bearer {access_token}'}
         )
 
-        # assert response status code
+        # Assert the response status code
         self.assertEqual(response.status_code, 404)
 
+        # Get the response data
+        data = response.json
+
+        # Assert keys in the response data
+        self.assertIn('message', data)
+
+        # Assert the message
+        self.assertEqual(data['message'], 'Community not found.')
+
     def test_subscribe_already_subscribed(self):
-        # create a community
+        # Create a community
         community = CommunityFactory()
 
-        # create a user
+        # Create a user
         user = UserFactory()
 
-        # subscribe user
+        # Append the user to the community subscribers
         community.append_subscriber(user)
 
-        # get user access token
+        # Get the user access token
         access_token = get_access_token(user)
 
-        # subscribe to the community
+        # Subscribe to the community
         response = self.client.post(
-            f'/community/{community.name}/subscribe',
+            self.route.format(community.name),
             headers={'Authorization': f'Bearer {access_token}'}
         )
 
-        # assert response status code
+        # Assert the response status code
         self.assertEqual(response.status_code, 400)
 
-        # get response data
+        # Get the response data
         data = response.json
 
-        # assert response data
+        # Assert keys in the response data
+        self.assertIn('message', data)
+
+        # Assert the message
         self.assertEqual(data['message'], 'You are already subscribed to this community.')
 
     def test_subscribe_to_community_being_banned(self):
-        # create a community
+        # Create a community
         community = CommunityFactory()
 
-        # create a user
+        # Create a user
         user = UserFactory()
 
-        # ban user
+        # Append the user to the community banned users
         community.append_banned(user)
 
-        # get user access token
+        # Get the user access token
         access_token = get_access_token(user)
 
-        # subscribe to the community
+        # Subscribe to the community
         response = self.client.post(
-            f'/community/{community.name}/subscribe',
+            self.route.format(community.name),
             headers={'Authorization': f'Bearer {access_token}'}
         )
 
-        # assert response status code
+        # Assert the response status code
         self.assertEqual(response.status_code, 400)
 
-        # get response data
+        # Get the response data
         data = response.json
 
-        # assert response data
+        # Assert keys in the response data
+        self.assertIn('message', data)
+
+        # Assert the message
         self.assertEqual(data['message'], 'You are banned from this community.')

@@ -21,6 +21,13 @@ class TestReadUser(BaseTestCase):
         # Get response data
         data = response.json
 
+        # Assert the response data
+        self.assertIn('id', data)
+        self.assertIn('username', data)
+        self.assertIn('email', data)
+        self.assertIn('created_at', data)
+        self.assertIn('updated_at', data)
+
         # Assert user data
         self.assertEqual(data['id'], user.id)
         self.assertEqual(data['username'], user.username)
@@ -38,5 +45,5 @@ class TestReadUser(BaseTestCase):
         # Get response data
         data = response.json
 
-        # Assert the error
+        # Assert the emessage
         self.assertEqual(data['message'], 'User not found.')

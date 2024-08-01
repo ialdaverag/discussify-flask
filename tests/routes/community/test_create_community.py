@@ -1,11 +1,11 @@
-# tests
+# Tests
 from tests.base.base_test_case import BaseTestCase
 
-# factories
+# Factories
 from tests.factories.user_factory import UserFactory
 from tests.factories.community_factory import CommunityFactory
 
-# utils
+# Utils
 from tests.utils.tokens import get_access_token
 
 
@@ -19,7 +19,7 @@ class TestCreateCommunity(BaseTestCase):
         # Get user access token
         access_token = get_access_token(user)
 
-        # Daa to be sent
+        # Data to be sent
         json = {
             'name': 'Videogames',
             'about': 'Community for videogame lovers.',
@@ -32,16 +32,16 @@ class TestCreateCommunity(BaseTestCase):
             json=json
         )
 
-        # Assert that the response status code is 201
+        # Assert the response status code
         self.assertEqual(response.status_code, 201)
 
-        # Get response data
+        # Get the response data
         data = response.json
 
-        # Assert that the response data is a dictionary
+        # Assert the response data
         self.assertIsInstance(data, dict)
 
-        # Assert that the response data contains the community data
+        # Assert the response data
         self.assertIn('id', data)
         self.assertIn('name', data)
         self.assertIn('about', data)
@@ -55,8 +55,10 @@ class TestCreateCommunity(BaseTestCase):
         # Assert that the community owner is the user
         self.assertEqual(data['owner']['id'], user.id)
 
-        # Assert stats data
+        # # Get the stats data from the response
         stats_data = data['stats']
+
+        # Assert stats data
         self.assertIn('id', stats_data)
         self.assertIn('subscribers_count', stats_data)
         self.assertIn('moderators_count', stats_data)
@@ -64,7 +66,7 @@ class TestCreateCommunity(BaseTestCase):
         self.assertIn('posts_count', stats_data)
         self.assertIn('comments_count', stats_data)
 
-        # Assert that the stats data is correct
+        # Assert the stats data
         self.assertEqual(stats_data['subscribers_count'], 1)
         self.assertEqual(stats_data['moderators_count'], 1)
         self.assertEqual(stats_data['banned_count'], 0)
@@ -90,19 +92,22 @@ class TestCreateCommunity(BaseTestCase):
             json=json
         )
 
-        # Assert that the response status code is 400
+        # Assert the response status code
         self.assertEqual(response.status_code, 400)
 
-        # assert response data
+        # Get the response data
         data = response.json
 
+        # Assert the response data
         self.assertIn('errors', data)
+
+        # Get errors from the response data
         errors = data['errors']
 
-        # assert errors structure
+        # Assert keys in errors
         self.assertIn('name', errors)
 
-        # assert errors values
+        # Assert errors values
         self.assertEqual(errors['name'], ['Missing data for required field.'])
 
     def test_create_community_invalid_name(self):
@@ -125,19 +130,22 @@ class TestCreateCommunity(BaseTestCase):
             json=json
         )
 
-        # Assert that the response status code is 400
+        # Assert the response status code
         self.assertEqual(response.status_code, 400)
 
-        # assert response data
+        # Assert the response data
         data = response.json
 
+        # Assert the response data
         self.assertIn('errors', data)
+
+        # Get errors from the response data
         errors = data['errors']
 
-        # assert errors structure
+        # Assert keys in errors
         self.assertIn('name', errors)
 
-        # assert errors values
+        # Assert errors values
         self.assertEqual(errors['name'], ['Name must be between 3 and 20 characters.'])
 
     def test_create_community_invalid_about(self):
@@ -163,16 +171,19 @@ class TestCreateCommunity(BaseTestCase):
         # Assert that the response status code is 400
         self.assertEqual(response.status_code, 400)
 
-        # assert response data
+        # Assert response data
         data = response.json
 
+        # Assert 
         self.assertIn('errors', data)
+
+        # Get errors from the response data
         errors = data['errors']
 
-        # assert errors structure
+        # Assert keys in errors
         self.assertIn('about', errors)
 
-        # assert errors values
+        # Assert errors values
         self.assertEqual(errors['about'], ['Maximum 1000 characters.'])
 
     def test_create_community_already_existent_name(self):
@@ -198,14 +209,14 @@ class TestCreateCommunity(BaseTestCase):
             json=json
         )
 
-        # Assert that the response status code is 400
+        # Assert the response status code
         self.assertEqual(response.status_code, 400)
 
-       # assert response data
+        # Assert the response data
         data = response.json
 
-        # assert response structure
+        # Assert keys in response data
         self.assertIn('message', data)
 
-        # assert response data values
+        # Assert response data values
         self.assertEqual(data['message'], 'Name already taken.')

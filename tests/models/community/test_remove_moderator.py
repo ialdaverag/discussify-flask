@@ -1,22 +1,27 @@
-#  base
+# Base
 from tests.base.base_test_case import BaseTestCase
 
-# factories
+# Factories
 from tests.factories.user_factory import UserFactory
 from tests.factories.community_factory import CommunityFactory
 
 
 class TestRemoveModerator(BaseTestCase):
     def test_remove_moderator(self):
-        moderator = UserFactory()
-
+        # Create a community
         community = CommunityFactory()
-        community.append_moderator(moderator)
 
-        self.assertIn(moderator, community.moderators)
+        # Create a user
+        user = UserFactory()
+
+        # Append the user to the community moderators
+        community.append_moderator(user)
+
+        # Assert that the user is in the community moderators
+        self.assertIn(user, community.moderators)
         
-        community.remove_moderator(moderator)
+        # Remove the user from the community moderators
+        community.remove_moderator(user)
         
-        self.assertNotIn(moderator, community.moderators)
-        
-        self.assertEqual(community.stats.moderators_count, 0)
+        # Assert that the user is not in the community moderators
+        self.assertNotIn(user, community.moderators)

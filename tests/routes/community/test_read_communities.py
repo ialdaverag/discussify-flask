@@ -1,11 +1,11 @@
-# tests
+# Tests
 from tests.base.base_test_case import BaseTestCase
 
-# factories
+# Factories
 from tests.factories.user_factory import UserFactory
 from tests.factories.community_factory import CommunityFactory
 
-# utils
+# Utils
 from tests.utils.tokens import get_access_token
 
 
@@ -13,22 +13,22 @@ class TestReadCommunities(BaseTestCase):
     route = '/community/'
 
     def test_read_community(self):
-        # create multiple communities
+        # Create multiple communities
         communities = CommunityFactory.create_batch(size=5)
 
-        # get the communities
+        # Get the communities
         response = self.client.get(self.route)
 
-        # assert response status code
+        # Assert the response status code
         self.assertEqual(response.status_code, 200)
 
-        # get response data
+        # Get the response data
         data = response.json
 
-        # assert the number of communities
+        # Assert the number of communities
         self.assertEqual(len(data), len(communities))
 
-        # assert each community
+        # Assert each community
         for i, community in enumerate(communities):
             self.assertEqual(data[i]['id'], community.id)
             self.assertEqual(data[i]['name'], community.name)
@@ -37,14 +37,14 @@ class TestReadCommunities(BaseTestCase):
             self.assertEqual(data[i]['updated_at'], community.updated_at.strftime('%Y-%m-%dT%H:%M:%S'))
 
     def test_read_community_empty(self):
-        # get the communities
+        # Get the communities
         response = self.client.get(self.route)
 
-        # assert response status code
+        # Assert the response status code
         self.assertEqual(response.status_code, 200)
 
-        # get response data
+        # Get the response data
         data = response.json
 
-        # assert the community
+        # Assert the community
         self.assertEqual(len(data), 0)

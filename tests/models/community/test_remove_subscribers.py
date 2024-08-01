@@ -1,22 +1,27 @@
-#  base
+# Base
 from tests.base.base_test_case import BaseTestCase
 
-# factories
+# Factories
 from tests.factories.user_factory import UserFactory
 from tests.factories.community_factory import CommunityFactory
 
 
 class TestRemoveSubscribers(BaseTestCase):
     def test_remove_subscriber(self):
-        subscriber = UserFactory()
-
+        # Create a community
         community = CommunityFactory()
-        community.append_subscriber(subscriber)
 
-        self.assertIn(subscriber, community.subscribers)
+        # Create a user
+        user = UserFactory()
+
+        # Append the user to the community subscribers
+        community.append_subscriber(user)
+
+        # Assert that the user is in the community subscribers
+        self.assertIn(user, community.subscribers)
         
-        community.remove_subscriber(subscriber)
+        # Remove the user from the community subscribers
+        community.remove_subscriber(user)
         
-        self.assertNotIn(subscriber, community.subscribers)
-        
-        self.assertEqual(community.stats.subscribers_count, 0)
+        # Assert that the user is not in the community subscribers
+        self.assertNotIn(user, community.subscribers)

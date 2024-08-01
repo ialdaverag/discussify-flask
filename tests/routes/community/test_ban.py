@@ -1,16 +1,16 @@
-# tests
+# Tests
 from tests.base.base_test_case import BaseTestCase
 
-# factories
+# Factories
 from tests.factories.user_factory import UserFactory
 from tests.factories.community_factory import CommunityFactory
 
-# utils
+# Utils
 from tests.utils.tokens import get_access_token
 
 
 class TestBan(BaseTestCase):
-    route = '/community/<string:name>/ban/<string:username>'
+    route = '/community/{}/ban/{}'
 
     def test_ban(self):
         # create a community
@@ -29,7 +29,7 @@ class TestBan(BaseTestCase):
 
         # ban user from the community
         response = self.client.post(
-            f'/community/{community.name}/ban/{user.username}',
+            self.route.format(community.name, user.username),
             headers={'Authorization': f'Bearer {access_token}'}
         )
 
@@ -45,12 +45,21 @@ class TestBan(BaseTestCase):
 
         # ban user from the community
         response = self.client.post(
-            '/community/nonexistent/ban/nonexistent',
+            self.route.format('nonexistent', user.username),
             headers={'Authorization': f'Bearer {access_token}'}
         )
 
         # assert response status code
         self.assertEqual(response.status_code, 404)
+
+        # get response data
+        data = response.json
+
+        # assert the keys in the response data
+        self.assertIn('message', data)
+
+        # assert the message
+        self.assertEqual(data['message'], 'Community not found.')
 
     def test_ban_nonexistent_user(self):
         # create a community
@@ -61,12 +70,21 @@ class TestBan(BaseTestCase):
 
         # ban user from the community
         response = self.client.post(
-            f'/community/{community.name}/ban/nonexistent',
+            self.route.format(community.name, 'nonexistent'),
             headers={'Authorization': f'Bearer {access_token}'}
         )
 
         # assert response status code
         self.assertEqual(response.status_code, 404)
+
+        # get response data
+        data = response.json
+
+        # assert the keys in the response data
+        self.assertIn('message', data)
+
+        # assert the message
+        self.assertEqual(data['message'], 'User not found.')
 
 
     def test_ban_not_being_moderator(self):
@@ -84,7 +102,7 @@ class TestBan(BaseTestCase):
 
         # ban user from the community
         response = self.client.post(
-            f'/community/{community.name}/ban/{user_to_ban.username}',
+            self.route.format(community.name, user_to_ban.username),
             headers={'Authorization': f'Bearer {access_token}'}
         )
 
@@ -93,6 +111,9 @@ class TestBan(BaseTestCase):
 
         # get response data
         data = response.json
+
+        # assert keys in the response data
+        self.assertIn('message', data)
 
         # assert the error
         self.assertEqual(data['message'], 'You are not a moderator of this community.')
@@ -109,7 +130,7 @@ class TestBan(BaseTestCase):
 
         # ban user from the community
         response = self.client.post(
-            f'/community/{community.name}/ban/{user.username}',
+            self.route.format(community.name, user.username),
             headers={'Authorization': f'Bearer {access_token}'}
         )
 
@@ -118,6 +139,9 @@ class TestBan(BaseTestCase):
 
         # get response data
         data = response.json
+
+        # assert keys in the response data
+        self.assertIn('message', data)
 
         # assert the error
         self.assertEqual(data['message'], 'You are not a moderator of this community.')
@@ -139,7 +163,7 @@ class TestBan(BaseTestCase):
 
         # ban the user again
         response = self.client.post(
-            f'/community/{community.name}/ban/{user_to_ban.username}',
+            self.route.format(community.name, user_to_ban.username),
             headers={'Authorization': f'Bearer {access_token}'}
         )
 
@@ -148,6 +172,9 @@ class TestBan(BaseTestCase):
 
         # get response data
         data = response.json
+
+        # assert keys in the response data
+        self.assertIn('message', data)
 
         # assert the error
         self.assertEqual(data['message'], 'The user is already banned from the community.')

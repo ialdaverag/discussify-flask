@@ -1,5 +1,7 @@
-# Factories
+# Base
 from tests.base.base_test_case import BaseTestCase
+
+# Factories
 from tests.factories.user_factory import UserFactory
 from tests.factories.community_factory import CommunityFactory
 
@@ -21,23 +23,23 @@ class TestCreateCommunity(BaseTestCase):
         # Create the community
         community = user.create_community(**community_data)
 
-        # Check that the community was created
+        # Assert that the community was created
         self.assertIsNotNone(community)
 
-        # Check that the community data is correct
+        # Assert that the community data is correct
         self.assertEqual(community.name, community_data['name'])
         self.assertEqual(community.about, community_data['about'])
 
-        # Check that the community owner is the user
+        # Assert that the community owner is the user
         self.assertEqual(community.owner, user)
 
-        # Check that the community is in the user's communities
+        # Assert that the community is in the user's communities
         self.assertIn(community, user.communities)
 
-        # Check that the community is in the user's subscribed communities
+        # Assert that the community is in the user's subscribed communities
         self.assertIn(community, user.subscriptions)
 
-        # Check that the community is in the user's moderated communities
+        # Assert that the community is in the user's moderated communities
         self.assertIn(community, user.moderations)
 
     def test_create_community_already_existent_name(self):

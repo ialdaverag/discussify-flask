@@ -1,13 +1,16 @@
-# Factories
+# Base
 from tests.base.base_test_case import BaseTestCase
+
+# Factories
 from tests.factories.user_factory import UserFactory
 from tests.factories.community_factory import CommunityFactory
 
 # Errors
-from app.errors.errors import BanError, SubscriptionError, ModeratorError, BanError, OwnershipError
+from app.errors.errors import ModeratorError
+from app.errors.errors import OwnershipError
 
 
-class TestDismissModerator(BaseException):
+class TestDismissModerator(BaseTestCase):
     def test_dismiss_moderator(self):
         # Create a community
         community = CommunityFactory()
@@ -27,7 +30,7 @@ class TestDismissModerator(BaseException):
         # Check that the user is not a moderator
         self.assertNotIn(user, community.moderators)
 
-    def test_dismiss_moderator_not_owner(self):
+    def test_dismiss_moderator_not_being_the_owner(self):
         # Create a community
         community = CommunityFactory()
 
@@ -49,11 +52,11 @@ class TestDismissModerator(BaseException):
         community = CommunityFactory()
 
         # Get the owner of the community
-        user = community.owner
+        owner = community.owner
 
         # Attempt to dismiss the user as a moderator
-        with self.assertRaises(ModeratorError):
-            user.dismiss_moderator(user, community)
+        with self.assertRaises(OwnershipError):
+            owner.dismiss_moderator(owner, community)
 
     def test_dismiss_moderator_not_moderator(self):
         # Create a community

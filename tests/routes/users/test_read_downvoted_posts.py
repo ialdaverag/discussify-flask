@@ -32,7 +32,7 @@ class TestReadUpvotedPosts(BaseTestCase):
 
         # Get user upvoted posts
         response = self.client.get(
-            f'/user/posts/downvoted',
+            self.route,
             headers={'Authorization': f'Bearer {access_token}'}
         )
 
@@ -54,7 +54,7 @@ class TestReadUpvotedPosts(BaseTestCase):
 
         # Get the user upvoted posts
         response = self.client.get(
-            f'/user/posts/downvoted',
+            self.route,
             headers={'Authorization': f'Bearer {access_token}'}
         )
 

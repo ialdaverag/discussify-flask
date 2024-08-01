@@ -1,149 +1,203 @@
-# tests
+# Tests
 from tests.base.base_test_case import BaseTestCase
 
-# factories
+# Factories
 from tests.factories.user_factory import UserFactory
 from tests.factories.community_factory import CommunityFactory
 
-# utils
+# Utils
 from tests.utils.tokens import get_access_token
 
 
 class TestMod(BaseTestCase):
-    route = '/community/<string:name>/mod/<string:username>'
+    route = '/community/{}/mod/{}'
 
     def test_add_moderator(self):
-        # create a community
+        # Create a community
         community = CommunityFactory()
 
-        # create a user
+        # Create a user
         user = UserFactory()
 
-        # subscribe user
+        # Append the user to the community subscribers
         community.append_subscriber(user)
 
-        # get user access token
+        # Get the user access token
         access_token = get_access_token(community.owner)
 
-        # add moderator to the community
+        # Add moderator to the community
         response = self.client.post(
-            f'/community/{community.name}/mod/{user.username}',
+            self.route.format(community.name, user.username),
             headers={'Authorization': f'Bearer {access_token}'}
         )
 
-        # assert response status code
+        # Assert the response status code
         self.assertEqual(response.status_code, 204)
 
     def test_add_moderator_nonexistent_community(self):
-        # create a user
+        # Create a user
         user = UserFactory()
 
-        # get user access token
+        # Get the user access token
         access_token = get_access_token(user)
 
-        # add moderator to the community
+        # Add moderator to the community
         response = self.client.post(
-            '/community/nonexistent/mod/nonexistent',
+            self.route.format('nonexistent', user.username),
             headers={'Authorization': f'Bearer {access_token}'}
         )
 
-        # assert response status code
+        # Assert the response status code
         self.assertEqual(response.status_code, 404)
+
+        # Get the response data
+        data = response.json
+
+        # Assert keys in the response data
+        self.assertIn('message', data)
+
+        # Assert the message
+        self.assertEqual(data['message'], 'Community not found.')
 
     def test_add_moderator_nonexistent_user(self):
-        # create a community
+        # Create a community
         community = CommunityFactory()
 
-        # get user access token
+        # Get the user access token
         access_token = get_access_token(community.owner)
 
-        # add moderator to the community
+        # Add moderator to the community
         response = self.client.post(
-            f'/community/{community.name}/mod/nonexistent',
+            self.route.format(community.name, 'nonexistent'),
             headers={'Authorization': f'Bearer {access_token}'}
         )
 
-        # assert response status code
+        # Assert the response status code
         self.assertEqual(response.status_code, 404)
 
-    def test_add_moderator_not_owner(self):
-        # create a community
+        # Get the response data
+        data = response.json
+
+        # Assert keys in the response data
+        self.assertIn('message', data)
+
+        # Assert the message
+        self.assertEqual(data['message'], 'User not found.')
+
+    def test_add_moderator_not_being_owner(self):
+        # Create a community
         community = CommunityFactory()
 
-        # create a user
+        # Create a user
         user = UserFactory()
 
-        # get user access token
+        # Get the user access token
         access_token = get_access_token(user)
 
-        # add moderator to the community
+        # Add moderator to the community
         response = self.client.post(
-            f'/community/{community.name}/mod/{user.username}',
+            self.route.format(community.name, user.username),
             headers={'Authorization': f'Bearer {access_token}'}
         )
 
-        # assert response status code
+        # Assert the response status code
         self.assertEqual(response.status_code, 403)
 
+        # Get the response data
+        data = response.json
+
+        # Assert keys in the response data
+        self.assertIn('message', data)
+
+        # Assert the message
+        self.assertEqual(data['message'], 'You are not the owner of this community.')
+
     def test_add_moderator_not_subscribed_user(self):
-        # create a community
+        # Create a community
         community = CommunityFactory()
 
-        # create a user
+        # Create a user
         user = UserFactory()
 
-        # get user access token
+        # Get the user access token
         access_token = get_access_token(community.owner)
 
-        # add moderator to the community
+        # Add moderator to the community
         response = self.client.post(
-            f'/community/{community.name}/mod/{user.username}',
+            self.route.format(community.name, user.username),
             headers={'Authorization': f'Bearer {access_token}'}
         )
 
-        # assert response status code
+        # Assert the response status code
         self.assertEqual(response.status_code, 400)
+
+        # Get the response data
+        data = response.json
+
+        # Assert keys in the response data
+        self.assertIn('message', data)
+
+        # Assert the message
+        self.assertEqual(data['message'], 'The user is not subscribed to this community.')
 
     def test_add_moderator_banned_user(self):
-        # create a community
+        # Create a community
         community = CommunityFactory()
 
-        # create a user
+        # Create a user
         user = UserFactory()
 
-        # ban user
+        # Append the user to the community subscribers
         community.append_banned(user)
 
-        # get user access token
+        # Get the user access token
         access_token = get_access_token(community.owner)
 
-        # add moderator to the community
+        # Add moderator to the community
         response = self.client.post(
-            f'/community/{community.name}/mod/{user.username}',
+            self.route.format(community.name, user.username),
             headers={'Authorization': f'Bearer {access_token}'}
         )
 
-        # assert response status code
+        # Assert the response status code
         self.assertEqual(response.status_code, 400)
+
+        # Get the response data
+        data = response.json
+
+        # Assert keys in the response data
+        self.assertIn('message', data)
+
+        # Assert the message
+        self.assertEqual(data['message'], 'The user is banned from this community.')
 
     def test_add_moderator_already_moderator(self):
-        # create a community
+        # Create a community
         community = CommunityFactory()
 
-        # create a user
+        # Create a user
         user = UserFactory()
 
-        # add user as moderator
+        # Append the user to the community subscribers
         community.append_moderator(user)
 
-        # get user access token
+        # Get the user access token
         access_token = get_access_token(community.owner)
 
-        # add moderator to the community
+        # Add moderator to the community
         response = self.client.post(
-            f'/community/{community.name}/mod/{user.username}',
+            self.route.format(community.name, user.username),
             headers={'Authorization': f'Bearer {access_token}'}
         )
 
-        # assert response status code
+        # Assert the response status code
         self.assertEqual(response.status_code, 400)
+
+        # Get the response data
+        data = response.json
+
+        # Assert keys in the response data
+        self.assertIn('message', data)
+
+        # Assert the message
+        self.assertEqual(data['message'], 'The user is not subscribed to this community.')

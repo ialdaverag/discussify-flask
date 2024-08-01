@@ -4,7 +4,8 @@ from tests.factories.user_factory import UserFactory
 from tests.factories.community_factory import CommunityFactory
 
 # Errors
-from app.errors.errors import BanError, SubscriptionError
+from app.errors.errors import BanError
+from app.errors.errors import SubscriptionError
 
 
 class TestSubscribeTo(BaseTestCase):
@@ -18,7 +19,7 @@ class TestSubscribeTo(BaseTestCase):
         # Subscribe to the community
         user.subscribe_to(community)
 
-        # Check that the user is subscribed to the community
+        # Check that the user is in the community subscribers
         self.assertIn(community, user.subscriptions)
 
     def test_subscribe_to_already_subscribed(self):
@@ -42,7 +43,7 @@ class TestSubscribeTo(BaseTestCase):
         # Create a community
         community = CommunityFactory()
 
-        # Ban the user from the community
+        # Append the user to the community banned users
         community.append_banned(user)
 
         # Attempt to subscribe to the community

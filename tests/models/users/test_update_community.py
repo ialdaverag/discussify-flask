@@ -4,7 +4,9 @@ from tests.factories.user_factory import UserFactory
 from tests.factories.community_factory import CommunityFactory
 
 # Errors
-from app.errors.errors import OwnershipError, NameError
+from app.errors.errors import OwnershipError
+from app.errors.errors import NameError
+
 
 class TestUpdateCommunity(BaseTestCase):
     def test_update_community(self): 
@@ -23,7 +25,7 @@ class TestUpdateCommunity(BaseTestCase):
         # Update the community
         community = user.update_community(community, **community_data)
 
-        # Check that the community data is correct
+        # Assert that the community data is correct
         self.assertEqual(community.name, community_data['name'])
         self.assertEqual(community.about, community_data['about'])
 

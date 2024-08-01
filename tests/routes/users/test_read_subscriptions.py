@@ -21,7 +21,7 @@ class TestReadSubscriptions(BaseTestCase):
             community.append_subscriber(user)
 
         # Get user subscriptions
-        response = self.client.get(f'/user/{user.username}/subscriptions')
+        response = self.client.get(self.route.format(user.username))
 
         # Assert that the response status code is 200
         self.assertEqual(response.status_code, 200)
@@ -37,7 +37,7 @@ class TestReadSubscriptions(BaseTestCase):
         user = UserFactory()
 
         # Get the user subscriptions
-        response = self.client.get(f'/user/{user.username}/subscriptions')
+        response = self.client.get(self.route.format(user.username))
 
         # Assert that the response status code is 200
         self.assertEqual(response.status_code, 200)
@@ -50,13 +50,13 @@ class TestReadSubscriptions(BaseTestCase):
 
     def test_read_subscriptions_nonexistent_user(self):
         # Try to get subscriptions of a nonexistent user
-        response = self.client.get('/user/inexistent/subscriptions')
+        response = self.client.get(self.route.format('nonexistent'))
 
-        # Assert that the response status code is 404
+        # Assert the response status code
         self.assertEqual(response.status_code, 404)
 
         # Get response data
         data = response.json
 
-        # Assert that the error message is 'User not found.'
+        # Assert that message
         self.assertEqual(data['message'], 'User not found.')

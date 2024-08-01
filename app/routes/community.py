@@ -180,7 +180,7 @@ def ban(name, username):
 
 
 @community_routes.route('/<string:name>/banned', methods=['GET'])
-@jwt_required()
+@jwt_required(optional=True)
 def read_banned(name):
     community = Community.get_by_name(name)
 

@@ -32,7 +32,7 @@ class TestReadDownvotedComments(BaseTestCase):
 
         # Get user downvoted comments
         response = self.client.get(
-            f'/user/comments/downvoted',
+            self.route,
             headers={'Authorization': f'Bearer {access_token}'}
         )
 
@@ -54,7 +54,7 @@ class TestReadDownvotedComments(BaseTestCase):
 
         # Get the user downvoted comments
         response = self.client.get(
-            f'/user/comments/downvoted',
+            self.route,
             headers={'Authorization': f'Bearer {access_token}'}
         )
 

@@ -1,10 +1,13 @@
-# Factories
+# Base
 from tests.base.base_test_case import BaseTestCase
+
+# Factories
 from tests.factories.user_factory import UserFactory
 from tests.factories.community_factory import CommunityFactory
 
 # Errors
-from app.errors.errors import BanError, SubscriptionError, ModeratorError, BanError, OwnershipError, UnauthorizedError
+from app.errors.errors import BanError
+from app.errors.errors import UnauthorizedError
 
 
 class TestBanFrom(BaseTestCase):
@@ -15,7 +18,7 @@ class TestBanFrom(BaseTestCase):
         # Create a user
         user = UserFactory()
 
-        # Subscribe the user to the community
+        # Append the user to the community subscribers
         community.append_subscriber(user)
 
         # Get the owner of the community

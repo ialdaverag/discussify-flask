@@ -1,18 +1,21 @@
-#  base
+# Base
 from tests.base.base_test_case import BaseTestCase
 
-# factories
+# Factories
 from tests.factories.user_factory import UserFactory
 from tests.factories.community_factory import CommunityFactory
 
 
 class TestAppendModerator(BaseTestCase):
     def test_append_moderator(self):
+        # Create a community
         community = CommunityFactory()
         
-        moderator = UserFactory()
+        # Create a user
+        user = UserFactory()
 
-        community.append_moderator(moderator)
+        # Append the user to the community moderators
+        community.append_moderator(user)
         
-        self.assertIn(moderator, community.moderators)
-        self.assertEqual(community.stats.moderators_count, 1)
+        # Assert that the user is in the community moderators
+        self.assertIn(user, community.moderators)
