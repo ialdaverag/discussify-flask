@@ -325,7 +325,7 @@ class User(db.Model):
 
     def create_post(self, title, content, community):
         if self.is_banned_from(community):
-            raise BanError('You are banned from this community')
+            raise BanError('You are banned from this community.')
         
         if not self.is_subscribed_to(community):
             raise SubscriptionError('You are not subscribed to this community.')
@@ -339,7 +339,7 @@ class User(db.Model):
     
     def update_post(self, post, title, content):
         if not post.belongs_to(self):
-            raise OwnershipError('This post is not yours.')
+            raise OwnershipError('You are not the owner of this post.')
         
         new_title = title
         new_content = content
@@ -353,7 +353,7 @@ class User(db.Model):
     
     def delete_post(self, post):
         if not (post.belongs_to(self) or self.is_moderator_of(post.community)):
-            raise OwnershipError('You cannot delete this post.')
+            raise OwnershipError('You are not the owner of this post.')
         
         db.session.delete(post)
         db.session.commit()
@@ -386,7 +386,7 @@ class User(db.Model):
                 vote.direction = 1
                 db.session.commit()
             else:
-                raise VoteError('You have already upvoted this post.')
+                raise VoteError('Post already upvoted.')
         else:
             new_vote = PostVote(user=self, post=post, direction=1)
             new_vote.create()
@@ -406,7 +406,7 @@ class User(db.Model):
                 vote.direction = -1
                 db.session.commit()
             else:
-                raise VoteError('You have already downvoted this post.')
+                raise VoteError('Post already downvoted.')
         else:
             new_vote = PostVote(user=self, post=post, direction=-1)
             new_vote.create()
@@ -464,7 +464,7 @@ class User(db.Model):
 
     def delete_comment(self, comment):
         if not (comment.belongs_to(self) or self.is_moderator_of(comment.post.community)):
-            raise OwnershipError('You cannot delete this comment.')
+            raise OwnershipError('You are not the owner of this comment.')
         
         db.session.delete(comment)
         db.session.commit()
@@ -485,10 +485,10 @@ class User(db.Model):
         community = comment.post.community
 
         if self.is_banned_from(community):
-            raise BanError('You are banned from this community')
+            raise BanError('You are banned from this community.')
 
         if not self.is_subscribed_to(community):
-            raise SubscriptionError('You are not subscribed to this community')
+            raise SubscriptionError('You are not subscribed to this community.')
 
         vote = CommentVote.get_by_user_and_comment(user=self, comment=comment)
 
@@ -497,7 +497,7 @@ class User(db.Model):
                 vote.direction = 1
                 db.session.commit()
             else:
-                raise VoteError('You have already upvoted this post.')
+                raise VoteError('Comment already upvoted.')
         else:
             new_vote = CommentVote(user=self, comment=comment, direction=1)
             new_vote.create()
@@ -518,10 +518,26 @@ class User(db.Model):
                 vote.direction = -1
                 db.session.commit()
             else:
-                raise VoteError('You have already upvoted this post.')
+                raise VoteError('You have already downvoted this post.')
         else:
             new_vote = CommentVote(user=self, comment=comment, direction=-1)
             new_vote.create()
+
+    def cancel_comment_vote(self, comment):
+        community = comment.post.community
+
+        if self.is_banned_from(community):
+            raise BanError('You are banned from this community.')
+
+        if not self.is_subscribed_to(community):
+            raise SubscriptionError('You are not subscribed to this community.')
+
+        vote = CommentVote.get_by_user_and_comment(user=self, comment=comment)
+
+        if vote:
+            vote.delete()
+        else:
+            raise VoteError('You have not voted on this comment.')
 
 
 @db.event.listens_for(User.followed, 'append')

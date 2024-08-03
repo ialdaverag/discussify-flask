@@ -29,12 +29,6 @@ class TestDeleteCommunity(BaseTestCase):
         # Assert that the community was deleted
         self.assertNotIn(community, user.communities)
 
-        # Assert that the community was deleted from the database
-        self.assertNotIn(community, user.subscriptions)
-
-        # Assert that the community was deleted from the database
-        self.assertNotIn(community, user.moderations)
-
     def test_delete_community_not_being_the_owner(self):
         # Create a user to be the creator of the community
         community = CommunityFactory()

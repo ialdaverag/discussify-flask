@@ -25,10 +25,10 @@ class CommentSchema(Schema):
         required=True,
         validate=validate.Length(
             min=1, 
-            error='content must contain at least 1 character'
+            error='Content must contain at least 1 character.'
         )
     )
-    post_id = fields.Integer(required=True, load_only=True)
+    post_id = fields.Integer(required=True, load_only=True)  # Cambiar a required=False
     comment_id = fields.Integer(load_only=True)
     owner = fields.Nested(UserSchema, dump_only=True)
     post = fields.Nested(PostSchema, dump_only=True)
@@ -42,4 +42,5 @@ class CommentSchema(Schema):
 
 
 comment_schema = CommentSchema()
+comment_update_schema = CommentSchema(only=('content',))
 comments_schema = CommentSchema(many=True)

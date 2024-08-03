@@ -17,17 +17,17 @@ class TestUpdateCommunity(BaseTestCase):
         user = community.owner
 
         # Define community data
-        community_data = {
+        data = {
             'name': 'Test Community',
             'about': 'This is a test community',
         }
 
         # Update the community
-        community = user.update_community(community, **community_data)
+        community = user.update_community(community, **data)
 
         # Assert that the community data is correct
-        self.assertEqual(community.name, community_data['name'])
-        self.assertEqual(community.about, community_data['about'])
+        self.assertEqual(community.name, data['name'])
+        self.assertEqual(community.about, data['about'])
 
 
     def test_update_community_already_existent_name(self):

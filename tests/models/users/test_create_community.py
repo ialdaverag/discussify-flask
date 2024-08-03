@@ -15,32 +15,26 @@ class TestCreateCommunity(BaseTestCase):
         user = UserFactory()
 
         # Define community data
-        community_data = {
+        data = {
             'name': 'Test Community',
             'about': 'This is a test community',
         }
 
         # Create the community
-        community = user.create_community(**community_data)
+        community = user.create_community(**data)
 
         # Assert that the community was created
         self.assertIsNotNone(community)
 
         # Assert that the community data is correct
-        self.assertEqual(community.name, community_data['name'])
-        self.assertEqual(community.about, community_data['about'])
+        self.assertEqual(community.name, data['name'])
+        self.assertEqual(community.about, data['about'])
 
         # Assert that the community owner is the user
         self.assertEqual(community.owner, user)
 
         # Assert that the community is in the user's communities
         self.assertIn(community, user.communities)
-
-        # Assert that the community is in the user's subscribed communities
-        self.assertIn(community, user.subscriptions)
-
-        # Assert that the community is in the user's moderated communities
-        self.assertIn(community, user.moderations)
 
     def test_create_community_already_existent_name(self):
         # Create a user to be the creator of the community

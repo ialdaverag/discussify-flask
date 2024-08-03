@@ -22,7 +22,7 @@ class TestGetById(BaseTestCase):
         # Assert that the community is the one we are looking for
         self.assertEqual(community.id, community_to_find.id)
 
-    def test_get_by_id__not_found(self):
+    def test_get_by_id__nonexistent(self):
         # Attempt to get a community that does not exist
         with self.assertRaises(NotFoundError):
             Community.get_by_id(1)

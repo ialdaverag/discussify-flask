@@ -18,11 +18,9 @@ class CommentVote(db.Model):
     direction = db.Column(db.Integer, nullable=False)
 
     # User
-    #user = db.relationship('User', backref='comment_votes')
     user = db.relationship('User', back_populates='comment_votes')
 
     # Comment
-    #comment = db.relationship('Comment', backref='comment_votes')
     comment = db.relationship('Comment', back_populates='comment_votes')
 
 
@@ -94,7 +92,7 @@ class Comment(db.Model):
         comment = db.session.get(Comment, id)
 
         if comment is None:
-            raise NotFoundError('Comment not found')
+            raise NotFoundError('Comment not found.')
         
         return comment
     

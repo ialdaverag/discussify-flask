@@ -24,3 +24,12 @@ class CommentFactory(BaseFactory):
 
     # Relationship with Post
     post = factory.SubFactory(PostFactory)
+
+    @factory.post_generation
+    def set_stats(obj, create, extracted, **kwargs):
+        if not create:
+            return
+        
+        obj.stats.bookmarks_count = 0
+        obj.stats.upvotes_count = 0
+        obj.stats.downvotes_count = 0

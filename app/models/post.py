@@ -19,12 +19,9 @@ class PostVote(db.Model):
     direction = db.Column(db.Integer, nullable=False)
 
     # User
-    #user = db.relationship('User', backref='votes')
     user = db.relationship('User', back_populates='post_votes')
 
     # Post
-    #post = db.relationship('Post', backref='votes')
-    #post = db.relationship('Post', back_populates='post_votes')
     post = db.relationship('Post', back_populates='post_votes')
 
     @classmethod
@@ -96,7 +93,7 @@ class Post(db.Model):
         post = db.session.get(Post, id)
 
         if post is None:
-            raise NotFoundError('Post not found')
+            raise NotFoundError('Post not found.')
         
         return post
     
@@ -137,7 +134,6 @@ class Post(db.Model):
 
         return vote.is_downvote() if vote else False
     
-    
     def append_bookmarker(self, user):
         self.bookmarkers.append(user)
 
@@ -147,7 +143,6 @@ class Post(db.Model):
         self.bookmarkers.remove(user)
 
         db.session.commit()
-    
     
     def read_root_comments(self):
         root_comments = Comment.query.filter_by(post_id=self.id, comment_id=None).all()
