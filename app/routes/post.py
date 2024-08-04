@@ -2,6 +2,8 @@ from http import HTTPStatus
 
 from flask import Blueprint
 from flask import request
+
+
 from flask_jwt_extended import jwt_required
 from flask_jwt_extended import get_jwt_identity
 
@@ -22,7 +24,7 @@ from app.models.post import PostVote
 post_routes = Blueprint('post_routes', __name__)
 
 
-@post_routes.route('/', methods=['POST'])
+@post_routes.post('/')
 @jwt_required()
 def create_post():
     json_data = request.get_json()
@@ -46,7 +48,7 @@ def create_post():
     return post_schema.dump(post), HTTPStatus.CREATED
 
 
-@post_routes.route('/<int:id>', methods=['GET'])
+@post_routes.get('/<int:id>')
 @jwt_required(optional=True)
 def read_post(id):
     post = Post.get_by_id(id)
@@ -57,7 +59,7 @@ def read_post(id):
     return post_schema.dump(post), HTTPStatus.OK
 
 
-@post_routes.route('/', methods=['GET'])
+@post_routes.get('/')
 @jwt_required(optional=True)
 def read_posts():
     posts = Post.query.all()
@@ -65,7 +67,7 @@ def read_posts():
     return posts_schema.dump(posts), HTTPStatus.OK
 
 
-@post_routes.route('/<int:id>', methods=['PATCH'])
+@post_routes.patch('/<int:id>')
 @jwt_required()
 def update_post(id):
     post = Post.get_by_id(id)
@@ -88,7 +90,7 @@ def update_post(id):
     return post_schema.dump(post), HTTPStatus.OK
 
 
-@post_routes.route('/<int:id>', methods=['DELETE'])
+@post_routes.delete('/<int:id>')
 @jwt_required()
 def delete_post(id):
     post = Post.get_by_id(id)
@@ -101,7 +103,7 @@ def delete_post(id):
     return {}, HTTPStatus.NO_CONTENT
 
 
-@post_routes.route('/<int:id>/bookmark', methods=['POST'])
+@post_routes.post('/<int:id>/bookmark')
 @jwt_required()
 def bookmark(id):
     post = Post.get_by_id(id)
@@ -114,7 +116,7 @@ def bookmark(id):
     return {}, HTTPStatus.NO_CONTENT
 
 
-@post_routes.route('/<int:id>/unbookmark', methods=['POST'])
+@post_routes.post('/<int:id>/unbookmark')
 @jwt_required()
 def unbookmark(id):
     post = Post.get_by_id(id)
@@ -127,7 +129,7 @@ def unbookmark(id):
     return {}, HTTPStatus.NO_CONTENT
 
 
-@post_routes.route('/<int:id>/vote/up', methods=['POST'])
+@post_routes.post('/<int:id>/vote/up')
 @jwt_required()
 def upvote(id):
     post = Post.get_by_id(id)
@@ -140,7 +142,7 @@ def upvote(id):
     return {}, HTTPStatus.NO_CONTENT
 
 
-@post_routes.route('/<int:id>/upvoters', methods=['GET'])
+@post_routes.get('/<int:id>/upvoters')
 @jwt_required(optional=True)
 def read_upvoters(id):
     post = Post.get_by_id(id)
@@ -152,7 +154,7 @@ def read_upvoters(id):
     return users_schema.dump(upvoters), HTTPStatus.OK
 
 
-@post_routes.route('/<int:id>/vote/down', methods=['POST'])
+@post_routes.post('/<int:id>/vote/down')
 @jwt_required()
 def downvote(id):
     post = Post.get_by_id(id)
@@ -165,7 +167,7 @@ def downvote(id):
     return {}, HTTPStatus.NO_CONTENT
 
 
-@post_routes.route('/<int:id>/downvoters', methods=['GET'])
+@post_routes.get('/<int:id>/downvoters')
 @jwt_required(optional=True)
 def read_downvoters(id):
     post = Post.get_by_id(id)
@@ -177,7 +179,7 @@ def read_downvoters(id):
     return users_schema.dump(downvoters), HTTPStatus.OK
 
 
-@post_routes.route('/<int:id>/vote/cancel', methods=['POST'])
+@post_routes.post('/<int:id>/vote/cancel')
 @jwt_required()
 def cancel(id):
     post = Post.get_by_id(id)
@@ -190,7 +192,7 @@ def cancel(id):
     return {}, HTTPStatus.NO_CONTENT
 
 
-@post_routes.route('/<int:id>/comments', methods=['GET'])
+@post_routes.get('/<int:id>/comments')
 @jwt_required(optional=True)
 def read_post_comments(id):
     post = Post.get_by_id(id)

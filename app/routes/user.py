@@ -1,18 +1,29 @@
+# HTTP
 from http import HTTPStatus
 
+# Flask
 from flask import Blueprint
-from flask_jwt_extended import jwt_required
-from flask_jwt_extended import get_jwt_identity
 
-from app.extensions.database import db
+# Flask JWT Extended
+from flask_jwt_extended import (
+    jwt_required, 
+    get_jwt_identity
+)
 
+
+# Models
 from app.models.user import User
 from app.models.post import PostVote
 from app.models.comment import CommentVote
 
-from app.schemas.user import user_schema
-from app.schemas.user import users_schema
-from app.schemas.user import me_schema
+# Schemas
+from app.schemas.user import (
+    user_schema, 
+    users_schema, 
+    me_schema
+)
+
+# Schemas
 from app.schemas.community import communities_schema
 from app.schemas.post import posts_schema
 from app.schemas.comment import comments_schema

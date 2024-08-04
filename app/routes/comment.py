@@ -23,7 +23,7 @@ from app.extensions.database import db
 comment_routes = Blueprint('comment_routes', __name__)
 
 
-@comment_routes.route('/', methods=['POST'])
+@comment_routes.post('/')
 @jwt_required()
 def create_comment():
     json_data = request.get_json()
@@ -53,7 +53,7 @@ def create_comment():
     return comment_schema.dump(new_comment), HTTPStatus.CREATED
 
 
-@comment_routes.route('/<string:id>', methods=['GET'])
+@comment_routes.get('/<string:id>')
 @jwt_required(optional=True)
 def read_comment(id):
     comment = Comment.get_by_id(id)
@@ -61,7 +61,7 @@ def read_comment(id):
     return comment_schema.dump(comment), HTTPStatus.OK
 
 
-@comment_routes.route('/', methods=['GET'])
+@comment_routes.get('/')
 @jwt_required(optional=True)
 def read_comments():
     comments = Comment.get_all()
@@ -69,7 +69,7 @@ def read_comments():
     return comments_schema.dump(comments), HTTPStatus.OK
 
 
-@comment_routes.route('/<string:id>', methods=['PATCH'])
+@comment_routes.patch('/<string:id>')
 @jwt_required()
 def update_comment(id):
     comment = Comment.get_by_id(id)
@@ -91,7 +91,7 @@ def update_comment(id):
     return comment_schema.dump(comment), HTTPStatus.OK
 
 
-@comment_routes.route('/<string:id>', methods=['DELETE'])
+@comment_routes.delete('/<string:id>')
 @jwt_required()
 def delete_comment(id):
     comment = Comment.get_by_id(id)
@@ -104,7 +104,7 @@ def delete_comment(id):
     return {}, HTTPStatus.NO_CONTENT
     
 
-@comment_routes.route('/<int:id>/bookmark', methods=['POST'])
+@comment_routes.post('/<int:id>/bookmark')
 @jwt_required()
 def bookmark_comment(id):
     comment = Comment.get_by_id(id)
@@ -117,7 +117,7 @@ def bookmark_comment(id):
     return {}, HTTPStatus.NO_CONTENT
 
 
-@comment_routes.route('/<int:id>/unbookmark', methods=['POST'])
+@comment_routes.post('/<int:id>/unbookmark')
 @jwt_required()
 def unbookmark_comment(id):
     comment = Comment.get_by_id(id)
@@ -130,7 +130,7 @@ def unbookmark_comment(id):
     return {}, HTTPStatus.NO_CONTENT
 
 
-@comment_routes.route('/<int:id>/vote/up', methods=['POST'])
+@comment_routes.post('/<int:id>/vote/up')
 @jwt_required()
 def upvote_comment(id):
     comment = Comment.get_by_id(id)
@@ -143,19 +143,7 @@ def upvote_comment(id):
     return {}, HTTPStatus.NO_CONTENT
 
 
-@comment_routes.route('/<int:id>/upvoters', methods=['GET'])
-@jwt_required(optional=True)
-def read_comment_upvoters(id):
-    comment = Comment.get_by_id(id)
-    
-    upvotes = CommentVote.query.filter_by(comment_id=comment.id, direction=1).all()
-
-    upvoters = [vote.user for vote in upvotes]
-
-    return users_schema.dump(upvoters), HTTPStatus.OK
-
-
-@comment_routes.route('/<int:id>/vote/down', methods=['POST'])
+@comment_routes.post('/<int:id>/vote/down')
 @jwt_required()
 def downvote_comment(id):
     comment = Comment.get_by_id(id)
@@ -168,7 +156,19 @@ def downvote_comment(id):
     return {}, HTTPStatus.NO_CONTENT
 
 
-@comment_routes.route('/<int:id>/downvoters', methods=['GET'])
+@comment_routes.get('/<int:id>/upvoters')
+@jwt_required(optional=True)
+def read_comment_upvoters(id):
+    comment = Comment.get_by_id(id)
+    
+    upvotes = CommentVote.query.filter_by(comment_id=comment.id, direction=1).all()
+
+    upvoters = [vote.user for vote in upvotes]
+
+    return users_schema.dump(upvoters), HTTPStatus.OK
+
+
+@comment_routes.get('/<int:id>/downvoters')
 @jwt_required(optional=True)
 def read_comment_downvoters(id):
     comment = Comment.get_by_id(id)
@@ -180,9 +180,9 @@ def read_comment_downvoters(id):
     return users_schema.dump(downvoters), HTTPStatus.OK
 
 
-@comment_routes.route('/<int:id>/vote/cancel', methods=['POST'])
+@comment_routes.post('/<int:id>/vote/cancel')
 @jwt_required()
-def cancel_comment_vote(id):
+def cancel_vote_on_comment(id):
     comment = Comment.get_by_id(id)
     
     current_user_id = get_jwt_identity()

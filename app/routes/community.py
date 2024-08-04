@@ -20,7 +20,7 @@ from app.schemas.post import posts_schema
 community_routes = Blueprint('community_routes', __name__)
 
 
-@community_routes.route('/', methods=['POST'])
+@community_routes.post('/')
 @jwt_required()
 def create_community():
     json_data = request.get_json()
@@ -38,7 +38,7 @@ def create_community():
     return community_schema.dump(community), HTTPStatus.CREATED
 
 
-@community_routes.route('/<string:name>', methods=['GET'])
+@community_routes.get('/<string:name>')
 @jwt_required(optional=True)
 def read_community(name):
     community = Community.get_by_name(name)
@@ -46,7 +46,7 @@ def read_community(name):
     return community_schema.dump(community), HTTPStatus.OK
 
 
-@community_routes.route('/', methods=['GET'])
+@community_routes.get('/')
 @jwt_required(optional=True)
 def read_communities():
     communities = Community.get_all()
@@ -54,7 +54,7 @@ def read_communities():
     return communities_schema.dump(communities), HTTPStatus.OK
 
 
-@community_routes.route('/<string:name>', methods=['PATCH'])
+@community_routes.patch('/<string:name>')
 @jwt_required()
 def update_community(name):
     community = Community.get_by_name(name=name)
@@ -77,7 +77,7 @@ def update_community(name):
     return community_schema.dump(community), HTTPStatus.OK
 
 
-@community_routes.route('/<string:name>', methods=['DELETE'])
+@community_routes.delete('/<string:name>')
 @jwt_required()
 def delete_community(name):
     community = Community.get_by_name(name=name)
@@ -90,7 +90,7 @@ def delete_community(name):
     return {}, HTTPStatus.NO_CONTENT
 
 
-@community_routes.route('/<string:name>/subscribe', methods=['POST'])
+@community_routes.post('/<string:name>/subscribe')
 @jwt_required()
 def subscribe(name):
     community = Community.get_by_name(name)
@@ -103,7 +103,7 @@ def subscribe(name):
     return {}, HTTPStatus.NO_CONTENT
 
 
-@community_routes.route('/<string:name>/subscribers', methods=['GET'])
+@community_routes.get('/<string:name>/subscribers')
 @jwt_required(optional=True)
 def read_subscribers(name):
     community = Community.get_by_name(name)
@@ -113,7 +113,7 @@ def read_subscribers(name):
     return users_schema.dump(only_subscribers), HTTPStatus.OK
 
 
-@community_routes.route('/<string:name>/unsubscribe', methods=['POST'])
+@community_routes.post('/<string:name>/unsubscribe')
 @jwt_required()
 def unsubscribe(name):
     community = Community.get_by_name(name)
@@ -126,7 +126,7 @@ def unsubscribe(name):
     return {}, HTTPStatus.NO_CONTENT
 
 
-@community_routes.route('/<string:name>/mod/<string:username>', methods=['POST'])
+@community_routes.post('/<string:name>/mod/<string:username>')
 @jwt_required()
 def mod(name, username):
     community = Community.get_by_name(name)
@@ -141,7 +141,7 @@ def mod(name, username):
     return {}, HTTPStatus.NO_CONTENT
 
 
-@community_routes.route('/<string:name>/moderators', methods=['GET'])
+@community_routes.get('/<string:name>/moderators')
 @jwt_required(optional=True)
 def read_moderators(name):
     community = Community.get_by_name(name)
@@ -149,7 +149,7 @@ def read_moderators(name):
     return users_schema.dump(community.moderators), HTTPStatus.OK
 
 
-@community_routes.route('/<string:name>/unmod/<string:username>', methods=['POST'])
+@community_routes.post('/<string:name>/unmod/<string:username>')
 @jwt_required()
 def unmod(name, username):
     community = Community.get_by_name(name)
@@ -164,7 +164,7 @@ def unmod(name, username):
     return {}, HTTPStatus.NO_CONTENT
 
 
-@community_routes.route('/<string:name>/ban/<string:username>', methods=['POST'])
+@community_routes.post('/<string:name>/ban/<string:username>')
 @jwt_required()
 def ban(name, username):
     community = Community.get_by_name(name)
@@ -179,7 +179,7 @@ def ban(name, username):
     return {}, HTTPStatus.NO_CONTENT
 
 
-@community_routes.route('/<string:name>/banned', methods=['GET'])
+@community_routes.get('/<string:name>/banned')
 @jwt_required(optional=True)
 def read_banned(name):
     community = Community.get_by_name(name)
@@ -187,7 +187,7 @@ def read_banned(name):
     return users_schema.dump(community.banned), HTTPStatus.OK
 
 
-@community_routes.route('/<string:name>/unban/<string:username>', methods=['POST'])
+@community_routes.post('/<string:name>/unban/<string:username>')
 @jwt_required()
 def unban(name, username):
     community = Community.get_by_name(name)
@@ -202,7 +202,7 @@ def unban(name, username):
     return {}, HTTPStatus.NO_CONTENT
 
 
-@community_routes.route('/<string:name>/transfer/<string:username>', methods=['POST'])
+@community_routes.post('/<string:name>/transfer/<string:username>')
 @jwt_required()
 def transfer(name, username):
     community = Community.get_by_name(name=name)
@@ -217,7 +217,7 @@ def transfer(name, username):
     return {}, HTTPStatus.NO_CONTENT
 
 
-@community_routes.route('/<string:name>/posts', methods=['GET'])
+@community_routes.get('/<string:name>/posts')
 @jwt_required(optional=True)
 def read_community_posts(name):
     community = Community.get_by_name(name)

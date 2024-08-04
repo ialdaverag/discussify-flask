@@ -6,29 +6,29 @@ from tests.factories.user_factory import UserFactory
 
 
 class SignUpTests(BaseTestCase):
-    route = 'auth/signup'
+    route = '/auth/signup'
 
     def test_sign_up_successfully(self) -> None:
-        content_type='application/json'
+        # Data to be sent
         json = {
             'username': 'user',
             'email': 'user@email.com',
             'password': 'Password1234.' 
         }
 
+        # Sign Up
         response = self.client.post(
             self.route,
-            content_type=content_type,
             json=json,
         )
 
-        # assert response status code
+        # Assert the response status code
         self.assertEqual(response.status_code, 201)
 
-        # assert response data
+        # Get the response data
         data = response.json
 
-        # assert user data structure
+        # Assert the user data structure
         self.assertIn('id', data)
         self.assertIn('email', data)
         self.assertIn('username', data)
@@ -38,11 +38,11 @@ class SignUpTests(BaseTestCase):
         self.assertIn('created_at', data)
         self.assertIn('updated_at', data)
 
-        # assert user data values
+        # Assert the user data values
         self.assertEqual(data['email'], 'user@email.com')
         self.assertEqual(data['username'], 'user')
 
-        # assert stats data structure
+        # Assert the stats data structure
         stats_data = data['stats']
         self.assertIn('id', stats_data)
         self.assertIn('following_count', stats_data)
@@ -53,7 +53,7 @@ class SignUpTests(BaseTestCase):
         self.assertIn('subscriptions_count', stats_data)
         self.assertIn('moderations_count', stats_data)
 
-        # assert stats data values
+        # Assert the stats data values
         self.assertEqual(stats_data['following_count'], 0)
         self.assertEqual(stats_data['followers_count'], 0)
         self.assertEqual(stats_data['communities_count'], 0)
@@ -63,22 +63,22 @@ class SignUpTests(BaseTestCase):
         self.assertEqual(stats_data['moderations_count'], 0)
 
     def test_sign_up_fails_without_username(self) -> None:
-        content_type='application/json'
+        # Data to be sent
         json = {
             'email': 'user@email.com',
             'password': 'Password1234.',
         }
 
+        # Sign Up
         response = self.client.post(
             self.route,
-            content_type=content_type,
             json=json,
         )
 
-        # assert response status code
+        # Assert the response status code
         self.assertEqual(response.status_code, 400)
 
-        # assert response data
+        # Assert the response data
         data = response.json
 
         self.assertIn('errors', data)

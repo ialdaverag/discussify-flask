@@ -1,34 +1,37 @@
+# HTTP
 from http import HTTPStatus
 
-from werkzeug.http import dump_cookie
-
+# Flask
 from flask import Blueprint
 from flask import request
-from flask import render_template
-from flask import url_for
 from flask import make_response
 from flask import jsonify
-from flask import current_app
+
+# Flask JWT Extended
 from flask_jwt_extended import create_access_token
 from flask_jwt_extended import create_refresh_token
 from flask_jwt_extended import jwt_required
 from flask_jwt_extended import get_jwt_identity
 from flask_jwt_extended import get_jwt
-from flask_jwt_extended import current_user
+from flask_jwt_extended import set_refresh_cookies
+from flask_jwt_extended import unset_jwt_cookies
 
+# Marshmallow
 from marshmallow import ValidationError
 
+# Extensions
 from app.extensions.database import db
 
+# Schemas
 from app.schemas.user import user_schema
 from app.schemas.user import login_schema
 
+# Models
 from app.models.user import User
 
+# Utils
 from app.utils.password import hash_password
 from app.utils.password import check_password
-from app.utils.email import send_email
-from app.utils.token import generate_verification_token
 from app.utils.token import confirm_verification_token
 
 auth_routes = Blueprint('auth_routes', __name__)
@@ -36,7 +39,7 @@ auth_routes = Blueprint('auth_routes', __name__)
 black_list = set()
 
 
-@auth_routes.route('/signup', methods=['POST'])
+@auth_routes.post('/signup')
 def sign_up():
     json_data = request.get_json()
 
@@ -63,10 +66,8 @@ def sign_up():
     return user_schema.dump(user), HTTPStatus.CREATED
 
 
-from flask_jwt_extended import create_access_token, create_refresh_token, set_refresh_cookies
-
-@auth_routes.route('/login', methods=['POST'])
-def login():
+@auth_routes.post('/login')
+def log_in():
     json_data = request.get_json()
 
     try:
@@ -92,11 +93,9 @@ def login():
     return response
 
 
-from flask_jwt_extended import unset_jwt_cookies
-
-@auth_routes.route('/logout', methods=['POST'])
+@auth_routes.post('/logout')
 @jwt_required()
-def logout():
+def log_out():
     jti = get_jwt()["jti"]
     black_list.add(jti)
 
@@ -108,7 +107,7 @@ def logout():
     return response
 
 
-@auth_routes.route('/refresh', methods=['POST'])
+@auth_routes.post('/refresh')
 @jwt_required(refresh=True, locations=['cookies'])
 def get_new_access_token():
     current_user = get_jwt_identity()
@@ -118,7 +117,7 @@ def get_new_access_token():
     return {'access_token': token}, HTTPStatus.OK
 
 
-@auth_routes.route('/email/confirm/<string:token>', methods=['GET'])
+@auth_routes.get('/email/confirm/<string:token>')
 def confirm_email(token):
     email = confirm_verification_token(token, salt="activate")
 

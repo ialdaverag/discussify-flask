@@ -12,30 +12,30 @@ from tests.factories.user_factory import UserFactory
 
 
 class TestLogOut(BaseTestCase):
-    route = 'auth/logout'
+    route = '/auth/logout'
 
-    def test_log_out_successfully(self):
+    def test_log_out(self):
         # Create a user
         user = UserFactory(password=hash_password('Password1234.'))
 
-        # Log in the user
+        # Get the access token
         access_token = create_access_token(identity=user.id)
 
-        # Log out the user
+        # Log out
         response = self.client.post(
             self.route,
             headers={'Authorization': f'Bearer {access_token}'},
         )
 
-        # assert response status code
+        # Assert the response status code
         self.assertEqual(response.status_code, 200)
 
-        # assert response data
+        # Assert the response data
         data = response.json
 
-        # assert response message
+        # Assert the response message
         self.assertIn('message', data)
 
-        # assert response message content
+        # Assert the response message content
         self.assertEqual(data['message'], 'Successfully logged out.')
     
