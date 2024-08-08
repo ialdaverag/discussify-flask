@@ -6,7 +6,7 @@ class Config:
     DEBUG = False
     SECRET_KEY = os.environ.get('SECRET_KEY')
 
-    JWT_ACCESS_TOKEN_EXPIRES = datetime.timedelta(minutes=1)
+    JWT_ACCESS_TOKEN_EXPIRES = datetime.timedelta(days=1)
     JWT_REFRESH_TOKEN_EXPIRES = datetime.timedelta(days=30)
     JWT_REFRESH_COOKIE_NAME = 'refresh_token'
 

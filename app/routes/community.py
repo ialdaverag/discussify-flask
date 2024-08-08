@@ -4,6 +4,7 @@ from flask import Blueprint
 from flask import request
 from flask_jwt_extended import jwt_required
 from flask_jwt_extended import get_jwt_identity
+from flask_jwt_extended import current_user
 
 from marshmallow import ValidationError
 
@@ -29,9 +30,6 @@ def create_community():
         data = community_schema.load(json_data)
     except ValidationError as err:
         return {'errors': err.messages}, HTTPStatus.BAD_REQUEST
-    
-    current_user_id = get_jwt_identity()
-    current_user = User.get_by_id(current_user_id)
 
     community = current_user.create_community(**data)
 
@@ -58,9 +56,6 @@ def read_communities():
 @jwt_required()
 def update_community(name):
     community = Community.get_by_name(name=name)
-    
-    current_user_id = get_jwt_identity()
-    current_user = User.get_by_id(current_user_id)
 
     json_data = request.get_json()
 
@@ -82,9 +77,6 @@ def update_community(name):
 def delete_community(name):
     community = Community.get_by_name(name=name)
 
-    current_user_id = get_jwt_identity()
-    current_user = User.get_by_id(current_user_id)
-
     current_user.delete_community(community)
 
     return {}, HTTPStatus.NO_CONTENT
@@ -94,9 +86,6 @@ def delete_community(name):
 @jwt_required()
 def subscribe(name):
     community = Community.get_by_name(name)
-    
-    current_user_id = get_jwt_identity()
-    current_user = User.get_by_id(current_user_id)
 
     current_user.subscribe_to(community)
 
@@ -118,9 +107,6 @@ def read_subscribers(name):
 def unsubscribe(name):
     community = Community.get_by_name(name)
 
-    current_user_id = get_jwt_identity()
-    current_user = User.get_by_id(current_user_id)
-
     current_user.unsubscribe_to(community)
 
     return {}, HTTPStatus.NO_CONTENT
@@ -130,9 +116,6 @@ def unsubscribe(name):
 @jwt_required()
 def mod(name, username):
     community = Community.get_by_name(name)
-
-    current_user_id = get_jwt_identity()
-    current_user = User.get_by_id(current_user_id)
     
     user = User.get_by_username(username)
     
@@ -153,9 +136,6 @@ def read_moderators(name):
 @jwt_required()
 def unmod(name, username):
     community = Community.get_by_name(name)
-    
-    current_user_id = get_jwt_identity()
-    current_user = User.get_by_id(current_user_id)
 
     user = User.get_by_username(username)
 
@@ -168,9 +148,6 @@ def unmod(name, username):
 @jwt_required()
 def ban(name, username):
     community = Community.get_by_name(name)
-    
-    current_user_id = get_jwt_identity()
-    current_user = User.get_by_id(current_user_id)
     
     user = User.get_by_username(username)
     
@@ -192,9 +169,6 @@ def read_banned(name):
 def unban(name, username):
     community = Community.get_by_name(name)
     
-    current_user_id = get_jwt_identity()
-    current_user = User.get_by_id(current_user_id)
-    
     user = User.get_by_username(username)
     
     current_user.unban_from(user, community)
@@ -206,9 +180,6 @@ def unban(name, username):
 @jwt_required()
 def transfer(name, username):
     community = Community.get_by_name(name=name)
-    
-    current_user_id = get_jwt_identity()
-    current_user = User.get_by_id(current_user_id)
     
     user = User.get_by_username(username=username)
     

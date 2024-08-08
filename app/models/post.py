@@ -122,7 +122,7 @@ class Post(db.Model):
         return self.owner is user
     
     def is_bookmarked_by(self, user):
-        return user in self.bookmarkers
+        return self in user.bookmarks
     
     def is_upvoted_by(self, user):
         vote = PostVote.get_by_user_and_post(user, self)

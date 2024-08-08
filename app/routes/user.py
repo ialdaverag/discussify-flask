@@ -7,7 +7,8 @@ from flask import Blueprint
 # Flask JWT Extended
 from flask_jwt_extended import (
     jwt_required, 
-    get_jwt_identity
+    get_jwt_identity,
+    current_user
 )
 
 
@@ -51,9 +52,6 @@ def read_users():
 @jwt_required()
 def follow_user(username):
     user_to_follow = User.get_by_username(username=username)
-    
-    current_user_id = get_jwt_identity()
-    current_user = User.get_by_id(current_user_id)
 
     current_user.follow(user_to_follow)
     
@@ -64,9 +62,6 @@ def follow_user(username):
 @jwt_required()
 def unfollow_user(username):
     user_to_unfollow = User.get_by_username(username=username)
-
-    current_user_id = get_jwt_identity()
-    current_user = User.get_by_id(current_user_id)
     
     current_user.unfollow(user_to_unfollow)
     
@@ -116,27 +111,18 @@ def read_user_comments(username):
 @user_routes.get('/me')
 @jwt_required()
 def me():
-    current_user_id = get_jwt_identity()
-    current_user = User.get_by_id(current_user_id)
-
     return me_schema.dump(current_user)
 
 
 @user_routes.get('/posts/bookmarked')
 @jwt_required()
 def read_user_bookmarks():
-    current_user_id = get_jwt_identity()
-    current_user = User.get_by_id(current_user_id)
-
     return posts_schema.dump(current_user.bookmarks)
 
 
 @user_routes.get('/posts/upvoted')
 @jwt_required()
 def read_user_upvoted_posts():
-    current_user_id = get_jwt_identity()
-    current_user = User.get_by_id(current_user_id)
-
     upvotes = PostVote.query.filter_by(user_id=current_user.id, direction=1).all()
 
     posts = [upvote.post for upvote in upvotes]
@@ -147,9 +133,6 @@ def read_user_upvoted_posts():
 @user_routes.get('/posts/downvoted')
 @jwt_required()
 def read_user_downvoted_posts():
-    current_user_id = get_jwt_identity()
-    current_user = User.get_by_id(current_user_id)
-
     downvotes = PostVote.query.filter_by(user_id=current_user.id, direction=-1).all()
 
     posts = [downvote.post for downvote in downvotes]
@@ -160,9 +143,6 @@ def read_user_downvoted_posts():
 @user_routes.get('/comments/upvoted')
 @jwt_required()
 def read_user_upvoted_comments():
-    current_user_id = get_jwt_identity()
-    current_user = User.get_by_id(current_user_id)
-
     upvotes = CommentVote.query.filter_by(user_id=current_user.id, direction=1).all()
 
     comments = [upvote.comment for upvote in upvotes]
@@ -173,9 +153,6 @@ def read_user_upvoted_comments():
 @user_routes.get('/comments/downvoted')
 @jwt_required()
 def read_user_downvoted_comments():
-    current_user_id = get_jwt_identity()
-    current_user = User.get_by_id(current_user_id)
-
     downvotes = CommentVote.query.filter_by(user_id=current_user.id, direction=-1).all()
 
     comments = [downvote.comment for downvote in downvotes]
@@ -186,7 +163,4 @@ def read_user_downvoted_comments():
 @user_routes.get('/comments/bookmarked')
 @jwt_required()
 def read_user_bookmarked_comments():
-    current_user_id = get_jwt_identity()
-    current_user = User.get_by_id(current_user_id)
-
     return comments_schema.dump(current_user.comment_bookmarks)

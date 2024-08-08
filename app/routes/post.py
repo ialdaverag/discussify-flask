@@ -6,6 +6,7 @@ from flask import request
 
 from flask_jwt_extended import jwt_required
 from flask_jwt_extended import get_jwt_identity
+from flask_jwt_extended import current_user
 
 from marshmallow import ValidationError
 
@@ -36,9 +37,6 @@ def create_post():
     
     community_id = data['community_id']
     community = Community.get_by_id(community_id)
-    
-    current_user_id = get_jwt_identity()
-    current_user = User.get_by_id(current_user_id)
 
     title = data.get('title')
     content = data.get('content')
@@ -71,9 +69,6 @@ def read_posts():
 @jwt_required()
 def update_post(id):
     post = Post.get_by_id(id)
-    
-    current_user_id = get_jwt_identity()
-    current_user = User.get_by_id(current_user_id)
 
     json_data = request.get_json()
 
@@ -94,9 +89,6 @@ def update_post(id):
 @jwt_required()
 def delete_post(id):
     post = Post.get_by_id(id)
-    
-    current_user_id = get_jwt_identity()
-    current_user = User.get_by_id(current_user_id)
 
     current_user.delete_post(post)
 
@@ -107,9 +99,6 @@ def delete_post(id):
 @jwt_required()
 def bookmark(id):
     post = Post.get_by_id(id)
-    
-    current_user_id = get_jwt_identity()
-    current_user = User.get_by_id(current_user_id)
 
     current_user.bookmark_post(post)
 
@@ -120,9 +109,6 @@ def bookmark(id):
 @jwt_required()
 def unbookmark(id):
     post = Post.get_by_id(id)
-    
-    current_user_id = get_jwt_identity()
-    current_user = User.get_by_id(current_user_id)
 
     current_user.unbookmark_post(post)
     
@@ -133,9 +119,6 @@ def unbookmark(id):
 @jwt_required()
 def upvote(id):
     post = Post.get_by_id(id)
-    
-    current_user_id = get_jwt_identity()
-    current_user = User.get_by_id(current_user_id)
 
     current_user.upvote_post(post)
 
@@ -158,9 +141,6 @@ def read_upvoters(id):
 @jwt_required()
 def downvote(id):
     post = Post.get_by_id(id)
-    
-    current_user_id = get_jwt_identity()
-    current_user = User.get_by_id(current_user_id)
 
     current_user.downvote_post(post)
 
@@ -183,9 +163,6 @@ def read_downvoters(id):
 @jwt_required()
 def cancel(id):
     post = Post.get_by_id(id)
-    
-    current_user_id = get_jwt_identity()
-    current_user = User.get_by_id(current_user_id)
 
     current_user.cancel_post_vote(post)
 

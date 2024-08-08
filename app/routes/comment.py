@@ -4,6 +4,7 @@ from flask import Blueprint
 from flask import request
 from flask_jwt_extended import jwt_required
 from flask_jwt_extended import get_jwt_identity
+from flask_jwt_extended import current_user
 
 from marshmallow import ValidationError
 
@@ -35,9 +36,6 @@ def create_comment():
 
     post_id = data['post_id']
     post = Post.get_by_id(post_id)
-
-    current_user_id = get_jwt_identity()
-    current_user = User.get_by_id(current_user_id)
 
     comment_id = data.get('comment_id')
 
@@ -73,9 +71,6 @@ def read_comments():
 @jwt_required()
 def update_comment(id):
     comment = Comment.get_by_id(id)
-    
-    current_user_id = get_jwt_identity()
-    current_user = User.get_by_id(current_user_id)
 
     json_data = request.get_json()
 
@@ -95,9 +90,6 @@ def update_comment(id):
 @jwt_required()
 def delete_comment(id):
     comment = Comment.get_by_id(id)
-    
-    current_user_id = get_jwt_identity()
-    current_user = User.get_by_id(current_user_id)
 
     current_user.delete_comment(comment)
 
@@ -109,9 +101,6 @@ def delete_comment(id):
 def bookmark_comment(id):
     comment = Comment.get_by_id(id)
     
-    current_user_id = get_jwt_identity()
-    current_user = User.get_by_id(current_user_id)
-    
     current_user.bookmark_comment(comment)
 
     return {}, HTTPStatus.NO_CONTENT
@@ -121,9 +110,6 @@ def bookmark_comment(id):
 @jwt_required()
 def unbookmark_comment(id):
     comment = Comment.get_by_id(id)
-    
-    current_user_id = get_jwt_identity()
-    current_user = User.get_by_id(current_user_id)
 
     current_user.unbookmark_comment(comment)
 
@@ -135,9 +121,6 @@ def unbookmark_comment(id):
 def upvote_comment(id):
     comment = Comment.get_by_id(id)
 
-    current_user_id = get_jwt_identity()
-    current_user = User.get_by_id(current_user_id)
-
     current_user.upvote_comment(comment)
 
     return {}, HTTPStatus.NO_CONTENT
@@ -147,9 +130,6 @@ def upvote_comment(id):
 @jwt_required()
 def downvote_comment(id):
     comment = Comment.get_by_id(id)
-
-    current_user_id = get_jwt_identity()
-    current_user = User.get_by_id(current_user_id)
 
     current_user.downvote_comment(comment)
 
@@ -184,9 +164,6 @@ def read_comment_downvoters(id):
 @jwt_required()
 def cancel_vote_on_comment(id):
     comment = Comment.get_by_id(id)
-    
-    current_user_id = get_jwt_identity()
-    current_user = User.get_by_id(current_user_id)
 
     current_user.cancel_comment_vote(comment)
 

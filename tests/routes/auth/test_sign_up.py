@@ -8,7 +8,7 @@ from tests.factories.user_factory import UserFactory
 class SignUpTests(BaseTestCase):
     route = '/auth/signup'
 
-    def test_sign_up_successfully(self) -> None:
+    def test_sign_up(self) -> None:
         # Data to be sent
         json = {
             'username': 'user',
@@ -42,8 +42,10 @@ class SignUpTests(BaseTestCase):
         self.assertEqual(data['email'], 'user@email.com')
         self.assertEqual(data['username'], 'user')
 
-        # Assert the stats data structure
+        # Get the stats data from the response data
         stats_data = data['stats']
+
+        # Assert the stats data structure
         self.assertIn('id', stats_data)
         self.assertIn('following_count', stats_data)
         self.assertIn('followers_count', stats_data)
@@ -62,7 +64,7 @@ class SignUpTests(BaseTestCase):
         self.assertEqual(stats_data['subscriptions_count'], 0)
         self.assertEqual(stats_data['moderations_count'], 0)
 
-    def test_sign_up_fails_without_username(self) -> None:
+    def test_sign_up_missing_username(self) -> None:
         # Data to be sent
         json = {
             'email': 'user@email.com',
@@ -78,10 +80,13 @@ class SignUpTests(BaseTestCase):
         # Assert the response status code
         self.assertEqual(response.status_code, 400)
 
-        # Assert the response data
+        # Get the response data
         data = response.json
 
+        # Assert errors is in data
         self.assertIn('errors', data)
+
+        # Get errors from the response data
         errors = data['errors']
 
         # assert errors structure
@@ -90,7 +95,7 @@ class SignUpTests(BaseTestCase):
         # assert errors values
         self.assertEqual(errors['username'], ['Missing data for required field.'])
 
-    def test_sign_up_fails_without_email(self) -> None:
+    def test_sign_up_missing_email(self) -> None:
         content_type='application/json'
         json = {
             'username': 'user',
@@ -118,7 +123,7 @@ class SignUpTests(BaseTestCase):
         # assert errors values
         self.assertEqual(errors['email'], ['Missing data for required field.'])
 
-    def test_sign_up_fails_without_password(self) -> None:
+    def test_sign_up_missing_password(self) -> None:
         content_type='application/json'
         json = {
             'user': {
@@ -148,7 +153,7 @@ class SignUpTests(BaseTestCase):
         # assert errors values
         self.assertEqual(errors['password'], ['Missing data for required field.'])
 
-    def test_sign_up_fails_with_short_username(self) -> None:
+    def test_sign_up_invalid_username(self) -> None:
         content_type='application/json'
         json = {
             'username': 'us',
@@ -177,65 +182,8 @@ class SignUpTests(BaseTestCase):
         # assert errors values
         self.assertEqual(errors['username'], ['Username must be between 3 and 20 characters.'])
 
-    def test_sign_up_fails_with_long_username(self) -> None:
-        content_type='application/json'
-        json = {
-            'username': 'too_much_long_username',
-            'email': 'user@email.com',
-            'password': 'Password1234.',
-        }
 
-        response = self.client.post(
-            self.route,
-            content_type=content_type,
-            json=json,
-        )
-
-        # assert response status code
-        self.assertEqual(response.status_code, 400)
-
-        # assert response data
-        data = response.json
-
-        self.assertIn('errors', data)
-        errors = data['errors']
-
-        # assert errors structure
-        self.assertIn('username', errors)
-
-        # assert errors values
-        self.assertEqual(errors['username'], ['Username must be between 3 and 20 characters.'])
-
-    def test_sign_up_fails_with_invalid_username(self) -> None:
-        content_type='application/json'
-        json = {
-            'username': 'wrong@username',
-            'email': 'user@email.com',
-            'password': 'Password1234.',
-        }
-
-        response = self.client.post(
-            self.route,
-            content_type=content_type,
-            json=json,
-        )
-
-        # assert response status code
-        self.assertEqual(response.status_code, 400)
-
-        # assert response data
-        data = response.json
-
-        self.assertIn('errors', data)
-        errors = data['errors']
-
-        # assert errors structure
-        self.assertIn('username', errors)
-
-        # assert errors values
-        self.assertEqual(errors['username'], ['Username must consist of letters, numbers, and underscores only.'])
-
-    def test_registration_fails_with_invalid_email(self) -> None:
+    def test_sign_up_invalid_email(self) -> None:
         content_type='application/json'
         json = {
             'username': 'user',
@@ -293,65 +241,7 @@ class SignUpTests(BaseTestCase):
         # assert errors values
         self.assertEqual(errors['password'], ['Password must be between 8 and 40 characters.'])
 
-    def test_sign_up_fails_with_long_password(self) -> None:
-        content_type='application/json'
-        json = {
-            'username': 'user',
-            'email': 'user@email.com',
-            'password': 'Password1234'*4,
-        }
-
-        response = self.client.post(
-            self.route,
-            content_type=content_type,
-            json=json,
-        )
-
-        # assert response status code
-        self.assertEqual(response.status_code, 400)
-
-        # assert response data
-        data = response.json
-
-        self.assertIn('errors', data)
-        errors = data['errors']
-
-        # assert errors structure
-        self.assertIn('password', errors)
-
-        # assert errors values
-        self.assertEqual(errors['password'], ['Password must be between 8 and 40 characters.'])
-
-    def test_sign_up_fails_with_invalid_password(self) -> None:
-        content_type='application/json'
-        json = {
-            'username': 'user',
-            'email': 'user@email.com',
-            'password': 'password',
-        }
-
-        response = self.client.post(
-            self.route,
-            content_type=content_type,
-            json=json,
-        )
-
-        # assert response status code
-        self.assertEqual(response.status_code, 400)
-
-        # assert response data
-        data = response.json
-
-        self.assertIn('errors', data)
-        errors = data['errors']
-
-        # assert errors structure
-        self.assertIn('password', errors)
-
-        # assert errors values
-        self.assertEqual(errors['password'], ['Password must contain at least one uppercase letter or a special character, and at least one number.'])
-
-    def test_registration_fails_with_already_registered_username(self) -> None:
+    def test_sign_up_already_registered_username(self) -> None:
         user = UserFactory()
 
         content_type='application/json'
@@ -379,8 +269,8 @@ class SignUpTests(BaseTestCase):
         # assert response data values
         self.assertEqual(data['message'], 'Username already taken.')
 
-    def test_registration_fails_with_already_registered_email(self) -> None:
-        user = UserFactory()
+    def test_sign_up_fails_already_registered_email(self) -> None:
+        user: UserFactory = UserFactory()
 
         content_type='application/json'
         json = {

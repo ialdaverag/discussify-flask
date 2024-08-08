@@ -41,25 +41,34 @@ black_list = set()
 
 @auth_routes.post('/signup')
 def sign_up():
+    # Get the JSON data from the request
     json_data = request.get_json()
 
+    # Load the data into the schema
     try:
         data = user_schema.load(json_data)
     except ValidationError as err:
         return {'errors': err.messages}, HTTPStatus.BAD_REQUEST
     
+    # Get the username form the data
     username = data.get('username')
-    email = data.get('email')
-    password = data.get('password')
 
+    # Check if the username is already taken
     if not User.is_username_available(username):
         return {'message': 'Username already taken.'}, HTTPStatus.BAD_REQUEST
+    
+    # Get the email from the data
+    email = data.get('email')
 
+    # Check if the email is already taken
     if not User.is_email_available(email):
         return {'message': 'Email already taken.'}, HTTPStatus.BAD_REQUEST
     
+    # Get the password from the data
+    password = data.get('password')
+    
+    # Create a new user
     user = User(username=username, email=email, password=hash_password(password))
-
     db.session.add(user)
     db.session.commit()
 
