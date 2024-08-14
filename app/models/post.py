@@ -4,11 +4,33 @@ from app.extensions.database import db
 from app.errors.errors import NotFoundError
 from app.models.comment import Comment
 
-post_bookmarks = db.Table(
-    'post_bookmarks',
-    db.Column('user_id', db.Integer, db.ForeignKey('users.id')),
-    db.Column('post_id', db.Integer, db.ForeignKey('posts.id'))
-)
+
+class PostBookmark(db.Model):
+    __tablename__ = 'post_bookmarks'
+
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), primary_key=True)
+    post_id = db.Column(db.Integer, db.ForeignKey('posts.id'), primary_key=True)
+    created_at = db.Column(db.DateTime, default=db.func.now())
+
+    # User
+    user = db.relationship('User', back_populates='bookmarks')
+
+    # Post
+    post = db.relationship('Post', back_populates='bookmarkers')
+
+    def save(self):
+        db.session.add(self)
+        db.session.commit()
+
+    def delete(self):
+        db.session.delete(self)
+        db.session.commit()
+
+    @classmethod
+    def get_by_user_and_post(cls, user, post):
+        bookmark = PostBookmark.query.filter_by(user_id=user.id, post_id=post.id).first()
+
+        return bookmark
 
 
 class PostVote(db.Model):
@@ -24,6 +46,14 @@ class PostVote(db.Model):
     # Post
     post = db.relationship('Post', back_populates='post_votes')
 
+    def create(self):
+        db.session.add(self)
+        db.session.commit()
+
+    def delete(self):
+        db.session.delete(self)
+        db.session.commit()
+
     @classmethod
     def get_by_user_and_post(cls, user, post):
         vote = PostVote.query.filter_by(user_id=user.id, post_id=post.id).first()
@@ -35,14 +65,6 @@ class PostVote(db.Model):
     
     def is_downvote(self):
         return self.direction == -1
-    
-    def create(self):
-        db.session.add(self)
-        db.session.commit()
-
-    def delete(self):
-        db.session.delete(self)
-        db.session.commit()
 
 
 class PostStats(db.Model):
@@ -69,7 +91,7 @@ class Post(db.Model):
 
     # User
     owner = db.relationship('User', back_populates='posts')
-    bookmarkers = db.relationship('User', secondary=post_bookmarks, back_populates='bookmarks')
+    bookmarkers = db.relationship('PostBookmark', back_populates='post')
 
     # Community
     community = db.relationship('Community', back_populates='posts')
@@ -122,7 +144,9 @@ class Post(db.Model):
         return self.owner is user
     
     def is_bookmarked_by(self, user):
-        return self in user.bookmarks
+        bookmark = PostBookmark.get_by_user_and_post(user, self)
+        
+        return bookmark is not None
     
     def is_upvoted_by(self, user):
         vote = PostVote.get_by_user_and_post(user, self)
@@ -133,16 +157,6 @@ class Post(db.Model):
         vote = PostVote.get_by_user_and_post(user, self)
 
         return vote.is_downvote() if vote else False
-    
-    def append_bookmarker(self, user):
-        self.bookmarkers.append(user)
-
-        db.session.commit()
-
-    def remove_bookmarker(self, user):
-        self.bookmarkers.remove(user)
-
-        db.session.commit()
     
     def read_root_comments(self):
         root_comments = Comment.query.filter_by(post_id=self.id, comment_id=None).all()
@@ -279,15 +293,27 @@ def update_votes_count_on_post_stats(target, value, oldvalue, initiator):
         db.session.execute(update_query)
 
 
-@db.event.listens_for(Post.bookmarkers, 'append')
-def increment_bookmarks_count_on_post_stats(target, value, initiator):
-    target.stats.bookmarks_count += 1
+@db.event.listens_for(PostBookmark, 'after_insert')
+def increment_bookmarks_count_on_post_stats(mapper, connection, target):
+    post_stats_table = PostStats.__table__
 
-    db.session.commit()
+    update_query = post_stats_table.update().where(
+        post_stats_table.c.post_id == target.post_id
+    ).values(
+        bookmarks_count=post_stats_table.c.bookmarks_count + 1
+    )
+
+    connection.execute(update_query)
 
 
-@db.event.listens_for(Post.bookmarkers, 'remove')
-def decrement_bookmarks_count_on_post_stats(target, value, initiator):
-    target.stats.bookmarks_count -= 1
+@db.event.listens_for(PostBookmark, 'after_delete')
+def decrement_bookmarks_count_on_post_stats(mapper, connection, target):
+    post_stats_table = PostStats.__table__
 
-    db.session.commit()
+    update_query = post_stats_table.update().where(
+        post_stats_table.c.post_id == target.post_id
+    ).values(
+        bookmarks_count=post_stats_table.c.bookmarks_count - 1
+    )
+
+    connection.execute(update_query)

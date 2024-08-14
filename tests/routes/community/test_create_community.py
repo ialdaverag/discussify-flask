@@ -55,10 +55,10 @@ class TestCreateCommunity(BaseTestCase):
         # Assert that the community owner is the user
         self.assertEqual(data['owner']['id'], user.id)
 
-        # # Get the stats data from the response
+        # Get the stats data from the response
         stats_data = data['stats']
 
-        # Assert stats data
+        # Assert the stats data
         self.assertIn('id', stats_data)
         self.assertIn('subscribers_count', stats_data)
         self.assertIn('moderators_count', stats_data)
@@ -66,7 +66,7 @@ class TestCreateCommunity(BaseTestCase):
         self.assertIn('posts_count', stats_data)
         self.assertIn('comments_count', stats_data)
 
-        # Assert the stats data
+        # Assert the stats data values
         self.assertEqual(stats_data['subscribers_count'], 1)
         self.assertEqual(stats_data['moderators_count'], 1)
         self.assertEqual(stats_data['banned_count'], 0)

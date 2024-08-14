@@ -11,6 +11,10 @@ from app.errors.errors import NameError
 from app.errors.errors import SubscriptionError
 from app.errors.errors import BanError
 
+# Models
+from app.models.community import CommunitySubscriber
+from app.models.community import CommunityBan
+
 
 class TestCreatePost(BaseTestCase):
     def test_create_post(self):
@@ -21,7 +25,7 @@ class TestCreatePost(BaseTestCase):
         community = CommunityFactory()
 
         # Append the user to the community's subscribers
-        community.append_subscriber(user)
+        CommunitySubscriber(community=community, user=user).save()
 
         # Data to be sent
         json = {
@@ -48,6 +52,9 @@ class TestCreatePost(BaseTestCase):
         # Assert that the post is in the community's posts
         self.assertIn(post, community.posts)
 
+        # Assert that the user's stats were updated
+        self.assertEqual(user.stats.posts_count, 1)
+
     def test_create_posT_being_not_subscribed(self):
         # Create a user
         user = UserFactory()
@@ -73,7 +80,7 @@ class TestCreatePost(BaseTestCase):
         community = CommunityFactory()
 
         # Append the user to the community's banned list
-        community.append_banned(user)
+        CommunityBan(community=community, user=user).save()
 
         # Data to be sent
         json = {

@@ -6,13 +6,14 @@ from app.extensions.database import db
 
 # app.models
 from app.models.community import Community
-from app.models.community import community_subscribers
-from app.models.community import community_moderators
-from app.models.community import community_bans
+from app.models.community import CommunitySubscriber
+from app.models.community import CommunityModerator
+from app.models.community import CommunityBan
 from app.models.post import Post
+from app.models.post import PostBookmark
 from app.models.post import PostVote
 from app.models.comment import Comment
-from app.models.comment import comment_bookmarks as c_bookmarks
+from app.models.comment import CommentBookmark
 from app.models.comment import CommentVote
 
 # app.errors
@@ -28,11 +29,43 @@ from app.errors.errors import UnauthorizedError
 from app.errors.errors import BookmarkError
 from app.errors.errors import VoteError
 
-follows = db.Table(
-    'follows',
-    db.Column('follower_id', db.Integer, db.ForeignKey('users.id')),
-    db.Column('followed_id', db.Integer, db.ForeignKey('users.id'))
-)
+
+class Follow(db.Model):
+    __tablename__ = 'follows'
+
+    follower_id = db.Column(db.Integer, db.ForeignKey('users.id'), primary_key=True, nullable=False)
+    followed_id = db.Column(db.Integer, db.ForeignKey('users.id'), primary_key=True, nullable=False)
+    created_at = db.Column(db.DateTime, default=db.func.now())
+
+    follower = db.relationship('User', foreign_keys=[follower_id], back_populates='followed')
+    followed = db.relationship('User', foreign_keys=[followed_id], back_populates='followers')
+
+    def save(self):
+        db.session.add(self)
+        db.session.commit()
+
+    def delete(self):
+        db.session.delete(self)
+        db.session.commit()
+
+    @classmethod
+    def get_by_follower_and_followed(cls, follower, followed):
+        follow = cls.query.filter_by(follower=follower, followed=followed).first()
+
+        return follow
+    
+    @classmethod
+    def get_followers(cls, user):
+        followers = cls.query.filter_by(followed_id=user.id).all()
+
+        return [follow.follower for follow in followers]
+    
+    @classmethod
+    def get_followed(cls, user):
+        followed = cls.query.filter_by(follower_id=user.id).all()
+        
+        return [follow.followed for follow in followed]
+
 
 
 class UserStats(db.Model):
@@ -50,6 +83,10 @@ class UserStats(db.Model):
 
     user = db.relationship('User', back_populates='stats')
 
+    def save(self):
+        db.session.add(self)
+        db.session.commit()
+
 
 class User(db.Model):
     __tablename__ = 'users'
@@ -63,28 +100,23 @@ class User(db.Model):
     updated_at = db.Column(db.DateTime, default=db.func.now(), onupdate=db.func.now())
     
     # User
-    followed = db.relationship(
-        'User', 
-        secondary=follows, primaryjoin=(follows.c.follower_id == id), 
-        secondaryjoin=(follows.c.followed_id == id), 
-        backref=db.backref('followers', lazy='dynamic'), 
-        lazy='dynamic'
-    )
+    followers = db.relationship('Follow', foreign_keys=[Follow.followed_id], back_populates='followed', lazy='dynamic', cascade='all, delete-orphan')
+    followed = db.relationship('Follow', foreign_keys=[Follow.follower_id], back_populates='follower', lazy='dynamic', cascade='all, delete-orphan')
 
     # Community
     communities = db.relationship('Community', back_populates='owner', lazy='dynamic', cascade='all, delete')
-    subscriptions = db.relationship('Community', secondary=community_subscribers, back_populates='subscribers')
-    moderations = db.relationship('Community', secondary=community_moderators, back_populates='moderators')
-    bans = db.relationship('Community', secondary=community_bans, back_populates='banned')
+    subscriptions = db.relationship('CommunitySubscriber', back_populates='user')
+    moderations = db.relationship('CommunityModerator', back_populates='user')
+    bans = db.relationship('CommunityBan', back_populates='user')
 
     # Post
     posts = db.relationship('Post', back_populates='owner', lazy='dynamic')
-    bookmarks = db.relationship('Post', secondary='post_bookmarks', back_populates='bookmarkers')
+    bookmarks = db.relationship('PostBookmark', back_populates='user')
     post_votes = db.relationship('PostVote', back_populates='user')
 
     # Comment
     comments = db.relationship('Comment', back_populates='owner', lazy='dynamic')
-    comment_bookmarks = db.relationship('Comment', secondary=c_bookmarks, back_populates='comment_bookmarkers')
+    comment_bookmarks = db.relationship('CommentBookmark', back_populates='user')
     comment_votes = db.relationship('CommentVote', back_populates='user')
 
     # Stats
@@ -94,6 +126,7 @@ class User(db.Model):
         super().__init__(*args, **kwargs)
 
         self.stats = UserStats(user=self)
+        self.stats.save()
 
     @staticmethod
     def is_username_available(username):
@@ -139,19 +172,15 @@ class User(db.Model):
         
         return None
     
-    def append_follower(self, user):
-        self.followers.append(user)
-        db.session.commit()
-
-    def remove_follower(self, user):
-        self.followers.remove(user)
-        db.session.commit()
-    
     def is_following(self, other):
-        return other in self.followed
+        follow = Follow.get_by_follower_and_followed(follower=self, followed=other)
+
+        return follow is not None
     
     def is_followed_by(self, other):
-        return self in other.followed
+        follow = Follow.get_by_follower_and_followed(follower=other, followed=self)
+
+        return follow is not None
     
     def follow(self, other): 
         if other is self:
@@ -160,7 +189,8 @@ class User(db.Model):
         if self.is_following(other):
             raise FollowError('You are already following this user.')
         
-        other.append_follower(self)
+        new_follow = Follow(follower=self, followed=other)
+        new_follow.save()
 
     def unfollow(self, other):
         if other is self:
@@ -169,7 +199,8 @@ class User(db.Model):
         if not self.is_following(other):
             raise FollowError('You are not following this user.')
         
-        other.remove_follower(self)
+        follow = Follow.get_by_follower_and_followed(follower=self, followed=other)
+        follow.delete()
     
     def create_community(self, name, about = ''):
         name_available = Community.is_name_available(name)
@@ -181,8 +212,8 @@ class User(db.Model):
         db.session.add(community)
         db.session.commit()
 
-        community.append_subscriber(self)
-        community.append_moderator(self)
+        CommunitySubscriber(user=self, community=community).save()
+        CommunityModerator(user=self, community=community).save()
 
         return community
 
@@ -219,7 +250,9 @@ class User(db.Model):
         return self is community.owner
 
     def is_subscribed_to(self, community):
-        return self in community.subscribers
+        subscription = CommunitySubscriber.get_by_user_and_community(self, community)
+
+        return subscription is not None
 
     def subscribe_to(self, community):
         if self.is_banned_from(community):
@@ -228,7 +261,8 @@ class User(db.Model):
         if self.is_subscribed_to(community):
             raise SubscriptionError('You are already subscribed to this community.')
 
-        community.append_subscriber(self)
+        subscription = CommunitySubscriber(user=self, community=community)
+        subscription.save()
 
     def unsubscribe_to(self, community):
         if community.belongs_to(self):
@@ -240,10 +274,13 @@ class User(db.Model):
         if self.is_moderator_of(community):
             community.remove_moderator(self)
 
-        community.remove_subscriber(self)
+        subscription = CommunitySubscriber.get_by_user_and_community(self, community)
+        subscription.delete()
 
     def is_moderator_of(self, community):
-        return self in community.moderators
+        moderation = CommunityModerator.get_by_user_and_community(self, community)
+
+        return moderation is not None
     
     def appoint_moderator(self, user, community):
         if not community.belongs_to(self):
@@ -258,7 +295,7 @@ class User(db.Model):
         if user.is_moderator_of(community):
             raise ModeratorError('The user is already a moderator of this community.')
 
-        community.append_moderator(user)
+        CommunityModerator(user=user, community=community).save()
 
     def dismiss_moderator(self, user, community):
         if not community.belongs_to(self):
@@ -270,10 +307,12 @@ class User(db.Model):
         if not user.is_moderator_of(community):
             raise ModeratorError('The user is not a moderator of this community.')
         
-        community.remove_moderator(user)
+        CommunityModerator.get_by_user_and_community(user, community).delete()
         
     def is_banned_from(self, community):
-        return self in community.banned
+        ban = CommunityBan.get_by_user_and_community(self, community)
+
+        return ban is not None
 
     def ban_from(self, user, community):
         if not self.is_moderator_of(community):
@@ -294,7 +333,7 @@ class User(db.Model):
         if not user.is_subscribed_to(community):
             raise SubscriptionError('The user is not subscribed to this community.')
         
-        community.append_banned(user)
+        CommunityBan(user=user, community=community).save()
 
     def unban_from(self, user, community):
         if not self.is_moderator_of(community):
@@ -303,7 +342,7 @@ class User(db.Model):
         if not user.is_banned_from(community):
             raise BanError('The user is not banned from the community.')
         
-        community.remove_banned(user)
+        CommunityBan.get_by_user_and_community(user, community).delete()
 
     def transfer_community(self, community, user):
         if not community.belongs_to(self):
@@ -319,7 +358,7 @@ class User(db.Model):
             raise SubscriptionError('The user is not subscribed to this community.')
         
         if not user.is_moderator_of(community):
-            community.append_moderator(user)
+            CommunityModerator(user=user, community=community).save()
 
         community.change_ownership_to(user)
 
@@ -362,13 +401,13 @@ class User(db.Model):
         if post.is_bookmarked_by(self):
             raise BookmarkError('Post already bookmarked.')
         
-        post.append_bookmarker(self)
+        PostBookmark(user=self, post=post).save()
 
     def unbookmark_post(self, post):
         if not post.is_bookmarked_by(self):
             raise BookmarkError('Post not bookmarked.')
         
-        post.remove_bookmarker(self)
+        PostBookmark.get_by_user_and_post(user=self, post=post).delete()
 
     def upvote_post(self, post):
         community = post.community
@@ -473,13 +512,13 @@ class User(db.Model):
         if comment.is_bookmarked_by(self):
             raise BookmarkError('Comment already bookmarked.')
         
-        comment.append_bookmarker(self)
+        CommentBookmark(user=self, comment=comment).save()
 
     def unbookmark_comment(self, comment):
         if not comment.is_bookmarked_by(self):
             raise BookmarkError('Comment not bookmarked.')
         
-        comment.remove_bookmarker(self)
+        CommentBookmark.get_by_user_and_comment(user=self, comment=comment).delete()
 
     def upvote_comment(self, comment):
         community = comment.post.community
@@ -540,45 +579,48 @@ class User(db.Model):
             raise VoteError('You have not voted on this comment.')
 
 
-@db.event.listens_for(User.followed, 'append')
-def increment_following_count_on_user_stats(target, value, initiator):
-    target.stats.following_count += 1
-    value.stats.followers_count += 1
+@db.event.listens_for(Follow, 'after_insert')
+def increment_following_count_on_user_stats(mapper, connection, target):
+    from app.models.user import UserStats
 
-    db.session.commit()
+    user_stats_table = UserStats.__table__
 
+    update_query = user_stats_table.update().where(
+        user_stats_table.c.user_id == target.follower_id
+    ).values(
+        following_count=user_stats_table.c.following_count + 1
+    )
 
-@db.event.listens_for(User.followed, 'remove')
-def decrement_following_count_on_user_stats(target, value, initiator):
-    target.stats.following_count -= 1
-    value.stats.followers_count -= 1
+    connection.execute(update_query)
 
-    db.session.commit()
+    update_query = user_stats_table.update().where(
+        user_stats_table.c.user_id == target.followed_id
+    ).values(
+        followers_count=user_stats_table.c.followers_count + 1
+    )
 
-
-@db.event.listens_for(User.subscriptions, 'append')
-def increment_subscriptions_count_on_user_stats(target, value, initiator):
-    target.stats.subscriptions_count += 1
-
-    db.session.commit()
-
-
-@db.event.listens_for(User.subscriptions, 'remove')
-def decrement_subscriptions_count_on_user_stats(target, value, initiator):
-    target.stats.subscriptions_count -= 1
-
-    db.session.commit()
+    connection.execute(update_query)
 
 
-@db.event.listens_for(User.moderations, 'append')
-def increment_moderations_count_on_user_stats(target, value, initiator):
-    target.stats.moderations_count += 1
+@db.event.listens_for(Follow, 'after_delete')
+def decrement_following_count_on_user_stats(mapper, connection, target):
+    from app.models.user import UserStats
 
-    db.session.commit()
+    user_stats_table = UserStats.__table__
 
+    update_query = user_stats_table.update().where(
+        user_stats_table.c.user_id == target.follower_id
+    ).values(
+        following_count=user_stats_table.c.following_count - 1
+    )
 
-@db.event.listens_for(User.moderations, 'remove')
-def decrement_moderations_count_on_user_stats(target, value, initiator):
-    target.stats.moderations_count -= 1
+    connection.execute(update_query)
 
-    db.session.commit()
+    update_query = user_stats_table.update().where(
+        user_stats_table.c.user_id == target.followed_id
+    ).values(
+        followers_count=user_stats_table.c.followers_count - 1
+    )
+
+    connection.execute(update_query)
+

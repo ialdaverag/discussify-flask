@@ -9,6 +9,9 @@ from tests.factories.post_factory import PostFactory
 # Utils
 from tests.utils.tokens import get_access_token
 
+# Models
+from app.models.post import PostBookmark
+
 
 class TestUnbookmarkPost(BaseTestCase):
     route = '/post/{}/unbookmark'
@@ -24,7 +27,7 @@ class TestUnbookmarkPost(BaseTestCase):
         access_token = get_access_token(user)
 
         # Append the user to the post's bookmarkers
-        post.append_bookmarker(user)
+        PostBookmark(user=user, post=post).save()
 
         # Unbookmark the post
         response = self.client.post(

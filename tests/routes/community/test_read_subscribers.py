@@ -8,6 +8,8 @@ from tests.factories.community_factory import CommunityFactory
 # Utils
 from tests.utils.tokens import get_access_token
 
+# Models
+from app.models.community import CommunitySubscriber
 
 class TestReadSubscribers(BaseTestCase):
     route = '/community/{}/subscribers'
@@ -21,7 +23,7 @@ class TestReadSubscribers(BaseTestCase):
 
         # Append the subscribers to the community
         for subscriber in subscribers:
-            community.append_subscriber(subscriber)
+            CommunitySubscriber(community=community, user=subscriber).save()
 
         # Read the community subscribers
         response = self.client.get(self.route.format(community.name))

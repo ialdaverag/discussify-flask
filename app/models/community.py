@@ -4,23 +4,73 @@ from sqlalchemy import func
 from app.extensions.database import db
 from app.errors.errors import NotFoundError
 
-community_subscribers = db.Table(
-    'community_subscribers',
-    db.Column('user_id', db.Integer, db.ForeignKey('users.id')),
-    db.Column('community_id', db.Integer, db.ForeignKey('communities.id'))
-)
+class CommunitySubscriber(db.Model):
+    __tablename__ = 'community_subscribers'
 
-community_moderators = db.Table(
-    'community_moderators',
-    db.Column('user_id', db.Integer, db.ForeignKey('users.id')),
-    db.Column('community_id', db.Integer, db.ForeignKey('communities.id'))
-)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), primary_key=True, nullable=False)
+    community_id = db.Column(db.Integer, db.ForeignKey('communities.id'), primary_key=True, nullable=False)
+    created_at = db.Column(db.DateTime, default=db.func.now())
 
-community_bans = db.Table(
-    'community_bans',
-    db.Column('user_id', db.Integer, db.ForeignKey('users.id')),
-    db.Column('community_id', db.Integer, db.ForeignKey('communities.id'))
-)
+    user = db.relationship('User', foreign_keys=[user_id], back_populates='subscriptions')
+    community = db.relationship('Community', foreign_keys=[community_id], back_populates='subscribers')
+
+    def save(self):
+        db.session.add(self)
+        db.session.commit()
+
+    def delete(self):
+        db.session.delete(self)
+        db.session.commit()
+
+    @staticmethod
+    def get_by_user_and_community(user, community):
+        return CommunitySubscriber.query.filter_by(user=user, community=community).first()
+    
+
+class CommunityModerator(db.Model):
+    __tablename__ = 'community_moderators'
+
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), primary_key=True, nullable=False)
+    community_id = db.Column(db.Integer, db.ForeignKey('communities.id'), primary_key=True, nullable=False)
+    created_at = db.Column(db.DateTime, default=db.func.now())
+
+    user = db.relationship('User', foreign_keys=[user_id], back_populates='moderations')
+    community = db.relationship('Community', foreign_keys=[community_id], back_populates='moderators')
+
+    def save(self):
+        db.session.add(self)
+        db.session.commit()
+
+    def delete(self):
+        db.session.delete(self)
+        db.session.commit()
+
+    @staticmethod
+    def get_by_user_and_community(user, community):
+        return CommunityModerator.query.filter_by(user=user, community=community).first()
+
+
+class CommunityBan(db.Model):
+    __tablename__ = 'community_bans'
+
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), primary_key=True, nullable=False)
+    community_id = db.Column(db.Integer, db.ForeignKey('communities.id'), primary_key=True, nullable=False)
+    created_at = db.Column(db.DateTime, default=db.func.now())
+
+    user = db.relationship('User', foreign_keys=[user_id], back_populates='bans')
+    community = db.relationship('Community', foreign_keys=[community_id], back_populates='banned')
+
+    def save(self):
+        db.session.add(self)
+        db.session.commit()
+
+    def delete(self):
+        db.session.delete(self)
+        db.session.commit()
+
+    @staticmethod
+    def get_by_user_and_community(user, community):
+        return CommunityBan.query.filter_by(user=user, community=community).first()
 
 
 class CommunityStats(db.Model):
@@ -51,12 +101,11 @@ class Community(db.Model):
     owner = db.relationship('User', back_populates='communities')
 
     # Community
-    subscribers = db.relationship('User', secondary=community_subscribers, back_populates='subscriptions')
-    moderators = db.relationship('User', secondary=community_moderators, back_populates='moderations')
-    banned = db.relationship('User', secondary=community_bans, back_populates='bans')
+    subscribers = db.relationship('CommunitySubscriber', back_populates='community')
+    moderators = db.relationship('CommunityModerator', back_populates='community')
+    banned = db.relationship('CommunityBan', back_populates='community')
 
     # Post
-    #posts = db.relationship('Post', cascade='all, delete', backref='community', lazy='dynamic')
     posts = db.relationship('Post', cascade='all, delete', back_populates='community', lazy='dynamic')
 
     # Stats
@@ -131,40 +180,10 @@ class Community(db.Model):
         self.owner = user
 
         db.session.commit()
-    
-    def append_subscriber(self, user):
-        self.subscribers.append(user)
-
-        db.session.commit()
-
-    def remove_subscriber(self, user):
-        self.subscribers.remove(user)
-
-        db.session.commit()
-
-    def append_moderator(self, user):
-        self.moderators.append(user)
-
-        db.session.commit()
-
-    def remove_moderator(self, user):
-        self.moderators.remove(user)
-
-        db.session.commit()
-
-    def append_banned(self, user):
-        self.banned.append(user)
-
-        db.session.commit()
-
-    def remove_banned(self, user):
-        self.banned.remove(user)
-
-        db.session.commit()
 
 
 @db.event.listens_for(Community, 'after_insert')
-def increment_community_count_on_user_stats(mapper, connection, target):
+def increment_communities_count_on_user_stats(mapper, connection, target):
     from app.models.user import UserStats
 
     user_stats_table = UserStats.__table__
@@ -223,37 +242,144 @@ def decrement_moderations_count_on_user_stats(mapper, connection, target):
         connection.execute(update_query)
 
 
-@db.event.listens_for(Community.subscribers, 'append')
-def increment_subscribers_count_on_community_stats(target, value, initiator):
-    target.stats.subscribers_count += 1
-    db.session.commit()
+@db.event.listens_for(CommunitySubscriber, 'after_insert')
+def increment_subscribers_count_on_community_stats(mapper, connection, target):
 
-@db.event.listens_for(Community.subscribers, 'remove')
-def decrement_subscribers_count_on_community_stats(target, value, initiator):
-    target.stats.subscribers_count -= 1
-    db.session.commit()
+    community_stats_table = CommunityStats.__table__
+
     
+    update_query = community_stats_table.update().where(
+        community_stats_table.c.community_id == target.community_id
+    ).values(
+        subscribers_count=community_stats_table.c.subscribers_count + 1
+    )
 
-@db.event.listens_for(Community.moderators, 'append')
-def increment_moderators_count_on_community_stats(target, value, initiator):
-    target.stats.moderators_count += 1
-    db.session.commit()
-
-@db.event.listens_for(Community.moderators, 'remove')
-def decrement_moderators_count_on_community_stats(target, value, initiator):
-    target.stats.moderators_count -= 1
-    db.session.commit()
+    connection.execute(update_query)
 
 
-@db.event.listens_for(Community.banned, 'append')
-def increment_banned_count_on_community_stats(target, value, initiator):
-    target.stats.banned_count += 1
+@db.event.listens_for(CommunitySubscriber, 'after_delete')
+def decrement_subscribers_count_on_community_stats(mapper, connection, target):
 
-    db.session.commit()
+    community_stats_table = CommunityStats.__table__
+    
+    update_query = community_stats_table.update().where(
+        community_stats_table.c.community_id == target.community_id
+    ).values(
+        subscribers_count=community_stats_table.c.subscribers_count - 1
+    )
+
+    connection.execute(update_query)
 
 
-@db.event.listens_for(Community.banned, 'remove')
-def decrement_banned_count_on_community_stats(target, value, initiator):
-    target.stats.banned_count -= 1
+@db.event.listens_for(CommunitySubscriber, 'after_insert')
+def increment_subscriptions_count_on_user_stats(mapper, connection, target):
+    from app.models.user import UserStats
 
-    db.session.commit()
+    user_stats_table = UserStats.__table__
+
+    update_query = user_stats_table.update().where(
+        user_stats_table.c.user_id == target.user_id
+    ).values(
+        subscriptions_count=user_stats_table.c.subscriptions_count + 1
+    )
+
+    connection.execute(update_query)
+
+@db.event.listens_for(CommunitySubscriber, 'after_delete')
+def decrement_subscriptions_count_on_user_stats(mapper, connection, target):
+    from app.models.user import UserStats
+    
+    user_stats_table = UserStats.__table__
+
+    update_query = user_stats_table.update().where(
+        user_stats_table.c.user_id == target.user_id
+    ).values(
+        subscriptions_count=user_stats_table.c.subscriptions_count - 1
+    )
+
+    connection.execute(update_query)
+
+
+@db.event.listens_for(CommunityModerator, 'after_insert')
+def increment_moderators_count_on_community_stats(mapper, connection, target):
+
+    community_stats_table = CommunityStats.__table__
+
+    update_query = community_stats_table.update().where(
+        community_stats_table.c.community_id == target.community_id
+    ).values(
+        moderators_count=community_stats_table.c.moderators_count + 1
+    )
+
+    connection.execute(update_query)
+
+
+@db.event.listens_for(CommunityModerator, 'after_delete')
+def decrement_moderators_count_on_community_stats(mapper, connection, target):
+
+    community_stats_table = CommunityStats.__table__
+
+    update_query = community_stats_table.update().where(
+        community_stats_table.c.community_id == target.community_id
+    ).values(
+        moderators_count=community_stats_table.c.moderators_count - 1
+    )
+
+    connection.execute(update_query)
+
+
+@db.event.listens_for(CommunityModerator, 'after_insert')
+def increment_moderations_count_on_user_stats(mapper, connection, target):
+    from app.models.user import UserStats
+
+    user_stats_table = UserStats.__table__
+
+    update_query = user_stats_table.update().where(
+        user_stats_table.c.user_id == target.user_id
+    ).values(
+        moderations_count=user_stats_table.c.moderations_count + 1
+    )
+
+    connection.execute(update_query)
+
+@db.event.listens_for(CommunityModerator, 'after_delete')
+def decrement_moderations_count_on_user_stats(mapper, connection, target):
+    from app.models.user import UserStats
+    
+    user_stats_table = UserStats.__table__
+
+    update_query = user_stats_table.update().where(
+        user_stats_table.c.user_id == target.user_id
+    ).values(
+        moderations_count=user_stats_table.c.moderations_count - 1
+    )
+
+    connection.execute(update_query)
+
+
+@db.event.listens_for(CommunityBan, 'after_insert')
+def increment_banned_users_count_on_community_stats(mapper, connection, target):
+
+    community_stats_table = CommunityStats.__table__
+
+    update_query = community_stats_table.update().where(
+        community_stats_table.c.community_id == target.community_id
+    ).values(
+        banned_count=community_stats_table.c.banned_count + 1
+    )
+
+    connection.execute(update_query)
+
+
+@db.event.listens_for(CommunityBan, 'after_delete')
+def decrement_banned_users_count_on_community_stats(mapper, connection, target):
+
+    community_stats_table = CommunityStats.__table__
+
+    update_query = community_stats_table.update().where(
+        community_stats_table.c.community_id == target.community_id
+    ).values(
+        banned_count=community_stats_table.c.banned_count - 1
+    )
+
+    connection.execute(update_query)

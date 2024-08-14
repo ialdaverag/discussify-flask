@@ -8,6 +8,10 @@ from tests.factories.community_factory import CommunityFactory
 # Utils
 from tests.utils.tokens import get_access_token
 
+# Models
+from app.models.community import CommunitySubscriber
+from app.models.community import CommunityBan
+
 
 class TestCreatePost(BaseTestCase):
     route = '/post/'
@@ -20,7 +24,7 @@ class TestCreatePost(BaseTestCase):
         community = CommunityFactory()
 
         # Append the user to the community subscribers
-        community.subscribers.append(user)
+        CommunitySubscriber(community=community, user=user).save()
 
         # Get the user access token
         access_token = get_access_token(user)
@@ -44,6 +48,8 @@ class TestCreatePost(BaseTestCase):
         # Get the response data
         data = response.json
 
+        print(data)
+
         # Assert the response data
         self.assertIsInstance(data, dict)
 
@@ -51,12 +57,41 @@ class TestCreatePost(BaseTestCase):
         self.assertIn('id', data)
         self.assertIn('title', data)
         self.assertIn('content', data)
+        self.assertIn('owner', data)
+        self.assertIn('community', data)
+        self.assertIn('bookmarked', data)
+        self.assertIn('upvoted', data)
+        self.assertIn('downvoted', data)
+        self.assertIn('stats', data)
         self.assertIn('created_at', data)
         self.assertIn('updated_at', data)
 
         # Assert that the community data is correct
+        self.assertEqual(data['id'], 1)
         self.assertEqual(data['title'], json['title'])
         self.assertEqual(data['content'], json['content'])
+        self.assertEqual(data['community']['id'], community.id)
+        self.assertEqual(data['owner']['id'], user.id)
+        self.assertEqual(data['bookmarked'], False)
+        self.assertEqual(data['upvoted'], False)
+        self.assertEqual(data['downvoted'], False)
+
+        # # Get the stats data from the response
+        stats_data = data['stats']
+
+        # Assert the stats data
+        self.assertIn('id', stats_data)
+        self.assertIn('comments_count', stats_data)
+        self.assertIn('bookmarks_count', stats_data)
+        self.assertIn('upvotes_count', stats_data)
+        self.assertIn('downvotes_count', stats_data)
+
+        # Assert the stats data values
+        self.assertEqual(stats_data['id'], 1)
+        self.assertEqual(stats_data['comments_count'], 0)
+        self.assertEqual(stats_data['bookmarks_count'], 0)
+        self.assertEqual(stats_data['upvotes_count'], 0)
+        self.assertEqual(stats_data['downvotes_count'], 0)
 
     def test_create_post_missing_community_id(self):
         # Create a user
@@ -66,7 +101,7 @@ class TestCreatePost(BaseTestCase):
         community = CommunityFactory()
 
         # Append the user to the community subscribers
-        community.subscribers.append(user)
+        CommunitySubscriber(community=community, user=user).save()
 
         # Get the user access token
         access_token = get_access_token(user)
@@ -106,7 +141,7 @@ class TestCreatePost(BaseTestCase):
         community = CommunityFactory()
 
         # Append the user to the community subscribers
-        community.subscribers.append(user)
+        CommunitySubscriber(community=community, user=user).save()
 
         # Get the user access token
         access_token = get_access_token(user)
@@ -146,7 +181,7 @@ class TestCreatePost(BaseTestCase):
         community = CommunityFactory()
 
         # Append the user to the community subscribers
-        community.subscribers.append(user)
+        CommunitySubscriber(community=community, user=user).save()
 
         # Get the user access token
         access_token = get_access_token(user)
@@ -186,7 +221,7 @@ class TestCreatePost(BaseTestCase):
         community = CommunityFactory()
 
         # Append the user to the community subscribers
-        community.subscribers.append(user)
+        CommunitySubscriber(community=community, user=user).save()
 
         # Get the user access token
         access_token = get_access_token(user)
@@ -224,7 +259,7 @@ class TestCreatePost(BaseTestCase):
         community = CommunityFactory()
 
         # Append the user to the community subscribers
-        community.subscribers.append(user)
+        CommunitySubscriber(community=community, user=user).save()
 
         # Get the user access token
         access_token = get_access_token(user)
@@ -265,7 +300,7 @@ class TestCreatePost(BaseTestCase):
         community = CommunityFactory()
 
         # Append the user to the community subscribers
-        community.subscribers.append(user)
+        CommunitySubscriber(community=community, user=user).save()
 
         # Get the user access token
         access_token = get_access_token(user)
@@ -341,7 +376,7 @@ class TestCreatePost(BaseTestCase):
         community = CommunityFactory()
 
         # Append the user to the community banned users
-        community.append_banned(user)
+        CommunityBan(community=community, user=user).save()
 
         # Get the user access token
         access_token = get_access_token(user)

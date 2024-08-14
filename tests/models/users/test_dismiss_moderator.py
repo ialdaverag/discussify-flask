@@ -9,6 +9,9 @@ from tests.factories.community_factory import CommunityFactory
 from app.errors.errors import ModeratorError
 from app.errors.errors import OwnershipError
 
+# Models
+from app.models.community import CommunityModerator
+
 
 class TestDismissModerator(BaseTestCase):
     def test_dismiss_moderator(self):
@@ -19,7 +22,7 @@ class TestDismissModerator(BaseTestCase):
         user = UserFactory()
 
         # Subscribe the user to the community
-        community.append_moderator(user)
+        CommunityModerator(community=community, user=user).save()
 
         # Get the owner of the community
         owner = community.owner
@@ -41,7 +44,7 @@ class TestDismissModerator(BaseTestCase):
         user2 = UserFactory()
 
         # Subscribe user2 to the community
-        community.append_moderator(user2)
+        CommunityModerator(community=community, user=user2).save()
 
         # Attempt to dismiss the user as a moderator
         with self.assertRaises(OwnershipError):

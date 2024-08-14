@@ -8,6 +8,10 @@ from tests.factories.community_factory import CommunityFactory
 # Utils
 from tests.utils.tokens import get_access_token
 
+# Models
+from app.models.community import CommunityModerator
+from app.models.community import CommunityBan
+
 
 class TestUnban(BaseTestCase):
     route = '/community/{}/unban/{}'
@@ -17,13 +21,13 @@ class TestUnban(BaseTestCase):
         community = CommunityFactory()
 
         # Append the owner as a moderator
-        community.append_moderator(community.owner)
+        CommunityModerator(community=community, user=community.owner).save()
 
         # Create a user
         user = UserFactory()
 
         # Append the user to the community banned users
-        community.append_banned(user)
+        CommunityBan(community=community, user=user).save()
 
         # Get user access token
         access_token = get_access_token(community.owner)
@@ -100,7 +104,7 @@ class TestUnban(BaseTestCase):
         user2 = UserFactory()
 
         # ban a user
-        community.append_banned(user2)
+        CommunityBan(community=community, user=user2).save()
 
         # get user access token
         access_token = get_access_token(user1)
@@ -127,7 +131,7 @@ class TestUnban(BaseTestCase):
         # create a community
         community = CommunityFactory()
 
-        community.append_moderator(community.owner)
+        CommunityModerator(community=community, user=community.owner).save()
 
         # create a user
         user = UserFactory()

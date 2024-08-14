@@ -9,6 +9,11 @@ from tests.factories.community_factory import CommunityFactory
 from app.errors.errors import BanError
 from app.errors.errors import UnauthorizedError
 
+# Models
+from app.models.community import CommunitySubscriber
+from app.models.community import CommunityModerator
+from app.models.community import CommunityBan
+
 
 class TestBanFrom(BaseTestCase):
     def test_ban_from(self):
@@ -19,18 +24,19 @@ class TestBanFrom(BaseTestCase):
         user = UserFactory()
 
         # Append the user to the community subscribers
-        community.append_subscriber(user)
+        CommunitySubscriber(community=community, user=user).save()
 
         # Get the owner of the community
         owner = community.owner
 
-        community.append_moderator(owner)
+        # Append the owner to the community moderators
+        CommunityModerator(community=community, user=owner).save()
 
         # Ban the user from the community
         owner.ban_from(user, community)
 
         # Check that the user is banned from the community
-        self.assertIn(user, community.banned)
+        self.assertIsNotNone(CommunitySubscriber.get_by_user_and_community(user, community))
 
     def test_ban_from_not_moderator(self):
         # Create a community
@@ -43,7 +49,7 @@ class TestBanFrom(BaseTestCase):
         user2 = UserFactory()
 
         # Subscribe user2 to the community
-        community.append_subscriber(user2)
+        CommunitySubscriber(community=community, user=user2).save()
 
         # Attempt to ban the user from the community
         with self.assertRaises(UnauthorizedError):
@@ -57,12 +63,13 @@ class TestBanFrom(BaseTestCase):
         user = UserFactory()
 
         # Ban the user from the community
-        community.append_banned(user)
+        CommunityBan(community=community, user=user).save()
 
         # Get the owner of the community
         owner = community.owner
 
-        community.append_moderator(owner)
+        # Append the owner to the community moderators
+        CommunityModerator(community=community, user=owner).save()
 
         # Attempt to ban the user from the community
         with self.assertRaises(BanError):

@@ -55,6 +55,22 @@ class TestUpdateCommunity(BaseTestCase):
         # Assert that the community owner is the user
         self.assertEqual(data['owner']['id'], owner.id)
 
+        # Get the stats data from the response
+        stats_data = data['stats']
+
+        # Assert the stats data
+        self.assertIn('id', stats_data)
+        self.assertIn('subscribers_count', stats_data)
+        self.assertIn('moderators_count', stats_data)
+        self.assertIn('banned_count', stats_data)
+        self.assertIn('posts_count', stats_data)
+        self.assertIn('comments_count', stats_data)
+
+        # Assert the stats data values
+        self.assertEqual(stats_data['banned_count'], 0)
+        self.assertEqual(stats_data['posts_count'], 0)
+        self.assertEqual(stats_data['comments_count'], 0)
+
     def test_update_community_nonexistent(self):
         # Create a user
         user = UserFactory()

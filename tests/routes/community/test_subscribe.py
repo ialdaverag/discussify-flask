@@ -8,6 +8,10 @@ from tests.factories.community_factory import CommunityFactory
 # Utils
 from tests.utils.tokens import get_access_token
 
+# Models
+from app.models.community import CommunitySubscriber
+from app.models.community import CommunityBan
+
 
 class TestSubscribe(BaseTestCase):
     route = '/community/{}/subscribe'
@@ -64,7 +68,7 @@ class TestSubscribe(BaseTestCase):
         user = UserFactory()
 
         # Append the user to the community subscribers
-        community.append_subscriber(user)
+        CommunitySubscriber(community=community, user=user).save()
 
         # Get the user access token
         access_token = get_access_token(user)
@@ -95,7 +99,7 @@ class TestSubscribe(BaseTestCase):
         user = UserFactory()
 
         # Append the user to the community banned users
-        community.append_banned(user)
+        CommunityBan(community=community, user=user).save()
 
         # Get the user access token
         access_token = get_access_token(user)

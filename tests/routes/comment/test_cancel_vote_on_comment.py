@@ -9,6 +9,10 @@ from tests.factories.comment_factory import CommentFactory
 # Utils
 from tests.utils.tokens import get_access_token
 
+# Models
+from app.models.community import CommunitySubscriber
+from app.models.community import CommunityBan
+
 
 class TestCancelVoteOnComment(BaseTestCase):
     route = '/comment/{}/vote/cancel'
@@ -21,7 +25,8 @@ class TestCancelVoteOnComment(BaseTestCase):
         user = UserFactory()
 
         # Append the user to the comment's community's subscribers
-        comment.post.community.append_subscriber(user)
+        community = comment.post.community
+        CommunitySubscriber(community=community, user=user).save()
 
         # Create a vote on the comment
         CommentVoteFactory(user=user, comment=comment, direction=1)
@@ -71,7 +76,8 @@ class TestCancelVoteOnComment(BaseTestCase):
         user = UserFactory()
 
         # Append the user to the comment's community's banned
-        comment.post.community.append_banned(user)
+        community = comment.post.community
+        CommunityBan(community=community, user=user).save()
 
         # Create a vote on the comment
         CommentVoteFactory(user=user, comment=comment, direction=1)
@@ -136,7 +142,8 @@ class TestCancelVoteOnComment(BaseTestCase):
         user = UserFactory()
 
         # Append the user to the comment's community's subscribers
-        comment.post.community.append_subscriber(user)
+        community = comment.post.community
+        CommunitySubscriber(community=community, user=user).save()
 
         # Get the access token
         access_token = get_access_token(user)

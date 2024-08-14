@@ -11,6 +11,10 @@ from app.errors.errors import NameError
 from app.errors.errors import SubscriptionError
 from app.errors.errors import BanError
 
+# Models
+from app.models.community import CommunitySubscriber
+from app.models.community import CommunityBan
+
 
 class TestCreateComment(BaseTestCase):
     def test_create_comment(self):
@@ -26,7 +30,8 @@ class TestCreateComment(BaseTestCase):
         }
 
         # Append the user to the post's subscribers
-        post.community.append_subscriber(user)
+        community = post.community
+        CommunitySubscriber(community=community, user=user).save()
 
         # Create a comment
         comment = user.create_comment(**data, post=post)
@@ -43,6 +48,12 @@ class TestCreateComment(BaseTestCase):
         # Assert that the comment is in the user's comments
         self.assertIn(comment, user.comments)
 
+        # Assert that the user's stats were updated
+        self.assertEqual(user.stats.comments_count, 1)
+
+        # Assert that the post's stats were updated
+        self.assertEqual(comment.post.stats.comments_count, 1)
+
     def test_create_comment_being_banned(self):
         # Create a user
         user = UserFactory()
@@ -56,7 +67,8 @@ class TestCreateComment(BaseTestCase):
         }
 
         # Append the user to the post's banned users
-        post.community.append_banned(user)
+        community = post.community
+        CommunityBan(community=community, user=user).save()
 
         # Attempt to create a comment
         with self.assertRaises(BanError):

@@ -29,6 +29,11 @@ class TestCreatecomment(BaseTestCase):
         # Assert that the comment was deleted
         self.assertNotIn(comment, user.comments)
 
+        # Assert that the owner's stats were updated
+        comments_count = user.stats.comments_count
+
+        self.assertEqual(comments_count, 0)
+
     def test_delete_comment_not_being_the_owner(self):
         # Create a user to be the creator of the comment
         comment = CommentFactory()

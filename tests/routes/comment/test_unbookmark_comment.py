@@ -9,6 +9,9 @@ from tests.factories.comment_factory import CommentFactory
 # Utils
 from tests.utils.tokens import get_access_token
 
+# Models
+from app.models.comment import CommentBookmark
+
 
 class TestUnbookmarkComment(BaseTestCase):
     route = '/comment/{}/unbookmark'
@@ -24,7 +27,7 @@ class TestUnbookmarkComment(BaseTestCase):
         access_token = get_access_token(user)
 
         # Append the user to the comment's bookmarkers
-        comment.append_bookmarker(user)
+        CommentBookmark(user=user, comment=comment).save()
 
         # Unbookmark the comment
         response = self.client.post(

@@ -4,6 +4,9 @@ from tests.base.base_test_case import BaseTestCase
 # Factories
 from tests.factories.user_factory import UserFactory
 
+# Models
+from app.models.user import Follow
+
 
 class TestFollow(BaseTestCase):
     def test_is_following_true(self):
@@ -12,7 +15,7 @@ class TestFollow(BaseTestCase):
         user2 = UserFactory()
 
         # Append user2 as a follower of user1
-        user2.append_follower(user1)
+        Follow(follower=user1, followed=user2).save()
 
         # Test that user1 is following user2
         self.assertTrue(user1.is_following(user2))

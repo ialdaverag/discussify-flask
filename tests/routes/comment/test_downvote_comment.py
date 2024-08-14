@@ -9,6 +9,10 @@ from tests.factories.comment_factory import CommentFactory
 # Utils
 from tests.utils.tokens import get_access_token
 
+# Models
+from app.models.community import CommunitySubscriber
+from app.models.community import CommunityBan
+
 
 class TestDownvoteComment(BaseTestCase):
     route = '/comment/{}/vote/down'
@@ -21,7 +25,8 @@ class TestDownvoteComment(BaseTestCase):
         user = UserFactory()
 
         # Append the user to the post's community's subscribers
-        comment.post.community.append_subscriber(user)
+        community = comment.post.community
+        CommunitySubscriber(community=community, user=user).save()
 
         # Get the access token
         access_token = get_access_token(user)
@@ -68,7 +73,8 @@ class TestDownvoteComment(BaseTestCase):
         user = UserFactory()
 
         # Append the user to the post's community's banned
-        comment.post.community.append_banned(user)
+        community = comment.post.community
+        CommunityBan(community=community, user=user).save()
 
         # Get the access token
         access_token = get_access_token(user)
@@ -130,7 +136,8 @@ class TestDownvoteComment(BaseTestCase):
         CommentVoteFactory(user=user, comment=comment, direction=-1)
 
         # Append the user to the post's community's subscribers
-        comment.post.community.append_subscriber(user)
+        community = comment.post.community
+        CommunitySubscriber(community=community, user=user).save()
 
         # Get the access token
         access_token = get_access_token(user)

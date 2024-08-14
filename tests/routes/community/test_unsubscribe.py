@@ -8,6 +8,9 @@ from tests.factories.community_factory import CommunityFactory
 # Utils
 from tests.utils.tokens import get_access_token
 
+# Models
+from app.models.community import CommunitySubscriber
+
 
 class TestUnsubscribe(BaseTestCase):
     route = '/community/{}/unsubscribe'
@@ -20,7 +23,7 @@ class TestUnsubscribe(BaseTestCase):
         user = UserFactory()
 
         # Append the user to the community subscribers
-        community.append_subscriber(user)
+        CommunitySubscriber(community=community, user=user).save()
 
         # Get the user access token
         access_token = get_access_token(user)

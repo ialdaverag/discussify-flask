@@ -18,16 +18,21 @@ class TestDeleteCommunity(BaseTestCase):
         community = CommunityFactory()
 
         # Get the owner of the community
-        user = community.owner
+        owner = community.owner
 
         # Get the community to delete
         community_to_delete = Community.get_by_id(community.id)
 
         # Delete the community
-        user.delete_community(community_to_delete)
+        owner.delete_community(community_to_delete)
 
         # Assert that the community was deleted
-        self.assertNotIn(community, user.communities)
+        self.assertNotIn(community, owner.communities)
+
+        # Assert that the owner's stats were updated
+        communities_count = owner.stats.communities_count
+
+        self.assertEqual(communities_count, 0)
 
     def test_delete_community_not_being_the_owner(self):
         # Create a user to be the creator of the community

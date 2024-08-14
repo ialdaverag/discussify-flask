@@ -8,6 +8,10 @@ from tests.factories.community_factory import CommunityFactory
 # Utils
 from tests.utils.tokens import get_access_token
 
+# Models
+from app.models.community import CommunityModerator
+from app.models.community import CommunityBan
+
 
 class TestReadBanned(BaseTestCase):
     route = '/community/{}/banned'
@@ -23,14 +27,14 @@ class TestReadBanned(BaseTestCase):
         owner = community.owner
 
         # Append the owner to the community moderators
-        community.append_moderator(owner)
+        CommunityModerator(community=community, user=owner).save()
 
         # Get the access token
         access_token = get_access_token(owner)
 
         # Append the users to the community banned users
         for user in users:
-            community.append_banned(user)
+            CommunityBan(community=community, user=user).save()
 
         # Read the community banned users
         response = self.client.get(

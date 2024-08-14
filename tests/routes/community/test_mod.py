@@ -8,6 +8,11 @@ from tests.factories.community_factory import CommunityFactory
 # Utils
 from tests.utils.tokens import get_access_token
 
+# Models
+from app.models.community import CommunitySubscriber
+from app.models.community import CommunityModerator
+from app.models.community import CommunityBan
+
 
 class TestMod(BaseTestCase):
     route = '/community/{}/mod/{}'
@@ -20,7 +25,7 @@ class TestMod(BaseTestCase):
         user = UserFactory()
 
         # Append the user to the community subscribers
-        community.append_subscriber(user)
+        CommunitySubscriber(community=community, user=user).save()
 
         # Get the user access token
         access_token = get_access_token(community.owner)
@@ -148,7 +153,7 @@ class TestMod(BaseTestCase):
         user = UserFactory()
 
         # Append the user to the community subscribers
-        community.append_banned(user)
+        CommunityBan(community=community, user=user).save()
 
         # Get the user access token
         access_token = get_access_token(community.owner)
@@ -179,7 +184,7 @@ class TestMod(BaseTestCase):
         user = UserFactory()
 
         # Append the user to the community subscribers
-        community.append_moderator(user)
+        CommunityModerator(community=community, user=user).save()
 
         # Get the user access token
         access_token = get_access_token(community.owner)

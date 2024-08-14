@@ -4,6 +4,9 @@ from tests.base.base_test_case import BaseTestCase
 # factories
 from tests.factories.user_factory import UserFactory
 
+# models
+from app.models.user import Follow
+
 
 class TestReadFollowers(BaseTestCase):
     route = '/user/{}/followers'
@@ -17,7 +20,7 @@ class TestReadFollowers(BaseTestCase):
 
         # Make the followers follow the user
         for follower in followers:
-            user.append_follower(follower)
+            Follow(follower=follower, followed=user).save()
 
         # Get user followers
         response = self.client.get(self.route.format(user.username))
@@ -30,6 +33,9 @@ class TestReadFollowers(BaseTestCase):
 
         # Assert that the response data is a list
         self.assertIsInstance(data, list)
+
+        # Assert the number of followers
+        self.assertEqual(len(data), 5)
 
     def test_read_followers_empty(self):
         # Create a user

@@ -10,6 +10,11 @@ from app.errors.errors import BanError
 from app.errors.errors import SubscriptionError
 from app.errors.errors import OwnershipError
 
+# Models
+from app.models.community import CommunitySubscriber
+from app.models.community import CommunityModerator
+from app.models.community import CommunityBan
+
 
 class TestAppointModeratorTo(BaseTestCase):
     def test_appoint_moderator(self):
@@ -20,7 +25,7 @@ class TestAppointModeratorTo(BaseTestCase):
         user = UserFactory()
 
         # Append the user to the community subscribers
-        community.append_subscriber(user)
+        CommunitySubscriber(community=community, user=user).save()
 
         # Gwt the owner of the community
         owner = community.owner
@@ -29,7 +34,7 @@ class TestAppointModeratorTo(BaseTestCase):
         owner.appoint_moderator(user, community)
 
         # Check that the user is in the community moderators
-        self.assertIn(user, community.moderators)
+        self.assertIsNotNone(CommunityModerator.get_by_user_and_community(user, community))
 
     def test_appoint_moderator_not_being_owner(self):
         # Create a community
@@ -42,7 +47,7 @@ class TestAppointModeratorTo(BaseTestCase):
         user2 = UserFactory()
 
         # Append the user to the community subscribers
-        community.append_subscriber(user2)
+        CommunitySubscriber(community=community, user=user1).save()
 
         # Attempt to appoint the user as a moderator
         with self.assertRaises(OwnershipError):
@@ -56,7 +61,7 @@ class TestAppointModeratorTo(BaseTestCase):
         user = UserFactory()
 
         # Append the user to the community banned users
-        community.append_banned(user)
+        CommunityBan(community=community, user=user).save()
 
         # Get the owner of the community
         owner = community.owner
@@ -87,7 +92,7 @@ class TestAppointModeratorTo(BaseTestCase):
         user = UserFactory()
 
         # Appoint the user as a moderator
-        community.append_moderator(user)
+        CommunityModerator(community=community, user=user).save()
 
         # Attempt to appoint the user as a moderator again
         with self.assertRaises(OwnershipError):

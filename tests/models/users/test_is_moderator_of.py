@@ -3,6 +3,9 @@ from tests.base.base_test_case import BaseTestCase
 from tests.factories.user_factory import UserFactory
 from tests.factories.community_factory import CommunityFactory
 
+# Models
+from app.models.community import CommunityModerator
+
 
 class TestIsModeratorOf(BaseTestCase):
     def test_is_moderator_of_true(self):
@@ -13,7 +16,7 @@ class TestIsModeratorOf(BaseTestCase):
         user = UserFactory()
 
         # Append the user to the community moderators
-        community.append_moderator(user)
+        CommunityModerator(community=community, user=user).save()
 
         # Assert that the user is a moderator of the community
         self.assertTrue(user.is_moderator_of(community))

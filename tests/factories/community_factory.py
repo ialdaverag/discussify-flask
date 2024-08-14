@@ -3,7 +3,8 @@ import factory
 
 # models
 from app.models.community import Community
-from app.models.community import CommunityStats
+from app.models.community import CommunitySubscriber
+from app.models.community import CommunityModerator
 
 # factories
 from .base_factory import BaseFactory
@@ -33,3 +34,9 @@ class CommunityFactory(BaseFactory):
         obj.stats.comments_count = 0
         obj.stats.moderators_count = 0
         obj.stats.banned_count = 0
+
+        # # Add the owner to the list of subscribers
+        # CommunitySubscriber(community=obj, user=obj.owner).save()
+
+        # # Add the owner to the list of moderators
+        # CommunityModerator(community=obj, user=obj.owner).save()

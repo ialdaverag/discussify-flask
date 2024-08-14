@@ -13,6 +13,8 @@ from app.errors.errors import VoteError
 
 # Models
 from app.models.comment import CommentVote
+from app.models.community import CommunitySubscriber
+from app.models.community import CommunityBan
 
 
 class TestDownvoteComment(BaseTestCase):
@@ -24,7 +26,8 @@ class TestDownvoteComment(BaseTestCase):
         user = UserFactory()
 
         # Append the user to the comment's subscribers
-        comment.post.community.append_subscriber(user)
+        community = comment.post.community
+        CommunitySubscriber(community=community, user=user).save()
 
         # Downvote the comment
         user.downvote_comment(comment)
@@ -43,7 +46,8 @@ class TestDownvoteComment(BaseTestCase):
         user = UserFactory()
 
         # Append the user to the comment's banned users
-        comment.post.community.append_banned(user)
+        community = comment.post.community
+        CommunityBan(community=community, user=user).save()
 
         # Attempt to downvote the comment
         with self.assertRaises(BanError):
@@ -71,7 +75,8 @@ class TestDownvoteComment(BaseTestCase):
         user = vote.user
 
         # Append the user to the comments's community subscribers
-        comment.post.community.append_subscriber(user)
+        community = comment.post.community
+        CommunitySubscriber(community=community, user=user).save()
 
         # Attempt to downvote the comment again
         with self.assertRaises(VoteError):

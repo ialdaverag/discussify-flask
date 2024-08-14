@@ -8,6 +8,9 @@ from tests.factories.post_factory import PostFactory
 # Errors
 from app.errors.errors import BookmarkError
 
+# Models
+from app.models.post import PostBookmark
+
 
 class TestBookmarkPost(BaseTestCase):
     def test_bookmark_post(self):
@@ -20,8 +23,11 @@ class TestBookmarkPost(BaseTestCase):
         # Bookmark the post
         user.bookmark_post(post)
 
+        # Retrieve the bookmark
+        bookmark = PostBookmark.get_by_user_and_post(user, post)
+
         # Assert that the post was bookmarked
-        self.assertIn(post, user.bookmarks)
+        self.assertIsNotNone(bookmark)
 
     def test_bookmark_post_already_bookmarked(self):
         # Create a post
@@ -31,7 +37,7 @@ class TestBookmarkPost(BaseTestCase):
         user = UserFactory()
 
         # Append the post to the user's bookmarks
-        post.append_bookmarker(user)
+        PostBookmark(user=user, post=post).save()
 
         # Attempt to bookmark the post again
         with self.assertRaises(BookmarkError):

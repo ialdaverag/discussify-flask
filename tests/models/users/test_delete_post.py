@@ -20,6 +20,8 @@ class TestCreatePost(BaseTestCase):
         # Get the owner of the post
         user = post.owner
 
+        print(user.stats.posts_count)
+
         # Get the post to delete
         post_to_delete = Post.get_by_id(post.id)
 
@@ -28,6 +30,11 @@ class TestCreatePost(BaseTestCase):
 
         # Assert that the post was deleted
         self.assertNotIn(post, user.posts)
+
+        # Assert that the owner's stats were updated
+        posts_count = user.stats.posts_count
+
+        self.assertEqual(posts_count, 0)
 
     def test_delete_post_not_being_the_owner(self):
         # Create a user to be the creator of the post

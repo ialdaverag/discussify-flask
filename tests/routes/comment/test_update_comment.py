@@ -8,6 +8,9 @@ from tests.factories.comment_factory import CommentFactory
 # Utils
 from tests.utils.tokens import get_access_token
 
+# Models
+from app.models.community import CommunityBan
+
 
 class TestUpdateComment(BaseTestCase):
     route = '/comment/{}'
@@ -36,6 +39,35 @@ class TestUpdateComment(BaseTestCase):
 
         # Check status code
         self.assertEqual(200, response.status_code)
+
+        # Get the response data
+        data = response.json
+
+        # Assert the response data
+        self.assertIn('id', data)
+        self.assertIn('content', data)
+        self.assertIn('owner', data)
+        self.assertIn('post', data)
+        self.assertIn('stats', data)
+
+        # Assert the data values
+        self.assertEqual(data['content'], 'Comment updated.')
+        self.assertEqual(data['owner']['id'], owner.id)
+        self.assertEqual(data['post']['id'], comment.post.id)
+
+        # # Get the stats data from the response
+        stats_data = data['stats']
+
+        # Assert the stats data
+        self.assertIn('id', stats_data)
+        self.assertIn('bookmarks_count', stats_data)
+        self.assertIn('upvotes_count', stats_data)
+        self.assertIn('downvotes_count', stats_data)
+
+        # Assert the stats data values
+        self.assertEqual(stats_data['bookmarks_count'], 0)
+        self.assertEqual(stats_data['upvotes_count'], 0)
+        self.assertEqual(stats_data['downvotes_count'], 0)
 
     def test_update_comment_nonexistent(self):
         # Create a user
@@ -115,7 +147,8 @@ class TestUpdateComment(BaseTestCase):
         owner = comment.owner
     
         # Append the owner to the post's community banned list
-        comment.post.community.append_banned(owner)
+        community = comment.post.community
+        CommunityBan(community=community, user=owner).save()
 
         # Get the access token
         access_token = get_access_token(owner)

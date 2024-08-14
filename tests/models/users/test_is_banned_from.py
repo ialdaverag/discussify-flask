@@ -5,6 +5,9 @@ from tests.base.base_test_case import BaseTestCase
 from tests.factories.user_factory import UserFactory
 from tests.factories.community_factory import CommunityFactory
 
+# Models
+from app.models.community import CommunityBan
+
 
 class TestIsBannedFrom(BaseTestCase):
     def test_is_banned_from_true(self):
@@ -15,7 +18,7 @@ class TestIsBannedFrom(BaseTestCase):
         user = UserFactory()
 
         # Append the user to the community banned
-        community.append_banned(user)
+        CommunityBan(community=community, user=user).save()
 
         # Check that the user is banned from the community
         self.assertTrue(user.is_banned_from(community))

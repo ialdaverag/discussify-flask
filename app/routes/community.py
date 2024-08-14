@@ -99,7 +99,9 @@ def read_subscribers(name):
 
     only_subscribers = set(community.subscribers) - set(community.moderators) - set(community.banned)
 
-    return users_schema.dump(only_subscribers), HTTPStatus.OK
+    users = [subscriber.user for subscriber in only_subscribers]
+
+    return users_schema.dump(users), HTTPStatus.OK
 
 
 @community_routes.post('/<string:name>/unsubscribe')
@@ -129,7 +131,11 @@ def mod(name, username):
 def read_moderators(name):
     community = Community.get_by_name(name)
 
-    return users_schema.dump(community.moderators), HTTPStatus.OK
+    moderators = community.moderators
+
+    users = [moderator.user for moderator in moderators]
+
+    return users_schema.dump(users), HTTPStatus.OK
 
 
 @community_routes.post('/<string:name>/unmod/<string:username>')

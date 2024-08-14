@@ -4,6 +4,9 @@ from tests.base.base_test_case import BaseTestCase
 # factories
 from tests.factories.user_factory import UserFactory
 
+# models
+from app.models.user import Follow
+
 
 class TestReadFollowed(BaseTestCase):
     route = '/user/{}/following'
@@ -17,7 +20,7 @@ class TestReadFollowed(BaseTestCase):
 
         # Make the user follow the followed users
         for user_ in followed:
-            user_.append_follower(user)
+            Follow(follower=user, followed=user_).save()
 
         # Get user followed
         response = self.client.get(self.route.format(user.username))

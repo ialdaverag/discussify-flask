@@ -3,11 +3,33 @@ from flask_jwt_extended import current_user
 from app.extensions.database import db
 from app.errors.errors import NotFoundError
 
-comment_bookmarks = db.Table(
-    'comment_bookmarks',
-    db.Column('user_id', db.Integer, db.ForeignKey('users.id')),
-    db.Column('comment_id', db.Integer, db.ForeignKey('comments.id'))
-)
+
+class CommentBookmark(db.Model):
+    __tablename__ = 'comment_bookmarks'
+
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), primary_key=True)
+    comment_id = db.Column(db.Integer, db.ForeignKey('comments.id'), primary_key=True)
+    created_at = db.Column(db.DateTime, default=db.func.now())
+
+    # User
+    user = db.relationship('User', back_populates='comment_bookmarks')
+
+    # Comment
+    comment = db.relationship('Comment', back_populates='comment_bookmarkers')
+
+    def save(self):
+        db.session.add(self)
+        db.session.commit()
+
+    def delete(self):
+        db.session.delete(self)
+        db.session.commit()
+
+    @classmethod
+    def get_by_user_and_comment(cls, user, comment):
+        bookmark = CommentBookmark.query.filter_by(user_id=user.id, comment_id=comment.id).first()
+
+        return bookmark
 
 
 class CommentVote(db.Model):
@@ -68,7 +90,7 @@ class Comment(db.Model):
 
     # User
     owner = db.relationship('User', back_populates='comments')
-    comment_bookmarkers = db.relationship('User', secondary=comment_bookmarks, back_populates='comment_bookmarks')
+    comment_bookmarkers = db.relationship('CommentBookmark', back_populates='comment')
 
     # Post
     post = db.relationship('Post', back_populates='comments')
@@ -116,7 +138,9 @@ class Comment(db.Model):
         return self.owner is user
     
     def is_bookmarked_by(self, user):
-        return user in self.comment_bookmarkers
+        bookmark = CommentBookmark.get_by_user_and_comment(user, self)
+
+        return bookmark is not None
 
     def is_upvoted_by(self, user):
         vote = CommentVote.get_by_user_and_comment(user, self)
@@ -129,18 +153,6 @@ class Comment(db.Model):
         return vote.is_downvote() if vote else False
     
     
-    def append_bookmarker(self, user):
-        self.comment_bookmarkers.append(user)
-
-        db.session.commit()
-
-    def remove_bookmarker(self, user):
-        self.comment_bookmarkers.remove(user)
-
-        db.session.commit()
-    
-    
-
 @db.event.listens_for(Comment, 'after_insert')
 def increment_comments_count_on_user_stats(mapper, connection, target):
     from app.models.user import UserStats
@@ -261,15 +273,27 @@ def decrement_upvotes_count_on_comment_stats(mapper, connection, target):
     connection.execute(update_query)
 
 
-@db.event.listens_for(Comment.comment_bookmarkers, 'append')
-def increment_bookmarks_count_on_comment_stats(target, value, initiator):
-    target.stats.bookmarks_count += 1
+@db.event.listens_for(CommentBookmark, 'after_insert')
+def increment_bookmarks_count_on_comment_stats(mapper, connection, target):
+    comment_stats_table = CommentStats.__table__
 
-    db.session.commit()
+    update_query = comment_stats_table.update().where(
+        comment_stats_table.c.comment_id == target.comment_id
+    ).values(
+        bookmarks_count=comment_stats_table.c.bookmarks_count + 1
+    )
+
+    connection.execute(update_query)
 
 
-@db.event.listens_for(Comment.comment_bookmarkers, 'remove')
-def decrement_bookmarks_count_on_comment_stats(target, value, initiator):
-    target.stats.bookmarks_count -= 1
+@db.event.listens_for(CommentBookmark, 'after_delete')
+def decrement_bookmarks_count_on_comment_stats(mapper, connection, target):
+    comment_stats_table = CommentStats.__table__
 
-    db.session.commit()
+    update_query = comment_stats_table.update().where(
+        comment_stats_table.c.comment_id == target.comment_id
+    ).values(
+        bookmarks_count=comment_stats_table.c.bookmarks_count - 1
+    )
+
+    connection.execute(update_query)

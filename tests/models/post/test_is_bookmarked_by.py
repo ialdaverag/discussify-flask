@@ -5,6 +5,9 @@ from tests.base.base_test_case import BaseTestCase
 from tests.factories.user_factory import UserFactory
 from tests.factories.post_factory import PostFactory
 
+# Models
+from app.models.post import PostBookmark
+
 
 class TestIsBookmarkedBy(BaseTestCase):
     def test_is_bookmarked_by_true(self):
@@ -15,7 +18,7 @@ class TestIsBookmarkedBy(BaseTestCase):
         user = UserFactory()
 
         # Bookmark the post
-        post.append_bookmarker(user)
+        PostBookmark(user=user, post=post).save()
 
         # Assert that the post is bookmarked by the user
         self.assertTrue(post.is_bookmarked_by(user))

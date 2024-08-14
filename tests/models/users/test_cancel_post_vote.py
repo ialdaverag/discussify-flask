@@ -12,6 +12,10 @@ from app.errors.errors import BanError
 from app.errors.errors import SubscriptionError
 from app.errors.errors import VoteError
 
+# Models
+from app.models.community import CommunitySubscriber
+from app.models.community import CommunityBan
+
 
 class TestCancelPostVote(BaseTestCase):
     def test_cancel_post_vote(self):
@@ -25,7 +29,8 @@ class TestCancelPostVote(BaseTestCase):
         post = vote.post
 
         # Append the user to the post's community subscribers
-        post.community.append_subscriber(user)
+        community = post.community
+        CommunitySubscriber(community=community, user=user).save()
 
         # Cancel the post vote
         user.cancel_post_vote(post)
@@ -44,7 +49,8 @@ class TestCancelPostVote(BaseTestCase):
         post = vote.post
 
         # Append the user to the post's community banned users
-        post.community.append_banned(user)
+        community = post.community
+        CommunityBan(community=community, user=user).save()
 
         with self.assertRaises(BanError):
             user.cancel_post_vote(post)
@@ -71,7 +77,8 @@ class TestCancelPostVote(BaseTestCase):
         post = PostFactory()
 
         # Append the user to the post's community subscribers
-        post.community.append_subscriber(user)
+        community = post.community
+        CommunitySubscriber(community=community, user=user).save()
 
         # Attempt to cancel the post vote
         with self.assertRaises(VoteError):

@@ -8,6 +8,9 @@ from tests.factories.comment_factory import CommentFactory
 # Errors
 from app.errors.errors import BookmarkError
 
+# Models
+from app.models.comment import CommentBookmark
+
 
 class TestBookmarkComment(BaseTestCase):
     def test_bookmark_comment(self):
@@ -20,8 +23,11 @@ class TestBookmarkComment(BaseTestCase):
         # Bookmark the comment
         user.bookmark_comment(comment)
 
+        # Retrieve the bookmark
+        bookmark = CommentBookmark.get_by_user_and_comment(user, comment)
+
         # Assert that the comment was bookmarked
-        self.assertIn(comment, user.comment_bookmarks)
+        self.assertIsNotNone(bookmark)
 
     def test_bookmark_comment_already_bookmarked(self):
         # Create a comment
@@ -31,7 +37,7 @@ class TestBookmarkComment(BaseTestCase):
         user = UserFactory()
 
         # Append the comment to the user's bookmarks
-        comment.append_bookmarker(user)
+        CommentBookmark(user=user, comment=comment).save()
 
         # Attempt to bookmark the comment again
         with self.assertRaises(BookmarkError):

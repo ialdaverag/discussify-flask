@@ -8,6 +8,9 @@ from tests.factories.post_factory import PostFactory
 # Errors
 from app.errors.errors import BookmarkError
 
+# Models
+from app.models.post import PostBookmark
+
 
 class TestUnbookmarkPost(BaseTestCase):
     def test_unbookmark_post(self):
@@ -18,7 +21,7 @@ class TestUnbookmarkPost(BaseTestCase):
         user = UserFactory()
 
         # Append the post to the user's bookmarks
-        post.append_bookmarker(user)
+        PostBookmark(user=user, post=post).save()
 
         # Unbookmark the post
         user.unbookmark_post(post)

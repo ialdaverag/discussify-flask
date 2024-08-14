@@ -12,8 +12,9 @@ from app.errors.errors import SubscriptionError
 from app.errors.errors import VoteError
 
 # Models
-from app.models.comment import Comment
 from app.models.comment import CommentVote
+from app.models.community import CommunitySubscriber
+from app.models.community import CommunityBan
 
 
 class TestUpvoteComment(BaseTestCase):
@@ -25,7 +26,8 @@ class TestUpvoteComment(BaseTestCase):
         user = UserFactory()
 
         # Append the user to the comment's subscribers
-        comment.post.community.append_subscriber(user)
+        community = comment.post.community
+        CommunitySubscriber(community=community, user=user).save()
 
         # Upvote the comment
         user.upvote_comment(comment)
@@ -44,7 +46,8 @@ class TestUpvoteComment(BaseTestCase):
         user = UserFactory()
 
         # Append the user to the comment's banned users
-        comment.post.community.append_banned(user)
+        community = comment.post.community
+        CommunityBan(community=community, user=user).save()
 
         # Attempt to upvote the comment
         with self.assertRaises(BanError):
@@ -72,7 +75,8 @@ class TestUpvoteComment(BaseTestCase):
         user = vote.user
 
         # Append the user to the comments's community subscribers
-        comment.post.community.append_subscriber(user)
+        community = comment.post.community
+        CommunitySubscriber(community=community, user=user).save()
 
         # Attempt to upvote the comment again
         with self.assertRaises(VoteError):

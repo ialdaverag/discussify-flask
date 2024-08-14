@@ -9,6 +9,9 @@ from tests.factories.comment_factory import CommentFactory
 # Utils
 from tests.utils.tokens import get_access_token
 
+# Models
+from app.models.comment import CommentBookmark
+
 
 class TestBookmarkComment(BaseTestCase):
     route = '/comment/{}/bookmark'
@@ -68,7 +71,7 @@ class TestBookmarkComment(BaseTestCase):
         access_token = get_access_token(user)
 
         # Append the user to the comment's bookmarkers
-        comment.append_bookmarker(user)
+        CommentBookmark(user=user, comment=comment).save()
 
         # Bookmark the comment again
         response = self.client.post(

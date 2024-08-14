@@ -5,6 +5,9 @@ from tests.base.base_test_case import BaseTestCase
 from tests.factories.user_factory import UserFactory
 from tests.factories.community_factory import CommunityFactory
 
+# Models
+from app.models.community import CommunitySubscriber
+
 
 class TestReadSubscriptions(BaseTestCase):
     route = '/user/{}/subscriptions'
@@ -18,7 +21,7 @@ class TestReadSubscriptions(BaseTestCase):
 
         # Make the user subscribe to the communities
         for community in communities:
-            community.append_subscriber(user)
+            CommunitySubscriber(community=community, user=user).save()
 
         # Get user subscriptions
         response = self.client.get(self.route.format(user.username))
@@ -31,6 +34,11 @@ class TestReadSubscriptions(BaseTestCase):
 
         # Assert that the response data is a list
         self.assertIsInstance(data, list)
+
+        # Assert that the response data length is 5
+        self.assertEqual(len(data), 5)
+
+       
 
     def test_read_subscriptions_empty(self):
         # Create a user

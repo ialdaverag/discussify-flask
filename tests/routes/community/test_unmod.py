@@ -8,6 +8,9 @@ from tests.factories.community_factory import CommunityFactory
 # Utils
 from tests.utils.tokens import get_access_token
 
+# Models
+from app.models.community import CommunityModerator
+
 
 class TestUnmod(BaseTestCase):
     route = '/community/{}/unmod/{}'
@@ -23,7 +26,7 @@ class TestUnmod(BaseTestCase):
         user = UserFactory()
 
         # add moderator to the community
-        community.append_moderator(user)
+        CommunityModerator(community=community, user=user).save()
 
         # get user access token
         access_token = get_access_token(owner)

@@ -8,6 +8,9 @@ from tests.factories.community_factory import CommunityFactory
 # Utils
 from tests.utils.tokens import get_access_token
 
+# Models
+from app.models.community import CommunitySubscriber
+
 
 class TestReadModerators(BaseTestCase):
     route = '/community/{}/moderators'
@@ -21,7 +24,7 @@ class TestReadModerators(BaseTestCase):
 
         # Append the moderators to the community
         for moderator in moderators:
-            community.append_subscriber(moderator)
+            CommunitySubscriber(community=community, user=moderator).save()
 
         # Read the community moderators
         response = self.client.get(self.route.format(community.name))

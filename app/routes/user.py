@@ -14,6 +14,7 @@ from flask_jwt_extended import (
 
 # Models
 from app.models.user import User
+from app.models.user import Follow
 from app.models.post import PostVote
 from app.models.comment import CommentVote
 
@@ -72,16 +73,20 @@ def unfollow_user(username):
 @jwt_required(optional=True)
 def read_following(username):
     user = User.get_by_username(username)
+
+    following = Follow.get_followed(user)
     
-    return users_schema.dump(user.followed)
+    return users_schema.dump(following)
 
 
 @user_routes.get('/<string:username>/followers')
 @jwt_required(optional=True)
 def read_followers(username):
     user = User.get_by_username(username)
+
+    followers = Follow.get_followers(user)
     
-    return users_schema.dump(user.followers)
+    return users_schema.dump(followers)
 
 
 @user_routes.get('/<string:username>/subscriptions')

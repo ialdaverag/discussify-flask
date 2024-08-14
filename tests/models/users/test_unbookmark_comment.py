@@ -8,6 +8,9 @@ from tests.factories.comment_factory import CommentFactory
 # Errors
 from app.errors.errors import BookmarkError
 
+# Models
+from app.models.comment import CommentBookmark
+
 
 class TestUnbookmarkComment(BaseTestCase):
     def test_unbookmark_comment(self):
@@ -18,7 +21,7 @@ class TestUnbookmarkComment(BaseTestCase):
         user = UserFactory()
 
         # Append the comment to the user's bookmarks
-        comment.append_bookmarker(user)
+        CommentBookmark(user=user, comment=comment).save()
 
         # Unbookmark the comment
         user.unbookmark_comment(comment)

@@ -3,6 +3,9 @@ from tests.base.base_test_case import BaseTestCase
 from tests.factories.user_factory import UserFactory
 from tests.factories.community_factory import CommunityFactory
 
+# Models
+from app.models.community import CommunitySubscriber
+
 
 class TestIsSubscribedTo(BaseTestCase):
     def test_is_subscribed_to_true(self):
@@ -13,7 +16,7 @@ class TestIsSubscribedTo(BaseTestCase):
         user = UserFactory()
 
         # Append the user to the community subscribers
-        community.append_subscriber(user)
+        CommunitySubscriber(community=community, user=user).save()
 
         # Assert that the user is subscribed to the community
         self.assertTrue(user.is_subscribed_to(community))

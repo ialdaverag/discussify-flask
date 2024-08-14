@@ -8,6 +8,10 @@ from tests.factories.community_factory import CommunityFactory
 # Utils
 from tests.utils.tokens import get_access_token
 
+# Models
+from app.models.community import CommunitySubscriber
+from app.models.community import CommunityBan
+
 
 class TestTransfer(BaseTestCase):
     route = '/community/{}/transfer/{}'
@@ -20,7 +24,7 @@ class TestTransfer(BaseTestCase):
         user = UserFactory()
 
         # subscribe user
-        community.append_subscriber(user)
+        CommunitySubscriber(community=community, user=user).save()
 
         # get user access token
         access_token = get_access_token(community.owner)
@@ -130,7 +134,7 @@ class TestTransfer(BaseTestCase):
         access_token = get_access_token(owner)
 
         # append banned user to the community
-        community.append_banned(user)
+        CommunityBan(community=community, user=user).save()
 
         # add moderator to the community
         response = self.client.post(

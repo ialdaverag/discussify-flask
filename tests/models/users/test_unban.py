@@ -7,6 +7,10 @@ from tests.factories.community_factory import CommunityFactory
 from app.errors.errors import BanError
 from app.errors.errors import UnauthorizedError
 
+# Models
+from app.models.community import CommunityModerator
+from app.models.community import CommunityBan
+
 
 class TestUnban(BaseTestCase):
     def test_unban(self):
@@ -17,13 +21,13 @@ class TestUnban(BaseTestCase):
         user = UserFactory()
 
         # Ban the user from the community
-        community.append_banned(user)
+        CommunityBan(community=community, user=user).save()
 
         # Get the owner of the community
         owner = community.owner
 
         # Append the owner to the community moderators
-        community.append_moderator(owner)
+        CommunityModerator(community=community, user=owner).save()
 
         # Unban the user from the community
         owner.unban_from(user, community)
@@ -42,7 +46,7 @@ class TestUnban(BaseTestCase):
         user2 = UserFactory()
 
         # Append the user to the community banned users
-        community.append_banned(user2)
+        CommunityBan(community=community, user=user2).save()
 
         # Attempt to unban the user from the community
         with self.assertRaises(UnauthorizedError):
@@ -59,7 +63,7 @@ class TestUnban(BaseTestCase):
         owner = community.owner
 
         # Append the owner to the community moderators
-        community.append_moderator(owner)
+        CommunityModerator(community=community, user=owner).save()
 
         # Attempt to unban the user from the community
         with self.assertRaises(BanError):

@@ -7,6 +7,9 @@ from tests.factories.community_factory import CommunityFactory
 from app.errors.errors import SubscriptionError
 from app.errors.errors import OwnershipError
 
+# Models
+from app.models.community import CommunitySubscriber
+
 
 class TestUnsubscribeTo(BaseTestCase):
     def test_unsubscribe_to(self):
@@ -16,8 +19,8 @@ class TestUnsubscribeTo(BaseTestCase):
         # Create a community
         community = CommunityFactory()
 
-        # 
-        community.append_subscriber(user)
+        # Subscribe to the community
+        CommunitySubscriber(community=community, user=user).save()
 
         # Unsubscribe to the community
         user.unsubscribe_to(community)

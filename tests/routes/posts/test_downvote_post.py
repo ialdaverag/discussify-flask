@@ -9,6 +9,10 @@ from tests.factories.post_factory import PostFactory
 # Utils
 from tests.utils.tokens import get_access_token
 
+# Models
+from app.models.community import CommunitySubscriber
+from app.models.community import CommunityBan
+
 
 class TestDownvotePost(BaseTestCase):
     route = '/post/{}/vote/down'
@@ -21,7 +25,8 @@ class TestDownvotePost(BaseTestCase):
         user = UserFactory()
 
         # Append the user to the post's community's subscribers
-        post.community.append_subscriber(user)
+        community = post.community
+        CommunitySubscriber(community=community, user=user).save()
 
         # Get the access token
         access_token = get_access_token(user)
@@ -68,10 +73,12 @@ class TestDownvotePost(BaseTestCase):
         user = UserFactory()
 
         # Append the user to the post's community's subscribers
-        post.community.append_subscriber(user)
+        community = post.community
+        CommunitySubscriber(community=community, user=user).save()
 
         # Append the user to the post's community's banned
-        post.community.append_banned(user)
+        community = post.community
+        CommunityBan(community=community, user=user).save()
 
         # Get the access token
         access_token = get_access_token(user)
@@ -130,7 +137,8 @@ class TestDownvotePost(BaseTestCase):
         user = UserFactory()
 
         # Append the user to the post's community's subscribers
-        post.community.append_subscriber(user)
+        community = post.community
+        CommunitySubscriber(community=community, user=user).save()
 
         # Get the access token
         access_token = get_access_token(user)

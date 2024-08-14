@@ -36,6 +36,13 @@ class TestCreateCommunity(BaseTestCase):
         # Assert that the community is in the user's communities
         self.assertIn(community, user.communities)
 
+        # Assert that the user's stats were updated
+        self.assertEqual(user.stats.communities_count, 1)
+
+        # Assert that the community's stats were updated
+        self.assertEqual(community.stats.subscribers_count, 1)
+        self.assertEqual(community.stats.moderators_count, 1)
+
     def test_create_community_already_existent_name(self):
         # Create a user to be the creator of the community
         user = UserFactory()

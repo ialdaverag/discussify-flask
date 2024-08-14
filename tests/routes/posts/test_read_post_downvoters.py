@@ -28,6 +28,9 @@ class TestReadPostDownvoters(BaseTestCase):
         # Get the data
         data = response.json
 
+        # Assert data is a list
+        self.assertIsInstance(data, list)
+
         # Assert the number of downvoters
         self.assertEqual(len(data), 5)
 

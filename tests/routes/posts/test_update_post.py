@@ -43,12 +43,39 @@ class TestUpdatePost(BaseTestCase):
         data = response.json
 
         # Assert keys in data
+        self.assertIn('id', data)
         self.assertIn('title', data)
         self.assertIn('content', data)
+        self.assertIn('owner', data)
+        self.assertIn('community', data)
+        self.assertIn('bookmarked', data)
+        self.assertIn('upvoted', data)
+        self.assertIn('downvoted', data)
+        self.assertIn('stats', data)
+        self.assertIn('created_at', data)
+        self.assertIn('updated_at', data)
 
         # Assert that the community data is correct
         self.assertEqual(data['title'], json['title'])
         self.assertEqual(data['content'], json['content'])
+        self.assertEqual(data['community']['id'], post.community.id)
+        self.assertEqual(data['owner']['id'], owner.id)
+
+        # # Get the stats data from the response
+        stats_data = data['stats']
+
+        # Assert the stats data
+        self.assertIn('id', stats_data)
+        self.assertIn('comments_count', stats_data)
+        self.assertIn('bookmarks_count', stats_data)
+        self.assertIn('upvotes_count', stats_data)
+        self.assertIn('downvotes_count', stats_data)
+
+        # Assert the stats data values
+        self.assertEqual(stats_data['comments_count'], 0)
+        self.assertEqual(stats_data['bookmarks_count'], 0)
+        self.assertEqual(stats_data['upvotes_count'], 0)
+        self.assertEqual(stats_data['downvotes_count'], 0)
 
     def test_update_post_nonexistent(self):
         # Create a user

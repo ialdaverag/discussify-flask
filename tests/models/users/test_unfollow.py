@@ -4,6 +4,9 @@ from tests.base.base_test_case import BaseTestCase
 # Factories
 from tests.factories.user_factory import UserFactory
 
+# Models
+from app.models.user import Follow
+
 # Errors
 from app.errors.errors import FollowError
 
@@ -17,7 +20,7 @@ class TestUnfollow(BaseTestCase):
         user2 = UserFactory()
 
         # user1 follows user2
-        user1.follow(user2)
+        Follow(follower=user1, followed=user2).save()
 
         # Assert that user1 is following user2
         self.assertTrue(user1.is_following(user2))
