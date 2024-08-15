@@ -30,6 +30,12 @@ class CommentBookmark(db.Model):
         bookmark = CommentBookmark.query.filter_by(user_id=user.id, comment_id=comment.id).first()
 
         return bookmark
+    
+    @classmethod
+    def get_bookmarks_by_user(cls, user):
+        bookmarks = CommentBookmark.query.filter_by(user_id=user.id).all()
+
+        return bookmarks
 
 
 class CommentVote(db.Model):
@@ -45,19 +51,6 @@ class CommentVote(db.Model):
     # Comment
     comment = db.relationship('Comment', back_populates='comment_votes')
 
-
-    @classmethod
-    def get_by_user_and_comment(cls, user, comment):
-        vote = CommentVote.query.filter_by(user_id=user.id, comment_id=comment.id).first()
-
-        return vote
-    
-    def is_upvote(self):
-        return self.direction == 1
-    
-    def is_downvote(self):
-        return self.direction == -1
-    
     def create(self):
         db.session.add(self)
         db.session.commit()
@@ -65,6 +58,42 @@ class CommentVote(db.Model):
     def delete(self):
         db.session.delete(self)
         db.session.commit()
+
+    @classmethod
+    def get_by_user_and_comment(cls, user, comment):
+        vote = CommentVote.query.filter_by(user_id=user.id, comment_id=comment.id).first()
+
+        return vote
+    
+    @classmethod
+    def get_upvoted_comments_by_user(cls, user):
+        upvotes = CommentVote.query.filter_by(user_id=user.id, direction=1).all()
+
+        return upvotes
+    
+    @classmethod
+    def get_downvoted_comments_by_user(cls, user):
+        downvotes = CommentVote.query.filter_by(user_id=user.id, direction=-1).all()
+
+        return downvotes
+    
+    @classmethod
+    def get_upvoters_by_comment(cls, comment):
+        upvotes = CommentVote.query.filter_by(comment_id=comment.id, direction=1).all()
+
+        return [upvote.user for upvote in upvotes]
+    
+    @classmethod
+    def get_downvoters_by_comment(cls, comment):
+        downvotes = CommentVote.query.filter_by(comment_id=comment.id, direction=-1).all()
+
+        return [downvote.user for downvote in downvotes]
+    
+    def is_upvote(self):
+        return self.direction == 1
+    
+    def is_downvote(self):
+        return self.direction == -1
 
 
 class CommentStats(db.Model):

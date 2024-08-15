@@ -15,8 +15,11 @@ class TestReadSubscribers(BaseTestCase):
     route = '/community/{}/subscribers'
 
     def test_read_subscribers(self):
+        # Number of subscribers
+        n = 5
+
         # Create multiple subscribers
-        subscribers = UserFactory.create_batch(size=5)
+        subscribers = UserFactory.create_batch(n)
 
         # Create a community
         community = CommunityFactory()
@@ -36,6 +39,20 @@ class TestReadSubscribers(BaseTestCase):
 
         # Assert that the response data is a list
         self.assertIsInstance(data, list)
+
+        # Assert the response data length
+        self.assertEqual(len(data), n)
+
+        # Assert the response data structure
+        for subscriber in data:
+            self.assertIn('id', subscriber)
+            self.assertIn('username', subscriber)
+            self.assertIn('email', subscriber)
+            self.assertIn('following', subscriber)
+            self.assertIn('follower', subscriber)
+            self.assertIn('stats', subscriber)
+            self.assertIn('created_at', subscriber)
+            self.assertIn('updated_at', subscriber)
 
     def test_read_subscribers_empty(self):
         # Create a community

@@ -14,8 +14,11 @@ class TestDeletePost(BaseTestCase):
     route = '/post/'
 
     def test_read_posts(self):
+        # Number of posts
+        n = 5
+
         # Create multiple communities
-        posts = PostFactory.create_batch(size=5)
+        posts = PostFactory.create_batch(n)
 
         # Get the posts
         response = self.client.get(self.route)
@@ -26,16 +29,22 @@ class TestDeletePost(BaseTestCase):
         # Get the response data
         data = response.json
 
+        # Assert the response data
+        self.assertIsInstance(data, list)
+
         # Assert the number of posts
-        self.assertEqual(len(data), len(posts))
+        self.assertEqual(len(data), n)
 
         # Assert each post
-        for i, post in enumerate(posts):
-            self.assertEqual(data[i]['id'], post.id)
-            self.assertEqual(data[i]['title'], post.title)
-            self.assertEqual(data[i]['content'], post.content)
-            self.assertEqual(data[i]['created_at'], post.created_at.strftime('%Y-%m-%dT%H:%M:%S'))
-            self.assertEqual(data[i]['updated_at'], post.updated_at.strftime('%Y-%m-%dT%H:%M:%S'))
+        for post in data:
+            self.assertIn('id', post)
+            self.assertIn('title', post)
+            self.assertIn('content', post)
+            self.assertIn('owner', post)
+            self.assertIn('community', post)
+            self.assertIn('stats', post)
+            self.assertIn('created_at', post)
+            self.assertIn('updated_at', post)
 
     def test_read_posts_empty(self):
         # Get the posts

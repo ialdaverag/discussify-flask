@@ -10,11 +10,14 @@ class TestReadCommentDownvoters(BaseTestCase):
     route = '/comment/{}/downvoters'
 
     def test_read_comment_downvoters(self):
+        # Number of downvoters
+        n = 5
+
         # Create a comment
         comment = CommentFactory()
 
         # Create some downvoters
-        CommentVoteFactory.create_batch(5, comment=comment, direction=-1)
+        CommentVoteFactory.create_batch(n, comment=comment, direction=-1)
 
         # Get the downvoters
         response = self.client.get(self.route.format(comment.id))
@@ -26,7 +29,18 @@ class TestReadCommentDownvoters(BaseTestCase):
         data = response.json
 
         # Assert the number of downvoters
-        self.assertEqual(len(data), 5)
+        self.assertEqual(len(data), n)
+
+        # Assert the response data structure
+        for user in data:
+            self.assertIn('id', user)
+            self.assertIn('username', user)
+            self.assertIn('email', user)
+            self.assertIn('following', user)
+            self.assertIn('follower', user)
+            self.assertIn('stats', user)
+            self.assertIn('created_at', user)
+            self.assertIn('updated_at', user)
 
     def test_read_comment_downvoters_empty(self):
         # Create a comment

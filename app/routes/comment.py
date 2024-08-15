@@ -141,9 +141,7 @@ def downvote_comment(id):
 def read_comment_upvoters(id):
     comment = Comment.get_by_id(id)
     
-    upvotes = CommentVote.query.filter_by(comment_id=comment.id, direction=1).all()
-
-    upvoters = [vote.user for vote in upvotes]
+    upvoters = CommentVote.get_upvoters_by_comment(comment)
 
     return users_schema.dump(upvoters), HTTPStatus.OK
 
@@ -153,9 +151,7 @@ def read_comment_upvoters(id):
 def read_comment_downvoters(id):
     comment = Comment.get_by_id(id)
     
-    downvotes = CommentVote.query.filter_by(comment_id=comment.id, direction=-1).all()
-
-    downvoters = [vote.user for vote in downvotes]
+    downvoters = CommentVote.get_downvoters_by_comment(comment)
 
     return users_schema.dump(downvoters), HTTPStatus.OK
 

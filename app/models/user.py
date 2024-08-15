@@ -623,4 +623,3 @@ def decrement_following_count_on_user_stats(mapper, connection, target):
     )
 
     connection.execute(update_query)
-

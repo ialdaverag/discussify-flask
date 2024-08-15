@@ -11,6 +11,9 @@ from marshmallow import ValidationError
 from app.extensions.database import db
 
 from app.models.community import Community
+from app.models.community import CommunitySubscriber
+from app.models.community import CommunityModerator
+from app.models.community import CommunityBan
 from app.models.user import User
 
 from app.schemas.community import community_schema
@@ -97,11 +100,9 @@ def subscribe(name):
 def read_subscribers(name):
     community = Community.get_by_name(name)
 
-    only_subscribers = set(community.subscribers) - set(community.moderators) - set(community.banned)
+    subscribers = CommunitySubscriber.get_subscribers_by_community(community)
 
-    users = [subscriber.user for subscriber in only_subscribers]
-
-    return users_schema.dump(users), HTTPStatus.OK
+    return users_schema.dump(subscribers), HTTPStatus.OK
 
 
 @community_routes.post('/<string:name>/unsubscribe')
@@ -131,11 +132,9 @@ def mod(name, username):
 def read_moderators(name):
     community = Community.get_by_name(name)
 
-    moderators = community.moderators
+    moderators = CommunityModerator.get_moderators_by_community(community)
 
-    users = [moderator.user for moderator in moderators]
-
-    return users_schema.dump(users), HTTPStatus.OK
+    return users_schema.dump(moderators), HTTPStatus.OK
 
 
 @community_routes.post('/<string:name>/unmod/<string:username>')
@@ -167,7 +166,9 @@ def ban(name, username):
 def read_banned(name):
     community = Community.get_by_name(name)
 
-    return users_schema.dump(community.banned), HTTPStatus.OK
+    banned = CommunityBan.get_banned_by_community(community)
+
+    return users_schema.dump(banned), HTTPStatus.OK
 
 
 @community_routes.post('/<string:name>/unban/<string:username>')

@@ -48,8 +48,6 @@ class TestCreatePost(BaseTestCase):
         # Get the response data
         data = response.json
 
-        print(data)
-
         # Assert the response data
         self.assertIsInstance(data, dict)
 

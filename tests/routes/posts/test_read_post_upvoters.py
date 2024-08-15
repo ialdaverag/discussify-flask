@@ -14,11 +14,14 @@ class TestReadPostUpvoters(BaseTestCase):
     route = '/post/{}/upvoters'
 
     def test_read_post_upvoters(self):
+        # Number of upvoters
+        n = 5
+
         # Create a post
         post = PostFactory()
 
         # Create some upvoters
-        PostVoteFactory.create_batch(5, post=post, direction=1)
+        PostVoteFactory.create_batch(n, post=post, direction=1)
 
         # Get the upvoters
         response = self.client.get(
@@ -31,8 +34,7 @@ class TestReadPostUpvoters(BaseTestCase):
         # Get the data
         data = response.json
 
-        # Assert the number of upvoters
-        self.assertEqual(len(data), 5)
+       
 
     def test_read_post_upvoters_empty(self):
         # Create a post

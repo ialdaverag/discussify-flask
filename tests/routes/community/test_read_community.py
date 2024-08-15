@@ -29,6 +29,12 @@ class TestReadCommunity(BaseTestCase):
         self.assertIn('id', data)
         self.assertIn('name', data)
         self.assertIn('about', data)
+        self.assertIn('owned_by', data)
+        self.assertIn('subscriber', data)
+        self.assertIn('moderator', data)
+        self.assertIn('ban', data)
+        self.assertIn('owner', data)
+        self.assertIn('stats', data)
         self.assertIn('created_at', data)
         self.assertIn('updated_at', data)
 

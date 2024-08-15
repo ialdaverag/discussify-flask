@@ -17,8 +17,11 @@ class TestReadBanned(BaseTestCase):
     route = '/community/{}/banned'
 
     def test_read_banned(self):
+        # Number of banned users
+        n = 5
+
         # Create a user
-        users = UserFactory.create_batch(size=5)
+        users = UserFactory.create_batch(n)
 
         # Create a community
         community = CommunityFactory()
@@ -50,6 +53,20 @@ class TestReadBanned(BaseTestCase):
 
         # Assert that the response data is a list
         self.assertIsInstance(data, list)
+
+        # Assert the response data length
+        self.assertEqual(len(data), n)
+
+        # Assert the response data structure
+        for user in data:
+            self.assertIn('id', user)
+            self.assertIn('username', user)
+            self.assertIn('email', user)
+            self.assertIn('following', user)
+            self.assertIn('follower', user)
+            self.assertIn('stats', user)
+            self.assertIn('created_at', user)
+            self.assertIn('updated_at', user)
 
     def test_read_banned_empty(self):
         # Create a community

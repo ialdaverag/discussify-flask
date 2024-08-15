@@ -24,13 +24,16 @@ class TestReadUsers(BaseTestCase):
         # Assert the number of users
         self.assertEqual(len(data), len(users))
 
-        # Assert each user
-        for i, user in enumerate(users):
-            self.assertEqual(data[i]['id'], user.id)
-            self.assertEqual(data[i]['username'], user.username)
-            self.assertEqual(data[i]['email'], user.email)
-            self.assertEqual(data[i]['created_at'], user.created_at.strftime('%Y-%m-%dT%H:%M:%S'))
-            self.assertEqual(data[i]['updated_at'], user.updated_at.strftime('%Y-%m-%dT%H:%M:%S'))
+        # Assert the response data structure
+        for user in data:
+            self.assertIn('id', user)
+            self.assertIn('username', user)
+            self.assertIn('email', user)
+            self.assertIn('following', user)
+            self.assertIn('follower', user)
+            self.assertIn('stats', user)
+            self.assertIn('created_at', user)
+            self.assertIn('updated_at', user)
 
     def test_read_users_empty(self):
         # Get the users

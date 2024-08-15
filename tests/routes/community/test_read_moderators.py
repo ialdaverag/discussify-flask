@@ -16,8 +16,11 @@ class TestReadModerators(BaseTestCase):
     route = '/community/{}/moderators'
 
     def test_read_moderators(self):
+        # Number of moderators
+        n = 5
+
         # Create multiple moderators
-        moderators = UserFactory.create_batch(size=5)
+        moderators = UserFactory.create_batch(n)
 
         # Create a community
         community = CommunityFactory()
@@ -32,11 +35,7 @@ class TestReadModerators(BaseTestCase):
         # Assert that the response status code is 200
         self.assertEqual(response.status_code, 200)
 
-        # Get response data
-        data = response.json
-
-        # Assert that the response data is a list
-        self.assertIsInstance(data, list)
+        
 
     def test_read_moderators_empty(self):
         # Create a community

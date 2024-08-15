@@ -38,7 +38,19 @@ class TestReadSubscriptions(BaseTestCase):
         # Assert that the response data length is 5
         self.assertEqual(len(data), 5)
 
-       
+       # Assert the response data structure
+        for community in data:
+            self.assertIn('id', community)
+            self.assertIn('name', community)
+            self.assertIn('about', community)
+            self.assertIn('owned_by', community)
+            self.assertIn('subscriber', community)
+            self.assertIn('moderator', community)
+            self.assertIn('ban', community)
+            self.assertIn('owner', community)
+            self.assertIn('stats', community)
+            self.assertIn('created_at', community)
+            self.assertIn('updated_at', community)
 
     def test_read_subscriptions_empty(self):
         # Create a user

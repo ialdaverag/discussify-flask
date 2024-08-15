@@ -130,9 +130,7 @@ def upvote(id):
 def read_upvoters(id):
     post = Post.get_by_id(id)
     
-    upvotes = PostVote.query.filter_by(post_id=post.id, direction=1).all()
-
-    upvoters = [vote.user for vote in upvotes]
+    upvoters = PostVote.get_upvoters_by_post(post)
 
     return users_schema.dump(upvoters), HTTPStatus.OK
 
@@ -152,9 +150,7 @@ def downvote(id):
 def read_downvoters(id):
     post = Post.get_by_id(id)
     
-    downvotes = PostVote.query.filter_by(post_id=post.id, direction=-1).all()
-
-    downvoters = [vote.user for vote in downvotes]
+    downvoters = PostVote.get_downvoters_by_post(post)
 
     return users_schema.dump(downvoters), HTTPStatus.OK
 

@@ -20,8 +20,6 @@ class TestCreatePost(BaseTestCase):
         # Get the owner of the post
         user = post.owner
 
-        print(user.stats.posts_count)
-
         # Get the post to delete
         post_to_delete = Post.get_by_id(post.id)
 

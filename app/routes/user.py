@@ -7,16 +7,17 @@ from flask import Blueprint
 # Flask JWT Extended
 from flask_jwt_extended import (
     jwt_required, 
-    get_jwt_identity,
     current_user
 )
-
 
 # Models
 from app.models.user import User
 from app.models.user import Follow
+from app.models.community import CommunitySubscriber
 from app.models.post import PostVote
+from app.models.post import PostBookmark
 from app.models.comment import CommentVote
+from app.models.comment import CommentBookmark
 
 # Schemas
 from app.schemas.user import (
@@ -94,7 +95,9 @@ def read_followers(username):
 def read_subscriptions(username):
     user = User.get_by_username(username)
 
-    return communities_schema.dump(user.subscriptions)
+    subscriptions = CommunitySubscriber.get_subscriptions_by_user(user)
+
+    return communities_schema.dump(subscriptions)
 
 
 @user_routes.get('/<string:username>/posts')
@@ -122,50 +125,46 @@ def me():
 @user_routes.get('/posts/bookmarked')
 @jwt_required()
 def read_user_bookmarks():
-    return posts_schema.dump(current_user.bookmarks)
+    bookmarks = PostBookmark.get_bookmarks_by_user(current_user)
+
+    return posts_schema.dump(bookmarks), HTTPStatus.OK
 
 
 @user_routes.get('/posts/upvoted')
 @jwt_required()
 def read_user_upvoted_posts():
-    upvotes = PostVote.query.filter_by(user_id=current_user.id, direction=1).all()
+    upvotes = PostVote.get_upvoted_posts_by_user(current_user)
 
-    posts = [upvote.post for upvote in upvotes]
-
-    return posts_schema.dump(posts), HTTPStatus.OK
+    return posts_schema.dump(upvotes), HTTPStatus.OK
 
 
 @user_routes.get('/posts/downvoted')
 @jwt_required()
 def read_user_downvoted_posts():
-    downvotes = PostVote.query.filter_by(user_id=current_user.id, direction=-1).all()
+    downvotes = PostVote.get_downvoted_posts_by_user(current_user)
 
-    posts = [downvote.post for downvote in downvotes]
-
-    return posts_schema.dump(posts), HTTPStatus.OK
+    return posts_schema.dump(downvotes), HTTPStatus.OK
 
 
 @user_routes.get('/comments/upvoted')
 @jwt_required()
 def read_user_upvoted_comments():
-    upvotes = CommentVote.query.filter_by(user_id=current_user.id, direction=1).all()
+    upvotes = CommentVote.get_upvoted_comments_by_user(current_user)
 
-    comments = [upvote.comment for upvote in upvotes]
-
-    return comments_schema.dump(comments), HTTPStatus.OK
+    return comments_schema.dump(upvotes), HTTPStatus.OK
 
 
 @user_routes.get('/comments/downvoted')
 @jwt_required()
 def read_user_downvoted_comments():
-    downvotes = CommentVote.query.filter_by(user_id=current_user.id, direction=-1).all()
+    downvotes = CommentVote.get_downvoted_comments_by_user(current_user)
 
-    comments = [downvote.comment for downvote in downvotes]
-
-    return comments_schema.dump(comments), HTTPStatus.OK
+    return comments_schema.dump(downvotes), HTTPStatus.OK
 
 
 @user_routes.get('/comments/bookmarked')
 @jwt_required()
 def read_user_bookmarked_comments():
-    return comments_schema.dump(current_user.comment_bookmarks)
+    bookmarks = CommentBookmark.get_bookmarks_by_user(current_user)
+    
+    return comments_schema.dump(bookmarks), HTTPStatus.OK

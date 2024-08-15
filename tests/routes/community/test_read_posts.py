@@ -14,11 +14,14 @@ class TestReadPosts(BaseTestCase):
     route = '/community/{}/posts'
 
     def test_read_posts_successful(self):
+        # Number of posts
+        n = 5
+
         # Create a community
         community = CommunityFactory()
 
         # Create multiple posts
-        posts = PostFactory.create_batch(5, community=community)
+        posts = PostFactory.create_batch(n, community=community)
 
         # Read the community posts
         response = self.client.get(self.route.format(community.name))
@@ -31,6 +34,20 @@ class TestReadPosts(BaseTestCase):
 
         # Assert the response data is a list
         self.assertIsInstance(data, list)
+
+        # Assert the response data length
+        self.assertEqual(len(data), n)
+
+        # Assert the response data structure
+        for post in data:
+            self.assertIn('id', post)
+            self.assertIn('title', post)
+            self.assertIn('content', post)
+            self.assertIn('owner', post)
+            self.assertIn('community', post)
+            self.assertIn('stats', post)
+            self.assertIn('created_at', post)
+            self.assertIn('updated_at', post)
 
     def test_read_posts_empty(self):
         # Create a community

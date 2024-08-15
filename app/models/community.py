@@ -22,10 +22,24 @@ class CommunitySubscriber(db.Model):
         db.session.delete(self)
         db.session.commit()
 
-    @staticmethod
-    def get_by_user_and_community(user, community):
-        return CommunitySubscriber.query.filter_by(user=user, community=community).first()
+    @classmethod
+    def get_by_user_and_community(cls, user, community):
+        subscription = cls.query.filter_by(user=user, community=community).first()
+        
+        return subscription
     
+    @classmethod
+    def get_subscriptions_by_user(cls, user):
+        subscriptions = cls.query.filter_by(user=user).all()
+
+        return [subscription.community for subscription in subscriptions]
+    
+    @classmethod
+    def get_subscribers_by_community(cls, community):
+        subscribers = cls.query.filter_by(community=community).all()
+
+        return [subscriber.user for subscriber in subscribers]
+
 
 class CommunityModerator(db.Model):
     __tablename__ = 'community_moderators'
@@ -45,9 +59,21 @@ class CommunityModerator(db.Model):
         db.session.delete(self)
         db.session.commit()
 
-    @staticmethod
-    def get_by_user_and_community(user, community):
-        return CommunityModerator.query.filter_by(user=user, community=community).first()
+    @classmethod
+    def get_by_user_and_community(cls, user, community):
+        return cls.query.filter_by(user=user, community=community).first()
+    
+    @classmethod
+    def get_moderations_by_user(cls, user):
+        moderations = cls.query.filter_by(user=user).all()
+
+        return [moderation.community for moderation in moderations]
+    
+    @classmethod
+    def get_moderators_by_community(cls, community):
+        moderators = cls.query.filter_by(community=community).all()
+
+        return [moderator.user for moderator in moderators]
 
 
 class CommunityBan(db.Model):
@@ -68,9 +94,21 @@ class CommunityBan(db.Model):
         db.session.delete(self)
         db.session.commit()
 
-    @staticmethod
-    def get_by_user_and_community(user, community):
-        return CommunityBan.query.filter_by(user=user, community=community).first()
+    @classmethod
+    def get_by_user_and_community(cls, user, community):
+        return cls.query.filter_by(user=user, community=community).first()
+    
+    @classmethod
+    def get_bans_by_user(cls, user):
+        bans = cls.query.filter_by(user=user).all()
+
+        return [ban.community for ban in bans]
+    
+    @classmethod
+    def get_banned_by_community(cls, community):
+        banned_users = cls.query.filter_by(community=community).all()
+
+        return [banned_user.user for banned_user in banned_users]
 
 
 class CommunityStats(db.Model):

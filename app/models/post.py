@@ -31,6 +31,12 @@ class PostBookmark(db.Model):
         bookmark = PostBookmark.query.filter_by(user_id=user.id, post_id=post.id).first()
 
         return bookmark
+    
+    @classmethod
+    def get_bookmarks_by_user(cls, user):
+        bookmarks = PostBookmark.query.filter_by(user_id=user.id).all()
+
+        return bookmarks
 
 
 class PostVote(db.Model):
@@ -59,6 +65,34 @@ class PostVote(db.Model):
         vote = PostVote.query.filter_by(user_id=user.id, post_id=post.id).first()
         
         return vote
+    
+    @classmethod
+    def get_downvoters_by_post(cls, post):
+        downvoters = PostVote.query.filter_by(post_id=post.id, direction=-1).all()
+
+        return downvoters
+    
+    @classmethod
+    def get_upvoters_by_post(cls, post):
+        upvoters = PostVote.query.filter_by(post_id=post.id, direction=1).all()
+
+        return upvoters
+    
+    @classmethod
+    def get_upvoted_posts_by_user(cls, user):
+        upvotes = PostVote.query.filter_by(user_id=user.id, direction=1).all()
+
+        posts = [upvote.post for upvote in upvotes]
+
+        return posts
+    
+    @classmethod
+    def get_downvoted_posts_by_user(cls, user):
+        downvotes = PostVote.query.filter_by(user_id=user.id, direction=-1).all()
+
+        posts = [downvote.post for downvote in downvotes]
+
+        return posts
 
     def is_upvote(self):
         return self.direction == 1

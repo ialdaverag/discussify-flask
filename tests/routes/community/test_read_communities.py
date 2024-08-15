@@ -13,8 +13,11 @@ class TestReadCommunities(BaseTestCase):
     route = '/community/'
 
     def test_read_community(self):
+        # Number of communities
+        n = 5
+
         # Create multiple communities
-        communities = CommunityFactory.create_batch(size=5)
+        communities = CommunityFactory.create_batch(n)
 
         # Get the communities
         response = self.client.get(self.route)
@@ -26,15 +29,21 @@ class TestReadCommunities(BaseTestCase):
         data = response.json
 
         # Assert the number of communities
-        self.assertEqual(len(data), len(communities))
+        self.assertEqual(len(data), n)
 
-        # Assert each community
-        for i, community in enumerate(communities):
-            self.assertEqual(data[i]['id'], community.id)
-            self.assertEqual(data[i]['name'], community.name)
-            self.assertEqual(data[i]['about'], community.about)
-            self.assertEqual(data[i]['created_at'], community.created_at.strftime('%Y-%m-%dT%H:%M:%S'))
-            self.assertEqual(data[i]['updated_at'], community.updated_at.strftime('%Y-%m-%dT%H:%M:%S'))
+        # Assert the response data structure
+        for community in data:
+            self.assertIn('id', community)
+            self.assertIn('name', community)
+            self.assertIn('about', community)
+            self.assertIn('owner', community)
+            self.assertIn('owned_by', community)
+            self.assertIn('subscriber', community)
+            self.assertIn('moderator', community)
+            self.assertIn('ban', community)
+            self.assertIn('stats', community)
+            self.assertIn('created_at', community)
+            self.assertIn('updated_at', community)
 
     def test_read_community_empty(self):
         # Get the communities

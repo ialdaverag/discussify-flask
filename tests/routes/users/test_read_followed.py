@@ -12,11 +12,14 @@ class TestReadFollowed(BaseTestCase):
     route = '/user/{}/following'
 
     def test_read_followed(self):
+        # Number of followed users
+        n = 5
+
         # Create a user
         user = UserFactory()
 
        # Create some followed users
-        followed = UserFactory.create_batch(5)
+        followed = UserFactory.create_batch(n)
 
         # Make the user follow the followed users
         for user_ in followed:
@@ -33,6 +36,20 @@ class TestReadFollowed(BaseTestCase):
 
         # Assert the response data
         self.assertIsInstance(data, list)
+
+        # Assert the response data length
+        self.assertEqual(len(data), n)
+
+        # Assert the response data structure
+        for user_ in data:
+            self.assertIn('id', user_)
+            self.assertIn('username', user_)
+            self.assertIn('email', user_)
+            self.assertIn('following', user_)
+            self.assertIn('follower', user_)
+            self.assertIn('stats', user_)
+            self.assertIn('created_at', user_)
+            self.assertIn('updated_at', user_)
 
     def test_read_followed_empty(self):
         # Create a user

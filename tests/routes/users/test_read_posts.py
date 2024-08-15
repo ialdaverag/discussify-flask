@@ -10,11 +10,14 @@ class TestReadPosts(BaseTestCase):
     route = '/user/{}/posts'
 
     def test_read_posts(self):
+        # Number of posts
+        n = 5
+
         # Create a user
         user = UserFactory()
 
         # Create some posts
-        PostFactory.create_batch(5, owner=user)
+        PostFactory.create_batch(n, owner=user)
 
         # Get user posts
         response = self.client.get(self.route.format(user.username))
@@ -27,6 +30,20 @@ class TestReadPosts(BaseTestCase):
 
         # Assert the response data
         self.assertIsInstance(data, list)
+
+        # Assert the response data length
+        self.assertEqual(len(data), n)
+
+        # Assert the response data structure
+        for post in data:
+            self.assertIn('id', post)
+            self.assertIn('title', post)
+            self.assertIn('content', post)
+            self.assertIn('owner', post)
+            self.assertIn('community', post)
+            self.assertIn('stats', post)
+            self.assertIn('created_at', post)
+            self.assertIn('updated_at', post)
 
     def test_read_posts_empty(self):
         # Create a user
