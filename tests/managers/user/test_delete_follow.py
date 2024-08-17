@@ -7,12 +7,15 @@ from tests.factories.user_factory import UserFactory
 # Models
 from app.models.user import Follow
 
+# Managers
+from app.managers.user import FollowManager
+
 # Errors
 from app.errors.errors import FollowError
 
 
-class TestUnfollow(BaseTestCase):
-    def test_unfollow(self):
+class TestDeleteFollow(BaseTestCase):
+    def test_delete_follow(self):
         # Create a user
         user1 = UserFactory()
 
@@ -20,21 +23,27 @@ class TestUnfollow(BaseTestCase):
         user2 = UserFactory()
 
         # user1 follows user2
-        Follow(follower=user1, followed=user2).save()
+        FollowManager.create(user1, user2)
 
         # Assert that user1 is following user2
         self.assertTrue(user1.is_following(user2))
 
-        # Assert that user2 is followed by user1
+        # Asser that user2 is followed by user1
         self.assertTrue(user2.is_followed_by(user1))
 
-        # user1 unfollows user2
-        user1.unfollow(user2)
+        # Check if following count is updated
+        self.assertEqual(user1.stats.following_count, 1)
 
-        # Verify that user1 is not following user2
+        # Check if follower count is updated
+        self.assertEqual(user2.stats.followers_count, 1)
+
+        # user1 unfollows user2
+        FollowManager.delete(user1, user2)
+
+        # Assert that user1 is not following user2
         self.assertFalse(user1.is_following(user2))
 
-        # Verify that user2 is not followed by user1
+        # Assert that user2 is not followed by user1
         self.assertFalse(user2.is_followed_by(user1))
 
         # Check if following count is updated
@@ -43,21 +52,21 @@ class TestUnfollow(BaseTestCase):
         # Check if follower count is updated
         self.assertEqual(user2.stats.followers_count, 0)
 
-    def test_unfollow_not_followed(self):
+    def test_delete_follow_not_followed(self):
         # Create a user
         user1 = UserFactory()
 
         # Create a user to follow
         user2 = UserFactory()
 
-        # Attempt to unfollow user2 without following
+        # Attempt to unfollow user2
         with self.assertRaises(FollowError):
-            user1.unfollow(user2)
+            FollowManager.delete(user1, user2)
 
-    def test_unfollow_self(self):
+    def test_delete_follow_self(self):
         # Create a user
-        user = UserFactory()
+        user1 = UserFactory()
 
-        # Attempt to unfollow oneself
+        # Attempt to unfollow self
         with self.assertRaises(FollowError):
-            user.unfollow(user)
+            FollowManager.delete(user1, user1)

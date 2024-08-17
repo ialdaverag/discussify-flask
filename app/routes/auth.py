@@ -29,6 +29,9 @@ from app.schemas.user import login_schema
 # Models
 from app.models.user import User
 
+# Managers
+from app.managers.user import UserManager
+
 # Utils
 from app.utils.password import hash_password
 from app.utils.password import check_password
@@ -49,28 +52,8 @@ def sign_up():
         data = user_schema.load(json_data)
     except ValidationError as err:
         return {'errors': err.messages}, HTTPStatus.BAD_REQUEST
-    
-    # Get the username form the data
-    username = data.get('username')
 
-    # Check if the username is already taken
-    if not User.is_username_available(username):
-        return {'message': 'Username already taken.'}, HTTPStatus.BAD_REQUEST
-    
-    # Get the email from the data
-    email = data.get('email')
-
-    # Check if the email is already taken
-    if not User.is_email_available(email):
-        return {'message': 'Email already taken.'}, HTTPStatus.BAD_REQUEST
-    
-    # Get the password from the data
-    password = data.get('password')
-    
-    # Create a new user
-    user = User(username=username, email=email, password=hash_password(password))
-    db.session.add(user)
-    db.session.commit()
+    user = UserManager.create(data)
 
     return user_schema.dump(user), HTTPStatus.CREATED
 

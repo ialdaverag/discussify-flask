@@ -5,14 +5,18 @@ from tests.base.base_test_case import BaseTestCase
 from tests.factories.user_factory import UserFactory
 from tests.factories.post_factory import PostFactory
 
+# Managers
+from app.managers.community import SubscriptionManager
+from app.managers.post import PostVoteManager
+
 # utils
 from tests.utils.tokens import get_access_token
 
 
-class TestReadUpvotedPosts(BaseTestCase):
-    route = '/user/posts/upvoted'
+class TestReadDownvotedPosts(BaseTestCase):
+    route = '/user/posts/downvoted'
 
-    def test_read_upvoted_posts(self):
+    def test_read_downvoted_posts(self):
         # Create a user
         user = UserFactory()
 
@@ -21,11 +25,11 @@ class TestReadUpvotedPosts(BaseTestCase):
 
         # Make the user subscribe to the posts' communities
         for post in posts:
-            user.subscribe_to(post.community)
+            SubscriptionManager.create(user, post.community)
 
         # Make the user upvote the posts
         for post in posts:
-            user.downvote_post(post)
+            PostVoteManager.create(user, post, -1)
 
         # Get user access token
         access_token = get_access_token(user)
@@ -45,7 +49,7 @@ class TestReadUpvotedPosts(BaseTestCase):
         # Assert that the response data is a list
         self.assertIsInstance(data, list)
 
-    def test_read_upvoted_posts_empty(self):
+    def test_read_downvoted_posts_empty(self):
         # Create a user
         user = UserFactory()
 

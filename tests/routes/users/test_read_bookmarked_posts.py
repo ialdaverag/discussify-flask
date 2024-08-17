@@ -5,6 +5,9 @@ from tests.base.base_test_case import BaseTestCase
 from tests.factories.user_factory import UserFactory
 from tests.factories.post_factory import PostFactory
 
+# Managers
+from app.managers.post import PostBookmarkManager
+
 # utils
 from tests.utils.tokens import get_access_token
 
@@ -21,7 +24,7 @@ class TestReadBookmarkedPosts(BaseTestCase):
 
         # Make the user bookmark the posts
         for post in posts:
-            user.bookmark_post(post)
+            PostBookmarkManager.create(user, post)
 
         # Get user access token
         access_token = get_access_token(user)

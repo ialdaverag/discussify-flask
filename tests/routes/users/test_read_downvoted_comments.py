@@ -5,6 +5,10 @@ from tests.base.base_test_case import BaseTestCase
 from tests.factories.user_factory import UserFactory
 from tests.factories.comment_factory import CommentFactory
 
+# Managers
+from app.managers.community import SubscriptionManager
+from app.managers.comment import CommentVoteManager
+
 # utils
 from tests.utils.tokens import get_access_token
 
@@ -21,11 +25,11 @@ class TestReadDownvotedComments(BaseTestCase):
 
         # Make the user subscribe to the comments' communities
         for comment in comments:
-            user.subscribe_to(comment.post.community)
+            SubscriptionManager.create(user, comment.post.community)
 
         # Make the user downvote the comments
         for comment in comments:
-            user.downvote_comment(comment)
+            CommentVoteManager.create(user, comment, -1)
 
         # Get user access token
         access_token = get_access_token(user)

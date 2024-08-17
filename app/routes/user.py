@@ -26,6 +26,9 @@ from app.schemas.user import (
     me_schema
 )
 
+# Managers
+from app.managers.user import FollowManager
+
 # Schemas
 from app.schemas.community import communities_schema
 from app.schemas.post import posts_schema
@@ -55,7 +58,7 @@ def read_users():
 def follow_user(username):
     user_to_follow = User.get_by_username(username=username)
 
-    current_user.follow(user_to_follow)
+    FollowManager.create(current_user, user_to_follow)
     
     return {'message': 'You are now following the user'}, HTTPStatus.NO_CONTENT
 
@@ -65,7 +68,7 @@ def follow_user(username):
 def unfollow_user(username):
     user_to_unfollow = User.get_by_username(username=username)
     
-    current_user.unfollow(user_to_unfollow)
+    FollowManager.delete(current_user, user_to_unfollow)
     
     return {'message': 'You are no longer following this user'}, HTTPStatus.NO_CONTENT
 

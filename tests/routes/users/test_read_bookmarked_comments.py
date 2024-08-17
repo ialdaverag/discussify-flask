@@ -5,6 +5,9 @@ from tests.base.base_test_case import BaseTestCase
 from tests.factories.user_factory import UserFactory
 from tests.factories.comment_factory import CommentFactory
 
+# Managers
+from app.managers.comment import CommentBookmarkManager
+
 # utils
 from tests.utils.tokens import get_access_token
 
@@ -19,13 +22,9 @@ class TestReadBookmarkedComments(BaseTestCase):
         # Create some comments
         comments = CommentFactory.create_batch(5)
 
-        # Make the user subscribe to the comments' communities
-        for comment in comments:
-            user.subscribe_to(comment.post.community)
-
         # Make the user bookmark the comments
         for comment in comments:
-            user.bookmark_comment(comment)
+            CommentBookmarkManager.create(user, comment)
 
         # Get user access token
         access_token = get_access_token(user)

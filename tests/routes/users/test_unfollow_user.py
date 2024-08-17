@@ -4,6 +4,9 @@ from tests.base.base_test_case import BaseTestCase
 # factories
 from tests.factories.user_factory import UserFactory
 
+# managers
+from app.managers.user import FollowManager
+
 # utils
 from tests.utils.tokens import get_access_token
 
@@ -19,7 +22,7 @@ class TestUnfollowUser(BaseTestCase):
         user2 = UserFactory()
 
         # User1 follows user2
-        user1.follow(user2)
+        FollowManager.create(user1, user2)
 
         # Get access token for user1
         access_token = get_access_token(user1)

@@ -4,6 +4,9 @@ from tests.base.base_test_case import BaseTestCase
 # factories
 from tests.factories.user_factory import UserFactory
 
+# Managers
+from app.managers.user import FollowManager
+
 # utils
 from tests.utils.tokens import get_access_token
 
@@ -64,7 +67,7 @@ class TestFollowUser(BaseTestCase):
         access_token = get_access_token(user1)
 
         # User1 follows user2
-        user1.follow(user2)
+        FollowManager.create(user1, user2)
 
         # Try to follow user2 again
         response = self.client.post(

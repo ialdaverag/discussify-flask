@@ -5,6 +5,10 @@ from tests.base.base_test_case import BaseTestCase
 from tests.factories.user_factory import UserFactory
 from tests.factories.post_factory import PostFactory
 
+# Managers
+from app.managers.community import SubscriptionManager
+from app.managers.post import PostVoteManager
+
 # utils
 from tests.utils.tokens import get_access_token
 
@@ -21,11 +25,11 @@ class TestReadUpvotedPosts(BaseTestCase):
 
         # Make the user subscribe to the posts' communities
         for post in posts:
-            user.subscribe_to(post.community)
+            SubscriptionManager.create(user, post.community)
 
         # Make the user upvote the posts
         for post in posts:
-            user.upvote_post(post)
+            PostVoteManager.create(user, post, 1)
 
         # Get user access token
         access_token = get_access_token(user)
