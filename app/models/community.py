@@ -3,12 +3,14 @@ from sqlalchemy import func
 
 from app.extensions.database import db
 from app.errors.errors import NotFoundError
+from app.errors.errors import NameError
+from app.errors.errors import OwnershipError
 
 class CommunitySubscriber(db.Model):
     __tablename__ = 'community_subscribers'
 
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), primary_key=True, nullable=False)
-    community_id = db.Column(db.Integer, db.ForeignKey('communities.id'), primary_key=True, nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), primary_key=True)
+    community_id = db.Column(db.Integer, db.ForeignKey('communities.id'), primary_key=True)
     created_at = db.Column(db.DateTime, default=db.func.now())
 
     user = db.relationship('User', foreign_keys=[user_id], back_populates='subscriptions')
@@ -154,13 +156,20 @@ class Community(db.Model):
         
         self.stats = CommunityStats(community=self)
 
+    def save(self):
+        db.session.add(self)
+        db.session.commit()
+
+    def delete(self):
+        db.session.delete(self)
+        db.session.commit()
+
     @staticmethod
     def is_name_available(name):
         return Community.query.filter_by(name=name).first() is None
     
     @classmethod
     def get_by_id(cls, id):
-        #community = Community.query.get(id)
         community = db.session.get(Community, id)
 
         if community is None:
@@ -170,7 +179,6 @@ class Community(db.Model):
     
     @classmethod
     def get_by_name(cls, name):
-        #community = Community.query.filter_by(name=name).first()
         community = db.session.execute(db.select(Community).filter_by(name=name)).scalar()
 
         if community is None:
@@ -180,7 +188,6 @@ class Community(db.Model):
     
     @classmethod
     def get_all(cls):
-        #return Community.query.all()
         return db.session.scalars(db.select(Community)).all()
     
     @property
@@ -212,7 +219,7 @@ class Community(db.Model):
         return None
     
     def belongs_to(self, user):
-        return self.owner is user
+        return self.owner.id == user.id
     
     def change_ownership_to(self, user):
         self.owner = user
