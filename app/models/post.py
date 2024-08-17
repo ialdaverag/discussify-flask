@@ -52,7 +52,7 @@ class PostVote(db.Model):
     # Post
     post = db.relationship('Post', back_populates='post_votes')
 
-    def create(self):
+    def save(self):
         db.session.add(self)
         db.session.commit()
 
@@ -144,6 +144,14 @@ class Post(db.Model):
         
         self.stats = PostStats(post=self)
 
+    def save(self):
+        db.session.add(self)
+        db.session.commit()
+
+    def delete(self):
+        db.session.delete(self)
+        db.session.commit()
+
     @classmethod
     def get_by_id(self, id):
         post = db.session.get(Post, id)
@@ -175,7 +183,7 @@ class Post(db.Model):
         return None
     
     def belongs_to(self, user):
-        return self.owner is user
+        return self.owner.id == user.id
     
     def is_bookmarked_by(self, user):
         bookmark = PostBookmark.get_by_user_and_post(user, self)

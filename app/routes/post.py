@@ -5,7 +5,6 @@ from flask import request
 
 
 from flask_jwt_extended import jwt_required
-from flask_jwt_extended import get_jwt_identity
 from flask_jwt_extended import current_user
 
 from marshmallow import ValidationError
@@ -15,12 +14,13 @@ from app.schemas.post import posts_schema
 from app.schemas.user import users_schema
 from app.schemas.comment import comments_schema
 
-from app.extensions.database import db
-
 from app.models.community import Community
-from app.models.user import User
 from app.models.post import Post
 from app.models.post import PostVote
+
+from app.managers.post import PostManager
+from app.managers.post import PostBookmarkManager
+from app.managers.post import PostVoteManager
 
 post_routes = Blueprint('post_routes', __name__)
 
@@ -38,10 +38,7 @@ def create_post():
     community_id = data['community_id']
     community = Community.get_by_id(community_id)
 
-    title = data.get('title')
-    content = data.get('content')
-
-    post = current_user.create_post(title, content, community)
+    post = PostManager.create(current_user, community, data)
 
     return post_schema.dump(post), HTTPStatus.CREATED
 
@@ -77,10 +74,7 @@ def update_post(id):
     except ValidationError as err:
         return {'errors': err.messages}, HTTPStatus.BAD_REQUEST
     
-    title = data.get('title')
-    content = data.get('content')
-    
-    post = current_user.update_post(post, title, content)
+    post = PostManager.update(current_user, post, data)
 
     return post_schema.dump(post), HTTPStatus.OK
 
@@ -90,7 +84,7 @@ def update_post(id):
 def delete_post(id):
     post = Post.get_by_id(id)
 
-    current_user.delete_post(post)
+    PostManager.delete(current_user, post)
 
     return {}, HTTPStatus.NO_CONTENT
 
@@ -100,7 +94,7 @@ def delete_post(id):
 def bookmark(id):
     post = Post.get_by_id(id)
 
-    current_user.bookmark_post(post)
+    PostBookmarkManager.create(current_user, post)
 
     return {}, HTTPStatus.NO_CONTENT
 
@@ -110,7 +104,7 @@ def bookmark(id):
 def unbookmark(id):
     post = Post.get_by_id(id)
 
-    current_user.unbookmark_post(post)
+    PostBookmarkManager.delete(current_user, post)
     
     return {}, HTTPStatus.NO_CONTENT
 
@@ -120,7 +114,27 @@ def unbookmark(id):
 def upvote(id):
     post = Post.get_by_id(id)
 
-    current_user.upvote_post(post)
+    PostVoteManager.create(current_user, post, direction=1)
+
+    return {}, HTTPStatus.NO_CONTENT
+
+
+@post_routes.post('/<int:id>/vote/down')
+@jwt_required()
+def downvote(id):
+    post = Post.get_by_id(id)
+
+    PostVoteManager.create(current_user, post, direction=-1)
+
+    return {}, HTTPStatus.NO_CONTENT
+
+
+@post_routes.post('/<int:id>/vote/cancel')
+@jwt_required()
+def cancel(id):
+    post = Post.get_by_id(id)
+
+    PostVoteManager.delete(current_user, post)
 
     return {}, HTTPStatus.NO_CONTENT
 
@@ -135,16 +149,6 @@ def read_upvoters(id):
     return users_schema.dump(upvoters), HTTPStatus.OK
 
 
-@post_routes.post('/<int:id>/vote/down')
-@jwt_required()
-def downvote(id):
-    post = Post.get_by_id(id)
-
-    current_user.downvote_post(post)
-
-    return {}, HTTPStatus.NO_CONTENT
-
-
 @post_routes.get('/<int:id>/downvoters')
 @jwt_required(optional=True)
 def read_downvoters(id):
@@ -153,16 +157,6 @@ def read_downvoters(id):
     downvoters = PostVote.get_downvoters_by_post(post)
 
     return users_schema.dump(downvoters), HTTPStatus.OK
-
-
-@post_routes.post('/<int:id>/vote/cancel')
-@jwt_required()
-def cancel(id):
-    post = Post.get_by_id(id)
-
-    current_user.cancel_post_vote(post)
-
-    return {}, HTTPStatus.NO_CONTENT
 
 
 @post_routes.get('/<int:id>/comments')
