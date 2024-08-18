@@ -51,7 +51,7 @@ class CommentVote(db.Model):
     # Comment
     comment = db.relationship('Comment', back_populates='comment_votes')
 
-    def create(self):
+    def save(self):
         db.session.add(self)
         db.session.commit()
 
@@ -138,6 +138,14 @@ class Comment(db.Model):
         
         self.stats = CommentStats(comment=self)
 
+    def save(self):
+        db.session.add(self)
+        db.session.commit()
+
+    def delete(self):
+        db.session.delete(self)
+        db.session.commit()
+
     @classmethod
     def get_by_id(cls, id):
         comment = db.session.get(Comment, id)
@@ -164,7 +172,7 @@ class Comment(db.Model):
         return self.is_downvoted_by(current_user)
     
     def belongs_to(self, user):
-        return self.owner is user
+        return self.owner.id == user.id
     
     def is_bookmarked_by(self, user):
         bookmark = CommentBookmark.get_by_user_and_comment(user, self)

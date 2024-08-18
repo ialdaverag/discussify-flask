@@ -14,10 +14,12 @@ from app.schemas.comment import comments_schema
 from app.schemas.user import users_schema
 
 from app.models.post import Post
-from app.models.user import User
-from app.models.community import Community
 from app.models.comment import Comment
 from app.models.comment import CommentVote
+
+from app.managers.comment import CommentManager
+from app.managers.comment import CommentBookmarkManager
+from app.managers.comment import CommentVoteManager
 
 from app.extensions.database import db
 
@@ -34,19 +36,22 @@ def create_comment():
     except ValidationError as err:
         return {'errors': err.messages}, HTTPStatus.BAD_REQUEST
 
-    post_id = data['post_id']
+    # Get the post_id from the data
+    post_id = data.get('post_id')
+
+    # Get the post by the post_id
     post = Post.get_by_id(post_id)
 
+    # Get the comment_id from the data
     comment_id = data.get('comment_id')
 
+    # Initialize the comment_to_reply to None
     comment_to_reply = None
 
     if comment_id is not None:
         comment_to_reply = Comment.get_by_id(comment_id)
 
-    content = data.get('content')
-
-    new_comment = current_user.create_comment(content, post, comment_to_reply)
+    new_comment = CommentManager.create(current_user, post, data, comment_to_reply)
 
     return comment_schema.dump(new_comment), HTTPStatus.CREATED
 
@@ -78,10 +83,8 @@ def update_comment(id):
         data = comment_update_schema.load(json_data)
     except ValidationError as err:
         return {'errors': err.messages}, HTTPStatus.BAD_REQUEST
-    
-    content = data.get('content')
 
-    comment = current_user.update_comment(content, comment)
+    comment = CommentManager.update(current_user, comment, data)
 
     return comment_schema.dump(comment), HTTPStatus.OK
 
@@ -91,7 +94,7 @@ def update_comment(id):
 def delete_comment(id):
     comment = Comment.get_by_id(id)
 
-    current_user.delete_comment(comment)
+    CommentManager.delete(current_user, comment)
 
     return {}, HTTPStatus.NO_CONTENT
     
@@ -101,7 +104,7 @@ def delete_comment(id):
 def bookmark_comment(id):
     comment = Comment.get_by_id(id)
     
-    current_user.bookmark_comment(comment)
+    CommentBookmarkManager.create(current_user, comment)
 
     return {}, HTTPStatus.NO_CONTENT
 
@@ -111,7 +114,7 @@ def bookmark_comment(id):
 def unbookmark_comment(id):
     comment = Comment.get_by_id(id)
 
-    current_user.unbookmark_comment(comment)
+    CommentBookmarkManager.delete(current_user, comment)
 
     return {}, HTTPStatus.NO_CONTENT
 
@@ -121,7 +124,7 @@ def unbookmark_comment(id):
 def upvote_comment(id):
     comment = Comment.get_by_id(id)
 
-    current_user.upvote_comment(comment)
+    CommentVoteManager.create(current_user, comment, direction=1)
 
     return {}, HTTPStatus.NO_CONTENT
 
@@ -131,7 +134,17 @@ def upvote_comment(id):
 def downvote_comment(id):
     comment = Comment.get_by_id(id)
 
-    current_user.downvote_comment(comment)
+    CommentVoteManager.create(current_user, comment, direction=-1)
+
+    return {}, HTTPStatus.NO_CONTENT
+
+
+@comment_routes.post('/<int:id>/vote/cancel')
+@jwt_required()
+def cancel_vote_on_comment(id):
+    comment = Comment.get_by_id(id)
+
+    CommentVoteManager.delete(current_user, comment)
 
     return {}, HTTPStatus.NO_CONTENT
 
@@ -154,13 +167,3 @@ def read_comment_downvoters(id):
     downvoters = CommentVote.get_downvoters_by_comment(comment)
 
     return users_schema.dump(downvoters), HTTPStatus.OK
-
-
-@comment_routes.post('/<int:id>/vote/cancel')
-@jwt_required()
-def cancel_vote_on_comment(id):
-    comment = Comment.get_by_id(id)
-
-    current_user.cancel_comment_vote(comment)
-
-    return {}, HTTPStatus.NO_CONTENT
