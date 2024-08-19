@@ -34,12 +34,16 @@ class CommunityManager:
         return community
     
     @staticmethod
-    def read():
-        pass
+    def read(name):
+        community = Community.get_by_name(name)
+
+        return community
 
     @staticmethod
     def read_all():
-        pass
+        communities = Community.get_all()
+
+        return communities
     
     @staticmethod
     def update(user, community, data):
@@ -85,6 +89,12 @@ class SubscriptionManager:
         subscriptions = CommunitySubscriber.get_subscriptions_by_user(user)
 
         return subscriptions
+    
+    @staticmethod
+    def read_subscribers_by_community(community):
+        subscribers = CommunitySubscriber.get_subscribers_by_community(community)
+
+        return subscribers
 
     @staticmethod
     def delete(user, community):
@@ -116,6 +126,12 @@ class ModerationManager:
             raise ModeratorError('The user is already a moderator of this community.')
 
         CommunityModerator(user=user, community=community).save()
+
+    @staticmethod
+    def read_moderators_by_community(community):
+        moderators = CommunityModerator.get_moderators_by_community(community)
+
+        return moderators
 
     @staticmethod
     def delete(owner, community, user):
@@ -151,7 +167,12 @@ class BanManager:
         
         if not user.is_subscribed_to(community):
             raise SubscriptionError('The user is not subscribed to this community.')
+        
+    @staticmethod
+    def read_bans_by_community(community):
+        bans = CommunityBan.get_banned_by_community(community)
 
+        return bans
 
     @staticmethod
     def delete(moderator, community, user):

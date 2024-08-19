@@ -5,26 +5,16 @@ from http import HTTPStatus
 from flask import Blueprint
 
 # Flask JWT Extended
-from flask_jwt_extended import (
-    jwt_required, 
-    current_user
-)
+from flask_jwt_extended import jwt_required
+from flask_jwt_extended import current_user
 
 # Models
 from app.models.user import User
-from app.models.user import Follow
-from app.models.community import CommunitySubscriber
-from app.models.post import PostVote
-from app.models.post import PostBookmark
-from app.models.comment import CommentVote
-from app.models.comment import CommentBookmark
 
-# Schemas
-from app.schemas.user import (
-    user_schema, 
-    users_schema, 
-    me_schema
-)
+# Managers
+from app.schemas.user import user_schema
+from app.schemas.user import users_schema
+from app.schemas.user import me_schema
 
 # Managers
 from app.managers.user import UserManager

@@ -17,7 +17,7 @@ class TestReadCommunities(BaseTestCase):
         n = 5
 
         # Create multiple communities
-        communities = CommunityFactory.create_batch(n)
+        CommunityFactory.create_batch(n)
 
         # Get the communities
         response = self.client.get(self.route)

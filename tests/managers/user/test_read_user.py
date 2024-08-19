@@ -4,9 +4,6 @@ from tests.base.base_test_case import BaseTestCase
 # Factories
 from tests.factories.user_factory import UserFactory
 
-# Models
-from app.models.user import User
-
 # Managers
 from app.managers.user import UserManager
 

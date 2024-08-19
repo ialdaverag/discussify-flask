@@ -9,7 +9,7 @@ from tests.factories.community_factory import CommunityFactory
 from tests.utils.tokens import get_access_token
 
 # Models
-from app.models.community import CommunitySubscriber
+from app.models.community import CommunityModerator
 
 
 class TestReadModerators(BaseTestCase):
@@ -27,7 +27,7 @@ class TestReadModerators(BaseTestCase):
 
         # Append the moderators to the community
         for moderator in moderators:
-            CommunitySubscriber(community=community, user=moderator).save()
+            CommunityModerator(community=community, user=moderator).save()
 
         # Read the community moderators
         response = self.client.get(self.route.format(community.name))
@@ -35,6 +35,25 @@ class TestReadModerators(BaseTestCase):
         # Assert that the response status code is 200
         self.assertEqual(response.status_code, 200)
 
+        # Get the response data
+        data = response.json
+
+        # Assert that the response data is a list
+        self.assertIsInstance(data, list)
+
+        # Assert the response data length
+        self.assertEqual(len(data), n)
+
+        # Assert the response data structure
+        for moderator in data:
+            self.assertIn('id', moderator)
+            self.assertIn('username', moderator)
+            self.assertIn('email', moderator)
+            self.assertIn('following', moderator)
+            self.assertIn('follower', moderator)
+            self.assertIn('stats', moderator)
+            self.assertIn('created_at', moderator)
+            self.assertIn('updated_at', moderator)
         
 
     def test_read_moderators_empty(self):

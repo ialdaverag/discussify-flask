@@ -1,27 +1,29 @@
+# HTTP
 from http import HTTPStatus
 
+# Flask
 from flask import Blueprint
 from flask import request
 from flask_jwt_extended import jwt_required
-from flask_jwt_extended import get_jwt_identity
 from flask_jwt_extended import current_user
 
+# Marshmallow
 from marshmallow import ValidationError
 
-from app.extensions.database import db
-
+# Models
 from app.models.community import Community
-from app.models.community import CommunitySubscriber
 from app.models.community import CommunityModerator
 from app.models.community import CommunityBan
 from app.models.user import User
 
+# Managers
 from app.managers.community import CommunityManager
 from app.managers.community import SubscriptionManager
 from app.managers.community import ModerationManager
 from app.managers.community import BanManager
 from app.managers.community import TransferManager
 
+# Schemas
 from app.schemas.community import community_schema
 from app.schemas.community import communities_schema
 from app.schemas.user import users_schema
@@ -48,7 +50,7 @@ def create_community():
 @community_routes.get('/<string:name>')
 @jwt_required(optional=True)
 def read_community(name):
-    community = Community.get_by_name(name)
+    community = CommunityManager.read(name)
 
     return community_schema.dump(community), HTTPStatus.OK
 
@@ -56,7 +58,7 @@ def read_community(name):
 @community_routes.get('/')
 @jwt_required(optional=True)
 def read_communities():
-    communities = Community.get_all()
+    communities = CommunityManager.read_all()
 
     return communities_schema.dump(communities), HTTPStatus.OK
 
@@ -173,7 +175,7 @@ def transfer(name, username):
 def read_subscribers(name):
     community = Community.get_by_name(name)
 
-    subscribers = CommunitySubscriber.get_subscribers_by_community(community)
+    subscribers = SubscriptionManager.read_subscribers_by_community(community)
 
     return users_schema.dump(subscribers), HTTPStatus.OK
 
@@ -183,7 +185,7 @@ def read_subscribers(name):
 def read_moderators(name):
     community = Community.get_by_name(name)
 
-    moderators = CommunityModerator.get_moderators_by_community(community)
+    moderators = ModerationManager.read_moderators_by_community(community)
 
     return users_schema.dump(moderators), HTTPStatus.OK
 
@@ -193,7 +195,7 @@ def read_moderators(name):
 def read_banned(name):
     community = Community.get_by_name(name)
 
-    banned = CommunityBan.get_banned_by_community(community)
+    banned = BanManager.read_bans_by_community(community)
 
     return users_schema.dump(banned), HTTPStatus.OK
 

@@ -58,15 +58,15 @@ class TestReadBanned(BaseTestCase):
         self.assertEqual(len(data), n)
 
         # Assert the response data structure
-        for user in data:
-            self.assertIn('id', user)
-            self.assertIn('username', user)
-            self.assertIn('email', user)
-            self.assertIn('following', user)
-            self.assertIn('follower', user)
-            self.assertIn('stats', user)
-            self.assertIn('created_at', user)
-            self.assertIn('updated_at', user)
+        for banned in data:
+            self.assertIn('id', banned)
+            self.assertIn('username', banned)
+            self.assertIn('email', banned)
+            self.assertIn('following', banned)
+            self.assertIn('follower', banned)
+            self.assertIn('stats', banned)
+            self.assertIn('created_at', banned)
+            self.assertIn('updated_at', banned)
 
     def test_read_banned_empty(self):
         # Create a community
