@@ -5,8 +5,8 @@ from tests.base.base_test_case import BaseTestCase
 from tests.factories.user_factory import UserFactory
 from tests.factories.comment_factory import CommentFactory
 
-# Managers
-from app.managers.comment import CommentBookmarkManager
+# Models
+from app.models.comment import CommentBookmark
 
 # utils
 from tests.utils.tokens import get_access_token
@@ -16,15 +16,18 @@ class TestReadBookmarkedComments(BaseTestCase):
     route = '/user/comments/bookmarked'
 
     def test_read_bookmarked_comments(self):
+        # Number of comments
+        n = 5
+
         # Create a user
         user = UserFactory()
 
         # Create some comments
-        comments = CommentFactory.create_batch(5)
+        comments = CommentFactory.create_batch(n)
 
         # Make the user bookmark the comments
         for comment in comments:
-            CommentBookmarkManager.create(user, comment)
+            CommentBookmark(user=user, comment=comment).save()
 
         # Get user access token
         access_token = get_access_token(user)
@@ -43,6 +46,23 @@ class TestReadBookmarkedComments(BaseTestCase):
 
         # Assert that the response data is a list
         self.assertIsInstance(data, list)
+
+        # Assert the number of bookmarks
+        self.assertEqual(len(data), n)
+
+        # Assert the response data structure
+        for comment in data:
+            self.assertIn('id', comment)
+            self.assertIn('content', comment)
+            self.assertIn('owner', comment)
+            self.assertIn('post', comment)
+            self.assertIn('bookmarked', comment)
+            self.assertIn('upvoted', comment)
+            self.assertIn('downvoted', comment)
+            self.assertIn('replies', comment)
+            self.assertIn('stats', comment)
+            self.assertIn('created_at', comment)
+            self.assertIn('updated_at', comment)
 
     def test_read_bookmarked_comments_empty(self):
         # Create a user

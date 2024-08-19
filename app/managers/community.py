@@ -81,6 +81,12 @@ class SubscriptionManager:
         CommunitySubscriber(user=user, community=community).save()
 
     @staticmethod
+    def read_subscriptions_by_user(user):
+        subscriptions = CommunitySubscriber.get_subscriptions_by_user(user)
+
+        return subscriptions
+
+    @staticmethod
     def delete(user, community):
         if community.belongs_to(user):
             raise OwnershipError('You are the owner of this community and cannot unsubscribe.')

@@ -10,8 +10,11 @@ from app.models.user import User
 
 class TestGetAll(BaseTestCase):
     def test_get_all(self):
+        # Number of users
+        n = 5
+        
         # Create users
-        users = UserFactory.create_batch(5)
+        users = UserFactory.create_batch(n)
 
         # Get all users
         all_users = User.get_all()

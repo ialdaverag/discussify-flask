@@ -5,9 +5,8 @@ from tests.base.base_test_case import BaseTestCase
 from tests.factories.user_factory import UserFactory
 from tests.factories.post_factory import PostFactory
 
-# Managers
-from app.managers.community import SubscriptionManager
-from app.managers.post import PostVoteManager
+# Models
+from app.models.post import PostVote
 
 # utils
 from tests.utils.tokens import get_access_token
@@ -17,19 +16,18 @@ class TestReadUpvotedPosts(BaseTestCase):
     route = '/user/posts/upvoted'
 
     def test_read_upvoted_posts(self):
+        # Number of posts
+        n = 5
+
         # Create a user
         user = UserFactory()
 
         # Create some posts
-        posts = PostFactory.create_batch(5)
-
-        # Make the user subscribe to the posts' communities
-        for post in posts:
-            SubscriptionManager.create(user, post.community)
+        posts = PostFactory.create_batch(n)
 
         # Make the user upvote the posts
         for post in posts:
-            PostVoteManager.create(user, post, 1)
+            PostVote(user=user, post=post, direction=1).save()
 
         # Get user access token
         access_token = get_access_token(user)
@@ -48,6 +46,23 @@ class TestReadUpvotedPosts(BaseTestCase):
 
         # Assert that the response data is a list
         self.assertIsInstance(data, list)
+
+        # Assert the number of upvotes
+        self.assertEqual(len(data), n)
+
+        # Assert the response data structure
+        for post in data:
+            self.assertIn('id', post)
+            self.assertIn('title', post)
+            self.assertIn('content', post)
+            self.assertIn('owner', post)
+            self.assertIn('community', post)
+            self.assertIn('bookmarked', post)
+            self.assertIn('upvoted', post)
+            self.assertIn('downvoted', post)
+            self.assertIn('stats', post)
+            self.assertIn('created_at', post)
+            self.assertIn('updated_at', post)
 
     def test_read_upvoted_posts_empty(self):
         # Create a user

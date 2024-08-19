@@ -76,6 +76,12 @@ class CommentBookmarkManager:
             raise BookmarkError('Comment already bookmarked.')
         
         CommentBookmark(user=user, comment=comment).save()
+
+    @staticmethod
+    def read_bookmarked_comments_by_user(user):
+        bookmarks = CommentBookmark.get_bookmarks_by_user(user)
+
+        return bookmarks
     
     @staticmethod
     def delete(user, comment):
@@ -128,6 +134,20 @@ class CommentVoteManager:
             else:
                 new_vote = CommentVote(user=user, comment=comment, direction=-1)
                 new_vote.save()
+
+
+    @staticmethod
+    def read_upvoted_comments_by_user(user):
+        upvotes = CommentVote.get_upvoted_comments_by_user(user)
+
+        return upvotes
+    
+
+    @staticmethod
+    def read_downvoted_comments_by_user(user):
+        downvotes = CommentVote.get_downvoted_comments_by_user(user)
+
+        return downvotes
         
     
     @staticmethod

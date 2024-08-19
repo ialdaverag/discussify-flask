@@ -67,6 +67,12 @@ class PostBookmarkManager:
             user=user, 
             post=post
         ).save()
+
+    @staticmethod
+    def read_bookmarked_posts_by_user(user):
+        bookmarks = PostBookmark.get_bookmarks_by_user(user)
+
+        return bookmarks
     
     @staticmethod
     def delete(user, post):
@@ -122,6 +128,18 @@ class PostVoteManager:
             else:
                 new_vote = PostVote(user=user, post=post, direction=-1)
                 new_vote.save()
+
+    @staticmethod
+    def read_upvoted_posts_by_user(user):
+        upvotes = PostVote.get_upvoted_posts_by_user(user)
+
+        return upvotes
+    
+    @staticmethod
+    def read_downvoted_posts_by_user(user):
+        downvotes = PostVote.get_downvoted_posts_by_user(user)
+
+        return downvotes
 
     @staticmethod
     def delete(user, post):

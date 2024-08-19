@@ -9,8 +9,11 @@ class TestReadUsers(BaseTestCase):
     route = '/user/'
 
     def test_read_users(self):
+        # Number of users
+        n = 5
+
         # Create multiple users using batch
-        users = UserFactory.create_batch(size=5)
+        users = UserFactory.create_batch(n)
 
         # Get the users
         response = self.client.get(self.route)

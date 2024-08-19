@@ -5,9 +5,8 @@ from tests.base.base_test_case import BaseTestCase
 from tests.factories.user_factory import UserFactory
 from tests.factories.comment_factory import CommentFactory
 
-# Managers
-from app.managers.community import SubscriptionManager
-from app.managers.comment import CommentVoteManager
+# Models
+from app.models.comment import CommentVote
 
 # utils
 from tests.utils.tokens import get_access_token
@@ -17,19 +16,18 @@ class TestReadDownvotedComments(BaseTestCase):
     route = '/user/comments/downvoted'
 
     def test_read_downvoted_comments(self):
+        # Number of comments
+        n = 5
+
         # Create a user
         user = UserFactory()
 
         # Create some comments
-        comments = CommentFactory.create_batch(5)
-
-        # Make the user subscribe to the comments' communities
-        for comment in comments:
-            SubscriptionManager.create(user, comment.post.community)
+        comments = CommentFactory.create_batch(n)
 
         # Make the user downvote the comments
         for comment in comments:
-            CommentVoteManager.create(user, comment, -1)
+            CommentVote(user=user, comment=comment, direction=-1).save()
 
         # Get user access token
         access_token = get_access_token(user)
@@ -48,6 +46,23 @@ class TestReadDownvotedComments(BaseTestCase):
 
         # Assert that the response data is a list
         self.assertIsInstance(data, list)
+
+        # Assert the number of downvotes
+        self.assertEqual(len(data), n)
+
+        # Assert the response data structure
+        for comment in data:
+            self.assertIn('id', comment)
+            self.assertIn('content', comment)
+            self.assertIn('owner', comment)
+            self.assertIn('post', comment)
+            self.assertIn('bookmarked', comment)
+            self.assertIn('upvoted', comment)
+            self.assertIn('downvoted', comment)
+            self.assertIn('replies', comment)
+            self.assertIn('stats', comment)
+            self.assertIn('created_at', comment)
+            self.assertIn('updated_at', comment)
 
     def test_read_downvoted_comments_empty(self):
         # Create a user

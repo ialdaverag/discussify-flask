@@ -10,11 +10,14 @@ class TestReadComments(BaseTestCase):
     route = '/user/{}/comments'
 
     def test_read_comments(self):
+        # Number of comments
+        n = 5
+
         # Create a user
         user = UserFactory()
 
         # Create some comments
-        comments = CommentFactory.create_batch(5, owner=user)
+        CommentFactory.create_batch(n, owner=user)
 
         # Get user comments
         response = self.client.get(self.route.format(user.username))
@@ -27,6 +30,23 @@ class TestReadComments(BaseTestCase):
 
         # Assert that the response data is a list
         self.assertIsInstance(data, list)
+
+        # Assert the number of comments
+        self.assertEqual(len(data), n)
+
+        # Assert the response data structure
+        for comment in data:
+            self.assertIn('id', comment)
+            self.assertIn('content', comment)
+            self.assertIn('owner', comment)
+            self.assertIn('post', comment)
+            self.assertIn('bookmarked', comment)
+            self.assertIn('upvoted', comment)
+            self.assertIn('downvoted', comment)
+            self.assertIn('replies', comment)
+            self.assertIn('stats', comment)
+            self.assertIn('created_at', comment)
+            self.assertIn('updated_at', comment)
 
     def test_read_comments_nonexistent_user(self):
         # Try to get comments of a nonexistent user

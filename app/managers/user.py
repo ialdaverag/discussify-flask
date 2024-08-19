@@ -33,12 +33,17 @@ class UserManager:
         return user
 
     @staticmethod
-    def read():
-        pass
+    def read(username):
+        user = User.get_by_username(username)
+
+        return user
+        
 
     @staticmethod
     def read_all():
-        pass
+        users = User.get_all()
+
+        return users
 
 
 class FollowManager:
@@ -54,6 +59,18 @@ class FollowManager:
             follower=user, 
             followed=target
         ).save()
+
+    @staticmethod
+    def read_followed(user):
+        following = Follow.get_followed(user)
+        
+        return following
+    
+    @staticmethod
+    def read_followers(user):
+        followers = Follow.get_followers(user)
+        
+        return followers
 
     @staticmethod
     def delete(user, target):

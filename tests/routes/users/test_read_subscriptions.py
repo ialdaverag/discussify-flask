@@ -13,11 +13,14 @@ class TestReadSubscriptions(BaseTestCase):
     route = '/user/{}/subscriptions'
 
     def test_read_subscriptions(self):
+        # Number of communities
+        n = 5
+
         # Create a user
         user = UserFactory()
 
         # Create some communities
-        communities = CommunityFactory.create_batch(5)
+        communities = CommunityFactory.create_batch(n)
 
         # Make the user subscribe to the communities
         for community in communities:
@@ -36,7 +39,7 @@ class TestReadSubscriptions(BaseTestCase):
         self.assertIsInstance(data, list)
 
         # Assert that the response data length is 5
-        self.assertEqual(len(data), 5)
+        self.assertEqual(len(data), n)
 
        # Assert the response data structure
         for community in data:

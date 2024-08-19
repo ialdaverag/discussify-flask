@@ -5,8 +5,8 @@ from tests.base.base_test_case import BaseTestCase
 from tests.factories.user_factory import UserFactory
 from tests.factories.post_factory import PostFactory
 
-# Managers
-from app.managers.post import PostBookmarkManager
+# Mdoels
+from app.models.post import PostBookmark
 
 # utils
 from tests.utils.tokens import get_access_token
@@ -16,15 +16,18 @@ class TestReadBookmarkedPosts(BaseTestCase):
     route = '/user/posts/bookmarked'
 
     def test_read_bookmarked_posts(self):
+        # Number of posts
+        n = 5
+
         # Create a user
         user = UserFactory()
 
         # Create some posts
-        posts = PostFactory.create_batch(5)
+        posts = PostFactory.create_batch(n)
 
         # Make the user bookmark the posts
         for post in posts:
-            PostBookmarkManager.create(user, post)
+            PostBookmark(user=user, post=post).save()
 
         # Get user access token
         access_token = get_access_token(user)
@@ -43,6 +46,23 @@ class TestReadBookmarkedPosts(BaseTestCase):
 
         # Assert that the response data is a list
         self.assertIsInstance(data, list)
+
+        # Assert the number of bookmarks
+        self.assertEqual(len(data), n)
+
+        # Assert the response data structure
+        for post in data:
+            self.assertIn('id', post)
+            self.assertIn('title', post)
+            self.assertIn('content', post)
+            self.assertIn('owner', post)
+            self.assertIn('community', post)
+            self.assertIn('bookmarked', post)
+            self.assertIn('upvoted', post)
+            self.assertIn('downvoted', post)
+            self.assertIn('stats', post)
+            self.assertIn('created_at', post)
+            self.assertIn('updated_at', post)
 
     def test_read_bookmarked_posts_empty(self):
         # Create a user

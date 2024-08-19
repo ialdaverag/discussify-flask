@@ -27,7 +27,13 @@ from app.schemas.user import (
 )
 
 # Managers
+from app.managers.user import UserManager
 from app.managers.user import FollowManager
+from app.managers.community import SubscriptionManager
+from app.managers.post import PostBookmarkManager
+from app.managers.post import PostVoteManager
+from app.managers.comment import CommentBookmarkManager
+from app.managers.comment import CommentVoteManager
 
 # Schemas
 from app.schemas.community import communities_schema
@@ -40,7 +46,7 @@ user_routes = Blueprint('user_routes', __name__)
 @user_routes.get('/<string:username>')
 @jwt_required(optional=True)
 def read_user(username):
-    user = User.get_by_username(username)
+    user = UserManager.read(username)
 
     return user_schema.dump(user), HTTPStatus.OK
 
@@ -48,7 +54,7 @@ def read_user(username):
 @user_routes.get('/')
 @jwt_required(optional=True)
 def read_users():
-    users = User.get_all()
+    users = UserManager.read_all()
 
     return users_schema.dump(users), HTTPStatus.OK
 
@@ -78,7 +84,7 @@ def unfollow_user(username):
 def read_following(username):
     user = User.get_by_username(username)
 
-    following = Follow.get_followed(user)
+    following = FollowManager.read_followed(user)
     
     return users_schema.dump(following)
 
@@ -88,7 +94,7 @@ def read_following(username):
 def read_followers(username):
     user = User.get_by_username(username)
 
-    followers = Follow.get_followers(user)
+    followers = FollowManager.read_followers(user)
     
     return users_schema.dump(followers)
 
@@ -98,7 +104,7 @@ def read_followers(username):
 def read_subscriptions(username):
     user = User.get_by_username(username)
 
-    subscriptions = CommunitySubscriber.get_subscriptions_by_user(user)
+    subscriptions = SubscriptionManager.read_subscriptions_by_user(user)
 
     return communities_schema.dump(subscriptions)
 
@@ -127,8 +133,8 @@ def me():
 
 @user_routes.get('/posts/bookmarked')
 @jwt_required()
-def read_user_bookmarks():
-    bookmarks = PostBookmark.get_bookmarks_by_user(current_user)
+def read_user_bookmarked_posts():
+    bookmarks = PostBookmarkManager.read_bookmarked_posts_by_user(current_user)
 
     return posts_schema.dump(bookmarks), HTTPStatus.OK
 
@@ -136,7 +142,7 @@ def read_user_bookmarks():
 @user_routes.get('/posts/upvoted')
 @jwt_required()
 def read_user_upvoted_posts():
-    upvotes = PostVote.get_upvoted_posts_by_user(current_user)
+    upvotes = PostVoteManager.read_upvoted_posts_by_user(current_user)
 
     return posts_schema.dump(upvotes), HTTPStatus.OK
 
@@ -144,15 +150,23 @@ def read_user_upvoted_posts():
 @user_routes.get('/posts/downvoted')
 @jwt_required()
 def read_user_downvoted_posts():
-    downvotes = PostVote.get_downvoted_posts_by_user(current_user)
+    downvotes = PostVoteManager.read_downvoted_posts_by_user(current_user)
 
     return posts_schema.dump(downvotes), HTTPStatus.OK
+
+
+@user_routes.get('/comments/bookmarked')
+@jwt_required()
+def read_user_bookmarked_comments():
+    bookmarks = CommentBookmarkManager.read_bookmarked_comments_by_user(current_user)
+    
+    return comments_schema.dump(bookmarks), HTTPStatus.OK
 
 
 @user_routes.get('/comments/upvoted')
 @jwt_required()
 def read_user_upvoted_comments():
-    upvotes = CommentVote.get_upvoted_comments_by_user(current_user)
+    upvotes = CommentVoteManager.read_upvoted_comments_by_user(current_user)
 
     return comments_schema.dump(upvotes), HTTPStatus.OK
 
@@ -160,14 +174,6 @@ def read_user_upvoted_comments():
 @user_routes.get('/comments/downvoted')
 @jwt_required()
 def read_user_downvoted_comments():
-    downvotes = CommentVote.get_downvoted_comments_by_user(current_user)
+    downvotes = CommentVoteManager.read_downvoted_comments_by_user(current_user)
 
     return comments_schema.dump(downvotes), HTTPStatus.OK
-
-
-@user_routes.get('/comments/bookmarked')
-@jwt_required()
-def read_user_bookmarked_comments():
-    bookmarks = CommentBookmark.get_bookmarks_by_user(current_user)
-    
-    return comments_schema.dump(bookmarks), HTTPStatus.OK

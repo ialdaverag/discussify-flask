@@ -35,7 +35,7 @@ class CommentBookmark(db.Model):
     def get_bookmarks_by_user(cls, user):
         bookmarks = CommentBookmark.query.filter_by(user_id=user.id).all()
 
-        return bookmarks
+        return [bookmark.comment for bookmark in bookmarks]
 
 
 class CommentVote(db.Model):
@@ -69,13 +69,13 @@ class CommentVote(db.Model):
     def get_upvoted_comments_by_user(cls, user):
         upvotes = CommentVote.query.filter_by(user_id=user.id, direction=1).all()
 
-        return upvotes
+        return [upvote.comment for upvote in upvotes]
     
     @classmethod
     def get_downvoted_comments_by_user(cls, user):
         downvotes = CommentVote.query.filter_by(user_id=user.id, direction=-1).all()
 
-        return downvotes
+        return [downvote.comment for downvote in downvotes]
     
     @classmethod
     def get_upvoters_by_comment(cls, comment):
@@ -161,15 +161,24 @@ class Comment(db.Model):
     
     @property
     def bookmarked(self):
-        return self.is_bookmarked_by(current_user)
+        if current_user:
+            return self.is_bookmarked_by(current_user)
+        
+        return None
     
     @property
     def upvoted(self):
-        return self.is_upvoted_by(current_user)
+        if current_user:
+            return self.is_upvoted_by(current_user)
+        
+        return None
     
     @property
     def downvoted(self):
-        return self.is_downvoted_by(current_user)
+        if current_user:
+            return self.is_downvoted_by(current_user)
+        
+        return None
     
     def belongs_to(self, user):
         return self.owner.id == user.id
