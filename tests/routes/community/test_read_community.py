@@ -2,11 +2,7 @@
 from tests.base.base_test_case import BaseTestCase
 
 # Factories
-from tests.factories.user_factory import UserFactory
 from tests.factories.community_factory import CommunityFactory
-
-# Utils
-from tests.utils.tokens import get_access_token
 
 
 class TestReadCommunity(BaseTestCase):

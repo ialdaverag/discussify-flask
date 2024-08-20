@@ -3,10 +3,7 @@ from tests.base.base_test_case import BaseTestCase
 
 # Factories
 from tests.factories.user_factory import UserFactory
-from tests.factories.comment_factory import CommentFactory
-
-# Models
-from app.models.comment import CommentBookmark
+from tests.factories.comment_bookmark_factory import CommentBookmarkFactory
 
 # Managers
 from app.managers.comment import CommentBookmarkManager
@@ -20,21 +17,20 @@ class TestReadBookmarkedComments(BaseTestCase):
         # Create a user
         user = UserFactory()
 
-        # Create some comments
-        comments = CommentFactory.create_batch(n)
-
-        # Make the user bookmark the comments
-        for comment in comments:
-            CommentBookmark(user=user, comment=comment).save()
+        # Create some bookmarks
+        bookmarks = CommentBookmarkFactory.create_batch(n, user=user)
 
         # Read user bookmarks
-        bookmarks_to_read = CommentBookmarkManager.read_bookmarked_comments_by_user(user)
+        bookmarked_comments = CommentBookmarkManager.read_bookmarked_comments_by_user(user)
 
         # Assert the number of bookmarks
-        self.assertEqual(len(bookmarks_to_read), n)
+        self.assertEqual(len(bookmarked_comments), n)
+
+        # Get the comments from the bookmarks
+        comments = [bookmark.comment for bookmark in bookmarks]
 
         # Assert the bookmarks are the same
-        self.assertEqual(comments, bookmarks_to_read)
+        self.assertEqual(bookmarked_comments, comments)
 
     def test_read_bookmarked_comments_empty(self):
         # Create a user

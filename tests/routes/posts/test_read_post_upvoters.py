@@ -34,7 +34,22 @@ class TestReadPostUpvoters(BaseTestCase):
         # Get the data
         data = response.json
 
-       
+        # Assert that the response data is a list
+        self.assertIsInstance(data, list)
+
+        # Assert the number of upvotes
+        self.assertEqual(len(data), n)
+
+        # Assert the response data structure
+        for upvoter in data:
+            self.assertIn('id', upvoter)
+            self.assertIn('username', upvoter)
+            self.assertIn('email', upvoter)
+            self.assertIn('following', upvoter)
+            self.assertIn('follower', upvoter)
+            self.assertIn('stats', upvoter)
+            self.assertIn('created_at', upvoter)
+            self.assertIn('updated_at', upvoter)
 
     def test_read_post_upvoters_empty(self):
         # Create a post

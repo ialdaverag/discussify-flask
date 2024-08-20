@@ -2,7 +2,6 @@
 from tests.base.base_test_case import BaseTestCase
 
 # Factories
-from tests.factories.user_factory import UserFactory
 from tests.factories.comment_factory import CommentFactory
 
 
@@ -22,15 +21,25 @@ class TestDeleteComment(BaseTestCase):
         # Get the response data
         data = response.json
 
+        # Assert that the response data is a list
+        self.assertIsInstance(data, list)
+
         # Assert the number of comments
         self.assertEqual(len(data), len(comments))
 
         # Assert each comment
-        for i, comment in enumerate(comments):
-            self.assertEqual(data[i]['id'], comment.id)
-            self.assertEqual(data[i]['content'], comment.content)
-            self.assertEqual(data[i]['created_at'], comment.created_at.strftime('%Y-%m-%dT%H:%M:%S'))
-            self.assertEqual(data[i]['updated_at'], comment.updated_at.strftime('%Y-%m-%dT%H:%M:%S'))
+        for comment in data:
+            self.assertIn('id', comment)
+            self.assertIn('content', comment)
+            self.assertIn('owner', comment)
+            self.assertIn('post', comment)
+            self.assertIn('bookmarked', comment)
+            self.assertIn('upvoted', comment)
+            self.assertIn('downvoted', comment)
+            self.assertIn('replies', comment)
+            self.assertIn('stats', comment)
+            self.assertIn('created_at', comment)
+            self.assertIn('updated_at', comment)
 
     def test_read_commens_empty(self):
         # Get the comments

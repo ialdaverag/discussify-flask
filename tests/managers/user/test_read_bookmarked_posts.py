@@ -3,10 +3,7 @@ from tests.base.base_test_case import BaseTestCase
 
 # Factories
 from tests.factories.user_factory import UserFactory
-from tests.factories.post_factory import PostFactory
-
-# Models
-from app.models.post import PostBookmark
+from tests.factories.post_bookmark_factory import PostBookmarkFactory
 
 # Managers
 from app.managers.post import PostBookmarkManager
@@ -20,21 +17,20 @@ class TestReadBookmarkedPosts(BaseTestCase):
         # Create a user
         user = UserFactory()
 
-        # Create some posts
-        posts = PostFactory.create_batch(n)
-
-        # Make the user bookmark the posts
-        for post in posts:
-            PostBookmark(user=user, post=post).save()
+        # Create some bookmarks
+        bookmarks = PostBookmarkFactory.create_batch(n, user=user)
 
         # Read user bookmarks
-        bookmarks_to_read = PostBookmarkManager.read_bookmarked_posts_by_user(user)
+        bookmarked_posts = PostBookmarkManager.read_bookmarked_posts_by_user(user)
 
         # Assert the number of bookmarks
-        self.assertEqual(len(bookmarks_to_read), n)
+        self.assertEqual(len(bookmarked_posts), n)
+
+        # Get the posts from the bookmarks
+        posts = [bookmark.post for bookmark in bookmarks]
 
         # Assert the bookmarks are the same
-        self.assertEqual(posts, bookmarks_to_read)
+        self.assertEqual(bookmarked_posts, posts)
 
     def test_read_bookmarked_posts_empty(self):
         # Create a user

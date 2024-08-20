@@ -6,9 +6,6 @@ from tests.factories.user_factory import UserFactory
 from tests.factories.comment_vote_factory import CommentVoteFactory
 from tests.factories.comment_factory import CommentFactory
 
-# Utils
-from tests.utils.tokens import get_access_token
-
 
 class TestReadCommentUpvoters(BaseTestCase):
     route = '/comment/{}/upvoters'

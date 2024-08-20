@@ -28,7 +28,25 @@ class TestReadPostDownvoters(BaseTestCase):
         # Check status code
         self.assertEqual(response.status_code, 200)
 
-        
+        # Get the data
+        data = response.json
+
+        # Assert that the response data is a list
+        self.assertIsInstance(data, list)
+
+        # Assert the number of upvotes
+        self.assertEqual(len(data), n)
+
+        # Assert the response data structure
+        for downvoter in data:
+            self.assertIn('id', downvoter)
+            self.assertIn('username', downvoter)
+            self.assertIn('email', downvoter)
+            self.assertIn('following', downvoter)
+            self.assertIn('follower', downvoter)
+            self.assertIn('stats', downvoter)
+            self.assertIn('created_at', downvoter)
+            self.assertIn('updated_at', downvoter)
 
     def test_read_post_downvoters_empty(self):
         # Create a post

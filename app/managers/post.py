@@ -1,7 +1,9 @@
+# Models
 from app.models.post import Post
 from app.models.post import PostBookmark
 from app.models.post import PostVote
 
+# Errors
 from app.errors.errors import BanError
 from app.errors.errors import SubscriptionError
 from app.errors.errors import OwnershipError
@@ -24,12 +26,16 @@ class PostManager:
         return post
     
     @staticmethod
-    def read():
-        pass
+    def read(id):
+        post = Post.get_by_id(id)
+
+        return post
 
     @staticmethod
     def read_all():
-        pass
+        posts = Post.get_all()
+
+        return posts
     
     @staticmethod
     def update(user, post, data):
@@ -140,6 +146,18 @@ class PostVoteManager:
         downvotes = PostVote.get_downvoted_posts_by_user(user)
 
         return downvotes
+    
+    @staticmethod
+    def read_upvoters_by_post(post):
+        upvoters = PostVote.get_upvoters_by_post(post)
+
+        return upvoters
+    
+    @staticmethod
+    def read_downvoters_by_post(post):
+        downvoters = PostVote.get_downvoters_by_post(post)
+
+        return downvoters
 
     @staticmethod
     def delete(user, post):

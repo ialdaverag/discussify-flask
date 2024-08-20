@@ -3,10 +3,7 @@ from tests.base.base_test_case import BaseTestCase
 
 # Factories
 from tests.factories.user_factory import UserFactory
-from tests.factories.post_factory import PostFactory
-
-# Models
-from app.models.post import PostVote
+from tests.factories.post_vote_factory import PostVoteFactory
 
 # Managers
 from app.managers.post import PostVoteManager
@@ -20,31 +17,30 @@ class TestReadDownvotedPosts(BaseTestCase):
         # Create a user
         user = UserFactory()
 
-        # Create some posts
-        posts = PostFactory.create_batch(n)
-
-        # Make the user downvote the posts
-        for post in posts:
-            PostVote(user=user, post=post, direction=-1).save()
+        # Create some downvotes
+        downvotes = PostVoteFactory.create_batch(n, user=user, direction=-1)
 
         # Read user downvotes
-        posts_downvoted_to_read = PostVoteManager.read_downvoted_posts_by_user(user)
+        downvoted_posts = PostVoteManager.read_downvoted_posts_by_user(user)
 
         # Assert the number of downvotes
-        self.assertEqual(len(posts_downvoted_to_read), n)
+        self.assertEqual(len(downvoted_posts), n)
+
+        # Get the posts from the downvotes
+        posts = [downvote.post for downvote in downvotes]
 
         # Assert the downvotes are the same
-        self.assertEqual(posts, posts_downvoted_to_read)
+        self.assertEqual(posts, downvoted_posts)
 
     def test_read_downvoted_posts_empty(self):
         # Create a user
         user = UserFactory()
 
         # Read user downvotes
-        downvotes_to_read = PostVoteManager.read_downvoted_posts_by_user(user)
+        downvoted_comments = PostVoteManager.read_downvoted_posts_by_user(user)
 
         # Assert the number of downvotes
-        self.assertEqual(len(downvotes_to_read), 0)
+        self.assertEqual(len(downvoted_comments), 0)
 
         # Assert that the downvotes are an empty list
-        self.assertEqual(downvotes_to_read, [])
+        self.assertEqual(downvoted_comments, [])

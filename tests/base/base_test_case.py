@@ -3,7 +3,11 @@ import unittest
 
 # app
 from app import create_app
+
+# config
 from app.config.testing import TestingConfig
+
+# extensions
 from app.extensions.database import db
 
 

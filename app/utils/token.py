@@ -1,4 +1,7 @@
+# Flask
 from flask import current_app
+
+# itsdangerous
 from itsdangerous import URLSafeTimedSerializer
 
 

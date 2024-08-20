@@ -3,10 +3,7 @@ from tests.base.base_test_case import BaseTestCase
 
 # factories
 from tests.factories.user_factory import UserFactory
-from tests.factories.post_factory import PostFactory
-
-# Mdoels
-from app.models.post import PostBookmark
+from tests.factories.post_bookmark_factory import PostBookmarkFactory
 
 # utils
 from tests.utils.tokens import get_access_token
@@ -22,17 +19,13 @@ class TestReadBookmarkedPosts(BaseTestCase):
         # Create a user
         user = UserFactory()
 
-        # Create some posts
-        posts = PostFactory.create_batch(n)
-
-        # Make the user bookmark the posts
-        for post in posts:
-            PostBookmark(user=user, post=post).save()
+        # Create some bookmarks
+        PostBookmarkFactory.create_batch(n, user=user)
 
         # Get user access token
         access_token = get_access_token(user)
 
-        # Get user bookmarked posts
+        # Get the user bookmarked posts
         response = self.client.get(
             self.route,
             headers={'Authorization': f'Bearer {access_token}'}

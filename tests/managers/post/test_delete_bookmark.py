@@ -3,9 +3,8 @@ from tests.base.base_test_case import BaseTestCase
 
 # Factories
 from tests.factories.user_factory import UserFactory
-
-# Models
-from app.models.post import PostBookmark
+from tests.factories.post_factory import PostFactory
+from tests.factories.post_bookmark_factory import PostBookmarkFactory
 
 # Errors
 from app.errors.errors import BookmarkError
@@ -13,20 +12,17 @@ from app.errors.errors import BookmarkError
 # Managers
 from app.managers.post import PostBookmarkManager
 
-# Factories
-from tests.factories.post_factory import PostFactory
-
 
 class TestDeleteBookmark(BaseTestCase):
     def test_unbookmark_post(self):
-        # Create a post
-        post = PostFactory()
+        # Create a bookmarked post
+        bookmark = PostBookmarkFactory()
 
-        # Create a user
-        user = UserFactory()
+        # Get the user
+        user = bookmark.user
 
-        # Append the post to the user's bookmarks
-        PostBookmark(user=user, post=post).save()
+        # Get the post
+        post = bookmark.post
 
         # Unbookmark the post
         PostBookmarkManager.delete(user, post)

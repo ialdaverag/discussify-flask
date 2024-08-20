@@ -1,7 +1,13 @@
+# Flask-JWT-Extended
 from flask_jwt_extended import current_user
 
+# Extensions
 from app.extensions.database import db
+
+# Errors
 from app.errors.errors import NotFoundError
+
+# Models
 from app.models.comment import Comment
 
 
@@ -70,13 +76,13 @@ class PostVote(db.Model):
     def get_downvoters_by_post(cls, post):
         downvoters = PostVote.query.filter_by(post_id=post.id, direction=-1).all()
 
-        return downvoters
+        return [downvote.user for downvote in downvoters]
     
     @classmethod
     def get_upvoters_by_post(cls, post):
         upvoters = PostVote.query.filter_by(post_id=post.id, direction=1).all()
 
-        return upvoters
+        return [upvote.user for upvote in upvoters]
     
     @classmethod
     def get_upvoted_posts_by_user(cls, user):
@@ -156,6 +162,12 @@ class Post(db.Model):
             raise NotFoundError('Post not found.')
         
         return post
+    
+    @classmethod
+    def get_all(cls):
+        posts = db.session.scalars(db.select(Post)).all()
+
+        return posts
     
     @property
     def bookmarked(self):

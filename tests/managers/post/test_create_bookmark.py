@@ -3,6 +3,7 @@ from tests.base.base_test_case import BaseTestCase
 
 # Factories
 from tests.factories.user_factory import UserFactory
+from tests.factories.post_bookmark_factory import PostBookmarkFactory
 
 # Models
 from app.models.post import PostBookmark
@@ -35,14 +36,14 @@ class TestCreateBookmark(BaseTestCase):
         self.assertIsNotNone(bookmark)
 
     def test_bookmark_post_already_bookmarked(self):
-        # Create a post
-        post = PostFactory()
+        # Create a bookmarked post
+        bookmark = PostBookmarkFactory()
 
-        # Create a user
-        user = UserFactory()
+        # Get the user
+        user = bookmark.user
 
-        # Append the post to the user's bookmarks
-        PostBookmark(user=user, post=post).save()
+        # Get the post
+        post = bookmark.post
 
         # Attempt to bookmark the post again
         with self.assertRaises(BookmarkError):

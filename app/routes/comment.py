@@ -1,26 +1,35 @@
+# HTTP
 from http import HTTPStatus
 
+# Flask
 from flask import Blueprint
 from flask import request
+
+# Flask-JWT-Extended
 from flask_jwt_extended import jwt_required
 from flask_jwt_extended import get_jwt_identity
 from flask_jwt_extended import current_user
 
+# Marshmallow
 from marshmallow import ValidationError
 
+# Schemas
 from app.schemas.comment import comment_schema
 from app.schemas.comment import comment_update_schema
 from app.schemas.comment import comments_schema
 from app.schemas.user import users_schema
 
+# Models
 from app.models.post import Post
 from app.models.comment import Comment
 from app.models.comment import CommentVote
 
+# Managers
 from app.managers.comment import CommentManager
 from app.managers.comment import CommentBookmarkManager
 from app.managers.comment import CommentVoteManager
 
+# Extensions
 from app.extensions.database import db
 
 comment_routes = Blueprint('comment_routes', __name__)
@@ -59,7 +68,7 @@ def create_comment():
 @comment_routes.get('/<string:id>')
 @jwt_required(optional=True)
 def read_comment(id):
-    comment = Comment.get_by_id(id)
+    comment = CommentManager.read(id)
     
     return comment_schema.dump(comment), HTTPStatus.OK
 
@@ -67,7 +76,7 @@ def read_comment(id):
 @comment_routes.get('/')
 @jwt_required(optional=True)
 def read_comments():
-    comments = Comment.get_all()
+    comments = CommentManager.read_all()
 
     return comments_schema.dump(comments), HTTPStatus.OK
 
@@ -154,7 +163,7 @@ def cancel_vote_on_comment(id):
 def read_comment_upvoters(id):
     comment = Comment.get_by_id(id)
     
-    upvoters = CommentVote.get_upvoters_by_comment(comment)
+    upvoters = CommentVoteManager.read_upvoters_by_comment(comment)
 
     return users_schema.dump(upvoters), HTTPStatus.OK
 
@@ -164,6 +173,6 @@ def read_comment_upvoters(id):
 def read_comment_downvoters(id):
     comment = Comment.get_by_id(id)
     
-    downvoters = CommentVote.get_downvoters_by_comment(comment)
+    downvoters = CommentVoteManager.read_downvoters_by_comment(comment)
 
     return users_schema.dump(downvoters), HTTPStatus.OK

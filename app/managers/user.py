@@ -1,9 +1,12 @@
+# Models
 from app.models.user import User
 from app.models.user import Follow
 
+# Errors
 from app.errors.errors import NameError
 from app.errors.errors import FollowError
 
+# Utils
 from app.utils.password import hash_password
 
 class UserManager:

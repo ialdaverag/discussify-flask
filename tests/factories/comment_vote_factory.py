@@ -1,10 +1,10 @@
-# factory boy
+# factory-boy
 import factory
 
-# models
+# Models
 from app.models.comment import CommentVote
 
-# factories
+# Factories
 from .base_factory import BaseFactory
 from .user_factory import UserFactory
 from .comment_factory import CommentFactory

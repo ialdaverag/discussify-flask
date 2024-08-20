@@ -3,10 +3,7 @@ from tests.base.base_test_case import BaseTestCase
 
 # Factories
 from tests.factories.user_factory import UserFactory
-from tests.factories.comment_factory import CommentFactory
-
-# Models
-from app.models.comment import CommentVote
+from tests.factories.comment_vote_factory import CommentVoteFactory
 
 # Managers
 from app.managers.comment import CommentVoteManager
@@ -20,32 +17,31 @@ class TestReadUpvotedComments(BaseTestCase):
         # Create a user
         user = UserFactory()
 
-        # Create some comments
-        comments = CommentFactory.create_batch(n)
+        # Create some upvotes
+        upvotes = CommentVoteFactory.create_batch(n, user=user, direction=1)
 
-        # Make the user bookmark the comments
-        for comment in comments:
-            CommentVote(user=user, comment=comment, direction=1).save()
+        # Read user upvotes
+        upvoted_comments = CommentVoteManager.read_upvoted_comments_by_user(user)
 
-        # Read user bookmarks
-        bookmarks_to_read = CommentVoteManager.read_upvoted_comments_by_user(user)
+        # Assert the number of upvotes
+        self.assertEqual(len(upvoted_comments), n)
 
-        # Assert the number of bookmarks
-        self.assertEqual(len(bookmarks_to_read), n)
+        # Get the comments from the upnvotes
+        comments = [upvote.comment for upvote in upvotes]
 
-        # Assert the bookmarks are the same
-        self.assertEqual(comments, bookmarks_to_read)
+        # Assert the upvotes are the same
+        self.assertEqual(comments, upvoted_comments)
 
     def test_read_upvoted_comments_empty(self):
         # Create a user
         user = UserFactory()
 
-        # Read user bookmarks
-        bookmarks_to_read = CommentVoteManager.read_upvoted_comments_by_user(user)
+        # Read user upvoted comments
+        upvoted_comments = CommentVoteManager.read_upvoted_comments_by_user(user)
 
-        # Assert the number of bookmarks
-        self.assertEqual(len(bookmarks_to_read), 0)
+        # Assert the number of upvoted comments
+        self.assertEqual(len(upvoted_comments), 0)
 
-        # Assert that the bookmarks are an empty list
-        self.assertEqual(bookmarks_to_read, [])
+        # Assert that the upvoted comments are an empty list
+        self.assertEqual(upvoted_comments, [])
 

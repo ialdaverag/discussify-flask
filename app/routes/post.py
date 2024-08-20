@@ -1,23 +1,29 @@
+# HTTP
 from http import HTTPStatus
 
+# Flask
 from flask import Blueprint
 from flask import request
 
-
+# Flask-JWT-Extended
 from flask_jwt_extended import jwt_required
 from flask_jwt_extended import current_user
 
+# Marshmallow
 from marshmallow import ValidationError
 
+# Schemas
 from app.schemas.post import post_schema
 from app.schemas.post import posts_schema
 from app.schemas.user import users_schema
 from app.schemas.comment import comments_schema
 
+# Models
 from app.models.community import Community
 from app.models.post import Post
 from app.models.post import PostVote
 
+# Managers
 from app.managers.post import PostManager
 from app.managers.post import PostBookmarkManager
 from app.managers.post import PostVoteManager
@@ -46,7 +52,7 @@ def create_post():
 @post_routes.get('/<int:id>')
 @jwt_required(optional=True)
 def read_post(id):
-    post = Post.get_by_id(id)
+    post = PostManager.read(id)
 
     if not post:
         return {'message': 'Post not found'}, HTTPStatus.NOT_FOUND
@@ -57,7 +63,7 @@ def read_post(id):
 @post_routes.get('/')
 @jwt_required(optional=True)
 def read_posts():
-    posts = Post.query.all()
+    posts = PostManager.read_all()
 
     return posts_schema.dump(posts), HTTPStatus.OK
 
@@ -144,7 +150,7 @@ def cancel(id):
 def read_upvoters(id):
     post = Post.get_by_id(id)
     
-    upvoters = PostVote.get_upvoters_by_post(post)
+    upvoters = PostVoteManager.read_upvoters_by_post(post)
 
     return users_schema.dump(upvoters), HTTPStatus.OK
 
@@ -154,7 +160,7 @@ def read_upvoters(id):
 def read_downvoters(id):
     post = Post.get_by_id(id)
     
-    downvoters = PostVote.get_downvoters_by_post(post)
+    downvoters = PostVoteManager.read_downvoters_by_post(post)
 
     return users_schema.dump(downvoters), HTTPStatus.OK
 

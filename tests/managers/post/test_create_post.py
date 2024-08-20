@@ -6,7 +6,6 @@ from tests.factories.user_factory import UserFactory
 from tests.factories.community_factory import CommunityFactory
 
 # Errors
-from app.errors.errors import NameError
 from app.errors.errors import SubscriptionError
 from app.errors.errors import BanError
 

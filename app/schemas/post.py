@@ -1,7 +1,9 @@
+# Marshmallow
 from marshmallow import Schema
 from marshmallow import fields
 from marshmallow import validate
 
+# Schemas
 from app.schemas.user import UserSchema
 from app.schemas.community import CommunitySchema
 

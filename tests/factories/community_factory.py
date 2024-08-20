@@ -1,12 +1,12 @@
-# factory boy
+# factory-boy
 import factory
 
-# models
+# Models
 from app.models.community import Community
 from app.models.community import CommunitySubscriber
 from app.models.community import CommunityModerator
 
-# factories
+# Factories
 from .base_factory import BaseFactory
 from .user_factory import UserFactory
 

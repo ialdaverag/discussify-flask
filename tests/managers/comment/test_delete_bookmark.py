@@ -3,12 +3,10 @@ from tests.base.base_test_case import BaseTestCase
 
 # Factories
 from tests.factories.user_factory import UserFactory
+from tests.factories.comment_bookmark_factory import CommentBookmarkFactory
 
 # Errors
 from app.errors.errors import BookmarkError
-
-# Models
-from app.models.comment import CommentBookmark
 
 # Factories
 from tests.factories.comment_factory import CommentFactory
@@ -19,14 +17,14 @@ from app.managers.comment import CommentBookmarkManager
 
 class TestDeleteBookmark(BaseTestCase):
     def test_unbookmark_comment(self):
-        # Create a comment
-        comment = CommentFactory()
+        # Create a bookmarked comment
+        bookmark = CommentBookmarkFactory()
 
-        # Create a user
-        user = UserFactory()
+        # Get the user
+        user = bookmark.user
 
-        # Append the comment to the user's bookmarks
-        CommentBookmark(user=user, comment=comment).save()
+        # Get the comment
+        comment = bookmark.comment
 
         # Unbookmark the comment
         CommentBookmarkManager.delete(user, comment)

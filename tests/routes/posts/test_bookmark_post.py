@@ -3,8 +3,8 @@ from tests.base.base_test_case import BaseTestCase
 
 # Factories
 from tests.factories.user_factory import UserFactory
-from tests.factories.community_factory import CommunityFactory
 from tests.factories.post_factory import PostFactory
+from tests.factories.post_bookmark_factory import PostBookmarkFactory
 
 # Utils
 from tests.utils.tokens import get_access_token
@@ -61,17 +61,17 @@ class TestBookmarkPost(BaseTestCase):
         self.assertEqual(data['message'], 'Post not found.')
 
     def test_bookmark_post_already_bookmarked(self):
-        # Create a post
-        post = PostFactory()
+        # Create a bookmarked post
+        bookmark = PostBookmarkFactory()
 
         # Get the user
-        user = UserFactory()
+        user = bookmark.user
+
+        # Get the post
+        post = bookmark.post
 
         # Get the access token
         access_token = get_access_token(user)
-
-        # Append the user to the post's bookmarkers
-        PostBookmark(user=user, post=post).save()
 
         # Bookmark the post again
         response = self.client.post(

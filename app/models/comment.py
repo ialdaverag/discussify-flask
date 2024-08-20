@@ -1,6 +1,10 @@
+# Flask-JWT-Extended
 from flask_jwt_extended import current_user
 
+# Extensions
 from app.extensions.database import db
+
+# Errors
 from app.errors.errors import NotFoundError
 
 

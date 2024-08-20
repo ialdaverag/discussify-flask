@@ -12,6 +12,7 @@ from app.models.comment import CommentBookmark
 
 # Factories
 from tests.factories.comment_factory import CommentFactory
+from tests.factories.comment_bookmark_factory import CommentBookmarkFactory
 
 # Managers
 from app.managers.comment import CommentBookmarkManager
@@ -35,14 +36,14 @@ class TestCreateBookmark(BaseTestCase):
         self.assertIsNotNone(bookmark)
 
     def test_bookmark_comment_already_bookmarked(self):
-        # Create a comment
-        comment = CommentFactory()
+        # Create a bookmarked comment
+        bookmark = CommentBookmarkFactory()
 
-        # Create a user
-        user = UserFactory()
+        # Get the user
+        user = bookmark.user
 
-        # Append the comment to the user's bookmarks
-        CommentBookmark(user=user, comment=comment).save()
+        # Get the comment
+        comment = bookmark.comment
 
         # Attempt to bookmark the comment again
         with self.assertRaises(BookmarkError):

@@ -1,11 +1,11 @@
-# factory boy
+# factory-boy
 import factory
 
-# models
+# Models
 from app.models.user import User
 from app.models.user import UserStats
 
-# factories
+# Factories
 from .base_factory import BaseFactory
 
 

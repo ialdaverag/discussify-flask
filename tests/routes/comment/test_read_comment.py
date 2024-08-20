@@ -2,11 +2,7 @@
 from tests.base.base_test_case import BaseTestCase
 
 # Factories
-from tests.factories.user_factory import UserFactory
 from tests.factories.comment_factory import CommentFactory
-
-# Utils
-from tests.utils.tokens import get_access_token
 
 
 class TestReadComment(BaseTestCase):

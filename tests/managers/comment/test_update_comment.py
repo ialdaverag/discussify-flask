@@ -3,17 +3,13 @@ from tests.base.base_test_case import BaseTestCase
 
 # Factories
 from tests.factories.user_factory import UserFactory
-from tests.factories.community_factory import CommunityFactory
 from tests.factories.post_factory import PostFactory
 
 # Errors
-from app.errors.errors import NameError
-from app.errors.errors import SubscriptionError
 from app.errors.errors import BanError
 from app.errors.errors import OwnershipError
 
 # Models
-from app.models.community import CommunitySubscriber
 from app.models.community import CommunityBan
 
 # Factories

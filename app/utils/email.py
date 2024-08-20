@@ -1,8 +1,13 @@
+# threading
 from threading import Thread
 
+# Flask
 from flask import current_app
+
+# Flask-Mail
 from flask_mail import Message
 
+# Extensions
 from app.extensions.email import mail
 
 

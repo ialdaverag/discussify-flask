@@ -1,8 +1,10 @@
+# Models
 from app.models.community import Community
 from app.models.community import CommunitySubscriber
 from app.models.community import CommunityModerator
 from app.models.community import CommunityBan
 
+# Errors
 from app.errors.errors import NameError
 from app.errors.errors import OwnershipError
 from app.errors.errors import BanError

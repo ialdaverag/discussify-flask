@@ -1,10 +1,10 @@
 # factory boy
 import factory
 
-# models
+# Models
 from app.models.post import PostVote
 
-# factories
+# Factories
 from .base_factory import BaseFactory
 from .user_factory import UserFactory
 from .post_factory import PostFactory

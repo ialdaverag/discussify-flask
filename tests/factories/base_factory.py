@@ -1,4 +1,4 @@
-# factory boy
+# factory-boy
 from factory.alchemy import SQLAlchemyModelFactory
 
 # extensions

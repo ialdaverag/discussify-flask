@@ -1,10 +1,12 @@
+# Flask-JWT-Extended
 from flask_jwt_extended import current_user
-from sqlalchemy import func
 
+# Extensions
 from app.extensions.database import db
+
+# Errors
 from app.errors.errors import NotFoundError
-from app.errors.errors import NameError
-from app.errors.errors import OwnershipError
+
 
 class CommunitySubscriber(db.Model):
     __tablename__ = 'community_subscribers'

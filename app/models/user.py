@@ -1,10 +1,10 @@
 # Flask-JWT-Extended
 from flask_jwt_extended import current_user
 
-# app.extensions
+# Extensions
 from app.extensions.database import db
 
-# app.models
+# Models
 from app.models.community import Community
 from app.models.community import CommunitySubscriber
 from app.models.community import CommunityModerator
@@ -16,7 +16,7 @@ from app.models.comment import Comment
 from app.models.comment import CommentBookmark
 from app.models.comment import CommentVote
 
-# app.errors
+# Errors
 from app.errors.errors import NotFoundError
 from app.errors.errors import FollowError
 from app.errors.errors import NameError

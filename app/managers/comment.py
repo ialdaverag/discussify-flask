@@ -1,13 +1,16 @@
+# Models
 from app.models.comment import Comment
 from app.models.comment import CommentBookmark
 from app.models.comment import CommentVote
 
+# Errors
 from app.errors.errors import BanError
 from app.errors.errors import SubscriptionError
 from app.errors.errors import NotInError
 from app.errors.errors import OwnershipError
 from app.errors.errors import BookmarkError
 from app.errors.errors import VoteError
+
 
 class CommentManager:
     @staticmethod
@@ -32,12 +35,16 @@ class CommentManager:
         return new_comment
     
     @staticmethod
-    def read():
-        pass
+    def read(id):
+        comment = Comment.get_by_id(id)
+
+        return comment
 
     @staticmethod
     def read_all():
-        pass
+        comments = Comment.get_all()
+
+        return comments
 
     @staticmethod
     def update(user, comment, data):
@@ -148,8 +155,19 @@ class CommentVoteManager:
         downvotes = CommentVote.get_downvoted_comments_by_user(user)
 
         return downvotes
-        
+
+    @staticmethod
+    def read_upvoters_by_comment(comment):
+        upvoters = CommentVote.get_upvoters_by_comment(comment)
+
+        return upvoters
     
+    @staticmethod
+    def read_downvoters_by_comment(comment):
+        downvoters = CommentVote.get_downvoters_by_comment(comment)
+
+        return downvoters
+        
     @staticmethod
     def delete(user, comment):
         community = comment.post.community
