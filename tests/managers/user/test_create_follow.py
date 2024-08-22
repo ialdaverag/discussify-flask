@@ -6,12 +6,14 @@ from tests.factories.user_factory import UserFactory
 
 # Models
 from app.models.user import Follow
+from app.models.user import Block
 
 # Managers
 from app.managers.user import FollowManager
 
 # Errors
 from app.errors.errors import FollowError
+from app.errors.errors import BlockError
 
 
 class TestCreateFollow(BaseTestCase):
@@ -22,26 +24,48 @@ class TestCreateFollow(BaseTestCase):
         # Create a user to follow
         user2 = UserFactory()
 
-        # Assert that user1 is not following user2
-        self.assertFalse(user1.is_following(user2))
-
-        # Asser that user2 is not followed by user1
-        self.assertFalse(user2.is_followed_by(user1))
-
         # user1 follows user2
         FollowManager.create(user1, user2)
 
-        # Assert that user1 is following user2
-        self.assertTrue(user1.is_following(user2))
+        # Get the follow relationship between user1 and user2
+        follow = Follow.get_by_follower_and_followed(follower=user1, followed=user2)
 
-        # Assert that user2 is followed by user1
-        self.assertTrue(user2.is_followed_by(user1))
+        # Assert that the follow relationship was created
+        self.assertIsNotNone(follow)
 
         # Check if following count is updated
         self.assertEqual(user1.stats.following_count, 1)
 
         # Check if follower count is updated
         self.assertEqual(user2.stats.followers_count, 1)
+
+    def test_create_follow_blocked_user(self):
+        # Create a user
+        user1 = UserFactory()
+
+        # Create a user to follow
+        user2 = UserFactory()
+
+        # Create a block relationship between user1 and user2
+        Block(blocker=user1, blocked=user2).save()
+
+        # Attempt to follow user2
+        with self.assertRaises(BlockError):
+            FollowManager.create(user1, user2)
+
+    def test_create_follow_blocked_by_user(self):
+        # Create a user
+        user1 = UserFactory()
+
+        # Create a user to follow
+        user2 = UserFactory()
+
+        # Create a block relationship between user2 and user1
+        Block(blocker=user2, blocked=user1).save()
+
+        # Attempt to follow user2
+        with self.assertRaises(BlockError):
+            FollowManager.create(user1, user2)
 
     def test_create_follow_already_followed(self):
         # Create a user

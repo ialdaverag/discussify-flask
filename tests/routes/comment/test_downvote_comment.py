@@ -12,6 +12,7 @@ from tests.utils.tokens import get_access_token
 # Models
 from app.models.community import CommunitySubscriber
 from app.models.community import CommunityBan
+from app.models.user import Block
 
 
 class TestDownvoteComment(BaseTestCase):
@@ -39,6 +40,68 @@ class TestDownvoteComment(BaseTestCase):
 
         # Check status code
         self.assertEqual(response.status_code, 204)
+
+    def test_downvote_comment_owner_blocked_by_user(self):
+        # Create a post
+        comment = CommentFactory()
+
+        # Create a user
+        user = UserFactory()
+
+        # Get the post's
+        community = comment.post.community
+
+        # Append the user to the post's community's subscribers
+        CommunitySubscriber(community=community, user=user).save()
+
+        # Get the post's owner
+        owner = comment.owner
+
+        # Block the post's owner
+        Block(blocker=user, blocked=owner).save()
+
+        # Get the access token
+        access_token = get_access_token(user)
+
+        # Downvote the comment
+        response = self.client.post(
+            self.route.format(comment.id),
+            headers={'Authorization': f'Bearer {access_token}'}
+        )
+
+        # Check status code
+        self.assertEqual(response.status_code, 400)
+
+    def test_downvote_comment_user_blocked_by_owner(self):
+        # Create a post
+        comment = CommentFactory()
+
+        # Create a user
+        user = UserFactory()
+
+        # Get the post's
+        community = comment.post.community
+
+        # Append the user to the post's community's subscribers
+        CommunitySubscriber(community=community, user=user).save()
+
+        # Get the post's owner
+        owner = comment.owner
+
+        # Block the post's owner
+        Block(blocker=owner, blocked=user).save()
+
+        # Get the access token
+        access_token = get_access_token(user)
+
+        # Cownvote the comment
+        response = self.client.post(
+            self.route.format(comment.id),
+            headers={'Authorization': f'Bearer {access_token}'}
+        )
+
+        # Check status code
+        self.assertEqual(response.status_code, 400)
 
     def test_downvote_comment_nonexistent(self):
         # Create a user

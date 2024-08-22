@@ -6,9 +6,11 @@ from tests.factories.user_factory import UserFactory
 
 # Errors
 from app.errors.errors import BookmarkError
+from app.errors.errors import BlockError
 
 # Models
 from app.models.comment import CommentBookmark
+from app.models.user import Block
 
 # Factories
 from tests.factories.comment_factory import CommentFactory
@@ -34,6 +36,40 @@ class TestCreateBookmark(BaseTestCase):
 
         # Assert that the comment was bookmarked
         self.assertIsNotNone(bookmark)
+
+    def test_bookmark_comment_with_owner_blocked(self):
+        # Create a comment
+        comment = CommentFactory()
+
+        # Create a user
+        user = UserFactory()
+
+        # Get the comment owner
+        owner = comment.owner
+
+        # Block the user
+        Block(blocker=user, blocked=owner).save()
+
+        # Attempt to bookmark the comment
+        with self.assertRaises(BlockError):
+            CommentBookmarkManager.create(user, comment)
+
+    def test_bookmark_comment_with_user_blocked_by_owner(self):
+        # Create a comment
+        comment = CommentFactory()
+
+        # Create a user
+        user = UserFactory()
+
+        # Get the comment owner
+        owner = comment.owner
+
+        # Block the user
+        Block(blocker=owner, blocked=user).save()
+
+        # Attempt to bookmark the comment
+        with self.assertRaises(BlockError):
+            CommentBookmarkManager.create(user, comment)
 
     def test_bookmark_comment_already_bookmarked(self):
         # Create a bookmarked comment

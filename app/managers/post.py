@@ -9,6 +9,7 @@ from app.errors.errors import SubscriptionError
 from app.errors.errors import OwnershipError
 from app.errors.errors import BookmarkError
 from app.errors.errors import VoteError
+from app.errors.errors import BlockError
 
 
 class PostManager:
@@ -68,6 +69,14 @@ class PostBookmarkManager:
     def create(user, post):
         if post.is_bookmarked_by(user):
             raise BookmarkError('Post already bookmarked.')
+        
+        owner = post.owner
+
+        if user.is_blocking(owner):
+                raise BlockError('You cannot bookmark this post.')
+
+        if user.is_blocked_by(owner):
+            raise BlockError('You cannot bookmark this post.')
 
         PostBookmark(
             user=user, 
@@ -94,6 +103,14 @@ class PostBookmarkManager:
 class PostVoteManager:
     @staticmethod
     def create(user, post, direction):
+        owner = post.owner
+
+        if user.is_blocking(owner):
+            raise BlockError('You cannot vote on this post.')
+
+        if user.is_blocked_by(owner):
+            raise BlockError('You cannot vote on this post.')
+
         if direction == 1:
             community = post.community
 
@@ -102,7 +119,7 @@ class PostVoteManager:
 
             if not user.is_subscribed_to(community):
                 raise SubscriptionError('You are not subscribed to this community.')
-
+            
             vote = PostVote.get_by_user_and_post(user=user, post=post)
 
             if vote:

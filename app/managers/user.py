@@ -1,10 +1,12 @@
 # Models
 from app.models.user import User
 from app.models.user import Follow
+from app.models.user import Block
 
 # Errors
 from app.errors.errors import NameError
 from app.errors.errors import FollowError
+from app.errors.errors import BlockError
 
 # Utils
 from app.utils.password import hash_password
@@ -12,24 +14,18 @@ from app.utils.password import hash_password
 class UserManager:
     @staticmethod
     def create(data):
-        # Get the username form the data
         username = data.get('username')
 
-        # Check if the username is already taken
         if not User.is_username_available(username):
             raise NameError('Username already taken.')
         
-        # Get the email from the data
         email = data.get('email')
 
-        # Check if the email is already taken
         if not User.is_email_available(email):
             raise NameError('Email already taken.')
         
-        # Get the password from the data
         password = data.get('password')
         
-        # Create a new user
         user = User(username=username, email=email, password=hash_password(password))
         user.save()
 
@@ -51,12 +47,18 @@ class UserManager:
 
 class FollowManager:
     @staticmethod
-    def create(user, target):
-        if target == user:
-            raise FollowError('You cannot follow yourself.')
+    def create(user, target):    
+        if user.is_blocking(target):
+            raise BlockError('You cannot follow this user.')
+        
+        if user.is_blocked_by(target):
+            raise BlockError('You cannot follow this user.')
 
         if user.is_following(target):
             raise FollowError('You are already following this user.')
+        
+        if target == user:
+            raise FollowError('You cannot follow yourself.')
         
         Follow(
             follower=user, 
@@ -86,4 +88,50 @@ class FollowManager:
         Follow.get_by_follower_and_followed(
             follower=user, 
             followed=target
+        ).delete()
+
+
+class BlockManager:
+    @staticmethod
+    def create(user, target):
+        if target == user:
+            raise BlockError('You cannot block yourself.')
+        
+        if user.is_blocking(target):
+            raise BlockError('You are already blocking this user.')
+        
+        if user.is_following(target):
+            Follow.get_by_follower_and_followed(
+                follower=user, 
+                followed=target
+            ).delete()
+
+        if user.is_followed_by(target):
+            Follow.get_by_follower_and_followed(
+                follower=target, 
+                followed=user
+            ).delete()
+        
+        Block(
+            blocker=user, 
+            blocked=target
+        ).save()
+
+    @staticmethod
+    def read_blocked(user):
+        blocked = Block.get_blocked(user)
+        
+        return blocked
+
+    @staticmethod
+    def delete(user, target):
+        if not user.is_blocking(target):
+            raise BlockError('You are not blocking this user.')
+        
+        if target == user:
+            raise BlockError('You cannot unblock yourself.')
+        
+        Block.get_by_blocker_and_blocked(
+            blocker=user, 
+            blocked=target
         ).delete()

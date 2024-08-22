@@ -5,29 +5,12 @@ from flask_jwt_extended import current_user
 from app.extensions.database import db
 
 # Models
-from app.models.community import Community
 from app.models.community import CommunitySubscriber
 from app.models.community import CommunityModerator
 from app.models.community import CommunityBan
-from app.models.post import Post
-from app.models.post import PostBookmark
-from app.models.post import PostVote
-from app.models.comment import Comment
-from app.models.comment import CommentBookmark
-from app.models.comment import CommentVote
 
 # Errors
 from app.errors.errors import NotFoundError
-from app.errors.errors import FollowError
-from app.errors.errors import NameError
-from app.errors.errors import NotInError
-from app.errors.errors import ModeratorError
-from app.errors.errors import OwnershipError
-from app.errors.errors import SubscriptionError
-from app.errors.errors import BanError
-from app.errors.errors import UnauthorizedError
-from app.errors.errors import BookmarkError
-from app.errors.errors import VoteError
 
 
 class Follow(db.Model):
@@ -67,6 +50,42 @@ class Follow(db.Model):
         return [follow.followed for follow in followed]
 
 
+class Block(db.Model):
+    __tablename__ = 'blocks'
+
+    blocker_id = db.Column(db.Integer, db.ForeignKey('users.id'), primary_key=True, nullable=False)
+    blocked_id = db.Column(db.Integer, db.ForeignKey('users.id'), primary_key=True, nullable=False)
+    created_at = db.Column(db.DateTime, default=db.func.now())
+
+    blocker = db.relationship('User', foreign_keys=[blocker_id], back_populates='blocked')
+    blocked = db.relationship('User', foreign_keys=[blocked_id], back_populates='blockers')
+
+    def save(self):
+        db.session.add(self)
+        db.session.commit()
+
+    def delete(self):
+        db.session.delete(self)
+        db.session.commit()
+
+    @classmethod
+    def get_by_blocker_and_blocked(cls, blocker, blocked):
+        block = cls.query.filter_by(blocker=blocker, blocked=blocked).first()
+
+        return block
+    
+    @classmethod
+    def get_blocked(cls, user):
+        blocked = cls.query.filter_by(blocker_id=user.id).all()
+
+        return [block.blocked for block in blocked]
+    
+    @classmethod
+    def get_blockers(cls, user):
+        blockers = cls.query.filter_by(blocked_id=user.id).all()
+
+        return [block.blocker for block in blockers]
+
 
 class UserStats(db.Model):
     __tablename__ = 'user_stats'
@@ -102,6 +121,9 @@ class User(db.Model):
     # User
     followers = db.relationship('Follow', foreign_keys=[Follow.followed_id], back_populates='followed', lazy='dynamic', cascade='all, delete-orphan')
     followed = db.relationship('Follow', foreign_keys=[Follow.follower_id], back_populates='follower', lazy='dynamic', cascade='all, delete-orphan')
+    blockers = db.relationship('Block', foreign_keys=[Block.blocked_id], back_populates='blocked', lazy='dynamic', cascade='all, delete-orphan')
+    blocked = db.relationship('Block', foreign_keys=[Block.blocker_id], back_populates='blocker', lazy='dynamic', cascade='all, delete-orphan')
+
 
     # Community
     communities = db.relationship('Community', back_populates='owner', lazy='dynamic', cascade='all, delete')
@@ -176,6 +198,20 @@ class User(db.Model):
         
         return None
     
+    @property
+    def blocking(self):
+        if current_user and current_user != self:  
+            return current_user.is_blocking(self)
+        
+        return None
+    
+    @property
+    def blocker(self):
+        if current_user and current_user != self:
+            return current_user.is_blocked_by(self)
+        
+        return None
+    
     def is_following(self, other):
         follow = Follow.get_by_follower_and_followed(follower=self, followed=other)
 
@@ -185,6 +221,16 @@ class User(db.Model):
         follow = Follow.get_by_follower_and_followed(follower=other, followed=self)
 
         return follow is not None
+    
+    def is_blocking(self, other):
+        block = Block.get_by_blocker_and_blocked(blocker=self, blocked=other)
+
+        return block is not None
+    
+    def is_blocked_by(self, other):
+        block = Block.get_by_blocker_and_blocked(blocker=other, blocked=self)
+
+        return block is not None
 
     def is_owner_of(self, community):
         return self is community.owner

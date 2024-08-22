@@ -6,13 +6,14 @@ from tests.factories.user_factory import UserFactory
 from tests.factories.post_factory import PostFactory
 
 # Errors
-from app.errors.errors import NameError
 from app.errors.errors import SubscriptionError
 from app.errors.errors import BanError
+from app.errors.errors import BlockError
 
 # Models
 from app.models.community import CommunitySubscriber
 from app.models.community import CommunityBan
+from app.models.user import Block
 
 # Managers
 from app.managers.comment import CommentManager
@@ -57,6 +58,62 @@ class TestCommentManager(BaseTestCase):
 
         # Assert that the post's stats were updated
         self.assertEqual(comment.post.stats.comments_count, 1)
+
+    def test_create_comment_with_owner_blocked(self):
+        # Create a user
+        user = UserFactory()
+
+        # Create a post
+        post = PostFactory()
+
+        # Define comment data
+        data = {
+            'content': 'This is a test comment'
+        }
+
+        # Get the post's community
+        community = post.community
+
+        # Append the user to the community's subscribers
+        CommunitySubscriber(community=community, user=user).save()
+
+        # Get the post's owner
+        owner = post.owner
+
+        # Block the user
+        Block(blocker=owner, blocked=user).save()
+
+        # Attempt to create a comment
+        with self.assertRaises(BlockError):
+            CommentManager.create(user, post, data)
+
+    def test_create_comment_with_user_blocked_by_owner(self):
+        # Create a user
+        user = UserFactory()
+
+        # Create a post
+        post = PostFactory()
+
+        # Define comment data
+        data = {
+            'content': 'This is a test comment'
+        }
+
+        # Get the post's community
+        community = post.community
+
+        # Append the user to the community's subscribers
+        CommunitySubscriber(community=community, user=user).save()
+
+        # Get the post's owner
+        owner = post.owner
+
+        # Block the owner
+        Block(blocker=user, blocked=owner).save()
+
+        # Attempt to create a comment
+        with self.assertRaises(BlockError):
+            CommentManager.create(user, post, data)
 
     def test_create_comment_being_banned(self):
         # Create a user

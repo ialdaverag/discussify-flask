@@ -2,7 +2,7 @@
 import factory
 
 # Models
-from app.models.user import Comment
+from app.models.comment import Comment
 
 # Factories
 from .base_factory import BaseFactory

@@ -2,7 +2,7 @@
 import factory
 
 # Models
-from app.models.user import Post
+from app.models.post import Post
 
 # Factories
 from .base_factory import BaseFactory

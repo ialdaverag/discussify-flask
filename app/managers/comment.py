@@ -10,6 +10,7 @@ from app.errors.errors import NotInError
 from app.errors.errors import OwnershipError
 from app.errors.errors import BookmarkError
 from app.errors.errors import VoteError
+from app.errors.errors import BlockError
 
 
 class CommentManager:
@@ -22,6 +23,14 @@ class CommentManager:
 
         if not user.is_subscribed_to(community):
             raise SubscriptionError('You are not subscribed to this community.')
+        
+        owner = post.owner
+
+        if user.is_blocking(owner):
+            raise BlockError('You cannot comment on this post.')
+        
+        if user.is_blocked_by(owner):
+            raise BlockError('You cannot comment on this post.')
         
         if comment is not None:
             if comment not in post.comments:
@@ -79,6 +88,14 @@ class CommentManager:
 class CommentBookmarkManager:
     @staticmethod
     def create(user, comment):
+        owner = comment.owner
+
+        if user.is_blocking(owner):
+            raise BlockError('You cannot bookmark this comment.')
+        
+        if user.is_blocked_by(owner):
+            raise BlockError('You cannot bookmark this comment.')
+        
         if comment.is_bookmarked_by(user):
             raise BookmarkError('Comment already bookmarked.')
         
@@ -101,6 +118,14 @@ class CommentBookmarkManager:
 class CommentVoteManager:
     @staticmethod
     def create(user, comment, direction):
+        owner = comment.owner
+
+        if user.is_blocking(owner):
+            raise BlockError('You cannot vote on this comment.')
+        
+        if user.is_blocked_by(owner):
+            raise BlockError('You cannot vote on this comment.')
+    
         if direction == 1:
             community = comment.post.community
 

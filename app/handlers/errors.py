@@ -14,6 +14,10 @@ def handler_follow_error(error):
     return {'message': str(error)}, HTTPStatus.BAD_REQUEST
 
 
+def handler_block_error(error):
+    return {'message': str(error)}, HTTPStatus.BAD_REQUEST
+
+
 def handler_subscription_error(error):
     return {'message': str(error)}, HTTPStatus.BAD_REQUEST
 

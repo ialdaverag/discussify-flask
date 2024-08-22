@@ -11,6 +11,7 @@ from tests.utils.tokens import get_access_token
 # Models
 from app.models.community import CommunitySubscriber
 from app.models.community import CommunityBan
+from app.models.user import Block
 
 
 class TestCreateComment(BaseTestCase):
@@ -215,6 +216,100 @@ class TestCreateComment(BaseTestCase):
 
         # Assert errors values
         self.assertEqual(errors['content'], ['Content must contain at least 1 character.'])
+
+    def test_create_comment_owner_blocked_by_user(self):
+        # Create a post
+        post = PostFactory()
+
+        # Create a user
+        user = UserFactory()
+
+        # Get the post's community
+        community = post.community
+
+        # Append the user to the post's community's subscribers
+        CommunitySubscriber(community=community, user=user).save()
+
+        # Get the post's owner
+        owner = post.owner
+
+        # Block the post's owner
+        Block(blocker=user, blocked=owner).save()
+
+        # Data to be sent
+        json={
+                'post_id': post.id,
+                'content': 'This is a comment.'
+            }
+        
+        # Get the access token
+        access_token = get_access_token(user)
+
+        # Create a comment
+        response = self.client.post(
+            self.route,
+            headers={'Authorization': f'Bearer {access_token}'},
+            json=json
+        )
+
+        # Check status code
+        self.assertEqual(response.status_code, 400)
+
+        # Get the data
+        data = response.json
+
+        # Assert message is in data
+        self.assertIn('message', data)
+
+        # Assert the message
+        self.assertEqual(data['message'], 'You cannot comment on this post.')
+
+    def test_create_comment_user_blocked_by_owner(self):
+        # Create a post
+        post = PostFactory()
+
+        # Create a user
+        user = UserFactory()
+
+        # Get the post's community
+        community = post.community
+
+        # Append the user to the post's community's subscribers
+        CommunitySubscriber(community=community, user=user).save()
+
+        # Get the post's owner
+        owner = post.owner
+
+        # Block the user
+        Block(blocker=owner, blocked=user).save()
+
+        # Data to be sent
+        json={
+                'post_id': post.id,
+                'content': 'This is a comment.'
+            }
+        
+        # Get the access token
+        access_token = get_access_token(user)
+
+        # Create a comment
+        response = self.client.post(
+            self.route,
+            headers={'Authorization': f'Bearer {access_token}'},
+            json=json
+        )
+
+        # Check status code
+        self.assertEqual(response.status_code, 400)
+
+        # Get the data
+        data = response.json
+
+        # Assert message is in data
+        self.assertIn('message', data)
+
+        # Assert the message
+        self.assertEqual(data['message'], 'You cannot comment on this post.')
 
     def test_create_comment_not_subscribed(self):
         # Create a post

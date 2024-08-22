@@ -10,11 +10,13 @@ from tests.factories.post_vote_factory import PostVoteFactory
 from app.errors.errors import BanError
 from app.errors.errors import SubscriptionError
 from app.errors.errors import VoteError
+from app.errors.errors import BlockError
 
 # Models
 from app.models.post import PostVote
 from app.models.community import CommunitySubscriber
 from app.models.community import CommunityBan
+from app.models.user import Block
 
 # Managers
 from app.managers.post import PostVoteManager
@@ -67,6 +69,52 @@ class TestCreateVote(BaseTestCase):
 
         # Assert that the post vote was created
         self.assertIsNotNone
+
+    def test_vote_positive_with_owner_blocked(self):
+        # Create a post
+        post = PostFactory()
+
+        # Create a user
+        user = UserFactory()
+
+        # Get the post's community
+        community = post.community
+
+        # Append the user to the post's subscribers
+        CommunitySubscriber(community=community, user=user).save()
+
+        # Get the post owner
+        owner = post.owner
+
+        # Block the user
+        Block(blocker=user, blocked=owner).save()
+
+        # Attempt to upvote the post
+        with self.assertRaises(BlockError):
+            PostVoteManager.create(user, post, 1)
+
+    def test_vote_positive_with_user_blocked_by_owner(self):
+        # Create a post
+        post = PostFactory()
+
+        # Create a user
+        user = UserFactory()
+
+        # Get the post's community
+        community = post.community
+
+        # Append the user to the post's subscribers
+        CommunitySubscriber(community=community, user=user).save()
+
+        # Get the post owner
+        owner = post.owner
+
+        # Block the user
+        Block(blocker=owner, blocked=user).save()
+
+        # Attempt to upvote the post
+        with self.assertRaises(BlockError):
+            PostVoteManager.create(user, post, 1)
 
     def test_vote_positive_post_being_banned(self):
         # Create a post

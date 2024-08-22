@@ -9,11 +9,13 @@ from tests.factories.comment_vote_factory import CommentVoteFactory
 from app.errors.errors import SubscriptionError
 from app.errors.errors import BanError
 from app.errors.errors import VoteError
+from app.errors.errors import BlockError
 
 # Models
 from app.models.community import CommunitySubscriber
 from app.models.community import CommunityBan
 from app.models.comment import CommentVote
+from app.models.user import Block
 
 # Factories
 from tests.factories.comment_factory import CommentFactory
@@ -69,6 +71,46 @@ class TestCreateComment(BaseTestCase):
 
         # Assert that the comment vote was created
         self.assertIsNotNone(vote)
+
+    def test_vote_positive_with_owner_blocked(self):
+        # Create a comment
+        comment = CommentFactory()
+
+        # Create a user
+        user = UserFactory()
+
+        # Subscribe the user to the comment's community
+        CommunitySubscriber(community=comment.post.community, user=user).save()
+
+        # Get the comment owner
+        owner = comment.owner
+
+        # Block the user
+        Block(blocker=user, blocked=owner).save()
+
+        # Attempt to upvote the comment
+        with self.assertRaises(BlockError):
+            CommentVoteManager.create(user, comment, 1)
+
+    def test_vote_positive_with_user_blocked_by_owner(self):
+        # Create a comment
+        comment = CommentFactory()
+
+        # Create a user
+        user = UserFactory()
+
+        # Submit the user to the comment's community subscribers
+        CommunitySubscriber(community=comment.post.community, user=user).save()
+
+        # Get the comment owner
+        owner = comment.owner
+
+        # Block the user
+        Block(blocker=owner, blocked=user).save()
+
+        # Attempt to upvote the comment
+        with self.assertRaises(BlockError):
+            CommentVoteManager.create(user, comment, 1)
 
     def test_vote_positive_comment_being_banned(self):
         # Create a comment

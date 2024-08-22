@@ -21,7 +21,6 @@ from app.schemas.comment import comments_schema
 # Models
 from app.models.community import Community
 from app.models.post import Post
-from app.models.post import PostVote
 
 # Managers
 from app.managers.post import PostManager

@@ -1,11 +1,12 @@
-# tests
+# Tests
 from tests.base.base_test_case import BaseTestCase
 
-# factories
+# Factories
 from tests.factories.user_factory import UserFactory
 
-# Managers
-from app.managers.user import FollowManager
+# Models
+from app.models.user import Follow
+from app.models.user import Block
 
 # utils
 from tests.utils.tokens import get_access_token
@@ -58,6 +59,64 @@ class TestFollowUser(BaseTestCase):
         # Assert the error message
         self.assertEqual(data['message'], 'User not found.')
 
+    def test_follow_target_blocked_by_user(self):
+        # Create two users
+        user1 = UserFactory()
+        user2 = UserFactory()
+
+        # User2 blocks user1
+        Block(blocker=user1, blocked=user2).save()
+
+        # Get access token for user1
+        access_token = get_access_token(user1)
+
+        # Try to follow user2
+        response = self.client.post(
+            self.route.format(user2.username), 
+            headers={'Authorization': f'Bearer {access_token}'}
+        )
+
+        # Assert the response status code
+        self.assertEqual(response.status_code, 400)
+
+        # Get response data
+        data = response.json
+
+        # Assert user data structure
+        self.assertIn('message', data)
+
+        # Assert the error message
+        self.assertEqual(data['message'], 'You cannot follow this user.')
+
+    def test_follow_user_blocked_by_target(self):
+        # Create two users
+        user1 = UserFactory()
+        user2 = UserFactory()
+
+        # User1 blocks user2
+        Block(blocker=user2, blocked=user1).save()
+
+        # Get access token for user1
+        access_token = get_access_token(user1)
+
+        # Try to follow user2
+        response = self.client.post(
+            self.route.format(user2.username), 
+            headers={'Authorization': f'Bearer {access_token}'}
+        )
+
+        # Assert the response status code
+        self.assertEqual(response.status_code, 400)
+
+        # Get response data
+        data = response.json
+
+        # Assert user data structure
+        self.assertIn('message', data)
+
+        # Assert the error message
+        self.assertEqual(data['message'], 'You cannot follow this user.')
+
     def test_follow_user_already_followed(self):
         # Create two users
         user1 = UserFactory()
@@ -67,7 +126,7 @@ class TestFollowUser(BaseTestCase):
         access_token = get_access_token(user1)
 
         # User1 follows user2
-        FollowManager.create(user1, user2)
+        Follow(follower=user1, followed=user2).save()
 
         # Try to follow user2 again
         response = self.client.post(

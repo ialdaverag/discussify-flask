@@ -7,7 +7,6 @@ from flask import request
 
 # Flask-JWT-Extended
 from flask_jwt_extended import jwt_required
-from flask_jwt_extended import get_jwt_identity
 from flask_jwt_extended import current_user
 
 # Marshmallow
@@ -22,7 +21,6 @@ from app.schemas.user import users_schema
 # Models
 from app.models.post import Post
 from app.models.comment import Comment
-from app.models.comment import CommentVote
 
 # Managers
 from app.managers.comment import CommentManager

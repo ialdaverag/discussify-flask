@@ -7,6 +7,9 @@ from tests.factories.user_factory import UserFactory
 # Managers
 from app.managers.user import FollowManager
 
+# Models
+from app.models.user import Follow
+
 # Errors
 from app.errors.errors import FollowError
 
@@ -20,7 +23,7 @@ class TestDeleteFollow(BaseTestCase):
         user2 = UserFactory()
 
         # user1 follows user2
-        FollowManager.create(user1, user2)
+        Follow(follower=user1, followed=user2).save()
 
         # Assert that user1 is following user2
         self.assertTrue(user1.is_following(user2))

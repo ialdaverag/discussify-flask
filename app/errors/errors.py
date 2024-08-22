@@ -10,6 +10,10 @@ class FollowError(Exception):
     pass
 
 
+class BlockError(Exception):
+    pass
+
+
 class BanError(Exception):
     pass
 

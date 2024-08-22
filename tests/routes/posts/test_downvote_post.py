@@ -12,6 +12,7 @@ from tests.utils.tokens import get_access_token
 # Models
 from app.models.community import CommunitySubscriber
 from app.models.community import CommunityBan
+from app.models.user import Block
 
 
 class TestDownvotePost(BaseTestCase):
@@ -39,6 +40,87 @@ class TestDownvotePost(BaseTestCase):
 
         # Check status code
         self.assertEqual(response.status_code, 204)
+
+    def test_downvote_post_owner_blocked_by_user(self):
+        # Create a post
+        post = PostFactory()
+
+        # Create a user
+        user = UserFactory()
+
+        # Get the community
+        community = post.community
+
+        # Append the user to the post's community's subscribers
+        CommunitySubscriber(community=community, user=user).save()
+
+        # Get the post's owner
+        owner = post.owner
+
+        # Block the post's owner
+        Block(blocker=user, blocked=owner).save()
+
+        # Get the access token
+        access_token = get_access_token(user)
+
+        # Downvote the post
+        response = self.client.post(
+            self.route.format(post.id),
+            headers={'Authorization': f'Bearer {access_token}'}
+        )
+
+        # Check status code
+        self.assertEqual(response.status_code, 400)
+
+        # Get the data
+        data = response.json
+
+        # Assert message is in data
+        self.assertIn('message', data)
+
+        # Assert the message
+        self.assertEqual(data['message'], 'You cannot vote on this post.')
+
+    def test_downvote_post_userr_blocked_by_owner(self):
+        # Create a post
+        post = PostFactory()
+
+        # Create a user
+        user = UserFactory()
+
+        # Get the community
+        community = post.community
+
+        # Append the user to the post's community's subscribers
+        CommunitySubscriber(community=community, user=user).save()
+
+        # Get the post's owner
+        owner = post.owner
+
+        # Block the user
+        Block(blocker=owner, blocked=user).save()
+
+        # Get the access token
+        access_token = get_access_token(user)
+
+        # Downvote the post
+        response = self.client.post(
+            self.route.format(post.id),
+            headers={'Authorization': f'Bearer {access_token}'}
+        )
+
+        # Check status code
+        self.assertEqual(response.status_code, 400)
+
+        # Get the data
+        data = response.json
+
+        # Assert message is in data
+        self.assertIn('message', data)
+
+        # Assert the message
+        self.assertEqual(data['message'], 'You cannot vote on this post.')
+
 
     def test_downvote_post_nonexistent(self):
         # Create a user

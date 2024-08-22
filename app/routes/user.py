@@ -19,6 +19,7 @@ from app.schemas.user import me_schema
 # Managers
 from app.managers.user import UserManager
 from app.managers.user import FollowManager
+from app.managers.user import BlockManager
 from app.managers.community import SubscriptionManager
 from app.managers.post import PostBookmarkManager
 from app.managers.post import PostVoteManager
@@ -69,6 +70,26 @@ def unfollow_user(username):
     return {'message': 'You are no longer following this user'}, HTTPStatus.NO_CONTENT
 
 
+@user_routes.post('/<string:username>/block')
+@jwt_required()
+def block_user(username):
+    user_to_block = User.get_by_username(username=username)
+    
+    BlockManager.create(current_user, user_to_block)
+    
+    return {'message': 'You are now blocking the user'}, HTTPStatus.NO_CONTENT
+
+
+@user_routes.post('/<string:username>/unblock')
+@jwt_required()
+def unblock_user(username):
+    user_to_unblock = User.get_by_username(username=username)
+    
+    BlockManager.delete(current_user, user_to_unblock)
+    
+    return {'message': 'You are no longer blocking this user'}, HTTPStatus.NO_CONTENT
+
+
 @user_routes.get('/<string:username>/following')
 @jwt_required(optional=True)
 def read_following(username):
@@ -87,6 +108,14 @@ def read_followers(username):
     followers = FollowManager.read_followers(user)
     
     return users_schema.dump(followers)
+
+
+@user_routes.get('/blocked')
+@jwt_required()
+def read_blocked():
+    blocked = BlockManager.read_blocked(current_user)
+    
+    return users_schema.dump(blocked)
 
 
 @user_routes.get('/<string:username>/subscriptions')

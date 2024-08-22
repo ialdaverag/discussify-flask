@@ -20,6 +20,7 @@ from app.models.user import User
 from app.errors.errors import NotFoundError
 from app.errors.errors import NameError
 from app.errors.errors import FollowError
+from app.errors.errors import BlockError
 from app.errors.errors import SubscriptionError
 from app.errors.errors import ModeratorError
 from app.errors.errors import BanError
@@ -32,6 +33,7 @@ from app.errors.errors import VoteError
 from app.handlers.errors import handler_not_found
 from app.handlers.errors import handler_name_error
 from app.handlers.errors import handler_follow_error
+from app.handlers.errors import handler_block_error
 from app.handlers.errors import handler_subscription_error
 from app.handlers.errors import handler_moderator_error
 from app.handlers.errors import handler_ban_error
@@ -88,6 +90,7 @@ def register_handlers(app):
     app.register_error_handler(NotFoundError, handler_not_found)
     app.register_error_handler(NameError, handler_name_error)
     app.register_error_handler(FollowError, handler_follow_error)
+    app.register_error_handler(BlockError, handler_block_error)
     app.register_error_handler(SubscriptionError, handler_subscription_error)
     app.register_error_handler(ModeratorError, handler_moderator_error)
     app.register_error_handler(BanError, handler_ban_error)

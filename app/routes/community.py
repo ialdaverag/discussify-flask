@@ -12,8 +12,6 @@ from marshmallow import ValidationError
 
 # Models
 from app.models.community import Community
-from app.models.community import CommunityModerator
-from app.models.community import CommunityBan
 from app.models.user import User
 
 # Managers

@@ -7,9 +7,11 @@ from tests.factories.post_bookmark_factory import PostBookmarkFactory
 
 # Models
 from app.models.post import PostBookmark
+from app.models.user import Block
 
 # Errors
 from app.errors.errors import BookmarkError
+from app.errors.errors import BlockError
 
 # Managers
 from app.managers.post import PostBookmarkManager
@@ -34,6 +36,40 @@ class TestCreateBookmark(BaseTestCase):
 
         # Assert that the post was bookmarked
         self.assertIsNotNone(bookmark)
+
+    def test_bookmark_post_with_owner_blocked(self):
+        # Create a post
+        post = PostFactory()
+
+        # Create a user
+        user = UserFactory()
+
+        # Get the post owner
+        owner = post.owner
+
+        # Block the user
+        Block(blocker=user, blocked=owner).save()
+
+        # Attempt to bookmark the post
+        with self.assertRaises(BlockError):
+            PostBookmarkManager.create(user, post)
+
+    def test_bookmark_post_with_user_blocked_by_owner(self):
+        # Create a post
+        post = PostFactory()
+
+        # Create a user
+        user = UserFactory()
+
+        # Get the post owner
+        owner = post.owner
+
+        # Block the owner
+        Block(blocker=owner, blocked=user).save()
+
+        # Attempt to bookmark the post
+        with self.assertRaises(BlockError):
+            PostBookmarkManager.create(user, post)
 
     def test_bookmark_post_already_bookmarked(self):
         # Create a bookmarked post
