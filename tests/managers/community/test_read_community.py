@@ -17,12 +17,7 @@ class TestReadCommunity(BaseTestCase):
         community = CommunityFactory()
 
         # Read the community
-        community_to_read = CommunityManager.read(community.name)
+        community_to_read = CommunityManager.read(community)
 
         # Check if the community is the same
         self.assertEqual(community, community_to_read)
-
-    def test_read_community_not_found(self):
-        # Attempt to read a community that does not exist
-        with self.assertRaises(NotFoundError):
-            CommunityManager.read('community')

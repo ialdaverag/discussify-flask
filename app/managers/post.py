@@ -27,9 +27,7 @@ class PostManager:
         return post
     
     @staticmethod
-    def read(id):
-        post = Post.get_by_id(id)
-
+    def read(post):
         return post
 
     @staticmethod
@@ -58,8 +56,10 @@ class PostManager:
     
     @staticmethod
     def delete(user, post):
-        if not post.belongs_to(user):
-            raise OwnershipError('You are not the owner of this post.')
+        community = post.community
+
+        if not (post.belongs_to(user) or user.is_moderator_of(community)):
+            raise OwnershipError('You cannot delete this post.')
         
         post.delete()
 
@@ -67,16 +67,13 @@ class PostManager:
 class PostBookmarkManager:
     @staticmethod
     def create(user, post):
-        if post.is_bookmarked_by(user):
-            raise BookmarkError('Post already bookmarked.')
-        
         owner = post.owner
 
-        if user.is_blocking(owner):
-                raise BlockError('You cannot bookmark this post.')
-
-        if user.is_blocked_by(owner):
+        if user.is_blocking(owner) or user.is_blocked_by(owner):
             raise BlockError('You cannot bookmark this post.')
+        
+        if post.is_bookmarked_by(user):
+            raise BookmarkError('Post already bookmarked.')
 
         PostBookmark(
             user=user, 
@@ -105,10 +102,7 @@ class PostVoteManager:
     def create(user, post, direction):
         owner = post.owner
 
-        if user.is_blocking(owner):
-            raise BlockError('You cannot vote on this post.')
-
-        if user.is_blocked_by(owner):
+        if user.is_blocking(owner) or user.is_blocked_by(owner):
             raise BlockError('You cannot vote on this post.')
 
         if direction == 1:

@@ -8,6 +8,9 @@ from tests.factories.post_factory import PostFactory
 # Utils
 from tests.utils.tokens import get_access_token
 
+# Models
+from app.models.community import CommunityModerator
+
 
 class TestDeletePost(BaseTestCase):
     route = '/post/{}'
@@ -21,6 +24,31 @@ class TestDeletePost(BaseTestCase):
 
         # Get the access token
         access_token = get_access_token(owner)
+
+        # Delete the post
+        response = self.client.delete(
+            self.route.format(post.id),
+            headers={'Authorization': f'Bearer {access_token}'}
+        )
+
+        # Check status code
+        self.assertEqual(response.status_code, 204)
+
+    def test_delete_post_as_moderator(self):
+        # Create a post
+        post = PostFactory()
+
+        # Create a user
+        user = UserFactory()
+
+        # Get the community of the post
+        community = post.community
+
+        # Make the user a moderator of the community
+        CommunityModerator(community=community, user=user).save()
+
+        # Get the access token
+        access_token = get_access_token(user)
 
         # Delete the post
         response = self.client.delete(
@@ -82,4 +110,4 @@ class TestDeletePost(BaseTestCase):
         self.assertIn('message', data)
 
         # Assert the message
-        self.assertEqual(data['message'], 'You are not the owner of this post.')
+        self.assertEqual(data['message'], 'You cannot delete this post.')

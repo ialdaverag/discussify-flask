@@ -36,9 +36,7 @@ class CommunityManager:
         return community
     
     @staticmethod
-    def read(name):
-        community = Community.get_by_name(name)
-
+    def read(community):
         return community
 
     @staticmethod

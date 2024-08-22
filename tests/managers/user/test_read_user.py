@@ -17,12 +17,7 @@ class TestReadUser(BaseTestCase):
         user = UserFactory()
 
         # Read the user
-        user_to_read = UserManager.read(user.username)
+        user_to_read = UserManager.read(user)
 
         # Check if the user is the same
         self.assertEqual(user, user_to_read)
-
-    def test_read_user_not_found(self):
-        # Attempt to read a user that does not exist
-        with self.assertRaises(NotFoundError):
-            UserManager.read('username')

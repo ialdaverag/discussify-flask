@@ -37,7 +37,9 @@ user_routes = Blueprint('user_routes', __name__)
 @user_routes.get('/<string:username>')
 @jwt_required(optional=True)
 def read_user(username):
-    user = UserManager.read(username)
+    user = User.get_by_username(username=username)
+
+    UserManager.read(user)
 
     return user_schema.dump(user), HTTPStatus.OK
 

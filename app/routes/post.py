@@ -51,10 +51,9 @@ def create_post():
 @post_routes.get('/<int:id>')
 @jwt_required(optional=True)
 def read_post(id):
-    post = PostManager.read(id)
+    post = Post.get_by_id(id)
 
-    if not post:
-        return {'message': 'Post not found'}, HTTPStatus.NOT_FOUND
+    PostManager.read(post)
 
     return post_schema.dump(post), HTTPStatus.OK
 

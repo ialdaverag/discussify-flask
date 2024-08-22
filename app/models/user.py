@@ -38,16 +38,16 @@ class Follow(db.Model):
         return follow
     
     @classmethod
+    def get_followed(cls, user):
+        followed = cls.query.filter_by(follower_id=user.id).all()
+
+        return [follow.followed for follow in followed]
+    
+    @classmethod
     def get_followers(cls, user):
         followers = cls.query.filter_by(followed_id=user.id).all()
 
         return [follow.follower for follow in followers]
-    
-    @classmethod
-    def get_followed(cls, user):
-        followed = cls.query.filter_by(follower_id=user.id).all()
-        
-        return [follow.followed for follow in followed]
 
 
 class Block(db.Model):

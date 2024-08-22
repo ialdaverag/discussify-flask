@@ -8,6 +8,9 @@ from tests.factories.comment_factory import CommentFactory
 # Utils
 from tests.utils.tokens import get_access_token
 
+# Models
+from app.models.community import CommunityModerator
+
 
 class TestDeleteComment(BaseTestCase):
     route = '/comment/{}'
@@ -21,6 +24,31 @@ class TestDeleteComment(BaseTestCase):
 
         # Get the access token
         access_token = get_access_token(owner)
+
+        # Delete the comment
+        response = self.client.delete(
+            self.route.format(comment.id),
+            headers={'Authorization': f'Bearer {access_token}'}
+        )
+
+        # Check status code
+        self.assertEqual(response.status_code, 204)
+
+    def test_delete_comment_as_moderator(self):
+        # Create a comment
+        comment = CommentFactory()
+
+        # Create a user
+        user = UserFactory()
+
+        # Get the community of the comment
+        community = comment.post.community
+
+        # Make the user a moderator of the community
+        CommunityModerator(community=community, user=user).save()
+
+        # Get the access token
+        access_token = get_access_token(user)
 
         # Delete the comment
         response = self.client.delete(
@@ -82,4 +110,4 @@ class TestDeleteComment(BaseTestCase):
         self.assertIn('message', data)
 
         # Assert the message
-        self.assertEqual(data['message'], 'You are not the owner of this comment.')
+        self.assertEqual(data['message'], 'You cannot delete this comment.')

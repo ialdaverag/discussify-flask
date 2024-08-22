@@ -48,7 +48,9 @@ def create_community():
 @community_routes.get('/<string:name>')
 @jwt_required(optional=True)
 def read_community(name):
-    community = CommunityManager.read(name)
+    community = Community.get_by_name(name)
+    
+    CommunityManager.read(name)
 
     return community_schema.dump(community), HTTPStatus.OK
 

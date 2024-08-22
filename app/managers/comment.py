@@ -16,6 +16,11 @@ from app.errors.errors import BlockError
 class CommentManager:
     @staticmethod
     def create(user, post, data, comment=None):
+        owner = post.owner
+
+        if user.is_blocking(owner) or user.is_blocked_by(owner):
+            raise BlockError('You cannot comment on this post.')
+        
         community = post.community
 
         if user.is_banned_from(community):
@@ -23,14 +28,6 @@ class CommentManager:
 
         if not user.is_subscribed_to(community):
             raise SubscriptionError('You are not subscribed to this community.')
-        
-        owner = post.owner
-
-        if user.is_blocking(owner):
-            raise BlockError('You cannot comment on this post.')
-        
-        if user.is_blocked_by(owner):
-            raise BlockError('You cannot comment on this post.')
         
         if comment is not None:
             if comment not in post.comments:
@@ -44,9 +41,7 @@ class CommentManager:
         return new_comment
     
     @staticmethod
-    def read(id):
-        comment = Comment.get_by_id(id)
-
+    def read(comment):
         return comment
 
     @staticmethod
@@ -78,7 +73,7 @@ class CommentManager:
         community = comment.post.community
 
         if not (comment.belongs_to(user) or user.is_moderator_of(community)):
-            raise OwnershipError('You are not the owner of this comment.')
+            raise OwnershipError('You cannot delete this comment.')
         
         comment.delete()
 
@@ -90,10 +85,7 @@ class CommentBookmarkManager:
     def create(user, comment):
         owner = comment.owner
 
-        if user.is_blocking(owner):
-            raise BlockError('You cannot bookmark this comment.')
-        
-        if user.is_blocked_by(owner):
+        if user.is_blocking(owner) or user.is_blocked_by(owner):
             raise BlockError('You cannot bookmark this comment.')
         
         if comment.is_bookmarked_by(user):
@@ -120,10 +112,7 @@ class CommentVoteManager:
     def create(user, comment, direction):
         owner = comment.owner
 
-        if user.is_blocking(owner):
-            raise BlockError('You cannot vote on this comment.')
-        
-        if user.is_blocked_by(owner):
+        if user.is_blocking(owner) or user.is_blocked_by(owner):
             raise BlockError('You cannot vote on this comment.')
     
         if direction == 1:

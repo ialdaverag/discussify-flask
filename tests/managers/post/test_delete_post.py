@@ -6,6 +6,7 @@ from tests.factories.user_factory import UserFactory
 
 # Models
 from app.models.post import Post
+from app.models.community import CommunityModerator
 
 # Errors
 from app.errors.errors import OwnershipError
@@ -24,6 +25,33 @@ class TestDeletePost(BaseTestCase):
 
         # Get the owner of the post
         user = post.owner
+
+        # Get the post to delete
+        post_to_delete = Post.get_by_id(post.id)
+
+        # Delete the post
+        PostManager.delete(user, post_to_delete)
+
+        # Assert that the post was deleted
+        self.assertNotIn(post, user.posts)
+
+        # Assert that the owner's stats were updated
+        posts_count = user.stats.posts_count
+
+        self.assertEqual(posts_count, 0)
+
+    def test_delete_post_as_moderator(self):
+        # Create a post
+        post = PostFactory()
+
+        # Create a user
+        user = UserFactory()
+
+        # Get the community of the post
+        community = post.community
+
+        # Make the user a moderator of the community
+        CommunityModerator(community=community, user=user).save()
 
         # Get the post to delete
         post_to_delete = Post.get_by_id(post.id)

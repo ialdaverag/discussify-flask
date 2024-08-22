@@ -17,12 +17,7 @@ class TestReadComment(BaseTestCase):
         comment = CommentFactory()
 
         # Read the comment
-        comment_to_read = CommentManager.read(comment.id)
+        comment_to_read = CommentManager.read(comment)
 
         # Assert that the comment is the same
         self.assertEqual(comment, comment_to_read)
-
-    def test_read_comment_not_found(self):
-        # Attempt to read a comment that does not exist
-        with self.assertRaises(NotFoundError):
-            CommentManager.read(0)

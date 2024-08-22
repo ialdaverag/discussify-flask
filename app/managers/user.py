@@ -32,9 +32,7 @@ class UserManager:
         return user
 
     @staticmethod
-    def read(username):
-        user = User.get_by_username(username)
-
+    def read(user):
         return user
         
 
@@ -48,10 +46,7 @@ class UserManager:
 class FollowManager:
     @staticmethod
     def create(user, target):    
-        if user.is_blocking(target):
-            raise BlockError('You cannot follow this user.')
-        
-        if user.is_blocked_by(target):
+        if user.is_blocking(target) or user.is_blocked_by(target):
             raise BlockError('You cannot follow this user.')
 
         if user.is_following(target):

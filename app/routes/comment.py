@@ -66,7 +66,9 @@ def create_comment():
 @comment_routes.get('/<string:id>')
 @jwt_required(optional=True)
 def read_comment(id):
-    comment = CommentManager.read(id)
+    comment = Comment.get_by_id(id)
+    
+    CommentManager.read(id)
     
     return comment_schema.dump(comment), HTTPStatus.OK
 
