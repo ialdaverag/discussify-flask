@@ -39,7 +39,7 @@ user_routes = Blueprint('user_routes', __name__)
 def read_user(username):
     user = User.get_by_username(username=username)
 
-    UserManager.read(user)
+    UserManager.read(current_user, user)
 
     return user_schema.dump(user), HTTPStatus.OK
 

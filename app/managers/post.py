@@ -27,7 +27,12 @@ class PostManager:
         return post
     
     @staticmethod
-    def read(post):
+    def read(user, post):
+        owner = post.owner
+
+        if user and (user.is_blocking(owner) or user.is_blocked_by(owner)):
+            raise BlockError('You cannot view this post.')
+
         return post
 
     @staticmethod

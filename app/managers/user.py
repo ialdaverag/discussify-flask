@@ -32,9 +32,11 @@ class UserManager:
         return user
 
     @staticmethod
-    def read(user):
-        return user
-        
+    def read(user, target):
+        if user and (user.is_blocking(target) or user.is_blocked_by(target)):
+            raise BlockError('You cannot view this user.')
+
+        return target
 
     @staticmethod
     def read_all():

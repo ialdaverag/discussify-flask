@@ -53,7 +53,7 @@ def create_post():
 def read_post(id):
     post = Post.get_by_id(id)
 
-    PostManager.read(post)
+    PostManager.read(current_user, post)
 
     return post_schema.dump(post), HTTPStatus.OK
 

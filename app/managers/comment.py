@@ -41,7 +41,12 @@ class CommentManager:
         return new_comment
     
     @staticmethod
-    def read(comment):
+    def read(user, comment):
+        owner = comment.owner
+        
+        if user and (user.is_blocking(owner) or user.is_blocked_by(owner)):
+            raise BlockError('You cannot view this comment.')
+
         return comment
 
     @staticmethod

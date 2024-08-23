@@ -4,11 +4,17 @@ from tests.base.base_test_case import BaseTestCase
 # factories
 from tests.factories.user_factory import UserFactory
 
+# models
+from app.models.user import Block
+
+# utils
+from tests.utils.tokens import get_access_token
+
 
 class TestReadUser(BaseTestCase):
     route = '/user/{}'
 
-    def test_read_user(self):
+    def test_read_user_anonymous(self):
         # Create a user
         user = UserFactory()
 
@@ -35,6 +41,93 @@ class TestReadUser(BaseTestCase):
         self.assertEqual(data['created_at'], user.created_at.strftime('%Y-%m-%dT%H:%M:%S'))
         self.assertEqual(data['updated_at'], user.updated_at.strftime('%Y-%m-%dT%H:%M:%S'))
 
+    def test_read_user(self):
+        # Create a user
+        user = UserFactory()
+
+        access_token = get_access_token(user)
+
+        # Get the user
+        response = self.client.get(
+            self.route.format(user.username),
+            headers={'Authorization': f'Bearer {access_token}'}
+        )
+
+        # Assert response status code
+        self.assertEqual(response.status_code, 200)
+
+        # Get response data
+        data = response.json
+
+        # Assert the response data
+        self.assertIn('id', data)
+        self.assertIn('username', data)
+        self.assertIn('email', data)
+        self.assertIn('created_at', data)
+        self.assertIn('updated_at', data)
+
+        # Assert user data
+        self.assertEqual(data['id'], user.id)
+        self.assertEqual(data['username'], user.username)
+        self.assertEqual(data['created_at'], user.created_at.strftime('%Y-%m-%dT%H:%M:%S'))
+        self.assertEqual(data['updated_at'], user.updated_at.strftime('%Y-%m-%dT%H:%M:%S'))
+
+    def test_read_user_blocked_by_owner(self):
+        # Create a user
+        user = UserFactory()
+
+        # Create a user
+        owner = UserFactory()
+
+        # Block the user
+        Block(blocker=owner, blocked=user).save()
+
+        # Get the access token
+        access_token = get_access_token(owner)
+
+        # Get the user
+        response = self.client.get(
+            self.route.format(user.username),
+            headers={'Authorization': f'Bearer {access_token}'}
+        )
+
+        # Assert response status code
+        self.assertEqual(response.status_code, 400)
+
+        # Get response data
+        data = response.json
+
+        # Assert the message
+        self.assertEqual(data['message'], 'You cannot view this user.')    
+
+    def test_read_user_owner_blocked_by_user(self):
+        # Create a user
+        user = UserFactory()
+
+        # Create a user
+        owner = UserFactory()
+
+        # Block the owner
+        Block(blocker=user, blocked=owner).save()
+
+        # Get the access token
+        access_token = get_access_token(user)
+
+        # Get the user
+        response = self.client.get(
+            self.route.format(owner.username),
+            headers={'Authorization': f'Bearer {access_token}'}
+        )
+
+        # Assert response status code
+        self.assertEqual(response.status_code, 400)
+
+        # Get response data
+        data = response.json
+
+        # Assert the message
+        self.assertEqual(data['message'], 'You cannot view this user.')
+    
     def test_read_user_not_found(self):
         # Get the user
         response = self.client.get('/user/inexistent')

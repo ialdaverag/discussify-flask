@@ -68,7 +68,7 @@ def create_comment():
 def read_comment(id):
     comment = Comment.get_by_id(id)
     
-    CommentManager.read(id)
+    CommentManager.read(current_user, comment)
     
     return comment_schema.dump(comment), HTTPStatus.OK
 
