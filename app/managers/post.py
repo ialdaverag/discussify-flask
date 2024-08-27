@@ -13,6 +13,7 @@ from app.errors.errors import BlockError
 
 # Decorators
 from app.decorators.filtered_users import filtered_users
+from app.decorators.filtered_posts import filtered_posts
 
 
 class PostManager:
@@ -39,6 +40,7 @@ class PostManager:
         return post
 
     @staticmethod
+    @filtered_posts
     def read_all():
         posts = Post.get_all()
 
@@ -89,6 +91,7 @@ class PostBookmarkManager:
         ).save()
 
     @staticmethod
+    @filtered_posts
     def read_bookmarked_posts_by_user(user):
         bookmarks = PostBookmark.get_bookmarks_by_user(user)
 
@@ -155,12 +158,14 @@ class PostVoteManager:
                 new_vote.save()
 
     @staticmethod
+    @filtered_posts
     def read_upvoted_posts_by_user(user):
         upvotes = PostVote.get_upvoted_posts_by_user(user)
 
         return upvotes
     
     @staticmethod
+    @filtered_posts
     def read_downvoted_posts_by_user(user):
         downvotes = PostVote.get_downvoted_posts_by_user(user)
 

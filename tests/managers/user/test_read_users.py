@@ -23,7 +23,7 @@ class TestReadUser(BaseTestCase):
         users = UserFactory.create_batch(n)
 
         # Read the user
-        users_to_read = UserManager.read_all()
+        users_to_read = UserManager.read_all(None)
 
         # Assert the number of users
         self.assertEqual(len(users_to_read), n)
@@ -33,7 +33,7 @@ class TestReadUser(BaseTestCase):
 
     def test_read_users_empty(self):
         # Read the user
-        users_to_read = UserManager.read_all()
+        users_to_read = UserManager.read_all(None)
 
         # Assert the number of users
         self.assertEqual(len(users_to_read), 0)
