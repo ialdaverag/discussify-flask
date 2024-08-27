@@ -12,6 +12,9 @@ from app.errors.errors import BookmarkError
 from app.errors.errors import VoteError
 from app.errors.errors import BlockError
 
+# Decorators
+from app.decorators.filtered_users import filtered_users
+
 
 class CommentManager:
     @staticmethod
@@ -176,12 +179,14 @@ class CommentVoteManager:
         return downvotes
 
     @staticmethod
+    @filtered_users
     def read_upvoters_by_comment(comment):
         upvoters = CommentVote.get_upvoters_by_comment(comment)
 
         return upvoters
     
     @staticmethod
+    @filtered_users
     def read_downvoters_by_comment(comment):
         downvoters = CommentVote.get_downvoters_by_comment(comment)
 

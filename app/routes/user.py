@@ -47,7 +47,7 @@ def read_user(username):
 @user_routes.get('/')
 @jwt_required(optional=True)
 def read_users():
-    users = UserManager.read_all()
+    users = UserManager.read_all(current_user)
 
     return users_schema.dump(users), HTTPStatus.OK
 

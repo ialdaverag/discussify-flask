@@ -11,6 +11,9 @@ from app.errors.errors import BlockError
 # Utils
 from app.utils.password import hash_password
 
+# Decorators
+from app.decorators.filtered_users import filtered_users
+
 class UserManager:
     @staticmethod
     def create(data):
@@ -39,7 +42,8 @@ class UserManager:
         return target
 
     @staticmethod
-    def read_all():
+    @filtered_users
+    def read_all(user):
         users = User.get_all()
 
         return users
@@ -63,12 +67,14 @@ class FollowManager:
         ).save()
 
     @staticmethod
+    @filtered_users
     def read_followed(user):
         following = Follow.get_followed(user)
         
         return following
     
     @staticmethod
+    @filtered_users
     def read_followers(user):
         followers = Follow.get_followers(user)
         

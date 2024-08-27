@@ -11,6 +11,9 @@ from app.errors.errors import BookmarkError
 from app.errors.errors import VoteError
 from app.errors.errors import BlockError
 
+# Decorators
+from app.decorators.filtered_users import filtered_users
+
 
 class PostManager:
     @staticmethod
@@ -164,12 +167,14 @@ class PostVoteManager:
         return downvotes
     
     @staticmethod
+    @filtered_users
     def read_upvoters_by_post(post):
         upvoters = PostVote.get_upvoters_by_post(post)
 
         return upvoters
     
     @staticmethod
+    @filtered_users
     def read_downvoters_by_post(post):
         downvoters = PostVote.get_downvoters_by_post(post)
 
