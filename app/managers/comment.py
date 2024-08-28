@@ -14,6 +14,7 @@ from app.errors.errors import BlockError
 
 # Decorators
 from app.decorators.filtered_users import filtered_users
+from app.decorators.filtered_comments import filtered_comments
 
 
 class CommentManager:
@@ -53,6 +54,7 @@ class CommentManager:
         return comment
 
     @staticmethod
+    @filtered_comments
     def read_all():
         comments = Comment.get_all()
 
@@ -102,6 +104,7 @@ class CommentBookmarkManager:
         CommentBookmark(user=user, comment=comment).save()
 
     @staticmethod
+    @filtered_comments
     def read_bookmarked_comments_by_user(user):
         bookmarks = CommentBookmark.get_bookmarks_by_user(user)
 
@@ -166,6 +169,7 @@ class CommentVoteManager:
 
 
     @staticmethod
+    @filtered_comments
     def read_upvoted_comments_by_user(user):
         upvotes = CommentVote.get_upvoted_comments_by_user(user)
 
@@ -173,6 +177,7 @@ class CommentVoteManager:
     
 
     @staticmethod
+    @filtered_comments
     def read_downvoted_comments_by_user(user):
         downvotes = CommentVote.get_downvoted_comments_by_user(user)
 
