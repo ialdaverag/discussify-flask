@@ -163,6 +163,10 @@ class Comment(db.Model):
     def get_all(cls):
         return db.session.scalars(db.select(Comment)).all()
     
+    @classmethod
+    def get_all_root_comments_by_post(cls, post):
+        return db.session.scalars(db.select(Comment).where(Comment.comment_id == None, Comment.post_id == post.id)).all()
+    
     @property
     def bookmarked(self):
         if current_user:

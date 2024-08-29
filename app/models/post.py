@@ -10,6 +10,9 @@ from app.errors.errors import NotFoundError
 # Models
 from app.models.comment import Comment
 
+# Decorators
+from app.decorators.filtered_comments import filtered_comments
+
 
 class PostBookmark(db.Model):
     __tablename__ = 'post_bookmarks'
@@ -166,6 +169,12 @@ class Post(db.Model):
     @classmethod
     def get_all(cls):
         posts = db.session.scalars(db.select(Post)).all()
+
+        return posts
+    
+    @classmethod
+    def get_all_by_community(cls, community):
+        posts = db.session.scalars(db.select(Post).where(Post.community_id == community.id)).all()
 
         return posts
     

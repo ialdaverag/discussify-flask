@@ -20,6 +20,7 @@ from app.managers.community import SubscriptionManager
 from app.managers.community import ModerationManager
 from app.managers.community import BanManager
 from app.managers.community import TransferManager
+from app.managers.post import PostManager
 
 # Schemas
 from app.schemas.community import community_schema
@@ -204,5 +205,7 @@ def read_banned(name):
 @jwt_required(optional=True)
 def read_community_posts(name):
     community = Community.get_by_name(name)
+
+    posts = PostManager.read_all_by_community(community)
     
-    return posts_schema.dump(community.posts), HTTPStatus.OK
+    return posts_schema.dump(posts), HTTPStatus.OK

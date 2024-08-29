@@ -38,6 +38,13 @@ class PostManager:
             raise BlockError('You cannot view this post.')
 
         return post
+    
+    @staticmethod
+    @filtered_posts
+    def read_all_by_community(community):
+        posts = Post.get_all_by_community(community)
+
+        return posts
 
     @staticmethod
     @filtered_posts

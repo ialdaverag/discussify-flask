@@ -52,6 +52,13 @@ class CommentManager:
             raise BlockError('You cannot view this comment.')
 
         return comment
+    
+    @staticmethod
+    @filtered_comments
+    def read_all_root_comments_by_post(post):
+        comments = Comment.get_all_root_comments_by_post(post)
+
+        return comments
 
     @staticmethod
     @filtered_comments

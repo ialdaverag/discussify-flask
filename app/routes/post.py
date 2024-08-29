@@ -26,6 +26,7 @@ from app.models.post import Post
 from app.managers.post import PostManager
 from app.managers.post import PostBookmarkManager
 from app.managers.post import PostVoteManager
+from app.managers.comment import CommentManager
 
 post_routes = Blueprint('post_routes', __name__)
 
@@ -167,5 +168,7 @@ def read_downvoters(id):
 @jwt_required(optional=True)
 def read_post_comments(id):
     post = Post.get_by_id(id)
+
+    comments = CommentManager.read_all_root_comments_by_post(post)
     
-    return comments_schema.dump(post.read_root_comments())
+    return comments_schema.dump(comments), HTTPStatus.OK
