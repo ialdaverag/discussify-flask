@@ -1,6 +1,9 @@
 # Functools
 from functools import wraps
 
+# Inspect
+import inspect
+
 # Flask-JWT-Extended
 from flask_jwt_extended import current_user
 
@@ -18,7 +21,16 @@ def filtered_comments(func):
         if not current_user:
             return comments
 
-        post = args[0] if args and isinstance(args[0], Post) else None
+        signature = inspect.signature(func)
+
+        bound_arguments = signature.bind(*args, **kwargs)
+        bound_arguments.apply_defaults()
+
+        post = None
+
+        if 'post' in bound_arguments.arguments:
+            post = bound_arguments.arguments['post']
+        
         community = post.community if post else None
         
         if community and current_user.is_moderator_of(community):

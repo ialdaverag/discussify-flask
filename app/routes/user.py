@@ -21,8 +21,10 @@ from app.managers.user import UserManager
 from app.managers.user import FollowManager
 from app.managers.user import BlockManager
 from app.managers.community import SubscriptionManager
+from app.managers.post import PostManager
 from app.managers.post import PostBookmarkManager
 from app.managers.post import PostVoteManager
+from app.managers.comment import CommentManager
 from app.managers.comment import CommentBookmarkManager
 from app.managers.comment import CommentVoteManager
 
@@ -134,16 +136,20 @@ def read_subscriptions(username):
 @jwt_required(optional=True)
 def read_user_posts(username):
     user = User.get_by_username(username)
+
+    posts = PostManager.read_all_by_user(user)
     
-    return posts_schema.dump(user.posts)
+    return posts_schema.dump(posts)
 
 
 @user_routes.get('/<string:username>/comments')
 @jwt_required(optional=True)
 def read_user_comments(username):
     user = User.get_by_username(username)
+
+    comments = CommentManager.read_all_by_user(user)
     
-    return comments_schema.dump(user.comments)
+    return comments_schema.dump(comments)
 
 
 @user_routes.get('/me')

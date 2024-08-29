@@ -1,12 +1,14 @@
 # Functools
 from functools import wraps
 
+# Inspect
+import inspect
+
 # Flask-JWT-Extended
 from flask_jwt_extended import current_user
 
 # Models
 from app.models.user import Block
-from app.models.community import Community
 
 
 def filtered_posts(func):
@@ -16,8 +18,16 @@ def filtered_posts(func):
 
         if not current_user:
             return posts
+        
+        signature = inspect.signature(func)
 
-        community = args[0] if args and isinstance(args[0], Community) else None
+        bound_arguments = signature.bind(*args, **kwargs)
+        bound_arguments.apply_defaults()
+
+        community = None
+
+        if 'community' in bound_arguments.arguments:
+            community = bound_arguments.arguments['community']
             
         if community and current_user.is_moderator_of(community):
             return posts

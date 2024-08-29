@@ -4,6 +4,9 @@ from flask_jwt_extended import current_user
 # Extensions
 from app.extensions.database import db
 
+# Decorators
+from app.decorators.filtered_users import filtered_users
+
 # Errors
 from app.errors.errors import NotFoundError
 
@@ -31,15 +34,19 @@ class CommentBookmark(db.Model):
 
     @classmethod
     def get_by_user_and_comment(cls, user, comment):
-        bookmark = CommentBookmark.query.filter_by(user_id=user.id, comment_id=comment.id).first()
+        bookmark = db.session.get(cls, (user.id, comment.id))
 
         return bookmark
     
     @classmethod
     def get_bookmarks_by_user(cls, user):
-        bookmarks = CommentBookmark.query.filter_by(user_id=user.id).all()
+        bookmarks = db.session.scalars(
+            db.select(cls).where(cls.user_id == user.id)
+        ).all()
 
-        return [bookmark.comment for bookmark in bookmarks]
+        bookmarks = [bookmark.comment for bookmark in bookmarks]
+
+        return bookmarks
 
 
 class CommentVote(db.Model):
@@ -65,33 +72,49 @@ class CommentVote(db.Model):
 
     @classmethod
     def get_by_user_and_comment(cls, user, comment):
-        vote = CommentVote.query.filter_by(user_id=user.id, comment_id=comment.id).first()
+        vote = db.session.get(cls, (user.id, comment.id))
 
         return vote
     
     @classmethod
     def get_upvoted_comments_by_user(cls, user):
-        upvotes = CommentVote.query.filter_by(user_id=user.id, direction=1).all()
+        upvotes = db.session.scalars(
+            db.select(cls).where(cls.user_id == user.id, cls.direction == 1)
+        ).all()
 
-        return [upvote.comment for upvote in upvotes]
+        upvotes = [upvote.comment for upvote in upvotes]
+
+        return upvotes
     
     @classmethod
     def get_downvoted_comments_by_user(cls, user):
-        downvotes = CommentVote.query.filter_by(user_id=user.id, direction=-1).all()
+        downvotes = db.session.scalars(
+            db.select(cls).where(cls.user_id == user.id, cls.direction == -1)
+        ).all()
 
-        return [downvote.comment for downvote in downvotes]
+        downvotes = [downvote.comment for downvote in downvotes]
+
+        return downvotes
     
     @classmethod
     def get_upvoters_by_comment(cls, comment):
-        upvotes = CommentVote.query.filter_by(comment_id=comment.id, direction=1).all()
+        upvotes = db.session.scalars(
+            db.select(cls).where(cls.comment_id == comment.id, cls.direction == 1)
+        ).all()
 
-        return [upvote.user for upvote in upvotes]
+        upvotes = [upvote.user for upvote in upvotes]
+
+        return upvotes
     
     @classmethod
     def get_downvoters_by_comment(cls, comment):
-        downvotes = CommentVote.query.filter_by(comment_id=comment.id, direction=-1).all()
+        downvotes = db.session.scalars(
+            db.select(cls).where(cls.comment_id == comment.id, cls.direction == -1)
+        ).all()
 
-        return [downvote.user for downvote in downvotes]
+        downvotes = [downvote.user for downvote in downvotes]
+
+        return downvotes
     
     def is_upvote(self):
         return self.direction == 1
@@ -108,6 +131,13 @@ class CommentStats(db.Model):
     bookmarks_count = db.Column(db.Integer, default=0)
     upvotes_count = db.Column(db.Integer, default=0)
     downvotes_count = db.Column(db.Integer, default=0)
+
+    # Comment
+    comment = db.relationship('Comment', back_populates='stats')
+
+    def save(self):
+        db.session.add(self)
+        db.session.commit()
 
 
 class Comment(db.Model):
@@ -135,12 +165,13 @@ class Comment(db.Model):
     comment_votes = db.relationship('CommentVote', back_populates='comment', cascade='all, delete')
 
     # Stats
-    stats = db.relationship('CommentStats', backref='comment', uselist=False, cascade='all, delete')
+    stats = db.relationship('CommentStats', uselist=False, back_populates='comment')
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         
         self.stats = CommentStats(comment=self)
+        self.stats.save()
 
     def save(self):
         db.session.add(self)
@@ -152,7 +183,7 @@ class Comment(db.Model):
 
     @classmethod
     def get_by_id(cls, id):
-        comment = db.session.get(Comment, id)
+        comment = db.session.get(cls, id)
 
         if comment is None:
             raise NotFoundError('Comment not found.')
@@ -161,11 +192,19 @@ class Comment(db.Model):
     
     @classmethod
     def get_all(cls):
-        return db.session.scalars(db.select(Comment)).all()
+        return db.session.scalars(db.select(cls)).all()
+    
+    @classmethod
+    def get_all_by_user(cls, user):
+        return db.session.scalars(
+            db.select(cls).where(cls.user_id == user.id)
+        ).all()
     
     @classmethod
     def get_all_root_comments_by_post(cls, post):
-        return db.session.scalars(db.select(Comment).where(Comment.comment_id == None, Comment.post_id == post.id)).all()
+        return db.session.scalars(
+            db.select(cls).where(cls.comment_id == None, cls.post_id == post.id)
+        ).all()
     
     @property
     def bookmarked(self):

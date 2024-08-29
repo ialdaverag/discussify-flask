@@ -55,6 +55,13 @@ class CommentManager:
     
     @staticmethod
     @filtered_comments
+    def read_all_by_user(user):
+        comments = Comment.get_all_by_user(user)
+
+        return comments
+    
+    @staticmethod
+    @filtered_comments
     def read_all_root_comments_by_post(post):
         comments = Comment.get_all_root_comments_by_post(post)
 

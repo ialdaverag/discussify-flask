@@ -9,6 +9,9 @@ from app.models.community import CommunitySubscriber
 from app.models.community import CommunityModerator
 from app.models.community import CommunityBan
 
+# Decorators
+from app.decorators.filtered_users import filtered_users
+
 # Errors
 from app.errors.errors import NotFoundError
 
@@ -20,6 +23,7 @@ class Follow(db.Model):
     followed_id = db.Column(db.Integer, db.ForeignKey('users.id'), primary_key=True, nullable=False)
     created_at = db.Column(db.DateTime, default=db.func.now())
 
+    # User
     follower = db.relationship('User', foreign_keys=[follower_id], back_populates='followed')
     followed = db.relationship('User', foreign_keys=[followed_id], back_populates='followers')
 
@@ -33,21 +37,29 @@ class Follow(db.Model):
 
     @classmethod
     def get_by_follower_and_followed(cls, follower, followed):
-        follow = cls.query.filter_by(follower=follower, followed=followed).first()
+        follow = db.session.get(cls, (follower.id, followed.id))
 
         return follow
     
     @classmethod
     def get_followed(cls, user):
-        followed = cls.query.filter_by(follower_id=user.id).all()
+        followed = db.session.scalars(
+            db.select(cls).where(cls.follower_id == user.id)
+        ).all()
 
-        return [follow.followed for follow in followed]
+        followed = [follow.followed for follow in followed]
+
+        return followed
     
     @classmethod
     def get_followers(cls, user):
-        followers = cls.query.filter_by(followed_id=user.id).all()
+        followers = db.session.scalars(
+            db.select(cls).where(cls.followed_id == user.id)
+        ).all()
 
-        return [follow.follower for follow in followers]
+        followers = [follow.follower for follow in followers]
+
+        return followers
 
 
 class Block(db.Model):
@@ -57,6 +69,7 @@ class Block(db.Model):
     blocked_id = db.Column(db.Integer, db.ForeignKey('users.id'), primary_key=True, nullable=False)
     created_at = db.Column(db.DateTime, default=db.func.now())
 
+    # User
     blocker = db.relationship('User', foreign_keys=[blocker_id], back_populates='blocked')
     blocked = db.relationship('User', foreign_keys=[blocked_id], back_populates='blockers')
 
@@ -70,21 +83,29 @@ class Block(db.Model):
 
     @classmethod
     def get_by_blocker_and_blocked(cls, blocker, blocked):
-        block = cls.query.filter_by(blocker=blocker, blocked=blocked).first()
+        block = db.session.get(cls, (blocker.id, blocked.id))
 
         return block
     
     @classmethod
     def get_blocked(cls, user):
-        blocked = cls.query.filter_by(blocker_id=user.id).all()
+        blocked = db.session.scalars(
+            db.select(cls).where(cls.blocker_id == user.id)
+        ).all()
 
-        return [block.blocked for block in blocked]
+        blocked = [block.blocked for block in blocked]
+
+        return blocked
     
     @classmethod
     def get_blockers(cls, user):
-        blockers = cls.query.filter_by(blocked_id=user.id).all()
+        blockers = db.session.scalars(
+            db.select(cls).where(cls.blocked_id == user.id)
+        ).all()
 
-        return [block.blocker for block in blockers]
+        blockers = [block.blocker for block in blockers]
+
+        return blockers
 
 
 class UserStats(db.Model):
@@ -100,6 +121,7 @@ class UserStats(db.Model):
     subscriptions_count = db.Column(db.Integer, default=0)
     moderations_count = db.Column(db.Integer, default=0)
 
+    # User
     user = db.relationship('User', back_populates='stats')
 
     def save(self):
@@ -123,7 +145,6 @@ class User(db.Model):
     followed = db.relationship('Follow', foreign_keys=[Follow.follower_id], back_populates='follower', lazy='dynamic', cascade='all, delete-orphan')
     blockers = db.relationship('Block', foreign_keys=[Block.blocked_id], back_populates='blocked', lazy='dynamic', cascade='all, delete-orphan')
     blocked = db.relationship('Block', foreign_keys=[Block.blocker_id], back_populates='blocker', lazy='dynamic', cascade='all, delete-orphan')
-
 
     # Community
     communities = db.relationship('Community', back_populates='owner', lazy='dynamic', cascade='all, delete')
@@ -156,15 +177,25 @@ class User(db.Model):
 
     @staticmethod
     def is_username_available(username):
-        return User.query.filter_by(username=username).first() is None
+        user = db.session.execute(
+            db.select(User).where(User.username == username)
+        ).scalar() is None
+
+        return user
     
     @staticmethod
     def is_email_available(email):
-        return User.query.filter_by(email=email).first() is None
+        email = db.session.execute(
+            db.select(User).where(User.email == email)
+        ).scalar() is None
+
+        return email
     
     @classmethod
     def get_by_username(cls, username):
-        user = db.session.execute(db.select(User).filter_by(username=username)).scalar()
+        user = db.session.execute(
+            db.select(cls).where(cls.username == username)
+        ).scalar()
 
         if user is None:
             raise NotFoundError('User not found.')
@@ -173,7 +204,7 @@ class User(db.Model):
     
     @classmethod
     def get_by_id(cls, id):
-        user = db.session.get(User, id)
+        user = db.session.get(cls, id)
 
         if user is None:
             raise NotFoundError('User not found.')

@@ -11,6 +11,9 @@ from app.errors.errors import NotFoundError
 from app.models.comment import Comment
 
 # Decorators
+from app.decorators.filtered_users import filtered_users
+
+# Decorators
 from app.decorators.filtered_comments import filtered_comments
 
 
@@ -37,15 +40,19 @@ class PostBookmark(db.Model):
 
     @classmethod
     def get_by_user_and_post(cls, user, post):
-        bookmark = PostBookmark.query.filter_by(user_id=user.id, post_id=post.id).first()
+        bookmark = db.session.get(cls, (user.id, post.id))
 
         return bookmark
     
     @classmethod
     def get_bookmarks_by_user(cls, user):
-        bookmarks = PostBookmark.query.filter_by(user_id=user.id).all()
+        bookmarks = db.session.scalars(
+            db.select(cls).where(cls.user_id == user.id)
+        ).all()
 
-        return [bookmark.post for bookmark in bookmarks]
+        bookmarks = [bookmark.post for bookmark in bookmarks]
+
+        return bookmarks
 
 
 class PostVote(db.Model):
@@ -71,34 +78,50 @@ class PostVote(db.Model):
 
     @classmethod
     def get_by_user_and_post(cls, user, post):
-        vote = PostVote.query.filter_by(user_id=user.id, post_id=post.id).first()
-        
+        vote = db.session.get(cls, (user.id, post.id))
+
         return vote
     
     @classmethod
-    def get_downvoters_by_post(cls, post):
-        downvoters = PostVote.query.filter_by(post_id=post.id, direction=-1).all()
+    def get_upvoters_by_post(cls, post):
+        upvoters = db.session.scalars(
+            db.select(cls).where(cls.post_id == post.id, cls.direction == 1)
+        ).all()
 
-        return [downvote.user for downvote in downvoters]
+        upvoters = [upvote.user for upvote in upvoters]
+
+        return upvoters
     
     @classmethod
-    def get_upvoters_by_post(cls, post):
-        upvoters = PostVote.query.filter_by(post_id=post.id, direction=1).all()
+    def get_downvoters_by_post(cls, post):
+        downvoters = db.session.scalars(
+            db.select(cls).where(cls.post_id == post.id, cls.direction == -1)
+        ).all()
 
-        return [upvote.user for upvote in upvoters]
+        downvoters = [downvote.user for downvote in downvoters]
+
+        return downvoters
     
     @classmethod
     def get_upvoted_posts_by_user(cls, user):
-        upvotes = PostVote.query.filter_by(user_id=user.id, direction=1).all()
+        upvotes = db.session.scalars(
+            db.select(cls).where(cls.user_id == user.id, cls.direction == 1)
+        ).all()
 
-        return [upvote.post for upvote in upvotes]
+        posts = [upvote.post for upvote in upvotes]
+
+        return posts
     
     @classmethod
     def get_downvoted_posts_by_user(cls, user):
-        downvotes = PostVote.query.filter_by(user_id=user.id, direction=-1).all()
+        downvotes = db.session.scalars(
+            db.select(cls).where(cls.user_id == user.id, cls.direction == -1)
+        ).all()
 
-        return [downvote.post for downvote in downvotes]
+        posts = [downvote.post for downvote in downvotes]
 
+        return posts
+    
     def is_upvote(self):
         return self.direction == 1
     
@@ -116,6 +139,12 @@ class PostStats(db.Model):
     upvotes_count = db.Column(db.Integer, default=0)
     downvotes_count = db.Column(db.Integer, default=0)
 
+    # Post
+    post = db.relationship('Post', back_populates='stats', uselist=False)
+
+    def save(self):
+        db.session.add(self)
+        db.session.commit()
 
 class Post(db.Model):
     __tablename__ = 'posts'
@@ -142,12 +171,13 @@ class Post(db.Model):
     post_votes = db.relationship('PostVote', cascade='all, delete', back_populates='post')
 
     # Stats
-    stats = db.relationship('PostStats', backref='post', uselist=False, cascade='all, delete')
+    stats = db.relationship('PostStats', uselist=False, back_populates='post')
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         
         self.stats = PostStats(post=self)
+        self.stats.save()
 
     def save(self):
         db.session.add(self)
@@ -158,8 +188,8 @@ class Post(db.Model):
         db.session.commit()
 
     @classmethod
-    def get_by_id(self, id):
-        post = db.session.get(Post, id)
+    def get_by_id(cls, id):
+        post = db.session.get(cls, id)
 
         if post is None:
             raise NotFoundError('Post not found.')
@@ -168,13 +198,23 @@ class Post(db.Model):
     
     @classmethod
     def get_all(cls):
-        posts = db.session.scalars(db.select(Post)).all()
+        posts = db.session.scalars(db.select(cls)).all()
 
         return posts
     
     @classmethod
     def get_all_by_community(cls, community):
-        posts = db.session.scalars(db.select(Post).where(Post.community_id == community.id)).all()
+        posts = db.session.scalars(
+            db.select(cls).where(cls.community_id == community.id)
+        ).all()
+
+        return posts
+    
+    @classmethod
+    def get_all_by_user(cls, user):
+        posts = db.session.scalars(
+            db.select(cls).where(cls.user_id == user.id)
+        ).all()
 
         return posts
     
@@ -218,7 +258,9 @@ class Post(db.Model):
         return vote.is_downvote() if vote else False
     
     def read_root_comments(self):
-        root_comments = Comment.query.filter_by(post_id=self.id, comment_id=None).all()
+        root_comments = db.session.scalars(
+            db.select(Comment).where(Comment.post_id == self.id, Comment.parent_id.is_(None))
+        ).all()
 
         return root_comments
 

@@ -4,6 +4,9 @@ from flask_jwt_extended import current_user
 # Extensions
 from app.extensions.database import db
 
+# Decorators
+from app.decorators.filtered_users import filtered_users
+
 # Errors
 from app.errors.errors import NotFoundError
 
@@ -15,7 +18,10 @@ class CommunitySubscriber(db.Model):
     community_id = db.Column(db.Integer, db.ForeignKey('communities.id'), primary_key=True)
     created_at = db.Column(db.DateTime, default=db.func.now())
 
+    # User
     user = db.relationship('User', foreign_keys=[user_id], back_populates='subscriptions')
+
+    # Community
     community = db.relationship('Community', foreign_keys=[community_id], back_populates='subscribers')
 
     def save(self):
@@ -28,21 +34,29 @@ class CommunitySubscriber(db.Model):
 
     @classmethod
     def get_by_user_and_community(cls, user, community):
-        subscription = cls.query.filter_by(user=user, community=community).first()
+        subscription = db.session.get(cls, (user.id, community.id))
         
         return subscription
     
     @classmethod
     def get_subscriptions_by_user(cls, user):
-        subscriptions = cls.query.filter_by(user=user).all()
+        subscriptions = db.session.scalars(
+            db.select(cls).where(cls.user_id == user.id)
+        ).all()
 
-        return [subscription.community for subscription in subscriptions]
+        subscriptions = [subscription.community for subscription in subscriptions]
+
+        return subscriptions
     
     @classmethod
     def get_subscribers_by_community(cls, community):
-        subscribers = cls.query.filter_by(community=community).all()
+        subscribers = db.session.scalars(
+            db.select(cls).where(cls.community_id == community.id)
+        ).all()
 
-        return [subscriber.user for subscriber in subscribers]
+        subscribers = [subscriber.user for subscriber in subscribers]
+
+        return subscribers
 
 
 class CommunityModerator(db.Model):
@@ -52,7 +66,10 @@ class CommunityModerator(db.Model):
     community_id = db.Column(db.Integer, db.ForeignKey('communities.id'), primary_key=True, nullable=False)
     created_at = db.Column(db.DateTime, default=db.func.now())
 
+    # User
     user = db.relationship('User', foreign_keys=[user_id], back_populates='moderations')
+
+    # Community
     community = db.relationship('Community', foreign_keys=[community_id], back_populates='moderators')
 
     def save(self):
@@ -65,19 +82,29 @@ class CommunityModerator(db.Model):
 
     @classmethod
     def get_by_user_and_community(cls, user, community):
-        return cls.query.filter_by(user=user, community=community).first()
+        moderation = db.session.get(cls, (user.id, community.id))
+
+        return moderation
     
     @classmethod
     def get_moderations_by_user(cls, user):
-        moderations = cls.query.filter_by(user=user).all()
+        moderations = db.session.scalars(
+            db.select(cls).where(cls.user_id == user.id)
+        ).all()
 
-        return [moderation.community for moderation in moderations]
+        moderations = [moderation.community for moderation in moderations]
+
+        return moderations
     
     @classmethod
     def get_moderators_by_community(cls, community):
-        moderators = cls.query.filter_by(community=community).all()
+        moderators = db.session.scalars(
+            db.select(cls).where(cls.community_id == community.id)
+        ).all()
 
-        return [moderator.user for moderator in moderators]
+        moderators = [moderator.user for moderator in moderators]
+
+        return moderators
 
 
 class CommunityBan(db.Model):
@@ -87,7 +114,10 @@ class CommunityBan(db.Model):
     community_id = db.Column(db.Integer, db.ForeignKey('communities.id'), primary_key=True, nullable=False)
     created_at = db.Column(db.DateTime, default=db.func.now())
 
+    # User
     user = db.relationship('User', foreign_keys=[user_id], back_populates='bans')
+
+    # Community
     community = db.relationship('Community', foreign_keys=[community_id], back_populates='banned')
 
     def save(self):
@@ -100,19 +130,29 @@ class CommunityBan(db.Model):
 
     @classmethod
     def get_by_user_and_community(cls, user, community):
-        return cls.query.filter_by(user=user, community=community).first()
+        ban = db.session.get(cls, (user.id, community.id))
+
+        return ban
     
     @classmethod
     def get_bans_by_user(cls, user):
-        bans = cls.query.filter_by(user=user).all()
+        bans = db.session.scalars(
+            db.select(cls).where(cls.user_id == user.id)
+        ).all()
 
-        return [ban.community for ban in bans]
+        bans = [ban.community for ban in bans]
+
+        return bans
     
     @classmethod
     def get_banned_by_community(cls, community):
-        banned_users = cls.query.filter_by(community=community).all()
+        banned_users = db.session.scalars(
+            db.select(cls).where(cls.community_id == community.id)
+        ).all()
 
-        return [banned_user.user for banned_user in banned_users]
+        banned_users = [banned_user.user for banned_user in banned_users]
+
+        return banned_users
 
 
 class CommunityStats(db.Model):
@@ -126,7 +166,12 @@ class CommunityStats(db.Model):
     moderators_count = db.Column(db.Integer, default=0)
     banned_count = db.Column(db.Integer, default=0)
 
+    # Community
     community = db.relationship('Community', back_populates='stats')
+
+    def save(self):
+        db.session.add(self)
+        db.session.commit()
 
 
 class Community(db.Model):
@@ -151,12 +196,13 @@ class Community(db.Model):
     posts = db.relationship('Post', cascade='all, delete', back_populates='community', lazy='dynamic')
 
     # Stats
-    stats = db.relationship('CommunityStats', uselist=False, back_populates='community', cascade='all, delete-orphan')
+    stats = db.relationship('CommunityStats', uselist=False, back_populates='community')
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         
         self.stats = CommunityStats(community=self)
+        self.stats.save()
 
     def save(self):
         db.session.add(self)
@@ -168,7 +214,11 @@ class Community(db.Model):
 
     @staticmethod
     def is_name_available(name):
-        return Community.query.filter_by(name=name).first() is None
+        community = db.session.execute(
+            db.select(Community).where(Community.name == name)
+        ).scalar() is None
+
+        return community
     
     @classmethod
     def get_by_id(cls, id):
@@ -181,7 +231,9 @@ class Community(db.Model):
     
     @classmethod
     def get_by_name(cls, name):
-        community = db.session.execute(db.select(Community).filter_by(name=name)).scalar()
+        community = db.session.execute(
+            db.select(cls).where(cls.name == name)
+        ).scalar()
 
         if community is None:
             raise NotFoundError('Community not found.')
@@ -190,7 +242,7 @@ class Community(db.Model):
     
     @classmethod
     def get_all(cls):
-        return db.session.scalars(db.select(Community)).all()
+        return db.session.scalars(db.select(cls)).all()
     
     @property
     def subscriber(self):
