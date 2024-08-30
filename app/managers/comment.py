@@ -54,21 +54,21 @@ class CommentManager:
         return comment
     
     @staticmethod
-    @filtered_comments
+    #@filtered_comments
     def read_all_by_user(user):
         comments = Comment.get_all_by_user(user)
 
         return comments
     
     @staticmethod
-    @filtered_comments
+    #@filtered_comments
     def read_all_root_comments_by_post(post):
         comments = Comment.get_all_root_comments_by_post(post)
 
         return comments
 
     @staticmethod
-    @filtered_comments
+    #@filtered_comments
     def read_all():
         comments = Comment.get_all()
 
@@ -118,7 +118,7 @@ class CommentBookmarkManager:
         CommentBookmark(user=user, comment=comment).save()
 
     @staticmethod
-    @filtered_comments
+    #@filtered_comments
     def read_bookmarked_comments_by_user(user):
         bookmarks = CommentBookmark.get_bookmarks_by_user(user)
 
@@ -183,7 +183,7 @@ class CommentVoteManager:
 
 
     @staticmethod
-    @filtered_comments
+    #@filtered_comments
     def read_upvoted_comments_by_user(user):
         upvotes = CommentVote.get_upvoted_comments_by_user(user)
 
@@ -191,21 +191,21 @@ class CommentVoteManager:
     
 
     @staticmethod
-    @filtered_comments
+    #@filtered_comments
     def read_downvoted_comments_by_user(user):
         downvotes = CommentVote.get_downvoted_comments_by_user(user)
 
         return downvotes
 
     @staticmethod
-    @filtered_users
+    #@filtered_users
     def read_upvoters_by_comment(comment):
         upvoters = CommentVote.get_upvoters_by_comment(comment)
 
         return upvoters
     
     @staticmethod
-    @filtered_users
+    #@filtered_users
     def read_downvoters_by_comment(comment):
         downvoters = CommentVote.get_downvoters_by_comment(comment)
 

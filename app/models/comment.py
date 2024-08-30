@@ -6,6 +6,7 @@ from app.extensions.database import db
 
 # Decorators
 from app.decorators.filtered_users import filtered_users
+from app.decorators.filtered_comments import filtered_comments
 
 # Errors
 from app.errors.errors import NotFoundError
@@ -39,6 +40,7 @@ class CommentBookmark(db.Model):
         return bookmark
     
     @classmethod
+    @filtered_comments
     def get_bookmarks_by_user(cls, user):
         query = db.select(cls).where(cls.user_id == user.id)
 
@@ -77,6 +79,7 @@ class CommentVote(db.Model):
         return vote
     
     @classmethod
+    @filtered_comments
     def get_upvoted_comments_by_user(cls, user):
         query = db.select(cls).where(cls.user_id == user.id, cls.direction == 1)
 
@@ -87,6 +90,7 @@ class CommentVote(db.Model):
         return upvotes
     
     @classmethod
+    @filtered_comments
     def get_downvoted_comments_by_user(cls, user):
         query = db.select(cls).where(cls.user_id == user.id, cls.direction == -1)
 
@@ -97,6 +101,7 @@ class CommentVote(db.Model):
         return downvotes
     
     @classmethod
+    @filtered_users
     def get_upvoters_by_comment(cls, comment):
         query = db.select(cls).where(cls.comment_id == comment.id, cls.direction == 1)
 
@@ -107,6 +112,7 @@ class CommentVote(db.Model):
         return upvotes
     
     @classmethod
+    @filtered_users
     def get_downvoters_by_comment(cls, comment):
         query = db.select(cls).where(cls.comment_id == comment.id, cls.direction == -1)
 
@@ -191,14 +197,16 @@ class Comment(db.Model):
         return comment
     
     @classmethod
+    @filtered_comments
     def get_all(cls):
         query = db.select(cls)
 
-        comments =  db.session.scalars(db.select(cls)).all()
+        comments =  db.session.scalars(query).all()
 
         return comments
     
     @classmethod
+    @filtered_comments
     def get_all_by_user(cls, user):
         query = db.select(cls).where(cls.user_id == user.id)
 
@@ -207,6 +215,7 @@ class Comment(db.Model):
         return comments
     
     @classmethod
+    @filtered_comments
     def get_all_root_comments_by_post(cls, post):
         query = db.select(cls).where(cls.comment_id == None, cls.post_id == post.id)
 

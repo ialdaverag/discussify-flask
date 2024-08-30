@@ -42,7 +42,7 @@ class UserManager:
         return target
 
     @staticmethod
-    @filtered_users
+    #@filtered_users
     def read_all(user):
         users = User.get_all()
 
@@ -67,14 +67,14 @@ class FollowManager:
         ).save()
 
     @staticmethod
-    @filtered_users
+    #@filtered_users
     def read_followed(user):
         following = Follow.get_followed(user)
         
         return following
     
     @staticmethod
-    @filtered_users
+    #@filtered_users
     def read_followers(user):
         followers = Follow.get_followers(user)
         

@@ -40,21 +40,21 @@ class PostManager:
         return post
     
     @staticmethod
-    @filtered_posts
+    #@filtered_posts
     def read_all_by_community(community):
         posts = Post.get_all_by_community(community)
 
         return posts
     
     @staticmethod
-    @filtered_posts
+    #@filtered_posts
     def read_all_by_user(user):
         posts = Post.get_all_by_user(user)
 
         return posts
 
     @staticmethod
-    @filtered_posts
+    #@filtered_posts
     def read_all():
         posts = Post.get_all()
 
@@ -105,7 +105,7 @@ class PostBookmarkManager:
         ).save()
 
     @staticmethod
-    @filtered_posts
+    #@filtered_posts
     def read_bookmarked_posts_by_user(user):
         bookmarks = PostBookmark.get_bookmarks_by_user(user)
 
@@ -172,28 +172,28 @@ class PostVoteManager:
                 new_vote.save()
 
     @staticmethod
-    @filtered_posts
+    #@filtered_posts
     def read_upvoted_posts_by_user(user):
         upvotes = PostVote.get_upvoted_posts_by_user(user)
 
         return upvotes
     
     @staticmethod
-    @filtered_posts
+    #@filtered_posts
     def read_downvoted_posts_by_user(user):
         downvotes = PostVote.get_downvoted_posts_by_user(user)
 
         return downvotes
     
     @staticmethod
-    @filtered_users
+    #@filtered_users
     def read_upvoters_by_post(post):
         upvoters = PostVote.get_upvoters_by_post(post)
 
         return upvoters
     
     @staticmethod
-    @filtered_users
+    #@filtered_users
     def read_downvoters_by_post(post):
         downvoters = PostVote.get_downvoters_by_post(post)
 

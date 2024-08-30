@@ -12,8 +12,6 @@ from app.models.user import Block
 
 
 def filtered_comments(func):
-    from app.models.post import Post
-
     @wraps(func)
     def wrapper(*args, **kwargs):
         comments = func(*args, **kwargs)

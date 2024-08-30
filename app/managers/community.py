@@ -94,7 +94,7 @@ class SubscriptionManager:
         return subscriptions
     
     @staticmethod
-    @filtered_users
+    #@filtered_users
     def read_subscribers_by_community(community):
         subscribers = CommunitySubscriber.get_subscribers_by_community(community)
 

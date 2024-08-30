@@ -12,6 +12,7 @@ from app.models.comment import Comment
 
 # Decorators
 from app.decorators.filtered_users import filtered_users
+from app.decorators.filtered_posts import filtered_posts
 
 # Decorators
 from app.decorators.filtered_comments import filtered_comments
@@ -45,6 +46,7 @@ class PostBookmark(db.Model):
         return bookmark
     
     @classmethod
+    @filtered_posts
     def get_bookmarks_by_user(cls, user):
         query = db.select(cls).where(cls.user_id == user.id)
         
@@ -83,6 +85,7 @@ class PostVote(db.Model):
         return vote
     
     @classmethod
+    @filtered_users
     def get_upvoters_by_post(cls, post):
         query = db.select(cls).where(cls.post_id == post.id, cls.direction == 1)
 
@@ -93,6 +96,7 @@ class PostVote(db.Model):
         return upvoters
     
     @classmethod
+    @filtered_users
     def get_downvoters_by_post(cls, post):
         query = db.select(cls).where(cls.post_id == post.id, cls.direction == -1)
 
@@ -103,6 +107,7 @@ class PostVote(db.Model):
         return downvoters
     
     @classmethod
+    @filtered_posts
     def get_upvoted_posts_by_user(cls, user):
         query = db.select(cls).where(cls.user_id == user.id, cls.direction == 1)
 
@@ -113,6 +118,7 @@ class PostVote(db.Model):
         return posts
     
     @classmethod
+    @filtered_posts
     def get_downvoted_posts_by_user(cls, user):
         query = db.select(cls).where(cls.user_id == user.id, cls.direction == -1)
 
@@ -197,6 +203,7 @@ class Post(db.Model):
         return post
     
     @classmethod
+    @filtered_posts
     def get_all(cls):
         query = db.select(cls)
 
@@ -205,6 +212,7 @@ class Post(db.Model):
         return posts
     
     @classmethod
+    @filtered_posts
     def get_all_by_community(cls, community):
         query = db.select(cls).where(cls.community_id == community.id)
 
@@ -213,6 +221,7 @@ class Post(db.Model):
         return posts
     
     @classmethod
+    @filtered_posts
     def get_all_by_user(cls, user):
         query = db.select(cls).where(cls.user_id == user.id)
 

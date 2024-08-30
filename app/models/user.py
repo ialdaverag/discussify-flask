@@ -42,6 +42,7 @@ class Follow(db.Model):
         return follow
     
     @classmethod
+    @filtered_users
     def get_followed(cls, user):
         query = db.select(cls).where(cls.follower_id == user.id)
 
@@ -52,6 +53,7 @@ class Follow(db.Model):
         return followed
     
     @classmethod
+    @filtered_users
     def get_followers(cls, user):
         query = db.select(cls).where(cls.followed_id == user.id)
 
@@ -212,6 +214,7 @@ class User(db.Model):
         return user
     
     @classmethod
+    @filtered_users
     def get_all(cls):
         query = db.select(cls)
 

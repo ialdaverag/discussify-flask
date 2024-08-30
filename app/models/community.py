@@ -49,6 +49,7 @@ class CommunitySubscriber(db.Model):
         return subscriptions
     
     @classmethod
+    @filtered_users
     def get_subscribers_by_community(cls, community):
         query = db.select(cls).where(cls.community_id == community.id)
 

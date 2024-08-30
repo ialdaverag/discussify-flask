@@ -32,7 +32,7 @@ class TestReadUsers(BaseTestCase):
         data = response.json
 
         # Assert the number of users
-        self.assertEqual(len(data), len(users))
+        self.assertEqual(len(data), n)
 
         # Assert the response data structure
         for user in data:
@@ -71,7 +71,7 @@ class TestReadUsers(BaseTestCase):
         data = response.json
 
         # Assert the number of users
-        self.assertEqual(len(data), len(users) + 1)
+        self.assertEqual(len(data), n + 1)
 
         # Assert the response data structure
         for user in data:
