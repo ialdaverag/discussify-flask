@@ -17,6 +17,7 @@ from app.routes.comment import comment_routes
 
 from app.models.user import User
 
+from app.errors.errors import ValidationError
 from app.errors.errors import NotFoundError
 from app.errors.errors import NameError
 from app.errors.errors import FollowError
@@ -30,6 +31,7 @@ from app.errors.errors import UnauthorizedError
 from app.errors.errors import BookmarkError
 from app.errors.errors import VoteError
 
+from app.handlers.errors import handler_validation_error
 from app.handlers.errors import handler_not_found
 from app.handlers.errors import handler_name_error
 from app.handlers.errors import handler_follow_error
@@ -87,6 +89,7 @@ def register_blueprints(app):
 
 
 def register_handlers(app):
+    app.register_error_handler(ValidationError, handler_validation_error)
     app.register_error_handler(NotFoundError, handler_not_found)
     app.register_error_handler(NameError, handler_name_error)
     app.register_error_handler(FollowError, handler_follow_error)

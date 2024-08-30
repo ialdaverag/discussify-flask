@@ -44,14 +44,9 @@ black_list = set()
 
 @auth_routes.post('/signup')
 def sign_up():
-    # Get the JSON data from the request
     json_data = request.get_json()
 
-    # Load the data into the schema
-    try:
-        data = user_schema.load(json_data)
-    except ValidationError as err:
-        return {'errors': err.messages}, HTTPStatus.BAD_REQUEST
+    data = user_schema.load(json_data)
 
     user = UserManager.create(data)
 
@@ -93,7 +88,6 @@ def log_out():
 
     response = make_response({'message': 'Successfully logged out.'}, HTTPStatus.OK)
 
-    # Remove JWT cookies
     unset_jwt_cookies(response)
 
     return response

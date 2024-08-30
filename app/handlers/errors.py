@@ -2,6 +2,10 @@
 from http import HTTPStatus
 
 
+def handler_validation_error(error):
+    return {'errors': error.messages}, HTTPStatus.BAD_REQUEST
+
+
 def handler_not_found(error):
     return {'message': str(error)}, HTTPStatus.NOT_FOUND
 

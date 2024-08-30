@@ -1,3 +1,5 @@
+from marshmallow import ValidationError
+
 class NotFoundError(Exception):
     pass
 

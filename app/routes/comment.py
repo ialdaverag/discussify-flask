@@ -37,22 +37,15 @@ comment_routes = Blueprint('comment_routes', __name__)
 @jwt_required()
 def create_comment():
     json_data = request.get_json()
+    
+    data = comment_schema.load(json_data)
 
-    try:
-        data = comment_schema.load(json_data)
-    except ValidationError as err:
-        return {'errors': err.messages}, HTTPStatus.BAD_REQUEST
-
-    # Get the post_id from the data
     post_id = data.get('post_id')
 
-    # Get the post by the post_id
     post = Post.get_by_id(post_id)
 
-    # Get the comment_id from the data
     comment_id = data.get('comment_id')
 
-    # Initialize the comment_to_reply to None
     comment_to_reply = None
 
     if comment_id is not None:
@@ -88,10 +81,7 @@ def update_comment(id):
 
     json_data = request.get_json()
 
-    try:
-        data = comment_update_schema.load(json_data)
-    except ValidationError as err:
-        return {'errors': err.messages}, HTTPStatus.BAD_REQUEST
+    data = comment_update_schema.load(json_data)
 
     comment = CommentManager.update(current_user, comment, data)
 

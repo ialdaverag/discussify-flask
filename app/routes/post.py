@@ -36,10 +36,7 @@ post_routes = Blueprint('post_routes', __name__)
 def create_post():
     json_data = request.get_json()
 
-    try:
-        data = post_schema.load(json_data)
-    except ValidationError as err:
-        return {'errors': err.messages}, HTTPStatus.BAD_REQUEST
+    data = post_schema.load(json_data)
     
     community_id = data['community_id']
     community = Community.get_by_id(community_id)
@@ -74,10 +71,7 @@ def update_post(id):
 
     json_data = request.get_json()
 
-    try:
-        data = post_schema.load(json_data, partial=('title', 'content', 'community_id'))
-    except ValidationError as err:
-        return {'errors': err.messages}, HTTPStatus.BAD_REQUEST
+    data = post_schema.load(json_data, partial=('title', 'content', 'community_id'))
     
     post = PostManager.update(current_user, post, data)
 

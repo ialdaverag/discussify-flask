@@ -36,10 +36,7 @@ community_routes = Blueprint('community_routes', __name__)
 def create_community():
     json_data = request.get_json()
 
-    try:
-        data = community_schema.load(json_data)
-    except ValidationError as err:
-        return {'errors': err.messages}, HTTPStatus.BAD_REQUEST
+    data = community_schema.load(json_data)
 
     community = CommunityManager.create(current_user, data)
 
@@ -71,10 +68,7 @@ def update_community(name):
 
     json_data = request.get_json()
 
-    try:
-        data = community_schema.load(json_data, partial=('name',))
-    except ValidationError as err:
-        return {'errors': err.messages}, HTTPStatus.BAD_REQUEST
+    data = community_schema.load(json_data, partial=('name',))
     
     community = CommunityManager.update(current_user, community, data)
 
