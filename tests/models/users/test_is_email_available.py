@@ -13,8 +13,11 @@ class TestIsEmailAvailable(BaseTestCase):
         # Create an email
         email = 'user@email.com'
 
+        # Check if the email is available
+        is_email_available = User.is_email_available(email)
+
         # Check that the email is not available
-        self.assertTrue(User.is_email_available(email))
+        self.assertTrue(is_email_available)
 
     def test_is_email_available_false(self):
         # Create a user
@@ -23,5 +26,8 @@ class TestIsEmailAvailable(BaseTestCase):
         # Get the email of the user
         email = user.email
 
+        # Check if the email is available
+        is_email_available = User.is_email_available(email)
+
         # Check that the email is not available
-        self.assertFalse(User.is_email_available(email))
+        self.assertFalse(is_email_available)

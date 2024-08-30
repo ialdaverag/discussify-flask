@@ -13,8 +13,11 @@ class TestIsUsernameAvailable(BaseTestCase):
         # Create a username
         username = 'user1'
 
+        # Check if the username is available
+        is_username_available = User.is_username_available(username)
+
         # Check that the username is not available
-        self.assertTrue(User.is_username_available(username))
+        self.assertTrue(is_username_available)
 
     def test_is_username_available_false(self):
         # Create a user
@@ -23,5 +26,8 @@ class TestIsUsernameAvailable(BaseTestCase):
         # Get the username of the user
         username = user.username
 
+        # Check if the username is available
+        is_username_available = User.is_username_available(username)
+
         # Check that the username is not available
-        self.assertFalse(User.is_username_available(username))
+        self.assertFalse(is_username_available)
