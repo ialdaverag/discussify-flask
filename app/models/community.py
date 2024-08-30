@@ -40,9 +40,9 @@ class CommunitySubscriber(db.Model):
     
     @classmethod
     def get_subscriptions_by_user(cls, user):
-        subscriptions = db.session.scalars(
-            db.select(cls).where(cls.user_id == user.id)
-        ).all()
+        query = db.select(cls).where(cls.user_id == user.id)
+
+        subscriptions = db.session.scalars(query).all()
 
         subscriptions = [subscription.community for subscription in subscriptions]
 
@@ -50,9 +50,9 @@ class CommunitySubscriber(db.Model):
     
     @classmethod
     def get_subscribers_by_community(cls, community):
-        subscribers = db.session.scalars(
-            db.select(cls).where(cls.community_id == community.id)
-        ).all()
+        query = db.select(cls).where(cls.community_id == community.id)
+
+        subscribers = db.session.scalars(query).all()
 
         subscribers = [subscriber.user for subscriber in subscribers]
 
@@ -88,9 +88,9 @@ class CommunityModerator(db.Model):
     
     @classmethod
     def get_moderations_by_user(cls, user):
-        moderations = db.session.scalars(
-            db.select(cls).where(cls.user_id == user.id)
-        ).all()
+        query = db.select(cls).where(cls.user_id == user.id)
+
+        moderations = db.session.scalars(query).all()
 
         moderations = [moderation.community for moderation in moderations]
 
@@ -98,9 +98,9 @@ class CommunityModerator(db.Model):
     
     @classmethod
     def get_moderators_by_community(cls, community):
-        moderators = db.session.scalars(
-            db.select(cls).where(cls.community_id == community.id)
-        ).all()
+        query = db.select(cls).where(cls.community_id == community.id)
+
+        moderators = db.session.scalars(query).all()
 
         moderators = [moderator.user for moderator in moderators]
 
@@ -136,9 +136,9 @@ class CommunityBan(db.Model):
     
     @classmethod
     def get_bans_by_user(cls, user):
-        bans = db.session.scalars(
-            db.select(cls).where(cls.user_id == user.id)
-        ).all()
+        query = db.select(cls).where(cls.user_id == user.id)
+
+        bans = db.session.scalars(query).all()
 
         bans = [ban.community for ban in bans]
 
@@ -146,9 +146,9 @@ class CommunityBan(db.Model):
     
     @classmethod
     def get_banned_by_community(cls, community):
-        banned_users = db.session.scalars(
-            db.select(cls).where(cls.community_id == community.id)
-        ).all()
+        query = db.select(cls).where(cls.community_id == community.id)
+
+        banned_users = db.session.scalars(query).all()
 
         banned_users = [banned_user.user for banned_user in banned_users]
 
@@ -214,9 +214,9 @@ class Community(db.Model):
 
     @staticmethod
     def is_name_available(name):
-        community = db.session.execute(
-            db.select(Community).where(Community.name == name)
-        ).scalar() is None
+        query = db.select(Community).where(Community.name == name)
+
+        community = db.session.execute(query).scalar() is None
 
         return community
     
@@ -231,9 +231,9 @@ class Community(db.Model):
     
     @classmethod
     def get_by_name(cls, name):
-        community = db.session.execute(
-            db.select(cls).where(cls.name == name)
-        ).scalar()
+        query = db.select(cls).where(cls.name == name)
+
+        community = db.session.execute(query).scalar()
 
         if community is None:
             raise NotFoundError('Community not found.')
@@ -242,7 +242,11 @@ class Community(db.Model):
     
     @classmethod
     def get_all(cls):
-        return db.session.scalars(db.select(cls)).all()
+        query = db.select(cls)
+
+        communities = db.session.scalars(query).all()
+
+        return communities
     
     @property
     def subscriber(self):

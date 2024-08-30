@@ -43,9 +43,9 @@ class Follow(db.Model):
     
     @classmethod
     def get_followed(cls, user):
-        followed = db.session.scalars(
-            db.select(cls).where(cls.follower_id == user.id)
-        ).all()
+        query = db.select(cls).where(cls.follower_id == user.id)
+
+        followed = db.session.scalars(query).all()
 
         followed = [follow.followed for follow in followed]
 
@@ -53,9 +53,9 @@ class Follow(db.Model):
     
     @classmethod
     def get_followers(cls, user):
-        followers = db.session.scalars(
-            db.select(cls).where(cls.followed_id == user.id)
-        ).all()
+        query = db.select(cls).where(cls.followed_id == user.id)
+
+        followers = db.session.scalars(query).all()
 
         followers = [follow.follower for follow in followers]
 
@@ -89,9 +89,9 @@ class Block(db.Model):
     
     @classmethod
     def get_blocked(cls, user):
-        blocked = db.session.scalars(
-            db.select(cls).where(cls.blocker_id == user.id)
-        ).all()
+        query = db.select(cls).where(cls.blocker_id == user.id)
+
+        blocked = db.session.scalars(query).all()
 
         blocked = [block.blocked for block in blocked]
 
@@ -99,9 +99,9 @@ class Block(db.Model):
     
     @classmethod
     def get_blockers(cls, user):
-        blockers = db.session.scalars(
-            db.select(cls).where(cls.blocked_id == user.id)
-        ).all()
+        query = db.select(cls).where(cls.blocked_id == user.id)
+        
+        blockers = db.session.scalars(query).all()
 
         blockers = [block.blocker for block in blockers]
 
@@ -177,25 +177,25 @@ class User(db.Model):
 
     @staticmethod
     def is_username_available(username):
-        user = db.session.execute(
-            db.select(User).where(User.username == username)
-        ).scalar() is None
+        query = db.select(User).where(User.username == username)
+
+        user = db.session.execute(query).scalar() is None
 
         return user
     
     @staticmethod
     def is_email_available(email):
-        email = db.session.execute(
-            db.select(User).where(User.email == email)
-        ).scalar() is None
+        query = db.select(User).where(User.email == email)
+
+        email = db.session.execute(query).scalar() is None
 
         return email
     
     @classmethod
     def get_by_username(cls, username):
-        user = db.session.execute(
-            db.select(cls).where(cls.username == username)
-        ).scalar()
+        query = db.select(cls).where(cls.username == username)
+
+        user = db.session.execute(query).scalar()
 
         if user is None:
             raise NotFoundError('User not found.')
@@ -213,7 +213,11 @@ class User(db.Model):
     
     @classmethod
     def get_all(cls):
-        return db.session.scalars(db.select(User)).all()
+        query = db.select(cls)
+
+        users = db.session.scalars(query).all()
+
+        return users
     
     @property
     def following(self):

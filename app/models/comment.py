@@ -40,9 +40,9 @@ class CommentBookmark(db.Model):
     
     @classmethod
     def get_bookmarks_by_user(cls, user):
-        bookmarks = db.session.scalars(
-            db.select(cls).where(cls.user_id == user.id)
-        ).all()
+        query = db.select(cls).where(cls.user_id == user.id)
+
+        bookmarks = db.session.scalars(query).all()
 
         bookmarks = [bookmark.comment for bookmark in bookmarks]
 
@@ -78,9 +78,9 @@ class CommentVote(db.Model):
     
     @classmethod
     def get_upvoted_comments_by_user(cls, user):
-        upvotes = db.session.scalars(
-            db.select(cls).where(cls.user_id == user.id, cls.direction == 1)
-        ).all()
+        query = db.select(cls).where(cls.user_id == user.id, cls.direction == 1)
+
+        upvotes = db.session.scalars(query).all()
 
         upvotes = [upvote.comment for upvote in upvotes]
 
@@ -88,9 +88,9 @@ class CommentVote(db.Model):
     
     @classmethod
     def get_downvoted_comments_by_user(cls, user):
-        downvotes = db.session.scalars(
-            db.select(cls).where(cls.user_id == user.id, cls.direction == -1)
-        ).all()
+        query = db.select(cls).where(cls.user_id == user.id, cls.direction == -1)
+
+        downvotes = db.session.scalars(query).all()
 
         downvotes = [downvote.comment for downvote in downvotes]
 
@@ -98,9 +98,9 @@ class CommentVote(db.Model):
     
     @classmethod
     def get_upvoters_by_comment(cls, comment):
-        upvotes = db.session.scalars(
-            db.select(cls).where(cls.comment_id == comment.id, cls.direction == 1)
-        ).all()
+        query = db.select(cls).where(cls.comment_id == comment.id, cls.direction == 1)
+
+        upvotes = db.session.scalars(query).all()
 
         upvotes = [upvote.user for upvote in upvotes]
 
@@ -108,9 +108,9 @@ class CommentVote(db.Model):
     
     @classmethod
     def get_downvoters_by_comment(cls, comment):
-        downvotes = db.session.scalars(
-            db.select(cls).where(cls.comment_id == comment.id, cls.direction == -1)
-        ).all()
+        query = db.select(cls).where(cls.comment_id == comment.id, cls.direction == -1)
+
+        downvotes = db.session.scalars(query).all()
 
         downvotes = [downvote.user for downvote in downvotes]
 
@@ -192,19 +192,27 @@ class Comment(db.Model):
     
     @classmethod
     def get_all(cls):
-        return db.session.scalars(db.select(cls)).all()
+        query = db.select(cls)
+
+        comments =  db.session.scalars(db.select(cls)).all()
+
+        return comments
     
     @classmethod
     def get_all_by_user(cls, user):
-        return db.session.scalars(
-            db.select(cls).where(cls.user_id == user.id)
-        ).all()
+        query = db.select(cls).where(cls.user_id == user.id)
+
+        comments = db.session.scalars(query).all()
+
+        return comments
     
     @classmethod
     def get_all_root_comments_by_post(cls, post):
-        return db.session.scalars(
-            db.select(cls).where(cls.comment_id == None, cls.post_id == post.id)
-        ).all()
+        query = db.select(cls).where(cls.comment_id == None, cls.post_id == post.id)
+
+        root_comments = db.session.scalars(query).all()
+
+        return root_comments
     
     @property
     def bookmarked(self):

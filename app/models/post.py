@@ -46,9 +46,9 @@ class PostBookmark(db.Model):
     
     @classmethod
     def get_bookmarks_by_user(cls, user):
-        bookmarks = db.session.scalars(
-            db.select(cls).where(cls.user_id == user.id)
-        ).all()
+        query = db.select(cls).where(cls.user_id == user.id)
+        
+        bookmarks = db.session.scalars(query).all()
 
         bookmarks = [bookmark.post for bookmark in bookmarks]
 
@@ -84,9 +84,9 @@ class PostVote(db.Model):
     
     @classmethod
     def get_upvoters_by_post(cls, post):
-        upvoters = db.session.scalars(
-            db.select(cls).where(cls.post_id == post.id, cls.direction == 1)
-        ).all()
+        query = db.select(cls).where(cls.post_id == post.id, cls.direction == 1)
+
+        upvoters = db.session.scalars(query).all()
 
         upvoters = [upvote.user for upvote in upvoters]
 
@@ -94,9 +94,9 @@ class PostVote(db.Model):
     
     @classmethod
     def get_downvoters_by_post(cls, post):
-        downvoters = db.session.scalars(
-            db.select(cls).where(cls.post_id == post.id, cls.direction == -1)
-        ).all()
+        query = db.select(cls).where(cls.post_id == post.id, cls.direction == -1)
+
+        downvoters = db.session.scalars(query).all()
 
         downvoters = [downvote.user for downvote in downvoters]
 
@@ -104,9 +104,9 @@ class PostVote(db.Model):
     
     @classmethod
     def get_upvoted_posts_by_user(cls, user):
-        upvotes = db.session.scalars(
-            db.select(cls).where(cls.user_id == user.id, cls.direction == 1)
-        ).all()
+        query = db.select(cls).where(cls.user_id == user.id, cls.direction == 1)
+
+        upvotes = db.session.scalars(query).all()
 
         posts = [upvote.post for upvote in upvotes]
 
@@ -114,9 +114,9 @@ class PostVote(db.Model):
     
     @classmethod
     def get_downvoted_posts_by_user(cls, user):
-        downvotes = db.session.scalars(
-            db.select(cls).where(cls.user_id == user.id, cls.direction == -1)
-        ).all()
+        query = db.select(cls).where(cls.user_id == user.id, cls.direction == -1)
+
+        downvotes = db.session.scalars(query).all()
 
         posts = [downvote.post for downvote in downvotes]
 
@@ -198,23 +198,25 @@ class Post(db.Model):
     
     @classmethod
     def get_all(cls):
-        posts = db.session.scalars(db.select(cls)).all()
+        query = db.select(cls)
+
+        posts = db.session.scalars(query).all()
 
         return posts
     
     @classmethod
     def get_all_by_community(cls, community):
-        posts = db.session.scalars(
-            db.select(cls).where(cls.community_id == community.id)
-        ).all()
+        query = db.select(cls).where(cls.community_id == community.id)
+
+        posts = db.session.scalars(query).all()
 
         return posts
     
     @classmethod
     def get_all_by_user(cls, user):
-        posts = db.session.scalars(
-            db.select(cls).where(cls.user_id == user.id)
-        ).all()
+        query = db.select(cls).where(cls.user_id == user.id)
+
+        posts = db.session.scalars(query).all()
 
         return posts
     
