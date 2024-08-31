@@ -10,6 +10,9 @@ from app.models.user import Follow
 # Managers
 from app.managers.user import FollowManager
 
+# Flask-SQLAlchemy
+from flask_sqlalchemy.pagination import Pagination
+
 
 class TestReadFollowed(BaseTestCase):
     def test_read_followed(self):
@@ -26,24 +29,42 @@ class TestReadFollowed(BaseTestCase):
         for follower in followers:
             Follow(follower=user, followed=follower).save()
 
+        # Set args
+        args = {}
+
         # Read user followers
-        followers_to_read = FollowManager.read_followed(user)
+        followers_to_read = FollowManager.read_followed(user, args)
+
+        # Assert followers_to_read is a Paginated object
+        self.assertIsInstance(followers_to_read, Pagination)
+
+        # Get the items from the Paginated object
+        followers_to_read_items = followers_to_read.items
 
         # Assert the number of followers
-        self.assertEqual(len(followers_to_read), n)
+        self.assertEqual(len(followers_to_read_items), n)
 
         # Assert the followers are the same
-        self.assertEqual(followers, followers_to_read)
+        self.assertEqual(followers, followers_to_read_items)
 
     def test_read_followed_empty(self):
         # Create a user
         user = UserFactory()
 
+        # Set args
+        args = {}
+
         # Read user followers
-        followers_to_read = FollowManager.read_followed(user)
+        followers_to_read = FollowManager.read_followed(user, args)
+
+        # Assert followers_to_read is a Paginated object
+        self.assertIsInstance(followers_to_read, Pagination)
+
+        # Get the items from the Paginated object
+        followers_to_read_items = followers_to_read.items
 
         # Assert the number of followers
-        self.assertEqual(len(followers_to_read), 0)
+        self.assertEqual(len(followers_to_read_items), 0)
 
         # Assert that the followers are an empty list
-        self.assertEqual(followers_to_read, [])
+        self.assertEqual(followers_to_read_items, [])

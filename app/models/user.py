@@ -46,17 +46,31 @@ class Follow(db.Model):
         return follow
     
     @classmethod
-    @filtered_users
-    def get_followed(cls, user):
-        query = (
-            db.select(User)
-            .join(cls, cls.followed_id == User.id)
-            .where(cls.follower_id == user.id)
+    def get_followed(cls, user, args):
+        page = args.get('page')
+        per_page = args.get('per_page')
+
+
+        @filtered_users_select
+        def get_query():
+            query = (
+                db.select(User)
+                .join(cls, cls.followed_id == User.id)
+                .where(cls.follower_id == user.id)
+            )
+
+            return query
+        
+        query = get_query()
+
+        paginated_followed = db.paginate(
+            query, 
+            page=page, 
+            per_page=per_page, 
+            error_out=False
         )
 
-        followed = db.session.scalars(query).all()
-
-        return followed
+        return paginated_followed
     
     @classmethod
     @filtered_users

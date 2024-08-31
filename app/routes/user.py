@@ -99,13 +99,14 @@ def unblock_user(username):
 
 
 @user_routes.get('/<string:username>/following')
+@use_args(user_pagination_request_schema, location='query')
 @jwt_required(optional=True)
-def read_following(username):
+def read_following(args, username):
     user = User.get_by_username(username)
 
-    following = FollowManager.read_followed(user)
+    paginated_following = FollowManager.read_followed(user, args)
     
-    return users_schema.dump(following)
+    return user_pagination_response_schema.dump(paginated_following)
 
 
 @user_routes.get('/<string:username>/followers')
