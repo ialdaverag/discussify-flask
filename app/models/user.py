@@ -75,14 +75,15 @@ class Follow(db.Model):
     @classmethod
     @filtered_users
     def get_followers(cls, user):
-        query = db.select(cls).where(cls.followed_id == user.id)
+        query = (
+            db.select(User)
+            .join(cls, cls.follower_id == User.id)
+            .where(cls.followed_id == user.id)
+        )
 
         followers = db.session.scalars(query).all()
 
-        followers = [follow.follower for follow in followers]
-
         return followers
-
 
 class Block(db.Model):
     __tablename__ = 'blocks'
