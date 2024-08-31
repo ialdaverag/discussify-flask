@@ -125,11 +125,25 @@ class Block(db.Model):
     
     @classmethod
     def get_blocked(cls, user):
-        query = db.select(cls).where(cls.blocker_id == user.id)
+        query = (
+            db.select(User)
+            .join(cls, cls.blocked_id == User.id)
+            .where(cls.blocker_id == user.id)
+        )
 
         blocked = db.session.scalars(query).all()
 
-        blocked = [block.blocked for block in blocked]
+        return blocked
+    
+    @classmethod
+    def get_blocked_with_args(cls, user, args):
+        query = (
+            db.select(User)
+            .join(cls, cls.blocked_id == User.id)
+            .where(cls.blocker_id == user.id)
+        )
+
+        blocked = db.session.scalars(query).all()
 
         return blocked
     
