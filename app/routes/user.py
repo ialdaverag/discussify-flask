@@ -106,7 +106,7 @@ def read_following(args, username):
 
     paginated_following = FollowManager.read_followed(user, args)
     
-    return user_pagination_response_schema.dump(paginated_following)
+    return user_pagination_response_schema.dump(paginated_following), HTTPStatus.OK
 
 
 @user_routes.get('/<string:username>/followers')
@@ -117,7 +117,7 @@ def read_followers(args, username):
 
     paginated_followers = FollowManager.read_followers(user, args)
     
-    return user_pagination_response_schema.dump(paginated_followers)
+    return user_pagination_response_schema.dump(paginated_followers), HTTPStatus.OK
 
 
 @user_routes.get('/blocked')

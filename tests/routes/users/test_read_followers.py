@@ -94,7 +94,7 @@ class TestReadFollowers(BaseTestCase):
             self.assertIn('created_at', user_)
             self.assertIn('updated_at', user_)
     
-    def test_read_followers_with_args(self):
+    def test_read_followers_args(self):
         # Number of followers
         n = 5
 
@@ -520,6 +520,13 @@ class TestReadFollowers(BaseTestCase):
         # Assert the response data structure
         for user in data:
             self.assertIn('id', user)
+            self.assertIn('username', user)
+            self.assertIn('email', user)
+            self.assertIn('following', user)
+            self.assertIn('follower', user)
+            self.assertIn('stats', user)
+            self.assertIn('created_at', user)
+            self.assertIn('updated_at', user)
 
     def test_read_follwoers_with_blockers(self):
         # Number of users
@@ -701,6 +708,13 @@ class TestReadFollowers(BaseTestCase):
         # Assert the response data structure
         for user in data:
             self.assertIn('id', user)
+            self.assertIn('username', user)
+            self.assertIn('email', user)
+            self.assertIn('following', user)
+            self.assertIn('follower', user)
+            self.assertIn('stats', user)
+            self.assertIn('created_at', user)
+            self.assertIn('updated_at', user)
 
     def test_read_followers_with_blocked_and_blockers(self):
         # Number of users
@@ -889,6 +903,20 @@ class TestReadFollowers(BaseTestCase):
 
         # Assert data is a list
         self.assertIsInstance(data, list)
+
+        # Assert the number of users
+        self.assertEqual(len(data), f)
+
+        # Assert the response data structure
+        for user in data:
+            self.assertIn('id', user)
+            self.assertIn('username', user)
+            self.assertIn('email', user)
+            self.assertIn('following', user)
+            self.assertIn('follower', user)
+            self.assertIn('stats', user)
+            self.assertIn('created_at', user)
+            self.assertIn('updated_at', user)
 
     def test_read_followers_empty(self):
         # Create a user
