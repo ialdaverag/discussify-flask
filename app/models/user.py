@@ -73,17 +73,30 @@ class Follow(db.Model):
         return paginated_followed
     
     @classmethod
-    @filtered_users
-    def get_followers(cls, user):
-        query = (
-            db.select(User)
-            .join(cls, cls.follower_id == User.id)
-            .where(cls.followed_id == user.id)
+    def get_followers(cls, user, args):
+        page = args.get('page')
+        per_page = args.get('per_page')
+                            
+        @filtered_users_select
+        def get_query():
+            query = (
+                db.select(User)
+                .join(cls, cls.follower_id == User.id)
+                .where(cls.followed_id == user.id)
+            )
+
+            return query
+        
+        query = get_query()
+
+        paginated_followers = db.paginate(
+            query, 
+            page=page, 
+            per_page=per_page, 
+            error_out=False
         )
 
-        followers = db.session.scalars(query).all()
-
-        return followers
+        return paginated_followers
 
 class Block(db.Model):
     __tablename__ = 'blocks'

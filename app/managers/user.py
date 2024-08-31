@@ -75,10 +75,10 @@ class FollowManager:
     
     @staticmethod
     #@filtered_users
-    def read_followers(user):
-        followers = Follow.get_followers(user)
+    def read_followers(user, args):
+        paginated_followers = Follow.get_followers(user, args)
         
-        return followers
+        return paginated_followers
 
     @staticmethod
     def delete(user, target):
