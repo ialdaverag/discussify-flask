@@ -1,6 +1,9 @@
 # Flask-JWT-Extended
 from flask_jwt_extended import current_user
 
+# SQLAlchemy
+from sqlalchemy.orm import aliased
+
 # Extensions
 from app.extensions.database import db
 
@@ -45,11 +48,13 @@ class Follow(db.Model):
     @classmethod
     @filtered_users
     def get_followed(cls, user):
-        query = db.select(cls).where(cls.follower_id == user.id)
+        query = (
+            db.select(User)
+            .join(cls, cls.followed_id == User.id)
+            .where(cls.follower_id == user.id)
+        )
 
         followed = db.session.scalars(query).all()
-
-        followed = [follow.followed for follow in followed]
 
         return followed
     
