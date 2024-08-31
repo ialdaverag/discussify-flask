@@ -7,6 +7,9 @@ from tests.factories.user_factory import UserFactory
 # Models
 from app.models.user import User
 
+# Flask-SQLAlchemy
+from flask_sqlalchemy.pagination import Pagination
+
 
 class TestGetAll(BaseTestCase):
     def test_get_all(self):
@@ -16,15 +19,39 @@ class TestGetAll(BaseTestCase):
         # Create users
         users = UserFactory.create_batch(n)
 
+        # Set args
+        args = {}
+
         # Get all users
-        all_users = User.get_all()
+        all_users = User.get_all(args=args)
+
+        # Assert all_users is a Paginated object
+        self.assertIsInstance(all_users, Pagination)
+
+        # Get the items from the Paginated object
+        all_users_items = all_users.items
+
+        # Assert that all_users_items is a list
+        self.assertIsInstance(all_users_items, list)
 
         # Assert that the users are the same as the all users
-        self.assertEqual(users, all_users)
+        self.assertEqual(users, all_users_items)
 
     def test_get_all_empty(self):
-        # Get all users
-        all_users = User.get_all()
+        # Set args
+        args = {}
 
-        # Assert that the all users is an empty list
-        self.assertEqual(all_users, [])
+        # Get all users
+        all_users = User.get_all(args=args)
+
+        # Assert all_users is a Paginated object
+        self.assertIsInstance(all_users, Pagination)
+
+        # Get the items from the Paginated object
+        all_users_items = all_users.items
+
+        # Assert that all_users_items is a list
+        self.assertIsInstance(all_users_items, list)
+
+        # Assert that all_users_items is empty
+        self.assertEqual(all_users_items, [])

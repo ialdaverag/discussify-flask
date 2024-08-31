@@ -2,10 +2,17 @@
 from marshmallow import Schema
 from marshmallow import fields
 from marshmallow import validate
-from marshmallow import post_load
 
-# Utils
-from app.utils.password import hash_password
+# Schemas 
+from app.schemas.pagination import PaginationSchema
+
+
+class UserPaginatationRequestSchema(Schema):
+    class Meta:
+        ordered = True
+
+    page = fields.Integer(load_default=1)
+    per_page = fields.Integer(load_default=10)
 
 
 class UserStatsSchema(Schema):
@@ -57,6 +64,15 @@ class UserSchema(Schema):
     created_at = fields.DateTime(dump_only=True)
     updated_at = fields.DateTime(dump_only=True)
 
+
+class UserPaginatationResponseSchema(PaginationSchema):
+    class Meta:
+        ordered = True
+
+    users = fields.Nested(UserSchema, attribute="items", many=True)
+
+user_pagination_request_schema = UserPaginatationRequestSchema()
+user_pagination_response_schema = UserPaginatationResponseSchema()
 
 me_schema = UserSchema(exclude=('email',))
 user_schema = UserSchema()

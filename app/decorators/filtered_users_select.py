@@ -1,28 +1,20 @@
-# Functools
-from functools import wraps
-
-# Inspect
-import inspect
-
-# Flask-JWT-Extended
 from flask_jwt_extended import current_user
+from functools import wraps
+import inspect
+from sqlalchemy.sql import select
 
-# Models
-# from app.models.user import Block
-# from app.models.community import Community
-
-def filtered_users(func):
+def filtered_users_select(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
-        from app.models.user import Block 
+        from app.models.user import Block, User
 
-        users = func(*args, **kwargs)
+        users_query = func(*args, **kwargs)
 
         if not current_user:
-            return users
+            return users_query
 
         signature = inspect.signature(func)
-        
+
         bound_arguments = signature.bind(*args, **kwargs)
         bound_arguments.apply_defaults()
 
@@ -33,19 +25,22 @@ def filtered_users(func):
 
         if community and current_user:
             if current_user.is_moderator_of(community):
-                return users
+                return users_query
 
         blocked_users = set(Block.get_blocked(current_user))
         blocking_users = set(Block.get_blockers(current_user))
 
         if not blocked_users and not blocking_users:
-            return users
+            return users_query
 
-        filtered_users = [
-            user for user in users 
-            if user not in blocked_users and user not in blocking_users
-        ]
-        
-        return filtered_users
+        blocked_user_ids = [user.id for user in blocked_users]
+        blocking_user_ids = [user.id for user in blocking_users]
+
+        filtered_users_query = users_query.where(
+            ~User.id.in_(blocked_user_ids) &
+            ~User.id.in_(blocking_user_ids)
+        )
+
+        return filtered_users_query
 
     return wrapper

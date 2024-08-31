@@ -3,7 +3,6 @@ from tests.base.base_test_case import BaseTestCase
 
 # factories
 from tests.factories.user_factory import UserFactory
-from tests.factories.block_factory import BlockFactory
 
 # models
 from app.models.user import Block
@@ -14,13 +13,14 @@ from tests.utils.tokens import get_access_token
 
 class TestReadUsers(BaseTestCase):
     route = '/user/'
+    route_with_args = '/user/?page={}&per_page={}'
 
-    def test_read_users_anonymous(self):
+    def test_read_users(self):
         # Number of users
         n = 5
 
         # Create multiple users using batch
-        users = UserFactory.create_batch(n)
+        UserFactory.create_batch(n)
 
         # Get the users
         response = self.client.get(self.route)
@@ -28,11 +28,125 @@ class TestReadUsers(BaseTestCase):
         # Assert response status code
         self.assertEqual(response.status_code, 200)
 
-        # Get response data
-        data = response.json
+        # Get response pagination
+        pagination = response.json
+
+        # Assert that pagination is a dictionary
+        self.assertIsInstance(pagination, dict)
+
+        # Assert the response data structure
+        self.assertIn('links', pagination)
+        self.assertIn('page', pagination)
+        self.assertIn('pages', pagination)
+        self.assertIn('per_page', pagination)
+        self.assertIn('total', pagination)
+        self.assertIn('users', pagination)
+
+        # Assert that links is a dictionary
+        self.assertIsInstance(pagination['links'], dict)
+
+        # Get the links
+        links = pagination['links']
+
+        # Assert the links
+        self.assertIn('first', links)
+        self.assertIn('last', links)
+        self.assertNotIn('prev', links)
+        self.assertNotIn('next', links)
+
+        # Assert the page
+        self.assertEqual(pagination['page'], 1)
+        
+        # Assert the pages
+        self.assertEqual(pagination['pages'], 1)
+
+        # Assert the per page
+        self.assertEqual(pagination['per_page'], 10)
+
+        # Assert the total
+        self.assertEqual(pagination['total'], n)
+
+        # Get the data
+        data = pagination['users']
+
+        # Assert that data is a list
+        self.assertIsInstance(data, list)
 
         # Assert the number of users
         self.assertEqual(len(data), n)
+
+        # Assert the response data structure
+        for user in data:
+            self.assertIn('id', user)
+            self.assertIn('username', user)
+            self.assertIn('email', user)
+            self.assertIn('following', user)
+            self.assertIn('follower', user)
+            self.assertIn('stats', user)
+            self.assertIn('created_at', user)
+            self.assertIn('updated_at', user)
+
+    def test_read_users_with_args(self):
+        # Number of users
+        n = 15
+
+        # Create multiple users using batch
+        UserFactory.create_batch(n)
+
+        # Get the users
+        response = self.client.get(
+            self.route_with_args.format(2, 5)
+        )
+
+        # Assert response status code
+        self.assertEqual(response.status_code, 200)
+
+        # Get response pagination
+        pagination = response.json
+
+        # Assert that pagination is a dictionary
+        self.assertIsInstance(pagination, dict)
+
+        # Assert the response data structure
+        self.assertIn('links', pagination)
+        self.assertIn('page', pagination)
+        self.assertIn('pages', pagination)
+        self.assertIn('per_page', pagination)
+        self.assertIn('total', pagination)
+        self.assertIn('users', pagination)
+
+        # Assert that links is a dictionary
+        self.assertIsInstance(pagination['links'], dict)
+
+        # Get the links
+        links = pagination['links']
+
+        # Assert the links
+        self.assertIn('first', links)
+        self.assertIn('last', links)
+        self.assertIn('prev', links)
+        self.assertIn('next', links)
+
+        # Assert the page
+        self.assertEqual(pagination['page'], 2)
+
+        # Assert the pages
+        self.assertEqual(pagination['pages'], 3)
+
+        # Assert the per page
+        self.assertEqual(pagination['per_page'], 5)
+
+        # Assert the total
+        self.assertEqual(pagination['total'], n)
+
+        # Get the data
+        data = pagination['users']
+
+        # Assert that data is a list
+        self.assertIsInstance(data, list)
+
+        # Assert the number of users
+        self.assertEqual(len(data), 5)
 
         # Assert the response data structure
         for user in data:
@@ -67,8 +181,49 @@ class TestReadUsers(BaseTestCase):
         # Assert response status code
         self.assertEqual(response.status_code, 200)
 
-        # Get response data
-        data = response.json
+        # Get response pagination
+        pagination = response.json
+
+        # Assert that pagination is a dictionary
+        self.assertIsInstance(pagination, dict)
+
+        # Assert the response data structure
+        self.assertIn('links', pagination)
+        self.assertIn('page', pagination)
+        self.assertIn('pages', pagination)
+        self.assertIn('per_page', pagination)
+        self.assertIn('total', pagination)
+        self.assertIn('users', pagination)
+
+        # Assert that links is a dictionary
+        self.assertIsInstance(pagination['links'], dict)
+
+        # Get the links
+        links = pagination['links']
+
+        # Assert the links
+        self.assertIn('first', links)
+        self.assertIn('last', links)
+        self.assertNotIn('prev', links)
+        self.assertNotIn('next', links)
+
+        # Assert the page
+        self.assertEqual(pagination['page'], 1)
+        
+        # Assert the pages
+        self.assertEqual(pagination['pages'], 1)
+
+        # Assert the per page
+        self.assertEqual(pagination['per_page'], 10)
+
+        # Assert the total
+        self.assertEqual(pagination['total'], n + 1)
+
+        # Get the data
+        data = pagination['users']
+
+        # Assert that data is a list
+        self.assertIsInstance(data, list)
 
         # Assert the number of users
         self.assertEqual(len(data), n + 1)
@@ -84,12 +239,93 @@ class TestReadUsers(BaseTestCase):
             self.assertIn('created_at', user)
             self.assertIn('updated_at', user)
 
+    def test_read_users_authenticated_with_args(self):
+        # Number of users
+        n = 15
+
+        # Create a user
+        user = UserFactory()
+
+        # Create multiple users using batch
+        UserFactory.create_batch(n)
+
+        # Get the access token
+        access_token = get_access_token(user)
+
+        # Get the users
+        response = self.client.get(
+            self.route_with_args.format(2, 5),
+            headers={'Authorization': f'Bearer {access_token}'}
+        )
+
+        # Assert response status code
+        self.assertEqual(response.status_code, 200)
+
+        # Get response pagination
+        pagination = response.json
+
+        # Assert that pagination is a dictionary
+        self.assertIsInstance(pagination, dict)
+
+        # Assert the response data structure
+        self.assertIn('links', pagination)
+        self.assertIn('page', pagination)
+        self.assertIn('pages', pagination)
+        self.assertIn('per_page', pagination)
+        self.assertIn('total', pagination)
+        self.assertIn('users', pagination)
+
+        # Assert that links is a dictionary
+        self.assertIsInstance(pagination['links'], dict)
+
+        # Get the links
+        links = pagination['links']
+
+        # Assert the links
+        self.assertIn('first', links)
+        self.assertIn('last', links)
+        self.assertIn('prev', links)
+        self.assertIn('next', links)
+
+        # Assert the page
+        self.assertEqual(pagination['page'], 2)
+
+        # Assert the pages
+        self.assertEqual(pagination['pages'], 4)
+
+        # Assert the per page
+        self.assertEqual(pagination['per_page'], 5)
+
+        # Assert the total
+        self.assertEqual(pagination['total'], n + 1)
+
+        # Get the data
+        data = pagination['users']
+
+        # Assert that data is a list
+        self.assertIsInstance(data, list)
+
+        # Assert the number of users
+        self.assertEqual(len(data), 5)
+
+        # Assert the response data structure
+        for user in data:
+            self.assertIn('id', user)
+            self.assertIn('username', user)
+            self.assertIn('email', user)
+            self.assertIn('following', user)
+            self.assertIn('follower', user)
+            self.assertIn('stats', user)
+            self.assertIn('created_at', user)
+            self.assertIn('updated_at', user)
+
+
     def test_read_users_with_blocked(self):
         # Number of users
         n = 5
 
         # Number of blocked users
-        m = 2
+        b = 2
 
         # Create a user
         user = UserFactory()
@@ -98,7 +334,7 @@ class TestReadUsers(BaseTestCase):
         users = UserFactory.create_batch(n)
 
         # Block some users
-        for u in users[:m]:
+        for u in users[:b]:
             Block(blocker=user, blocked=u).save()
 
         # Get the access token
@@ -113,11 +349,52 @@ class TestReadUsers(BaseTestCase):
         # Assert response status code
         self.assertEqual(response.status_code, 200)
 
-        # Get response data
-        data = response.json
+        # Get response pagination
+        pagination = response.json
+
+        # Assert that pagination is a dictionary
+        self.assertIsInstance(pagination, dict)
+
+        # Assert the response data structure
+        self.assertIn('links', pagination)
+        self.assertIn('page', pagination)
+        self.assertIn('pages', pagination)
+        self.assertIn('per_page', pagination)
+        self.assertIn('total', pagination)
+        self.assertIn('users', pagination)
+
+        # Assert that links is a dictionary
+        self.assertIsInstance(pagination['links'], dict)
+
+        # Get the links
+        links = pagination['links']
+
+        # Assert the links
+        self.assertIn('first', links)
+        self.assertIn('last', links)
+        self.assertNotIn('prev', links)
+        self.assertNotIn('next', links)
+
+        # Assert the page
+        self.assertEqual(pagination['page'], 1)
+        
+        # Assert the pages
+        self.assertEqual(pagination['pages'], 1)
+
+        # Assert the per page
+        self.assertEqual(pagination['per_page'], 10)
+
+        # Assert the total
+        self.assertEqual(pagination['total'], n - b + 1)
+
+        # Get the data
+        data = pagination['users']
+
+        # Assert that data is a list
+        self.assertIsInstance(data, list)
 
         # Assert the number of users
-        self.assertEqual(len(data), n - m + 1)
+        self.assertEqual(len(data), n - b + 1)
 
         # Assert the response data structure
         for user in data:
@@ -129,13 +406,99 @@ class TestReadUsers(BaseTestCase):
             self.assertIn('stats', user)
             self.assertIn('created_at', user)
             self.assertIn('updated_at', user)
+
+    def test_read_users_with_blocked_args(self):
+        # Number of users
+        n = 15
+
+        # Number of blockers users
+        b = 3
+
+        # Create a user
+        user = UserFactory()
+
+        # Create multiple users using batch
+        users = UserFactory.create_batch(n)
+
+        # Block the user
+        for u in users[:b]:
+            Block(blocker=user, blocked=u).save()
+
+        # Get the access token
+        access_token = get_access_token(user)
+
+        # Get the users
+        response = self.client.get(
+            self.route_with_args.format(2, 5),
+            headers={'Authorization': f'Bearer {access_token}'}
+        )
+
+        # Assert response status code
+        self.assertEqual(response.status_code, 200)
+
+        # Get response pagination
+        pagination = response.json
+
+        # Assert that pagination is a dictionary
+        self.assertIsInstance(pagination, dict)
+
+        # Assert the response data structure
+        self.assertIn('links', pagination)
+        self.assertIn('page', pagination)
+        self.assertIn('pages', pagination)
+        self.assertIn('per_page', pagination)
+        self.assertIn('total', pagination)
+        self.assertIn('users', pagination)
+
+        # Assert that links is a dictionary
+        self.assertIsInstance(pagination['links'], dict)
+
+        # Get the links
+        links = pagination['links']
+
+        # Assert the links
+        self.assertIn('first', links)
+        self.assertIn('last', links)
+        self.assertIn('prev', links)
+        self.assertIn('next', links)
+
+        # Assert the page
+        self.assertEqual(pagination['page'], 2)
+
+        # Assert the pages
+        self.assertEqual(pagination['pages'], 3)
+
+        # Assert the per page
+        self.assertEqual(pagination['per_page'], 5)
+
+        # Assert the total
+        self.assertEqual(pagination['total'], n - b + 1)
+
+        # Get the data
+        data = pagination['users']
+
+        # Assert that data is a list
+        self.assertIsInstance(data, list)
+
+        # Assert the number of users
+        self.assertEqual(len(data), 5)
+
+        # Assert the response data structure
+        for user in data:
+            self.assertIn('id', user)
+            self.assertIn('username', user)
+            self.assertIn('email', user)
+            self.assertIn('following', user)
+            self.assertIn('follower', user)
+            self.assertIn('stats', user)
+            self.assertIn('created_at', user)
 
     def test_read_users_with_blockers(self):
         # Number of users
         n = 5
 
         # Number of blockers users
-        m = 3
+        b = 3
 
         # Create a user
         user = UserFactory()
@@ -144,7 +507,7 @@ class TestReadUsers(BaseTestCase):
         users = UserFactory.create_batch(n)
 
         # Block the user
-        for u in users[:m]:
+        for u in users[:b]:
             Block(blocker=u, blocked=user).save()
 
         # Get the access token
@@ -159,11 +522,52 @@ class TestReadUsers(BaseTestCase):
         # Assert response status code
         self.assertEqual(response.status_code, 200)
 
-        # Get response data
-        data = response.json
+        # Get response pagination
+        pagination = response.json
+
+        # Assert that pagination is a dictionary
+        self.assertIsInstance(pagination, dict)
+
+        # Assert the response data structure
+        self.assertIn('links', pagination)
+        self.assertIn('page', pagination)
+        self.assertIn('pages', pagination)
+        self.assertIn('per_page', pagination)
+        self.assertIn('total', pagination)
+        self.assertIn('users', pagination)
+
+        # Assert that links is a dictionary
+        self.assertIsInstance(pagination['links'], dict)
+
+        # Get the links
+        links = pagination['links']
+
+        # Assert the links
+        self.assertIn('first', links)
+        self.assertIn('last', links)
+        self.assertNotIn('prev', links)
+        self.assertNotIn('next', links)
+
+        # Assert the page
+        self.assertEqual(pagination['page'], 1)
+        
+        # Assert the pages
+        self.assertEqual(pagination['pages'], 1)
+
+        # Assert the per page
+        self.assertEqual(pagination['per_page'], 10)
+
+        # Assert the total
+        self.assertEqual(pagination['total'], n - b + 1)
+
+        # Get the data
+        data = pagination['users']
+
+        # Assert that data is a list
+        self.assertIsInstance(data, list)
 
         # Assert the number of users
-        self.assertEqual(len(data), n - m + 1)
+        self.assertEqual(len(data), n - b + 1)
 
         # Assert the response data structure
         for user in data:
@@ -176,15 +580,101 @@ class TestReadUsers(BaseTestCase):
             self.assertIn('created_at', user)
             self.assertIn('updated_at', user)
 
+    def test_read_users_with_blockers_args(self):
+        # Number of users
+        n = 15
+
+        # Number of blockers users
+        b = 3
+
+        # Create a user
+        user = UserFactory()
+
+        # Create multiple users using batch
+        users = UserFactory.create_batch(n)
+
+        # Block the user
+        for u in users[:b]:
+            Block(blocker=u, blocked=user).save()
+
+        # Get the access token
+        access_token = get_access_token(user)
+
+        # Get the users
+        response = self.client.get(
+            self.route_with_args.format(2, 5),
+            headers={'Authorization': f'Bearer {access_token}'}
+        )
+
+        # Assert response status code
+        self.assertEqual(response.status_code, 200)
+
+        # Get response pagination
+        pagination = response.json
+
+        # Assert that pagination is a dictionary
+        self.assertIsInstance(pagination, dict)
+
+        # Assert the response data structure
+        self.assertIn('links', pagination)
+        self.assertIn('page', pagination)
+        self.assertIn('pages', pagination)
+        self.assertIn('per_page', pagination)
+        self.assertIn('total', pagination)
+        self.assertIn('users', pagination)
+
+        # Assert that links is a dictionary
+        self.assertIsInstance(pagination['links'], dict)
+
+        # Get the links
+        links = pagination['links']
+
+        # Assert the links
+        self.assertIn('first', links)
+        self.assertIn('last', links)
+        self.assertIn('prev', links)
+        self.assertIn('next', links)
+
+        # Assert the page
+        self.assertEqual(pagination['page'], 2)
+
+        # Assert the pages
+        self.assertEqual(pagination['pages'], 3)
+
+        # Assert the per page
+        self.assertEqual(pagination['per_page'], 5)
+
+        # Assert the total
+        self.assertEqual(pagination['total'], n - b + 1)
+
+        # Get the data
+        data = pagination['users']
+
+        # Assert that data is a list
+        self.assertIsInstance(data, list)
+
+        # Assert the number of users
+        self.assertEqual(len(data), 5)
+
+        # Assert the response data structure
+        for user in data:
+            self.assertIn('id', user)
+            self.assertIn('username', user)
+            self.assertIn('email', user)
+            self.assertIn('following', user)
+            self.assertIn('follower', user)
+            self.assertIn('stats', user)
+            self.assertIn('created_at', user)
+
     def test_read_users_with_blocked_and_blockers(self):
         # Number of users
         n = 5
 
         # Number of blocked users
-        m = 1
+        b = 1
 
         # Number of blockers users
-        o = 1
+        c = 1
 
         # Create a user
         user = UserFactory()
@@ -193,11 +683,11 @@ class TestReadUsers(BaseTestCase):
         users = UserFactory.create_batch(n)
 
         # Block some users
-        for u in users[:m]:
+        for u in users[:b]:
             Block(blocker=user, blocked=u).save()
 
         # Block the user
-        for u in users[m:m + o]:
+        for u in users[b:b + c]:
             Block(blocker=u, blocked=user).save()
 
         # Get the access token
@@ -212,11 +702,52 @@ class TestReadUsers(BaseTestCase):
         # Assert response status code
         self.assertEqual(response.status_code, 200)
 
-        # Get response data
-        data = response.json
+        # Get response pagination
+        pagination = response.json
+
+        # Assert that pagination is a dictionary
+        self.assertIsInstance(pagination, dict)
+
+        # Assert the response data structure
+        self.assertIn('links', pagination)
+        self.assertIn('page', pagination)
+        self.assertIn('pages', pagination)
+        self.assertIn('per_page', pagination)
+        self.assertIn('total', pagination)
+        self.assertIn('users', pagination)
+
+        # Assert that links is a dictionary
+        self.assertIsInstance(pagination['links'], dict)
+
+        # Get the links
+        links = pagination['links']
+
+        # Assert the links
+        self.assertIn('first', links)
+        self.assertIn('last', links)
+        self.assertNotIn('prev', links)
+        self.assertNotIn('next', links)
+
+        # Assert the page
+        self.assertEqual(pagination['page'], 1)
+        
+        # Assert the pages
+        self.assertEqual(pagination['pages'], 1)
+
+        # Assert the per page
+        self.assertEqual(pagination['per_page'], 10)
+
+        # Assert the total
+        self.assertEqual(pagination['total'], n - b - c + 1)
+
+        # Get the data
+        data = pagination['users']
+
+        # Assert that data is a list
+        self.assertIsInstance(data, list)
 
         # Assert the number of users
-        self.assertEqual(len(data), n - m - o + 1)
+        self.assertEqual(len(data), n - b - c + 1)
 
         # Assert the response data structure
         for user in data:
@@ -228,6 +759,94 @@ class TestReadUsers(BaseTestCase):
             self.assertIn('stats', user)
             self.assertIn('created_at', user)
             self.assertIn('updated_at', user)
+
+    def test_read_users_with_blocked_and_blockers_args(self):
+        # Number of users
+        n = 15
+
+        # Number of blocked users
+        b = 2
+
+        # Number of blockers users
+        c = 2
+
+        # Create a user
+        user = UserFactory()
+
+        # Create multiple users using batch
+        users = UserFactory.create_batch(n)
+
+        # Block some users
+        for u in users[:b]:
+            Block(blocker=user, blocked=u).save()
+
+        # Block the user
+        for u in users[b:b + c]:
+            Block(blocker=u, blocked=user).save()
+
+        # Get the access token
+        access_token = get_access_token(user)
+
+        # Get the users
+        response = self.client.get(
+            self.route_with_args.format(2, 5),
+            headers={'Authorization': f'Bearer {access_token}'}
+        )
+
+        # Assert response status code
+        self.assertEqual(response.status_code, 200)
+
+        # Get response pagination
+        pagination = response.json
+
+        # Assert that pagination is a dictionary
+        self.assertIsInstance(pagination, dict)
+
+        # Assert the response data structure
+        self.assertIn('links', pagination)
+        self.assertIn('page', pagination)
+        self.assertIn('pages', pagination)
+        self.assertIn('per_page', pagination)
+        self.assertIn('total', pagination)
+        self.assertIn('users', pagination)
+
+        # Assert that links is a dictionary
+        self.assertIsInstance(pagination['links'], dict)
+
+        # Get the links
+        links = pagination['links']
+
+        # Assert the links
+        self.assertIn('first', links)
+        self.assertIn('last', links)
+        self.assertIn('prev', links)
+        self.assertIn('next', links)
+
+        # Assert the page
+        self.assertEqual(pagination['page'], 2)
+
+        # Assert the pages
+        self.assertEqual(pagination['pages'], 3)
+
+        # Assert the per page
+        self.assertEqual(pagination['per_page'], 5)
+
+        # Assert the total
+        self.assertEqual(pagination['total'], n - b - c + 1)
+
+        # Get the data
+        data = pagination['users']
+
+        # Assert that data is a list
+        self.assertIsInstance(data, list)
+
+        # Assert the number of users
+        self.assertEqual(len(data), 5)
+
+        # Assert the response data structure
+        for user in data:
+            self.assertIn('id', user)
+            self.assertIn('username', user)
 
     def test_read_users_empty(self):
         # Get the users
@@ -236,8 +855,46 @@ class TestReadUsers(BaseTestCase):
         # Assert response status code
         self.assertEqual(response.status_code, 200)
 
-        # Get response data
-        data = response.json
+        # Get response pagination
+        pagination = response.json
+
+        # Assert that pagination is a dictionary
+        self.assertIsInstance(pagination, dict)
+
+        # Assert the response data structure
+        self.assertIn('links', pagination)
+        self.assertIn('page', pagination)
+        self.assertIn('pages', pagination)
+        self.assertIn('per_page', pagination)
+        self.assertIn('total', pagination)
+        self.assertIn('users', pagination)
+
+        # Assert that links is a dictionary
+        self.assertIsInstance(pagination['links'], dict)
+
+        # Get the links
+        links = pagination['links']
+
+        # Assert the links
+        self.assertIn('first', links)
+        self.assertIn('last', links)
+        self.assertNotIn('prev', links)
+        self.assertNotIn('next', links)
+
+        # Assert the page
+        self.assertEqual(pagination['page'], 1)
+        
+        # Assert the pages
+        self.assertEqual(pagination['pages'], 0)
+
+        # Assert the per page
+        self.assertEqual(pagination['per_page'], 10)
+
+        # Assert the total
+        self.assertEqual(pagination['total'], 0)
+
+        # Get the data
+        data = pagination['users']
 
         # Assert the response data
         self.assertEqual(data, [])

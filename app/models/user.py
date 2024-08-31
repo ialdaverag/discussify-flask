@@ -11,6 +11,7 @@ from app.models.community import CommunityBan
 
 # Decorators
 from app.decorators.filtered_users import filtered_users
+from app.decorators.filtered_users_select import filtered_users_select
 
 # Errors
 from app.errors.errors import NotFoundError
@@ -214,13 +215,24 @@ class User(db.Model):
         return user
     
     @classmethod
-    @filtered_users
-    def get_all(cls):
-        query = db.select(cls)
+    def get_all(cls, args):
+        page = args.get('page')
+        per_page = args.get('per_page')
 
-        users = db.session.scalars(query).all()
+        @filtered_users_select
+        def get_query():
+            return db.select(cls)
+        
+        query = get_query()
 
-        return users
+        paginated_users = db.paginate(
+            query, 
+            page=page, 
+            per_page=per_page, 
+            error_out=False
+        )
+
+        return paginated_users
     
     @property
     def following(self):

@@ -43,10 +43,10 @@ class UserManager:
 
     @staticmethod
     #@filtered_users
-    def read_all(user):
-        users = User.get_all()
+    def read_all(user, args):
+        paginated_users = User.get_all(args)
 
-        return users
+        return paginated_users
 
 
 class FollowManager:

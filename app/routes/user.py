@@ -8,13 +8,11 @@ from flask import Blueprint
 from flask_jwt_extended import jwt_required
 from flask_jwt_extended import current_user
 
+# Webargs
+from webargs.flaskparser import use_args
+
 # Models
 from app.models.user import User
-
-# Managers
-from app.schemas.user import user_schema
-from app.schemas.user import users_schema
-from app.schemas.user import me_schema
 
 # Managers
 from app.managers.user import UserManager
@@ -29,6 +27,11 @@ from app.managers.comment import CommentBookmarkManager
 from app.managers.comment import CommentVoteManager
 
 # Schemas
+from app.schemas.user import user_schema
+from app.schemas.user import users_schema
+from app.schemas.user import me_schema
+from app.schemas.user import user_pagination_request_schema
+from app.schemas.user import user_pagination_response_schema
 from app.schemas.community import communities_schema
 from app.schemas.post import posts_schema
 from app.schemas.comment import comments_schema
@@ -47,11 +50,12 @@ def read_user(username):
 
 
 @user_routes.get('/')
+@use_args(user_pagination_request_schema, location='query')
 @jwt_required(optional=True)
-def read_users():
-    users = UserManager.read_all(current_user)
+def read_users(args):
+    paginated_users = UserManager.read_all(current_user, args)
 
-    return users_schema.dump(users), HTTPStatus.OK
+    return user_pagination_response_schema.dump(paginated_users), HTTPStatus.OK
 
 
 @user_routes.post('/<string:username>/follow')
