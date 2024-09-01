@@ -137,15 +137,23 @@ class Block(db.Model):
     
     @classmethod
     def get_blocked_with_args(cls, user, args):
+        page = args.get('page')
+        per_page = args.get('per_page')
+
         query = (
             db.select(User)
             .join(cls, cls.blocked_id == User.id)
             .where(cls.blocker_id == user.id)
         )
 
-        blocked = db.session.scalars(query).all()
+        paginated_blocked = db.paginate(
+            query, 
+            page=page, 
+            per_page=per_page, 
+            error_out=False
+        )
 
-        return blocked
+        return paginated_blocked
     
     @classmethod
     def get_blockers(cls, user):

@@ -121,11 +121,12 @@ def read_followers(args, username):
 
 
 @user_routes.get('/blocked')
+@use_args(user_pagination_request_schema, location='query')
 @jwt_required()
-def read_blocked():
-    blocked = BlockManager.read_blocked(current_user)
+def read_blocked(args):
+    paginated_blocked = BlockManager.read_blocked(current_user, args)
     
-    return users_schema.dump(blocked)
+    return user_pagination_response_schema.dump(paginated_blocked), HTTPStatus.OK
 
 
 @user_routes.get('/<string:username>/subscriptions')

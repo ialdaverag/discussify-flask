@@ -121,10 +121,10 @@ class BlockManager:
         ).save()
 
     @staticmethod
-    def read_blocked(user):
-        blocked = Block.get_blocked(user)
+    def read_blocked(user, args):
+        paginated_blocked = Block.get_blocked_with_args(user, args)
         
-        return blocked
+        return paginated_blocked
 
     @staticmethod
     def delete(user, target):
