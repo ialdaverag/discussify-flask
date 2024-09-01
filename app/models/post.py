@@ -87,11 +87,16 @@ class PostVote(db.Model):
     @classmethod
     @filtered_users
     def get_upvoters_by_post(cls, post):
-        query = db.select(cls).where(cls.post_id == post.id, cls.direction == 1)
-
+        from app.models.user import User
+        
+        query = (
+            db.select(User)
+            .join(cls, User.id == cls.user_id)
+            .where(cls.post_id == post.id, cls.direction == 1)
+        )
+        
+        # Executing the query and fetching the results
         upvoters = db.session.scalars(query).all()
-
-        upvoters = [upvote.user for upvote in upvoters]
 
         return upvoters
     
