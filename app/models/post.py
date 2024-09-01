@@ -88,14 +88,13 @@ class PostVote(db.Model):
     @filtered_users
     def get_upvoters_by_post(cls, post):
         from app.models.user import User
-        
+
         query = (
             db.select(User)
             .join(cls, User.id == cls.user_id)
             .where(cls.post_id == post.id, cls.direction == 1)
         )
-        
-        # Executing the query and fetching the results
+
         upvoters = db.session.scalars(query).all()
 
         return upvoters
@@ -103,13 +102,17 @@ class PostVote(db.Model):
     @classmethod
     @filtered_users
     def get_downvoters_by_post(cls, post):
-        query = db.select(cls).where(cls.post_id == post.id, cls.direction == -1)
+        from app.models.user import User
 
-        downvoters = db.session.scalars(query).all()
+        query = (
+            db.select(User)
+            .join(cls, User.id == cls.user_id)
+            .where(cls.post_id == post.id, cls.direction == -1)
+        )
 
-        downvoters = [downvote.user for downvote in downvoters]
+        upvoters = db.session.scalars(query).all()
 
-        return downvoters
+        return upvoters
     
     @classmethod
     @filtered_posts
