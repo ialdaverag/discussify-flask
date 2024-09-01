@@ -177,11 +177,15 @@ class CommunityBan(db.Model):
     
     @classmethod
     def get_banned_by_community(cls, community):
-        query = db.select(cls).where(cls.community_id == community.id)
+        from app.models.user import User
+
+        query = (
+            db.select(User)
+            .join(cls, User.id == cls.user_id)
+            .where(cls.community_id == community.id)
+        )
 
         banned_users = db.session.scalars(query).all()
-
-        banned_users = [banned_user.user for banned_user in banned_users]
 
         return banned_users
 
