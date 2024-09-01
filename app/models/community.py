@@ -51,11 +51,15 @@ class CommunitySubscriber(db.Model):
     @classmethod
     @filtered_users
     def get_subscribers_by_community(cls, community):
-        query = db.select(cls).where(cls.community_id == community.id)
+        from app.models.user import User
+
+        query = (
+            db.select(User)
+            .join(cls, User.id == cls.user_id)
+            .where(cls.community_id == community.id)
+        )
 
         subscribers = db.session.scalars(query).all()
-
-        subscribers = [subscriber.user for subscriber in subscribers]
 
         return subscribers
 
