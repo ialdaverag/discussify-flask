@@ -103,13 +103,17 @@ class CommentVote(db.Model):
     @classmethod
     @filtered_users
     def get_upvoters_by_comment(cls, comment):
-        query = db.select(cls).where(cls.comment_id == comment.id, cls.direction == 1)
+        from app.models.user import User
 
-        upvotes = db.session.scalars(query).all()
+        query = (
+            db.select(User)
+            .join(cls, User.id == cls.user_id)
+            .where(cls.comment_id == comment.id, cls.direction == 1)
+        )
 
-        upvotes = [upvote.user for upvote in upvotes]
+        upvoters = db.session.scalars(query).all()
 
-        return upvotes
+        return upvoters
     
     @classmethod
     @filtered_users
