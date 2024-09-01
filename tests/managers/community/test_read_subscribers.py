@@ -11,6 +11,9 @@ from app.managers.community import SubscriptionManager
 # Models
 from app.models.community import CommunitySubscriber
 
+# Flask-SQLAlchemy
+from flask_sqlalchemy.pagination import Pagination
+
 
 class TestReadsubscribers(BaseTestCase):
     def test_read_subscribers(self):
@@ -27,24 +30,42 @@ class TestReadsubscribers(BaseTestCase):
         for user in users:
             CommunitySubscriber(user=user, community=community).save()
 
+        # Set args
+        args = {}
+
         # Read user subscriptions
-        subscriptions_to_read = SubscriptionManager.read_subscribers_by_community(community)
+        subscribers = SubscriptionManager.read_subscribers_by_community(community, args)
+
+        # Assert that subscriptions_to_read is a Pagination object
+        self.assertIsInstance(subscribers, Pagination)
+
+        # Get the items
+        subscribers_items = subscribers.items
 
         # Assert the number of subscriptions
-        self.assertEqual(len(subscriptions_to_read), n)
+        self.assertEqual(len(subscribers_items), n)
 
         # Assert the subscriptions are the same
-        self.assertEqual(users, subscriptions_to_read)
+        self.assertEqual(users, subscribers_items)
 
     def test_read_subscribers_no_subscribers(self):
         # Create a community
         community = CommunityFactory()
 
+        # Set args
+        args = {}
+
         # Read the subscribers of the community
-        subscribers = SubscriptionManager.read_subscribers_by_community(community)
+        subscribers = SubscriptionManager.read_subscribers_by_community(community, args)
+
+        # Assert that subscriptions_to_read is a Pagination object
+        self.assertIsInstance(subscribers, Pagination)
+
+        # Get the items
+        subscribers_items = subscribers.items
 
         # Assert that there are no subscribers
-        self.assertEqual(len(subscribers), 0)
+        self.assertEqual(len(subscribers_items), 0)
 
         # Assert that the subscribers are an empty list
-        self.assertEqual(subscribers, [])
+        self.assertEqual(subscribers_items, [])

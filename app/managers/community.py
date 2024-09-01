@@ -95,10 +95,10 @@ class SubscriptionManager:
     
     @staticmethod
     #@filtered_users
-    def read_subscribers_by_community(community):
-        subscribers = CommunitySubscriber.get_subscribers_by_community(community)
+    def read_subscribers_by_community(community, args):
+        paginated_subscribers = CommunitySubscriber.get_subscribers_by_community(community, args)
 
-        return subscribers
+        return paginated_subscribers
 
     @staticmethod
     def delete(user, community):

@@ -7,8 +7,8 @@ from flask import request
 from flask_jwt_extended import jwt_required
 from flask_jwt_extended import current_user
 
-# Marshmallow
-from marshmallow import ValidationError
+# Webargs
+from webargs.flaskparser import use_args
 
 # Models
 from app.models.community import Community
@@ -23,6 +23,8 @@ from app.managers.community import TransferManager
 from app.managers.post import PostManager
 
 # Schemas
+from app.schemas.user import user_pagination_request_schema
+from app.schemas.user import user_pagination_response_schema
 from app.schemas.community import community_schema
 from app.schemas.community import communities_schema
 from app.schemas.user import users_schema
@@ -166,13 +168,14 @@ def transfer(name, username):
 
 
 @community_routes.get('/<string:name>/subscribers')
+@use_args(user_pagination_request_schema, location='query')
 @jwt_required(optional=True)
-def read_subscribers(name):
+def read_subscribers(args, name):
     community = Community.get_by_name(name)
 
-    subscribers = SubscriptionManager.read_subscribers_by_community(community)
+    paginated_subscribers = SubscriptionManager.read_subscribers_by_community(community, args)
 
-    return users_schema.dump(subscribers), HTTPStatus.OK
+    return user_pagination_response_schema.dump(paginated_subscribers), HTTPStatus.OK
 
 
 @community_routes.get('/<string:name>/moderators')

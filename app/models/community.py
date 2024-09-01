@@ -5,7 +5,7 @@ from flask_jwt_extended import current_user
 from app.extensions.database import db
 
 # Decorators
-from app.decorators.filtered_users import filtered_users
+from app.decorators.filtered_users_select import filtered_users_select
 
 # Errors
 from app.errors.errors import NotFoundError
@@ -49,19 +49,33 @@ class CommunitySubscriber(db.Model):
         return subscriptions
     
     @classmethod
-    @filtered_users
-    def get_subscribers_by_community(cls, community):
+    #@filtered_users
+    def get_subscribers_by_community(cls, community, args):
         from app.models.user import User
 
-        query = (
-            db.select(User)
-            .join(cls, User.id == cls.user_id)
-            .where(cls.community_id == community.id)
+        page = args.get('page')
+        per_page = args.get('per_page')
+
+        @filtered_users_select
+        def get_query(community):
+            query = (
+                db.select(User)
+                .join(cls, User.id == cls.user_id)
+                .where(cls.community_id == community.id)
+            )
+        
+            return query
+        
+        query = get_query(community)
+
+        paginated_subscribers = db.paginate(
+            query, 
+            page=page, 
+            per_page=per_page, 
+            error_out=False
         )
 
-        subscribers = db.session.scalars(query).all()
-
-        return subscribers
+        return paginated_subscribers
 
 
 class CommunityModerator(db.Model):
