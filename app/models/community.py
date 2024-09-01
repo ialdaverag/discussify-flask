@@ -117,11 +117,15 @@ class CommunityModerator(db.Model):
     
     @classmethod
     def get_moderators_by_community(cls, community):
-        query = db.select(cls).where(cls.community_id == community.id)
+        from app.models.user import User
+        
+        query = (
+            db.select(User)
+            .join(cls, User.id == cls.user_id)
+            .where(cls.community_id == community.id)
+        )
 
         moderators = db.session.scalars(query).all()
-
-        moderators = [moderator.user for moderator in moderators]
 
         return moderators
 
