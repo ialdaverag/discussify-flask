@@ -11,6 +11,9 @@ from app.managers.community import ModerationManager
 # Models
 from app.models.community import CommunityModerator
 
+# Flask-SQLAlchemy
+from flask_sqlalchemy.pagination import Pagination
+
 
 class TestReadModerators(BaseTestCase):
     def test_read_moderators(self):
@@ -27,24 +30,42 @@ class TestReadModerators(BaseTestCase):
         for moderator in moderators:
             CommunityModerator(community=community, user=moderator).save()
 
+        # Set args
+        args = {}
+
         # Read the moderators of the community
-        moderators_to_read = ModerationManager.read_moderators_by_community(community)
+        moderators_to_read = ModerationManager.read_moderators_by_community(community, args)
+
+        # Assert moderators_to_read is a Pagination object
+        self.assertIsInstance(moderators_to_read, Pagination)
+
+        # Get the items
+        moderators_items = moderators_to_read.items
 
         # Assert the number of moderators
-        self.assertEqual(len(moderators_to_read), n)
+        self.assertEqual(len(moderators_items), n)
 
         # Assert the moderators are the same
-        self.assertEqual(moderators, moderators_to_read)
+        self.assertEqual(moderators, moderators_items)
 
     def test_read_moderators_no_moderators(self):
         # Create a community
         community = CommunityFactory()
 
+        # Set args
+        args = {}
+
         # Read the moderators of the community
-        moderators = ModerationManager.read_moderators_by_community(community)
+        moderators = ModerationManager.read_moderators_by_community(community, args)
+
+        # Assert moderators is a Pagination object
+        self.assertIsInstance(moderators, Pagination)
+
+        # Get the items
+        moderators_items = moderators.items
 
         # Assert that there are no moderators
-        self.assertEqual(len(moderators), 0)
+        self.assertEqual(len(moderators_items), 0)
 
         # Assert that the moderators are an empty list
-        self.assertEqual(moderators, [])
+        self.assertEqual(moderators_items, [])

@@ -8,40 +8,61 @@ from tests.factories.community_factory import CommunityFactory
 # Models
 from app.models.community import CommunityModerator
 
+# Flask-SQLAlchemy
+from flask_sqlalchemy.pagination import Pagination
 
-class TestGetModeratorsByCommunity(BaseTestCase):
-    def test_get_moderators_by_community(self):
-        # Number of users to create
+
+class TestGetModerators(BaseTestCase):
+    def test_get_moderators(self):
+        # Number of moderators
         n = 5
-
+        
         # Create a community
         community = CommunityFactory()
 
-        # Create a list of users
-        users = UserFactory.create_batch(n)
+        # Create some moderators
+        moderators = UserFactory.create_batch(n)
 
-        # Make the users moderators of the community
-        for user in users:
-            CommunityModerator(community=community, user=user).save()
+        # Make the moderators moderators of the community
+        for moderator in moderators:
+            CommunityModerator(community=community, user=moderator).save()
 
-        # Get the moderators
-        moderators = CommunityModerator.get_moderators_by_community(community)
+        # Set args
+        args = {}
 
-        # Assert that moderators is a list
-        self.assertIsInstance(moderators, list)
+        # Get the moderators of the community
+        moderators_to_read = CommunityModerator.get_moderators_by_community(community, args)
+
+        # Assert moderators_to_read is a Pagination object
+        self.assertIsInstance(moderators_to_read, Pagination)
+
+        # Get the items
+        moderators_items = moderators_to_read.items
 
         # Assert the number of moderators
-        self.assertEqual(len(moderators), n)
+        self.assertEqual(len(moderators_items), n)
 
-    def test_get_moderators_by_community_empty(self):
+        # Assert the moderators are the same
+        self.assertEqual(moderators, moderators_items)
+
+    def test_get_moderators_no_moderators(self):
         # Create a community
         community = CommunityFactory()
 
-        # Get the moderators
-        moderators = CommunityModerator.get_moderators_by_community(community)
+        # Set args
+        args = {}
 
-        # Assert that moderators is a list
-        self.assertIsInstance(moderators, list)
+        # Get the moderators of the community
+        moderators = CommunityModerator.get_moderators_by_community(community, args)
 
-        # Assert that the moderators is an empty list
-        self.assertEqual(moderators, [])
+        # Assert moderators is a Pagination object
+        self.assertIsInstance(moderators, Pagination)
+
+        # Get the items
+        moderators_items = moderators.items
+
+        # Assert that there are no moderators
+        self.assertEqual(len(moderators_items), 0)
+
+        # Assert that the moderators are an empty list
+        self.assertEqual(moderators_items, [])

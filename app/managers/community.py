@@ -132,10 +132,10 @@ class ModerationManager:
         CommunityModerator(user=user, community=community).save()
 
     @staticmethod
-    def read_moderators_by_community(community):
-        moderators = CommunityModerator.get_moderators_by_community(community)
+    def read_moderators_by_community(community, args):
+        paginated_moderators = CommunityModerator.get_moderators_by_community(community, args)
 
-        return moderators
+        return paginated_moderators
 
     @staticmethod
     def delete(owner, community, user):

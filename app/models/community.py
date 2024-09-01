@@ -116,8 +116,11 @@ class CommunityModerator(db.Model):
         return moderations
     
     @classmethod
-    def get_moderators_by_community(cls, community):
+    def get_moderators_by_community(cls, community, args):
         from app.models.user import User
+
+        page = args.get('page')
+        per_page = args.get('per_page')
         
         query = (
             db.select(User)
@@ -125,9 +128,14 @@ class CommunityModerator(db.Model):
             .where(cls.community_id == community.id)
         )
 
-        moderators = db.session.scalars(query).all()
+        paginated_moderators = db.paginate(
+            query, 
+            page=page, 
+            per_page=per_page, 
+            error_out=False
+        )
 
-        return moderators
+        return paginated_moderators
 
 
 class CommunityBan(db.Model):
