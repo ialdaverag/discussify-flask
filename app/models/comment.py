@@ -118,13 +118,17 @@ class CommentVote(db.Model):
     @classmethod
     @filtered_users
     def get_downvoters_by_comment(cls, comment):
-        query = db.select(cls).where(cls.comment_id == comment.id, cls.direction == -1)
+        from app.models.user import User
 
-        downvotes = db.session.scalars(query).all()
+        query = (
+            db.select(User)
+            .join(cls, User.id == cls.user_id)
+            .where(cls.comment_id == comment.id, cls.direction == -1)
+        )
 
-        downvotes = [downvote.user for downvote in downvotes]
+        upvoters = db.session.scalars(query).all()
 
-        return downvotes
+        return upvoters
     
     def is_upvote(self):
         return self.direction == 1
