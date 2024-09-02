@@ -40,16 +40,25 @@ class CommunitySubscriber(db.Model):
     
     @classmethod
     def get_subscriptions_by_user(cls, user):
-        query = db.select(cls).where(cls.user_id == user.id)
+        """
+        Get a list of communities the user is subscribed to.
+
+        :param user: The user object.
+        :param exclude_banned: If True, exclude communities where the user is banned.
+        :return: List of community objects.
+        """
+        
+        query = (
+            db.select(Community)
+            .join(cls, cls.community_id == Community.id)
+            .where(cls.user_id == user.id)
+        )
 
         subscriptions = db.session.scalars(query).all()
-
-        subscriptions = [subscription.community for subscription in subscriptions]
 
         return subscriptions
     
     @classmethod
-    #@filtered_users
     def get_subscribers_by_community(cls, community, args):
         from app.models.user import User
 
