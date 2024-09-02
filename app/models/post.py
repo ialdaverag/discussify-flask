@@ -160,13 +160,17 @@ class PostVote(db.Model):
     @classmethod
     @filtered_posts
     def get_downvoted_posts_by_user(cls, user):
-        query = db.select(cls).where(cls.user_id == user.id, cls.direction == -1)
+        from app.models.post import Post
 
-        downvotes = db.session.scalars(query).all()
+        query = (
+            db.select(Post)
+            .join(cls, Post.id == cls.post_id)
+            .where(cls.user_id == user.id, cls.direction == -1)
+        )
 
-        posts = [downvote.post for downvote in downvotes]
+        downvoted_posts = db.session.scalars(query).all()
 
-        return posts
+        return downvoted_posts
     
     def is_upvote(self):
         return self.direction == 1
