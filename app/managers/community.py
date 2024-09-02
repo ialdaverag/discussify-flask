@@ -173,10 +173,10 @@ class BanManager:
             raise SubscriptionError('The user is not subscribed to this community.')
         
     @staticmethod
-    def read_bans_by_community(community):
-        bans = CommunityBan.get_banned_by_community(community)
+    def read_bans_by_community(community, args):
+        paginated_bans = CommunityBan.get_banned_by_community(community, args)
 
-        return bans
+        return paginated_bans
 
     @staticmethod
     def delete(moderator, community, user):

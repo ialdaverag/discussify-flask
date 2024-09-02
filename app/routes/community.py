@@ -190,13 +190,14 @@ def read_moderators(args, name):
 
 
 @community_routes.get('/<string:name>/banned')
+@use_args(user_pagination_request_schema, location='query')
 @jwt_required(optional=True)
-def read_banned(name):
+def read_banned(args, name):
     community = Community.get_by_name(name)
 
-    banned = BanManager.read_bans_by_community(community)
+    paginated_banned = BanManager.read_bans_by_community(community, args)
 
-    return users_schema.dump(banned), HTTPStatus.OK
+    return user_pagination_response_schema.dump(paginated_banned), HTTPStatus.OK
 
 
 @community_routes.get('/<string:name>/posts')

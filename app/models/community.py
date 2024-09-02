@@ -176,8 +176,11 @@ class CommunityBan(db.Model):
         return bans
     
     @classmethod
-    def get_banned_by_community(cls, community):
+    def get_banned_by_community(cls, community, args):
         from app.models.user import User
+
+        page = args.get('page')
+        per_page = args.get('per_page')
 
         query = (
             db.select(User)
@@ -185,7 +188,12 @@ class CommunityBan(db.Model):
             .where(cls.community_id == community.id)
         )
 
-        banned_users = db.session.scalars(query).all()
+        banned_users = db.paginate(
+            query, 
+            page=page, 
+            per_page=per_page,
+            error_out=False
+        )
 
         return banned_users
 

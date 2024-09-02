@@ -12,6 +12,8 @@ from app.models.user import Block
 
 # Utils
 from tests.utils.tokens import get_access_token
+from tests.utils.assert_pagination import assert_pagination_structure
+from tests.utils.assert_list import assert_user_list
 
 class TestReadSubscribers(BaseTestCase):
     route = '/community/{}/subscribers'
@@ -40,60 +42,21 @@ class TestReadSubscribers(BaseTestCase):
         # Get response pagination
         pagination = response.json
 
-        # Assert that pagination is a dictionary
-        self.assertIsInstance(pagination, dict)
-
-        # Assert the response data structure
-        self.assertIn('links', pagination)
-        self.assertIn('page', pagination)
-        self.assertIn('pages', pagination)
-        self.assertIn('per_page', pagination)
-        self.assertIn('total', pagination)
-        self.assertIn('users', pagination)
-
-        # Assert that links is a dictionary
-        self.assertIsInstance(pagination['links'], dict)
-
-        # Get the links
-        links = pagination['links']
-
-        # Assert the links
-        self.assertIn('first', links)
-        self.assertIn('last', links)
-        self.assertNotIn('prev', links)
-        self.assertNotIn('next', links)
-
-        # Assert the page
-        self.assertEqual(pagination['page'], 1)
-        
-        # Assert the pages
-        self.assertEqual(pagination['pages'], 1)
-
-        # Assert the per page
-        self.assertEqual(pagination['per_page'], 10)
-
-        # Assert the total
-        self.assertEqual(pagination['total'], n)
+        # Assert pagination
+        assert_pagination_structure(
+            self,
+            pagination,
+            expected_page=1,
+            expected_pages=1,
+            expected_per_page=10,
+            expected_total=n
+        )
 
         # Get the users
         data = pagination['users']
 
-        # Assert data is a list
-        self.assertIsInstance(data, list)
-
-        # Assert the response data length
-        self.assertEqual(len(data), n)
-
-        # Assert the response data structure
-        for user in data:
-            self.assertIn('id', user)
-            self.assertIn('username', user)
-            self.assertIn('email', user)
-            self.assertIn('following', user)
-            self.assertIn('follower', user)
-            self.assertIn('stats', user)
-            self.assertIn('created_at', user)
-            self.assertIn('updated_at', user)
+        # Assert list
+        assert_user_list(self, data, n)
 
     def test_read_subscribers_args(self):
         # Number of subscribers
@@ -118,60 +81,21 @@ class TestReadSubscribers(BaseTestCase):
         # Get response pagination
         pagination = response.json
 
-        # Assert that pagination is a dictionary
-        self.assertIsInstance(pagination, dict)
-
-        # Assert the response data structure
-        self.assertIn('links', pagination)
-        self.assertIn('page', pagination)
-        self.assertIn('pages', pagination)
-        self.assertIn('per_page', pagination)
-        self.assertIn('total', pagination)
-        self.assertIn('users', pagination)
-
-        # Assert that links is a dictionary
-        self.assertIsInstance(pagination['links'], dict)
-
-        # Get the links
-        links = pagination['links']
-
-        # Assert the links
-        self.assertIn('first', links)
-        self.assertIn('last', links)
-        self.assertNotIn('prev', links)
-        self.assertNotIn('next', links)
-
-        # Assert the page
-        self.assertEqual(pagination['page'], 1)
-        
-        # Assert the pages
-        self.assertEqual(pagination['pages'], 1)
-
-        # Assert the per page
-        self.assertEqual(pagination['per_page'], 5)
-
-        # Assert the total
-        self.assertEqual(pagination['total'], n)
+        # Assert pagination
+        assert_pagination_structure(
+            self,
+            pagination,
+            expected_page=1,
+            expected_pages=1,
+            expected_per_page=5,
+            expected_total=n
+        )
 
         # Get the users
         data = pagination['users']
 
-        # Assert data is a list
-        self.assertIsInstance(data, list)
-
-        # Assert the response data length
-        self.assertEqual(len(data), n)
-
-        # Assert the response data structure
-        for user in data:
-            self.assertIn('id', user)
-            self.assertIn('username', user)
-            self.assertIn('email', user)
-            self.assertIn('following', user)
-            self.assertIn('follower', user)
-            self.assertIn('stats', user)
-            self.assertIn('created_at', user)
-            self.assertIn('updated_at', user)
+        # Assert list
+        assert_user_list(self, data, n)
 
     def test_read_subscribers_as_user(self):
         # Number of subscribers
@@ -205,60 +129,21 @@ class TestReadSubscribers(BaseTestCase):
         # Get response pagination
         pagination = response.json
 
-        # Assert that pagination is a dictionary
-        self.assertIsInstance(pagination, dict)
-
-        # Assert the response data structure
-        self.assertIn('links', pagination)
-        self.assertIn('page', pagination)
-        self.assertIn('pages', pagination)
-        self.assertIn('per_page', pagination)
-        self.assertIn('total', pagination)
-        self.assertIn('users', pagination)
-
-        # Assert that links is a dictionary
-        self.assertIsInstance(pagination['links'], dict)
-
-        # Get the links
-        links = pagination['links']
-
-        # Assert the links
-        self.assertIn('first', links)
-        self.assertIn('last', links)
-        self.assertNotIn('prev', links)
-        self.assertNotIn('next', links)
-
-        # Assert the page
-        self.assertEqual(pagination['page'], 1)
-        
-        # Assert the pages
-        self.assertEqual(pagination['pages'], 1)
-
-        # Assert the per page
-        self.assertEqual(pagination['per_page'], 10)
-
-        # Assert the total
-        self.assertEqual(pagination['total'], n)
+        # Assert pagination
+        assert_pagination_structure(
+            self,
+            pagination,
+            expected_page=1,
+            expected_pages=1,
+            expected_per_page=10,
+            expected_total=n
+        )
 
         # Get the users
         data = pagination['users']
 
-        # Assert data is a list
-        self.assertIsInstance(data, list)
-
-        # Assert the response data length
-        self.assertEqual(len(data), n)
-
-        # Assert the response data structure
-        for user in data:
-            self.assertIn('id', user)
-            self.assertIn('username', user)
-            self.assertIn('email', user)
-            self.assertIn('following', user)
-            self.assertIn('follower', user)
-            self.assertIn('stats', user)
-            self.assertIn('created_at', user)
-            self.assertIn('updated_at', user)
+        # Assert list
+        assert_user_list(self, data, n)
 
     def test_read_subscribers_as_user_args(self):
         # Number of subscribers
@@ -292,58 +177,21 @@ class TestReadSubscribers(BaseTestCase):
         # Get response pagination
         pagination = response.json
 
-        # Assert that pagination is a dictionary
-        self.assertIsInstance(pagination, dict)
-
-        # Assert the response data structure
-        self.assertIn('links', pagination)
-        self.assertIn('page', pagination)
-        self.assertIn('pages', pagination)
-        self.assertIn('per_page', pagination)
-        self.assertIn('total', pagination)
-        self.assertIn('users', pagination)
-
-        # Assert that links is a dictionary
-        self.assertIsInstance(pagination['links'], dict)
-
-        # Get the links
-        links = pagination['links']
-
-        # Assert the links
-        self.assertIn('first', links)
-        self.assertIn('last', links)
-        self.assertNotIn('prev', links)
-        self.assertNotIn('next', links)
-
-        # Assert the page
-        self.assertEqual(pagination['page'], 1)
-        
-        # Assert the pages
-        self.assertEqual(pagination['pages'], 1)
-
-        # Assert the per page
-        self.assertEqual(pagination['per_page'], 5)
-
-        # Assert the total
-        self.assertEqual(pagination['total'], n)
+        # Assert pagination
+        assert_pagination_structure(
+            self,
+            pagination,
+            expected_page=1,
+            expected_pages=1,
+            expected_per_page=5,
+            expected_total=n
+        )
 
         # Get the users
         data = pagination['users']
 
-        # Assert data is a list
-        self.assertIsInstance(data, list)
-
-        # Assert the response data length
-        self.assertEqual(len(data), n)
-
-        # Assert the response data structure
-        for user in data:
-            self.assertIn('id', user)
-            self.assertIn('username', user)
-            self.assertIn('email', user)
-            self.assertIn('following', user)
-            self.assertIn('follower', user)
-            self.assertIn('stats', user)
+        # Assert list
+        assert_user_list(self, data, n)
 
     def test_read_subscribers_as_user_with_blocked(self):
         # Number of subscribers
@@ -384,60 +232,21 @@ class TestReadSubscribers(BaseTestCase):
         # Get response pagination
         pagination = response.json
 
-        # Assert that pagination is a dictionary
-        self.assertIsInstance(pagination, dict)
-
-        # Assert the response data structure
-        self.assertIn('links', pagination)
-        self.assertIn('page', pagination)
-        self.assertIn('pages', pagination)
-        self.assertIn('per_page', pagination)
-        self.assertIn('total', pagination)
-        self.assertIn('users', pagination)
-
-        # Assert that links is a dictionary
-        self.assertIsInstance(pagination['links'], dict)
-
-        # Get the links
-        links = pagination['links']
-
-        # Assert the links
-        self.assertIn('first', links)
-        self.assertIn('last', links)
-        self.assertNotIn('prev', links)
-        self.assertNotIn('next', links)
-
-        # Assert the page
-        self.assertEqual(pagination['page'], 1)
-        
-        # Assert the pages
-        self.assertEqual(pagination['pages'], 1)
-
-        # Assert the per page
-        self.assertEqual(pagination['per_page'], 10)
-
-        # Assert the total
-        self.assertEqual(pagination['total'], n - b)
+        # Assert pagination
+        assert_pagination_structure(
+            self,
+            pagination,
+            expected_page=1,
+            expected_pages=1,
+            expected_per_page=10,
+            expected_total=n - b
+        )
 
         # Get the users
         data = pagination['users']
 
-        # Assert data is a list
-        self.assertIsInstance(data, list)
-
-        # Assert the response data length
-        self.assertEqual(len(data), n - b)
-
-        # Assert the response data structure
-        for user in data:
-            self.assertIn('id', user)
-            self.assertIn('username', user)
-            self.assertIn('email', user)
-            self.assertIn('following', user)
-            self.assertIn('follower', user)
-            self.assertIn('stats', user)
-            self.assertIn('created_at', user)
-            self.assertIn('updated_at', user)
+        # Assert list
+        assert_user_list(self, data, n - b)
 
     def test_read_subscribers_as_user_with_blocked_args(self):
         # Number of subscribers
@@ -478,60 +287,21 @@ class TestReadSubscribers(BaseTestCase):
         # Get response pagination
         pagination = response.json
 
-        # Assert that pagination is a dictionary
-        self.assertIsInstance(pagination, dict)
-
-        # Assert the response data structure
-        self.assertIn('links', pagination)
-        self.assertIn('page', pagination)
-        self.assertIn('pages', pagination)
-        self.assertIn('per_page', pagination)
-        self.assertIn('total', pagination)
-        self.assertIn('users', pagination)
-
-        # Assert that links is a dictionary
-        self.assertIsInstance(pagination['links'], dict)
-
-        # Get the links
-        links = pagination['links']
-
-        # Assert the links
-        self.assertIn('first', links)
-        self.assertIn('last', links)
-        self.assertNotIn('prev', links)
-        self.assertNotIn('next', links)
-
-        # Assert the page
-        self.assertEqual(pagination['page'], 1)
-        
-        # Assert the pages
-        self.assertEqual(pagination['pages'], 1)
-
-        # Assert the per page
-        self.assertEqual(pagination['per_page'], 5)
-
-        # Assert the total
-        self.assertEqual(pagination['total'], n - b)
+        # Assert pagination
+        assert_pagination_structure(
+            self,
+            pagination,
+            expected_page=1,
+            expected_pages=1,
+            expected_per_page=5,
+            expected_total=n - b
+        )
 
         # Get the users
         data = pagination['users']
 
-        # Assert data is a list
-        self.assertIsInstance(data, list)
-
-        # Assert the response data length
-        self.assertEqual(len(data), n - b)
-
-        # Assert the response data structure
-        for user in data:
-            self.assertIn('id', user)
-            self.assertIn('username', user)
-            self.assertIn('email', user)
-            self.assertIn('following', user)
-            self.assertIn('follower', user)
-            self.assertIn('stats', user)
-            self.assertIn('created_at', user)
-            self.assertIn('updated_at', user)
+        # Assert list
+        assert_user_list(self, data, n - b)
 
     def test_read_subscribers_as_user_with_blockers(self):
         # Number of subscribers
@@ -572,60 +342,21 @@ class TestReadSubscribers(BaseTestCase):
         # Get response pagination
         pagination = response.json
 
-        # Assert that pagination is a dictionary
-        self.assertIsInstance(pagination, dict)
-
-        # Assert the response data structure
-        self.assertIn('links', pagination)
-        self.assertIn('page', pagination)
-        self.assertIn('pages', pagination)
-        self.assertIn('per_page', pagination)
-        self.assertIn('total', pagination)
-        self.assertIn('users', pagination)
-
-        # Assert that links is a dictionary
-        self.assertIsInstance(pagination['links'], dict)
-
-        # Get the links
-        links = pagination['links']
-
-        # Assert the links
-        self.assertIn('first', links)
-        self.assertIn('last', links)
-        self.assertNotIn('prev', links)
-        self.assertNotIn('next', links)
-
-        # Assert the page
-        self.assertEqual(pagination['page'], 1)
-        
-        # Assert the pages
-        self.assertEqual(pagination['pages'], 1)
-
-        # Assert the per page
-        self.assertEqual(pagination['per_page'], 10)
-
-        # Assert the total
-        self.assertEqual(pagination['total'], n - b)
+        # Assert pagination
+        assert_pagination_structure(
+            self,
+            pagination,
+            expected_page=1,
+            expected_pages=1,
+            expected_per_page=10,
+            expected_total=n - b
+        )
 
         # Get the users
         data = pagination['users']
 
-        # Assert data is a list
-        self.assertIsInstance(data, list)
-
-        # Assert the response data length
-        self.assertEqual(len(data), n - b)
-
-        # Assert the response data structure
-        for user in data:
-            self.assertIn('id', user)
-            self.assertIn('username', user)
-            self.assertIn('email', user)
-            self.assertIn('following', user)
-            self.assertIn('follower', user)
-            self.assertIn('stats', user)
-            self.assertIn('created_at', user)
-            self.assertIn('updated_at', user)
+        # Assert list
+        assert_user_list(self, data, n - b)
 
     def test_read_subscribers_as_user_with_blockers_args(self):
         # Number of subscribers
@@ -666,60 +397,21 @@ class TestReadSubscribers(BaseTestCase):
         # Get response pagination
         pagination = response.json
 
-        # Assert that pagination is a dictionary
-        self.assertIsInstance(pagination, dict)
-
-        # Assert the response data structure
-        self.assertIn('links', pagination)
-        self.assertIn('page', pagination)
-        self.assertIn('pages', pagination)
-        self.assertIn('per_page', pagination)
-        self.assertIn('total', pagination)
-        self.assertIn('users', pagination)
-
-        # Assert that links is a dictionary
-        self.assertIsInstance(pagination['links'], dict)
-
-        # Get the links
-        links = pagination['links']
-
-        # Assert the links
-        self.assertIn('first', links)
-        self.assertIn('last', links)
-        self.assertNotIn('prev', links)
-        self.assertNotIn('next', links)
-
-        # Assert the page
-        self.assertEqual(pagination['page'], 1)
-        
-        # Assert the pages
-        self.assertEqual(pagination['pages'], 1)
-
-        # Assert the per page
-        self.assertEqual(pagination['per_page'], 5)
-
-        # Assert the total
-        self.assertEqual(pagination['total'], n - b)
+        # Assert pagination
+        assert_pagination_structure(
+            self,
+            pagination,
+            expected_page=1,
+            expected_pages=1,
+            expected_per_page=5,
+            expected_total=n - b
+        )
 
         # Get the users
         data = pagination['users']
 
-        # Assert data is a list
-        self.assertIsInstance(data, list)
-
-        # Assert the response data length
-        self.assertEqual(len(data), n - b)
-
-        # Assert the response data structure
-        for user in data:
-            self.assertIn('id', user)
-            self.assertIn('username', user)
-            self.assertIn('email', user)
-            self.assertIn('following', user)
-            self.assertIn('follower', user)
-            self.assertIn('stats', user)
-            self.assertIn('created_at', user)
-            self.assertIn('updated_at', user)
+        # Assert list
+        assert_user_list(self, data, n - b)
 
     def test_read_subscribers_as_user_with_blocked_and_blockers(self):
         # Number of subscribers
@@ -767,60 +459,21 @@ class TestReadSubscribers(BaseTestCase):
        # Get response pagination
         pagination = response.json
 
-        # Assert that pagination is a dictionary
-        self.assertIsInstance(pagination, dict)
-
-        # Assert the response data structure
-        self.assertIn('links', pagination)
-        self.assertIn('page', pagination)
-        self.assertIn('pages', pagination)
-        self.assertIn('per_page', pagination)
-        self.assertIn('total', pagination)
-        self.assertIn('users', pagination)
-
-        # Assert that links is a dictionary
-        self.assertIsInstance(pagination['links'], dict)
-
-        # Get the links
-        links = pagination['links']
-
-        # Assert the links
-        self.assertIn('first', links)
-        self.assertIn('last', links)
-        self.assertNotIn('prev', links)
-        self.assertNotIn('next', links)
-
-        # Assert the page
-        self.assertEqual(pagination['page'], 1)
-        
-        # Assert the pages
-        self.assertEqual(pagination['pages'], 1)
-
-        # Assert the per page
-        self.assertEqual(pagination['per_page'], 10)
-
-        # Assert the total
-        self.assertEqual(pagination['total'], n - b - c)
+        # Assert pagination
+        assert_pagination_structure(
+            self,
+            pagination,
+            expected_page=1,
+            expected_pages=1,
+            expected_per_page=10,
+            expected_total=n - b - c
+        )
 
         # Get the users
         data = pagination['users']
 
-        # Assert data is a list
-        self.assertIsInstance(data, list)
-
-        # Assert the response data length
-        self.assertEqual(len(data), n - b - c)
-
-        # Assert the response data structure
-        for user in data:
-            self.assertIn('id', user)
-            self.assertIn('username', user)
-            self.assertIn('email', user)
-            self.assertIn('following', user)
-            self.assertIn('follower', user)
-            self.assertIn('stats', user)
-            self.assertIn('created_at', user)
-            self.assertIn('updated_at', user)
+        # Assert list
+        assert_user_list(self, data, n - b - c)
 
     def test_read_subscribers_as_user_with_blocked_and_blockers_args(self):
         # Number of subscribers
@@ -868,60 +521,21 @@ class TestReadSubscribers(BaseTestCase):
        # Get response pagination
         pagination = response.json
 
-        # Assert that pagination is a dictionary
-        self.assertIsInstance(pagination, dict)
-
-        # Assert the response data structure
-        self.assertIn('links', pagination)
-        self.assertIn('page', pagination)
-        self.assertIn('pages', pagination)
-        self.assertIn('per_page', pagination)
-        self.assertIn('total', pagination)
-        self.assertIn('users', pagination)
-
-        # Assert that links is a dictionary
-        self.assertIsInstance(pagination['links'], dict)
-
-        # Get the links
-        links = pagination['links']
-
-        # Assert the links
-        self.assertIn('first', links)
-        self.assertIn('last', links)
-        self.assertNotIn('prev', links)
-        self.assertNotIn('next', links)
-
-        # Assert the page
-        self.assertEqual(pagination['page'], 1)
-        
-        # Assert the pages
-        self.assertEqual(pagination['pages'], 1)
-
-        # Assert the per page
-        self.assertEqual(pagination['per_page'], 5)
-
-        # Assert the total
-        self.assertEqual(pagination['total'], n - b - c)
+        # Assert pagination
+        assert_pagination_structure(
+            self,
+            pagination,
+            expected_page=1,
+            expected_pages=1,
+            expected_per_page=5,
+            expected_total=n - b - c
+        )
 
         # Get the users
         data = pagination['users']
 
-        # Assert data is a list
-        self.assertIsInstance(data, list)
-
-        # Assert the response data length
-        self.assertEqual(len(data), n - b - c)
-
-        # Assert the response data structure
-        for user in data:
-            self.assertIn('id', user)
-            self.assertIn('username', user)
-            self.assertIn('email', user)
-            self.assertIn('following', user)
-            self.assertIn('follower', user)
-            self.assertIn('stats', user)
-            self.assertIn('created_at', user)
-            self.assertIn('updated_at', user)
+        # Assert list
+        assert_user_list(self, data, n - b - c)
 
     def test_read_subscribers_as_moderator(self):
         # Number of subscribers
@@ -958,60 +572,21 @@ class TestReadSubscribers(BaseTestCase):
         # Get response pagination
         pagination = response.json
 
-        # Assert that pagination is a dictionary
-        self.assertIsInstance(pagination, dict)
-
-        # Assert the response data structure
-        self.assertIn('links', pagination)
-        self.assertIn('page', pagination)
-        self.assertIn('pages', pagination)
-        self.assertIn('per_page', pagination)
-        self.assertIn('total', pagination)
-        self.assertIn('users', pagination)
-
-        # Assert that links is a dictionary
-        self.assertIsInstance(pagination['links'], dict)
-
-        # Get the links
-        links = pagination['links']
-
-        # Assert the links
-        self.assertIn('first', links)
-        self.assertIn('last', links)
-        self.assertNotIn('prev', links)
-        self.assertNotIn('next', links)
-
-        # Assert the page
-        self.assertEqual(pagination['page'], 1)
-        
-        # Assert the pages
-        self.assertEqual(pagination['pages'], 1)
-
-        # Assert the per page
-        self.assertEqual(pagination['per_page'], 10)
-
-        # Assert the total
-        self.assertEqual(pagination['total'], n)
+        # Assert pagination
+        assert_pagination_structure(
+            self,
+            pagination,
+            expected_page=1,
+            expected_pages=1,
+            expected_per_page=10,
+            expected_total=n
+        )
 
         # Get the users
         data = pagination['users']
 
-        # Assert data is a list
-        self.assertIsInstance(data, list)
-
-        # Assert the response data length
-        self.assertEqual(len(data), n)
-
-        # Assert the response data structure
-        for user in data:
-            self.assertIn('id', user)
-            self.assertIn('username', user)
-            self.assertIn('email', user)
-            self.assertIn('following', user)
-            self.assertIn('follower', user)
-            self.assertIn('stats', user)
-            self.assertIn('created_at', user)
-            self.assertIn('updated_at', user)
+        # Assert list
+        assert_user_list(self, data, n)
 
     def test_read_subscribers_as_moderator_args(self):
         # Number of subscribers
@@ -1048,60 +623,21 @@ class TestReadSubscribers(BaseTestCase):
         # Get response pagination
         pagination = response.json
 
-        # Assert that pagination is a dictionary
-        self.assertIsInstance(pagination, dict)
-
-        # Assert the response data structure
-        self.assertIn('links', pagination)
-        self.assertIn('page', pagination)
-        self.assertIn('pages', pagination)
-        self.assertIn('per_page', pagination)
-        self.assertIn('total', pagination)
-        self.assertIn('users', pagination)
-
-        # Assert that links is a dictionary
-        self.assertIsInstance(pagination['links'], dict)
-
-        # Get the links
-        links = pagination['links']
-
-        # Assert the links
-        self.assertIn('first', links)
-        self.assertIn('last', links)
-        self.assertNotIn('prev', links)
-        self.assertNotIn('next', links)
-
-        # Assert the page
-        self.assertEqual(pagination['page'], 1)
-        
-        # Assert the pages
-        self.assertEqual(pagination['pages'], 1)
-
-        # Assert the per page
-        self.assertEqual(pagination['per_page'], 5)
-
-        # Assert the total
-        self.assertEqual(pagination['total'], n)
+        # Assert pagination
+        assert_pagination_structure(
+            self,
+            pagination,
+            expected_page=1,
+            expected_pages=1,
+            expected_per_page=5,
+            expected_total=n
+        )
 
         # Get the users
         data = pagination['users']
 
-        # Assert data is a list
-        self.assertIsInstance(data, list)
-
-        # Assert the response data length
-        self.assertEqual(len(data), n)
-
-        # Assert the response data structure
-        for user in data:
-            self.assertIn('id', user)
-            self.assertIn('username', user)
-            self.assertIn('email', user)
-            self.assertIn('following', user)
-            self.assertIn('follower', user)
-            self.assertIn('stats', user)
-            self.assertIn('created_at', user)
-            self.assertIn('updated_at', user)
+        # Assert list
+        assert_user_list(self, data, n)
 
     def test_read_subscribers_as_moderator_with_blocked(self):
         # Number of subscribers
@@ -1145,60 +681,21 @@ class TestReadSubscribers(BaseTestCase):
         # Get response pagination
         pagination = response.json
 
-        # Assert that pagination is a dictionary
-        self.assertIsInstance(pagination, dict)
-
-        # Assert the response data structure
-        self.assertIn('links', pagination)
-        self.assertIn('page', pagination)
-        self.assertIn('pages', pagination)
-        self.assertIn('per_page', pagination)
-        self.assertIn('total', pagination)
-        self.assertIn('users', pagination)
-
-        # Assert that links is a dictionary
-        self.assertIsInstance(pagination['links'], dict)
-
-        # Get the links
-        links = pagination['links']
-
-        # Assert the links
-        self.assertIn('first', links)
-        self.assertIn('last', links)
-        self.assertNotIn('prev', links)
-        self.assertNotIn('next', links)
-
-        # Assert the page
-        self.assertEqual(pagination['page'], 1)
-        
-        # Assert the pages
-        self.assertEqual(pagination['pages'], 1)
-
-        # Assert the per page
-        self.assertEqual(pagination['per_page'], 10)
-
-        # Assert the total
-        self.assertEqual(pagination['total'], n)
+        # Assert pagination
+        assert_pagination_structure(
+            self,
+            pagination,
+            expected_page=1,
+            expected_pages=1,
+            expected_per_page=10,
+            expected_total=n
+        )
 
         # Get the users
         data = pagination['users']
 
-        # Assert data is a list
-        self.assertIsInstance(data, list)
-
-        # Assert the response data length
-        self.assertEqual(len(data), n)
-
-        # Assert the response data structure
-        for user in data:
-            self.assertIn('id', user)
-            self.assertIn('username', user)
-            self.assertIn('email', user)
-            self.assertIn('following', user)
-            self.assertIn('follower', user)
-            self.assertIn('stats', user)
-            self.assertIn('created_at', user)
-            self.assertIn('updated_at', user)
+        # Assert list
+        assert_user_list(self, data, n)
 
     def test_read_subscribers_as_moderator_with_blocked_args(self):
         # Number of subscribers
@@ -1242,60 +739,21 @@ class TestReadSubscribers(BaseTestCase):
         # Get response pagination
         pagination = response.json
 
-        # Assert that pagination is a dictionary
-        self.assertIsInstance(pagination, dict)
-
-        # Assert the response data structure
-        self.assertIn('links', pagination)
-        self.assertIn('page', pagination)
-        self.assertIn('pages', pagination)
-        self.assertIn('per_page', pagination)
-        self.assertIn('total', pagination)
-        self.assertIn('users', pagination)
-
-        # Assert that links is a dictionary
-        self.assertIsInstance(pagination['links'], dict)
-
-        # Get the links
-        links = pagination['links']
-
-        # Assert the links
-        self.assertIn('first', links)
-        self.assertIn('last', links)
-        self.assertNotIn('prev', links)
-        self.assertNotIn('next', links)
-
-        # Assert the page
-        self.assertEqual(pagination['page'], 1)
-        
-        # Assert the pages
-        self.assertEqual(pagination['pages'], 1)
-
-        # Assert the per page
-        self.assertEqual(pagination['per_page'], 5)
-
-        # Assert the total
-        self.assertEqual(pagination['total'], n)
+        # Assert pagination
+        assert_pagination_structure(
+            self,
+            pagination,
+            expected_page=1,
+            expected_pages=1,
+            expected_per_page=5,
+            expected_total=n
+        )
 
         # Get the users
         data = pagination['users']
 
-        # Assert data is a list
-        self.assertIsInstance(data, list)
-
-        # Assert the response data length
-        self.assertEqual(len(data), n)
-
-        # Assert the response data structure
-        for user in data:
-            self.assertIn('id', user)
-            self.assertIn('username', user)
-            self.assertIn('email', user)
-            self.assertIn('following', user)
-            self.assertIn('follower', user)
-            self.assertIn('stats', user)
-            self.assertIn('created_at', user)
-            self.assertIn('updated_at', user)
+        # Assert list
+        assert_user_list(self, data, n)
 
     def test_read_subscribers_as_moderator_with_blockers(self):
         # Number of subscribers
@@ -1339,60 +797,21 @@ class TestReadSubscribers(BaseTestCase):
         # Get response pagination
         pagination = response.json
 
-        # Assert that pagination is a dictionary
-        self.assertIsInstance(pagination, dict)
-
-        # Assert the response data structure
-        self.assertIn('links', pagination)
-        self.assertIn('page', pagination)
-        self.assertIn('pages', pagination)
-        self.assertIn('per_page', pagination)
-        self.assertIn('total', pagination)
-        self.assertIn('users', pagination)
-
-        # Assert that links is a dictionary
-        self.assertIsInstance(pagination['links'], dict)
-
-        # Get the links
-        links = pagination['links']
-
-        # Assert the links
-        self.assertIn('first', links)
-        self.assertIn('last', links)
-        self.assertNotIn('prev', links)
-        self.assertNotIn('next', links)
-
-        # Assert the page
-        self.assertEqual(pagination['page'], 1)
-        
-        # Assert the pages
-        self.assertEqual(pagination['pages'], 1)
-
-        # Assert the per page
-        self.assertEqual(pagination['per_page'], 10)
-
-        # Assert the total
-        self.assertEqual(pagination['total'], n)
+        # Assert pagination
+        assert_pagination_structure(
+            self,
+            pagination,
+            expected_page=1,
+            expected_pages=1,
+            expected_per_page=10,
+            expected_total=n
+        )
 
         # Get the users
         data = pagination['users']
 
-        # Assert data is a list
-        self.assertIsInstance(data, list)
-
-        # Assert the response data length
-        self.assertEqual(len(data), n)
-
-        # Assert the response data structure
-        for user in data:
-            self.assertIn('id', user)
-            self.assertIn('username', user)
-            self.assertIn('email', user)
-            self.assertIn('following', user)
-            self.assertIn('follower', user)
-            self.assertIn('stats', user)
-            self.assertIn('created_at', user)
-            self.assertIn('updated_at', user)
+        # Assert list
+        assert_user_list(self, data, n)
 
     def test_read_subscribers_as_moderator_with_blockers_args(self):
         # Number of subscribers
@@ -1436,60 +855,21 @@ class TestReadSubscribers(BaseTestCase):
         # Get response pagination
         pagination = response.json
 
-        # Assert that pagination is a dictionary
-        self.assertIsInstance(pagination, dict)
-
-        # Assert the response data structure
-        self.assertIn('links', pagination)
-        self.assertIn('page', pagination)
-        self.assertIn('pages', pagination)
-        self.assertIn('per_page', pagination)
-        self.assertIn('total', pagination)
-        self.assertIn('users', pagination)
-
-        # Assert that links is a dictionary
-        self.assertIsInstance(pagination['links'], dict)
-
-        # Get the links
-        links = pagination['links']
-
-        # Assert the links
-        self.assertIn('first', links)
-        self.assertIn('last', links)
-        self.assertNotIn('prev', links)
-        self.assertNotIn('next', links)
-
-        # Assert the page
-        self.assertEqual(pagination['page'], 1)
-        
-        # Assert the pages
-        self.assertEqual(pagination['pages'], 1)
-
-        # Assert the per page
-        self.assertEqual(pagination['per_page'], 5)
-
-        # Assert the total
-        self.assertEqual(pagination['total'], n)
+        # Assert pagination
+        assert_pagination_structure(
+            self,
+            pagination,
+            expected_page=1,
+            expected_pages=1,
+            expected_per_page=5,
+            expected_total=n
+        )
 
         # Get the users
         data = pagination['users']
 
-        # Assert data is a list
-        self.assertIsInstance(data, list)
-
-        # Assert the response data length
-        self.assertEqual(len(data), n)
-
-        # Assert the response data structure
-        for user in data:
-            self.assertIn('id', user)
-            self.assertIn('username', user)
-            self.assertIn('email', user)
-            self.assertIn('following', user)
-            self.assertIn('follower', user)
-            self.assertIn('stats', user)
-            self.assertIn('created_at', user)
-            self.assertIn('updated_at', user)
+        # Assert list
+        assert_user_list(self, data, n)
 
     def test_read_subscribers_as_moderator_with_blocked_and_blockers(self):
         # Number of subscribers
@@ -1540,60 +920,21 @@ class TestReadSubscribers(BaseTestCase):
         # Get response pagination
         pagination = response.json
 
-        # Assert that pagination is a dictionary
-        self.assertIsInstance(pagination, dict)
-
-        # Assert the response data structure
-        self.assertIn('links', pagination)
-        self.assertIn('page', pagination)
-        self.assertIn('pages', pagination)
-        self.assertIn('per_page', pagination)
-        self.assertIn('total', pagination)
-        self.assertIn('users', pagination)
-
-        # Assert that links is a dictionary
-        self.assertIsInstance(pagination['links'], dict)
-
-        # Get the links
-        links = pagination['links']
-
-        # Assert the links
-        self.assertIn('first', links)
-        self.assertIn('last', links)
-        self.assertNotIn('prev', links)
-        self.assertNotIn('next', links)
-
-        # Assert the page
-        self.assertEqual(pagination['page'], 1)
-        
-        # Assert the pages
-        self.assertEqual(pagination['pages'], 1)
-
-        # Assert the per page
-        self.assertEqual(pagination['per_page'], 10)
-
-        # Assert the total
-        self.assertEqual(pagination['total'], n)
+        # Assert pagination
+        assert_pagination_structure(
+            self,
+            pagination,
+            expected_page=1,
+            expected_pages=1,
+            expected_per_page=10,
+            expected_total=n
+        )
 
         # Get the users
         data = pagination['users']
 
-        # Assert data is a list
-        self.assertIsInstance(data, list)
-
-        # Assert the response data length
-        self.assertEqual(len(data), n)
-
-        # Assert the response data structure
-        for user in data:
-            self.assertIn('id', user)
-            self.assertIn('username', user)
-            self.assertIn('email', user)
-            self.assertIn('following', user)
-            self.assertIn('follower', user)
-            self.assertIn('stats', user)
-            self.assertIn('created_at', user)
-            self.assertIn('updated_at', user)
+        # Assert list
+        assert_user_list(self, data, n)
 
     def test_read_subscribers_as_moderator_with_blocked_and_blockers_args(self):
         # Number of subscribers
@@ -1644,60 +985,21 @@ class TestReadSubscribers(BaseTestCase):
         # Get response pagination
         pagination = response.json
 
-        # Assert that pagination is a dictionary
-        self.assertIsInstance(pagination, dict)
-
-        # Assert the response data structure
-        self.assertIn('links', pagination)
-        self.assertIn('page', pagination)
-        self.assertIn('pages', pagination)
-        self.assertIn('per_page', pagination)
-        self.assertIn('total', pagination)
-        self.assertIn('users', pagination)
-
-        # Assert that links is a dictionary
-        self.assertIsInstance(pagination['links'], dict)
-
-        # Get the links
-        links = pagination['links']
-
-        # Assert the links
-        self.assertIn('first', links)
-        self.assertIn('last', links)
-        self.assertNotIn('prev', links)
-        self.assertNotIn('next', links)
-
-        # Assert the page
-        self.assertEqual(pagination['page'], 1)
-        
-        # Assert the pages
-        self.assertEqual(pagination['pages'], 1)
-
-        # Assert the per page
-        self.assertEqual(pagination['per_page'], 5)
-
-        # Assert the total
-        self.assertEqual(pagination['total'], n)
+        # Assert pagination
+        assert_pagination_structure(
+            self,
+            pagination,
+            expected_page=1,
+            expected_pages=1,
+            expected_per_page=5,
+            expected_total=n
+        )
 
         # Get the users
         data = pagination['users']
 
-        # Assert data is a list
-        self.assertIsInstance(data, list)
-
-        # Assert the response data length
-        self.assertEqual(len(data), n)
-
-        # Assert the response data structure
-        for user in data:
-            self.assertIn('id', user)
-            self.assertIn('username', user)
-            self.assertIn('email', user)
-            self.assertIn('following', user)
-            self.assertIn('follower', user)
-            self.assertIn('stats', user)
-            self.assertIn('created_at', user)
-            self.assertIn('updated_at', user)
+        # Assert list
+        assert_user_list(self, data, n)
 
     def test_read_subscribers_empty(self):
         # Create a community
@@ -1712,49 +1014,21 @@ class TestReadSubscribers(BaseTestCase):
         # Get response pagination
         pagination = response.json
 
-        # Assert that pagination is a dictionary
-        self.assertIsInstance(pagination, dict)
-
-        # Assert the response data structure
-        self.assertIn('links', pagination)
-        self.assertIn('page', pagination)
-        self.assertIn('pages', pagination)
-        self.assertIn('per_page', pagination)
-        self.assertIn('total', pagination)
-        self.assertIn('users', pagination)
-
-        # Assert that links is a dictionary
-        self.assertIsInstance(pagination['links'], dict)
-
-        # Get the links
-        links = pagination['links']
-
-        # Assert the links
-        self.assertIn('first', links)
-        self.assertIn('last', links)
-        self.assertNotIn('prev', links)
-        self.assertNotIn('next', links)
-
-        # Assert the page
-        self.assertEqual(pagination['page'], 1)
-        
-        # Assert the pages
-        self.assertEqual(pagination['pages'], 0)
-
-        # Assert the per page
-        self.assertEqual(pagination['per_page'], 10)
-
-        # Assert the total
-        self.assertEqual(pagination['total'], 0)
+        # Assert pagination
+        assert_pagination_structure(
+            self,
+            pagination,
+            expected_page=1,
+            expected_pages=0,
+            expected_per_page=10,
+            expected_total=0
+        )
 
         # Get response data
         data = pagination['users']
 
-        # Assert data is a list
-        self.assertIsInstance(data, list)
-
-        # Assert the response data
-        self.assertEqual(data, [])
+        # Assert list
+        assert_user_list(self, data, expected_count=0)
 
     def test_read_subscribers_empty_args(self):
         # Create a community
@@ -1769,49 +1043,21 @@ class TestReadSubscribers(BaseTestCase):
         # Get response pagination
         pagination = response.json
 
-        # Assert that pagination is a dictionary
-        self.assertIsInstance(pagination, dict)
-
-        # Assert the response data structure
-        self.assertIn('links', pagination)
-        self.assertIn('page', pagination)
-        self.assertIn('pages', pagination)
-        self.assertIn('per_page', pagination)
-        self.assertIn('total', pagination)
-        self.assertIn('users', pagination)
-
-        # Assert that links is a dictionary
-        self.assertIsInstance(pagination['links'], dict)
-
-        # Get the links
-        links = pagination['links']
-
-        # Assert the links
-        self.assertIn('first', links)
-        self.assertIn('last', links)
-        self.assertNotIn('prev', links)
-        self.assertNotIn('next', links)
-
-        # Assert the page
-        self.assertEqual(pagination['page'], 1)
-        
-        # Assert the pages
-        self.assertEqual(pagination['pages'], 0)
-
-        # Assert the per page
-        self.assertEqual(pagination['per_page'], 5)
-
-        # Assert the total
-        self.assertEqual(pagination['total'], 0)
+        # Assert pagination
+        assert_pagination_structure(
+            self,
+            pagination,
+            expected_page=1,
+            expected_pages=0,
+            expected_per_page=5,
+            expected_total=0
+        )
 
         # Get response data
         data = pagination['users']
 
-        # Assert data is a list
-        self.assertIsInstance(data, list)
-
-        # Assert the response data
-        self.assertEqual(data, [])
+        # Assert list
+        assert_user_list(self, data, expected_count=0)
 
     def test_read_subscribers_nonexistent_community(self):
         # Try to get subscribers of a nonexistent community
