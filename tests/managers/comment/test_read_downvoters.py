@@ -5,11 +5,15 @@ from tests.base.base_test_case import BaseTestCase
 from tests.factories.comment_factory import CommentFactory
 from tests.factories.comment_vote_factory import CommentVoteFactory
 
+# Managers
 from app.managers.comment import CommentVoteManager
 
+# Flask-SQLAlchemy
+from flask_sqlalchemy.pagination import Pagination
 
-class TestReadDownvoters(BaseTestCase):
-    def test_read_downvoters(self):
+
+class TestGetDownvotersByComment(BaseTestCase):
+    def test_get_downvoters_by_comment(self):
         # Number of downvotes
         n = 5
 
@@ -17,30 +21,38 @@ class TestReadDownvoters(BaseTestCase):
         comment = CommentFactory()
 
         # Create some votes
-        downvotes = CommentVoteFactory.create_batch(n, comment=comment, direction=-1)
+        CommentVoteFactory.create_batch(n, comment=comment, direction=-1)
 
-        # Read the comment downvoters
-        downvoters = CommentVoteManager.read_downvoters_by_comment(comment)
+        # Set the args
+        args = {}
 
-        # Assert the number of downvotes
-        self.assertEqual(len(downvoters), n)
+        # Get the downvoters by comment
+        downvoters_by_comment = CommentVoteManager.read_downvoters_by_comment(comment, args)
 
-        # Get the users
-        users = [downvote.user for downvote in downvotes]
+        # Assert downvoters_by_comment is a Pagination object
+        self.assertIsInstance(downvoters_by_comment, Pagination)
 
-        # Assert that the users are unique
-        self.assertEqual(downvoters, users)            
+        # Get the items
+        downvoters_by_comment_items = downvoters_by_comment.items
 
+        # Assert the number of downvoters
+        self.assertEqual(len(downvoters_by_comment_items), n)
 
-    def test_read_downvoters_empty(self):
+    def test_get_downvoters_by_comment_none(self):
         # Create a comment
         comment = CommentFactory()
 
-        # Read the downvoters of the comment
-        downvoters = CommentVoteManager.read_downvoters_by_comment(comment)
+        # Set the args
+        args = {}
 
-        # Assert that there are no downvoters
-        self.assertEqual(len(downvoters), 0)
+        # Get the downvoters by comment
+        downvoters_by_comment = CommentVoteManager.read_downvoters_by_comment(comment, args)
 
-        # Assert that the downvoters are an empty list
-        self.assertEqual(downvoters, [])
+        # Assert downvoters_by_comment is a Pagination object
+        self.assertIsInstance(downvoters_by_comment, Pagination)
+
+        # Get the items
+        downvoters_by_comment_items = downvoters_by_comment.items
+
+        # Assert the number of downvoters
+        self.assertEqual(len(downvoters_by_comment_items), 0)

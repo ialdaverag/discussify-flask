@@ -200,16 +200,16 @@ class CommentVoteManager:
     @staticmethod
     #@filtered_users
     def read_upvoters_by_comment(comment, args):
-        upvoters = CommentVote.get_upvoters_by_comment(comment, args)
+        paginated_upvoters = CommentVote.get_upvoters_by_comment(comment, args)
 
-        return upvoters
+        return paginated_upvoters
     
     @staticmethod
     #@filtered_users
-    def read_downvoters_by_comment(comment):
-        downvoters = CommentVote.get_downvoters_by_comment(comment)
+    def read_downvoters_by_comment(comment, args):
+        paginated_downvoters = CommentVote.get_downvoters_by_comment(comment, args)
 
-        return downvoters
+        return paginated_downvoters
         
     @staticmethod
     def delete(user, comment):

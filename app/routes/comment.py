@@ -154,16 +154,17 @@ def cancel_vote_on_comment(id):
 def read_comment_upvoters(args, id):
     comment = Comment.get_by_id(id)
     
-    downvoted_upvoters = CommentVoteManager.read_upvoters_by_comment(comment, args)
+    paginated_upvoters = CommentVoteManager.read_upvoters_by_comment(comment, args)
 
-    return user_pagination_response_schema.dump(downvoted_upvoters), HTTPStatus.OK
+    return user_pagination_response_schema.dump(paginated_upvoters), HTTPStatus.OK
 
 
 @comment_routes.get('/<int:id>/downvoters')
+@use_args(user_pagination_request_schema, location='query')
 @jwt_required(optional=True)
-def read_comment_downvoters(id):
+def read_comment_downvoters(args, id):
     comment = Comment.get_by_id(id)
-    
-    downvoters = CommentVoteManager.read_downvoters_by_comment(comment)
 
-    return users_schema.dump(downvoters), HTTPStatus.OK
+    paginated_downvoters = CommentVoteManager.read_downvoters_by_comment(comment, args)
+
+    return user_pagination_response_schema.dump(paginated_downvoters), HTTPStatus.OK

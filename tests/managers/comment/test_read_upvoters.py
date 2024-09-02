@@ -5,11 +5,15 @@ from tests.base.base_test_case import BaseTestCase
 from tests.factories.comment_factory import CommentFactory
 from tests.factories.comment_vote_factory import CommentVoteFactory
 
+# Managers
 from app.managers.comment import CommentVoteManager
 
+# Flask-SQLAlchemy
+from flask_sqlalchemy.pagination import Pagination
 
-class TestReadUpvoters(BaseTestCase):
-    def test_read_upvoters(self):
+
+class TestGetUpvotersByComment(BaseTestCase):
+    def test_get_upvoters_by_comment(self):
         # Number of upvotes
         n = 5
 
@@ -17,30 +21,38 @@ class TestReadUpvoters(BaseTestCase):
         comment = CommentFactory()
 
         # Create some votes
-        upvotes = CommentVoteFactory.create_batch(n, comment=comment, direction=1)
+        CommentVoteFactory.create_batch(n, comment=comment, direction=1)
 
-        # Read the comment upvoters
-        upvoters = CommentVoteManager.read_upvoters_by_comment(comment)
+        # Set the args
+        args = {}
 
-        # Assert the number of upvotes
-        self.assertEqual(len(upvoters), n)
+        # Get the upvoters by comment
+        upvoters_by_comment = CommentVoteManager.read_upvoters_by_comment(comment, args)
 
-        # Get the users
-        users = [upvote.user for upvote in upvotes]
+        # Assert upvoters_by_comment is a Pagination object
+        self.assertIsInstance(upvoters_by_comment, Pagination)
 
-        # Assert that the users are unique
-        self.assertEqual(upvoters, users)            
+        # Get the items
+        upvoters_by_comment_items = upvoters_by_comment.items
 
+        # Assert the number of upvoters
+        self.assertEqual(len(upvoters_by_comment_items), n)
 
-    def test_read_upvoters_empty(self):
+    def test_get_upvoters_by_comment_none(self):
         # Create a comment
         comment = CommentFactory()
 
-        # Read the upvoters of the comment
-        upvoters = CommentVoteManager.read_upvoters_by_comment(comment)
+        # Set the args
+        args = {}
 
-        # Assert that there are no upvoters
-        self.assertEqual(len(upvoters), 0)
+        # Get the upvoters by comment
+        upvoters_by_comment = CommentVoteManager.read_upvoters_by_comment(comment, args)
 
-        # Assert that the upvoters are an empty list
-        self.assertEqual(upvoters, [])
+        # Assert upvoters_by_comment is a Pagination object
+        self.assertIsInstance(upvoters_by_comment, Pagination)
+
+        # Get the items
+        upvoters_by_comment_items = upvoters_by_comment.items
+
+        # Assert the number of upvoters
+        self.assertEqual(len(upvoters_by_comment_items), 0)

@@ -130,19 +130,32 @@ class CommentVote(db.Model):
         return paginated_upvoters
     
     @classmethod
-    @filtered_users
-    def get_downvoters_by_comment(cls, comment):
+    def get_downvoters_by_comment(cls, comment, args):
         from app.models.user import User
 
-        query = (
-            db.select(User)
-            .join(cls, User.id == cls.user_id)
-            .where(cls.comment_id == comment.id, cls.direction == -1)
+        page = args.get('page')
+        per_page = args.get('per_page')
+
+        @filtered_users_select
+        def get_query():
+            query = (
+                db.select(User)
+                .join(cls, User.id == cls.user_id)
+                .where(cls.comment_id == comment.id, cls.direction == -1)
+            )
+
+            return query
+        
+        query = get_query()
+
+        paginated_downvoters = db.paginate(
+            query,
+            page=page,
+            per_page=per_page,
+            error_out=False
         )
 
-        upvoters = db.session.scalars(query).all()
-
-        return upvoters
+        return paginated_downvoters
     
     def is_upvote(self):
         return self.direction == 1
