@@ -46,11 +46,15 @@ class PostBookmark(db.Model):
     @classmethod
     @filtered_posts
     def get_bookmarks_by_user(cls, user):
-        query = db.select(cls).where(cls.user_id == user.id)
-        
-        bookmarks = db.session.scalars(query).all()
+        from app.models.post import Post 
 
-        bookmarks = [bookmark.post for bookmark in bookmarks]
+        query = (
+            db.select(Post)
+            .join(cls, Post.id == cls.post_id)
+            .where(cls.user_id == user.id)
+        )
+
+        bookmarks = db.session.scalars(query).all()
 
         return bookmarks
 
