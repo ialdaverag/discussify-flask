@@ -5,6 +5,7 @@ from flask_jwt_extended import current_user
 from app.extensions.database import db
 
 # Decorators
+from app.decorators.filtered_users_select import filtered_users_select
 from app.decorators.filtered_users import filtered_users
 from app.decorators.filtered_comments import filtered_comments
 
@@ -101,19 +102,32 @@ class CommentVote(db.Model):
         return downvotes
     
     @classmethod
-    @filtered_users
-    def get_upvoters_by_comment(cls, comment):
+    def get_upvoters_by_comment(cls, comment, args):
         from app.models.user import User
 
-        query = (
-            db.select(User)
-            .join(cls, User.id == cls.user_id)
-            .where(cls.comment_id == comment.id, cls.direction == 1)
+        page = args.get('page')
+        per_page = args.get('per_page')
+
+        @filtered_users_select
+        def get_query():
+            query = (
+                db.select(User)
+                .join(cls, User.id == cls.user_id)
+                .where(cls.comment_id == comment.id, cls.direction == 1)
+            )
+
+            return query
+        
+        query = get_query()
+
+        paginated_upvoters = db.paginate(
+            query,
+            page=page,
+            per_page=per_page,
+            error_out=False
         )
 
-        upvoters = db.session.scalars(query).all()
-
-        return upvoters
+        return paginated_upvoters
     
     @classmethod
     @filtered_users

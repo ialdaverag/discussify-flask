@@ -199,8 +199,8 @@ class CommentVoteManager:
 
     @staticmethod
     #@filtered_users
-    def read_upvoters_by_comment(comment):
-        upvoters = CommentVote.get_upvoters_by_comment(comment)
+    def read_upvoters_by_comment(comment, args):
+        upvoters = CommentVote.get_upvoters_by_comment(comment, args)
 
         return upvoters
     

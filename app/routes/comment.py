@@ -9,10 +9,12 @@ from flask import request
 from flask_jwt_extended import jwt_required
 from flask_jwt_extended import current_user
 
-# Marshmallow
-from marshmallow import ValidationError
+# Webargs
+from webargs.flaskparser import use_args
 
 # Schemas
+from app.schemas.user import user_pagination_request_schema
+from app.schemas.user import user_pagination_response_schema
 from app.schemas.comment import comment_schema
 from app.schemas.comment import comment_update_schema
 from app.schemas.comment import comments_schema
@@ -27,8 +29,6 @@ from app.managers.comment import CommentManager
 from app.managers.comment import CommentBookmarkManager
 from app.managers.comment import CommentVoteManager
 
-# Extensions
-from app.extensions.database import db
 
 comment_routes = Blueprint('comment_routes', __name__)
 
@@ -149,13 +149,14 @@ def cancel_vote_on_comment(id):
 
 
 @comment_routes.get('/<int:id>/upvoters')
+@use_args(user_pagination_request_schema, location='query')
 @jwt_required(optional=True)
-def read_comment_upvoters(id):
+def read_comment_upvoters(args, id):
     comment = Comment.get_by_id(id)
     
-    upvoters = CommentVoteManager.read_upvoters_by_comment(comment)
+    downvoted_upvoters = CommentVoteManager.read_upvoters_by_comment(comment, args)
 
-    return users_schema.dump(upvoters), HTTPStatus.OK
+    return user_pagination_response_schema.dump(downvoted_upvoters), HTTPStatus.OK
 
 
 @comment_routes.get('/<int:id>/downvoters')
