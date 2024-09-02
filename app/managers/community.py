@@ -43,10 +43,10 @@ class CommunityManager:
         return community
 
     @staticmethod
-    def read_all():
-        communities = Community.get_all()
+    def read_all(args):
+        paginated_communities = Community.get_all(args)
 
-        return communities
+        return paginated_communities
     
     @staticmethod
     def update(user, community, data):

@@ -34,6 +34,15 @@ class CommunitySubscriber(db.Model):
 
     @classmethod
     def get_by_user_and_community(cls, user, community):
+        """
+        Get the subscription object by user and community.
+
+        :param user: The user object.
+        :param community: The community object.
+
+        :return: The subscription object
+        """
+
         subscription = db.session.get(cls, (user.id, community.id))
         
         return subscription
@@ -44,10 +53,10 @@ class CommunitySubscriber(db.Model):
         Get a list of communities the user is subscribed to.
 
         :param user: The user object.
-        :param exclude_banned: If True, exclude communities where the user is banned.
+
         :return: List of community objects.
         """
-        
+
         query = (
             db.select(Community)
             .join(cls, cls.community_id == Community.id)
@@ -60,6 +69,15 @@ class CommunitySubscriber(db.Model):
     
     @classmethod
     def get_subscribers_by_community(cls, community, args):
+        """
+        Get a list of users subscribed to the community.
+
+        :param community: The community object.
+        :param args: The request arguments.
+
+        :return: List of user objects
+        """
+
         from app.models.user import User
 
         page = args.get('page')
@@ -88,6 +106,10 @@ class CommunitySubscriber(db.Model):
 
 
 class CommunityModerator(db.Model):
+    """
+    The CommunityModerator model.
+    """
+
     __tablename__ = 'community_moderators'
 
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), primary_key=True, nullable=False)
@@ -110,12 +132,27 @@ class CommunityModerator(db.Model):
 
     @classmethod
     def get_by_user_and_community(cls, user, community):
+        """
+        Get the moderation object by user and community.
+
+        :param user: The user object.
+        :param community: The community object.
+
+        :return: The moderation object
+        """
         moderation = db.session.get(cls, (user.id, community.id))
 
         return moderation
     
     @classmethod
     def get_moderations_by_user(cls, user):
+        """
+        Get a list of communities the user is a moderator of.
+
+        :param user: The user object.
+
+        :return: List of community objects.
+        """
         query = db.select(cls).where(cls.user_id == user.id)
 
         moderations = db.session.scalars(query).all()
@@ -126,6 +163,15 @@ class CommunityModerator(db.Model):
     
     @classmethod
     def get_moderators_by_community(cls, community, args):
+        """
+        Get a list of users who are moderators of the community.
+        
+        :param community: The community object.
+        :param args: The request arguments.
+
+        :return: List of user objects.
+        """
+
         from app.models.user import User
 
         page = args.get('page')
@@ -170,12 +216,28 @@ class CommunityBan(db.Model):
 
     @classmethod
     def get_by_user_and_community(cls, user, community):
+        """
+        Get the ban object by user and community.
+        
+        :param user: The user object.
+        :param community: The community object.
+        
+        :return: The ban object
+        """
+
         ban = db.session.get(cls, (user.id, community.id))
 
         return ban
     
     @classmethod
     def get_bans_by_user(cls, user):
+        """
+        Get a list of communities the user is banned from.
+        
+        :param user: The user object.
+        
+        :return: List of community objects.
+        """
         query = db.select(cls).where(cls.user_id == user.id)
 
         bans = db.session.scalars(query).all()
@@ -186,6 +248,14 @@ class CommunityBan(db.Model):
     
     @classmethod
     def get_banned_by_community(cls, community, args):
+        """
+        Get a list of users banned from the community.
+        
+        :param community: The community object.
+        :param args: The request arguments.
+        
+        :return: List of user objects.
+        """
         from app.models.user import User
 
         page = args.get('page')
@@ -293,12 +363,20 @@ class Community(db.Model):
         return community
     
     @classmethod
-    def get_all(cls):
+    def get_all(cls, args):
+        page = args.get('page')
+        per_page = args.get('per_page')
+        
         query = db.select(cls)
 
-        communities = db.session.scalars(query).all()
+        paginated_communities = db.paginate(
+            query, 
+            page=page, 
+            per_page=per_page, 
+            error_out=False
+        )
 
-        return communities
+        return paginated_communities
     
     @property
     def subscriber(self):

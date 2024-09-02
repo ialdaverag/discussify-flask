@@ -4,6 +4,8 @@ from http import HTTPStatus
 # Flask
 from flask import Blueprint
 from flask import request
+
+# Flask-JWT-Extended
 from flask_jwt_extended import jwt_required
 from flask_jwt_extended import current_user
 
@@ -23,11 +25,11 @@ from app.managers.community import TransferManager
 from app.managers.post import PostManager
 
 # Schemas
+from app.schemas.community import community_pagination_request_schema
+from app.schemas.community import community_pagination_response_schema
 from app.schemas.user import user_pagination_request_schema
 from app.schemas.user import user_pagination_response_schema
 from app.schemas.community import community_schema
-from app.schemas.community import communities_schema
-from app.schemas.user import users_schema
 from app.schemas.post import posts_schema
 
 community_routes = Blueprint('community_routes', __name__)
@@ -56,11 +58,12 @@ def read_community(name):
 
 
 @community_routes.get('/')
+@use_args(community_pagination_request_schema, location='query')
 @jwt_required(optional=True)
-def read_communities():
-    communities = CommunityManager.read_all()
+def read_communities(args):
+    paginated_communities = CommunityManager.read_all(args)
 
-    return communities_schema.dump(communities), HTTPStatus.OK
+    return community_pagination_response_schema.dump(paginated_communities), HTTPStatus.OK
 
 
 @community_routes.patch('/<string:name>')

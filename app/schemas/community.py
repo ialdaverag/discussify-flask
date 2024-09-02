@@ -5,6 +5,15 @@ from marshmallow import validate
 
 # Schemas
 from app.schemas.user import UserSchema
+from app.schemas.pagination import PaginationSchema
+
+
+class CommunityPaginationRequestSchema(Schema):
+    class Meta:
+        ordered = True
+
+    page = fields.Integer(load_default=1)
+    per_page = fields.Integer(load_default=10)
 
 
 class CommunityStatsSchema(Schema):
@@ -46,5 +55,14 @@ class CommunitySchema(Schema):
     updated_at = fields.DateTime(dump_only=True)
 
 
+class CommunityPaginationResponseSchema(PaginationSchema):
+    class Meta:
+        ordered = True
+
+    communities = fields.Nested(CommunitySchema, attribute="items", many=True)
+
+
+community_pagination_request_schema = CommunityPaginationRequestSchema()
+community_pagination_response_schema = CommunityPaginationResponseSchema()
 community_schema = CommunitySchema()
 communities_schema = CommunitySchema(many=True)
