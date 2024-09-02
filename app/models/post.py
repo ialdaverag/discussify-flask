@@ -11,11 +11,9 @@ from app.errors.errors import NotFoundError
 from app.models.comment import Comment
 
 # Decorators
+from app.decorators.filtered_users_select import filtered_users_select
 from app.decorators.filtered_users import filtered_users
 from app.decorators.filtered_posts import filtered_posts
-
-# Decorators
-from app.decorators.filtered_comments import filtered_comments
 
 
 class PostBookmark(db.Model):
@@ -85,17 +83,30 @@ class PostVote(db.Model):
         return vote
     
     @classmethod
-    @filtered_users
-    def get_upvoters_by_post(cls, post):
+    def get_upvoters_by_post(cls, post, args):
         from app.models.user import User
 
-        query = (
-            db.select(User)
-            .join(cls, User.id == cls.user_id)
-            .where(cls.post_id == post.id, cls.direction == 1)
-        )
+        page = args.get('page')
+        per_page = args.get('per_page')
 
-        upvoters = db.session.scalars(query).all()
+        @filtered_users_select
+        def get_query():
+            query = (
+                db.select(User)
+                .join(cls, User.id == cls.user_id)
+                .where(cls.post_id == post.id, cls.direction == 1)
+            )
+
+            return query
+        
+        query = get_query()
+
+        upvoters = db.paginate(
+            query,
+            page=page,
+            per_page=per_page,
+            error_out=False
+        )
 
         return upvoters
     

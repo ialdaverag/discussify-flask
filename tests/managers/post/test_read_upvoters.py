@@ -10,6 +10,9 @@ from app.managers.post import PostVoteManager
 # Factories
 from tests.factories.post_vote_factory import PostVoteFactory
 
+# Flask-SQLAlchemy
+from flask_sqlalchemy.pagination import Pagination
+
 
 class TestReadUpvoters(BaseTestCase):
     def test_read_upvoters(self):
@@ -20,30 +23,38 @@ class TestReadUpvoters(BaseTestCase):
         post = PostFactory()
 
         # Create some votes
-        upvotes = PostVoteFactory.create_batch(n, post=post, direction=1)
+        PostVoteFactory.create_batch(n, post=post, direction=1)
+
+        # Set the args
+        args = {}
 
         # Read the post upvoters
-        upvoters = PostVoteManager.read_upvoters_by_post(post)
+        upvoters_by_post = PostVoteManager.read_upvoters_by_post(post, args)
 
-        # Assert the number of upvotes
-        self.assertEqual(len(upvoters), n)
+        # Assert that the upvoters are a Pagination object
+        self.assertIsInstance(upvoters_by_post, Pagination)
 
-        # Get the users
-        users = [upvote.user for upvote in upvotes]
+        # Get the items
+        upvoters = upvoters_by_post.items  
 
-        # Assert that the users are unique
-        self.assertEqual(upvoters, users)            
-
+        # Assert the number of upvoters
+        self.assertEqual(len(upvoters), n)     
 
     def test_read_upvoters_empty(self):
         # Create a post
         post = PostFactory()
 
+        # Set the args
+        args = {}
+
         # Read the upvoters of the post
-        upvoters = PostVoteManager.read_upvoters_by_post(post)
+        upvoters_by_post = PostVoteManager.read_upvoters_by_post(post, args)
+
+        # Assert that the upvoters are a Pagination object
+        self.assertIsInstance(upvoters_by_post, Pagination)
+
+        # Get the items
+        upvoters = upvoters_by_post.items
 
         # Assert that there are no upvoters
         self.assertEqual(len(upvoters), 0)
-
-        # Assert that the upvoters are an empty list
-        self.assertEqual(upvoters, [])

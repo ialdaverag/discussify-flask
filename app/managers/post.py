@@ -187,10 +187,10 @@ class PostVoteManager:
     
     @staticmethod
     #@filtered_users
-    def read_upvoters_by_post(post):
-        upvoters = PostVote.get_upvoters_by_post(post)
+    def read_upvoters_by_post(post, args):
+        paginated_upvoters = PostVote.get_upvoters_by_post(post, args)
 
-        return upvoters
+        return paginated_upvoters
     
     @staticmethod
     #@filtered_users

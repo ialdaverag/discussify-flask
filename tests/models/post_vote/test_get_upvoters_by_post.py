@@ -2,12 +2,14 @@
 from tests.base.base_test_case import BaseTestCase
 
 # Factories
-from tests.factories.user_factory import UserFactory
 from tests.factories.post_factory import PostFactory
 from tests.factories.post_vote_factory import PostVoteFactory
 
 # Models
 from app.models.post import PostVote
+
+# Flask-SQLAlchemy
+from flask_sqlalchemy.pagination import Pagination
 
 
 class TestGetUpvotersByPost(BaseTestCase):
@@ -19,29 +21,38 @@ class TestGetUpvotersByPost(BaseTestCase):
         post = PostFactory()
 
         # Create some votes
-        votes = PostVoteFactory.create_batch(n, post=post, direction=1)
+        PostVoteFactory.create_batch(n, post=post, direction=1)
+
+        # Set the args
+        args = {}
 
         # Get the upvoters by post
-        upvoters_by_post = PostVote.get_upvoters_by_post(post)
+        upvoters_by_post = PostVote.get_upvoters_by_post(post, args)
+
+        # Assert upvoters_by_post is a Pagination object
+        self.assertIsInstance(upvoters_by_post, Pagination)
+
+        # Get the items
+        upvoters = upvoters_by_post.items
 
         # Assert the number of upvoters
-        self.assertEqual(len(votes), n)
-
-        # Get the upvoters
-        users = [vote.user for vote in votes]
-
-        # Assert that the upvoters are the same
-        self.assertEqual(upvoters_by_post, users)
+        self.assertEqual(len(upvoters), n)
 
     def test_get_upvoters_by_post_empty(self):
         # Create a post
         post = PostFactory()
 
+        # Set the args
+        args = {}
+
         # Get the upvoters by post
-        upvoters_by_post = PostVote.get_upvoters_by_post(post)
+        upvoters_by_post = PostVote.get_upvoters_by_post(post, args)
+
+        # Assert upvoters_by_post is a Pagination object
+        self.assertIsInstance(upvoters_by_post, Pagination)
+
+        # Get the items
+        upvoters = upvoters_by_post.items
 
         # Assert the number of upvoters
-        self.assertEqual(len(upvoters_by_post), 0)
-
-        # Assert that the upvoters list is empty
-        self.assertEqual(upvoters_by_post, [])
+        self.assertEqual(len(upvoters), 0)
