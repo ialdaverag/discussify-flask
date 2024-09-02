@@ -145,13 +145,17 @@ class PostVote(db.Model):
     @classmethod
     @filtered_posts
     def get_upvoted_posts_by_user(cls, user):
-        query = db.select(cls).where(cls.user_id == user.id, cls.direction == 1)
+        from app.models.post import Post
 
-        upvotes = db.session.scalars(query).all()
+        query = (
+            db.select(Post)
+            .join(cls, Post.id == cls.post_id)
+            .where(cls.user_id == user.id, cls.direction == 1)
+        )
 
-        posts = [upvote.post for upvote in upvotes]
+        upvoted_posts = db.session.scalars(query).all()
 
-        return posts
+        return upvoted_posts
     
     @classmethod
     @filtered_posts
