@@ -8,6 +8,9 @@ from tests.factories.community_factory import CommunityFactory
 # Models
 from app.models.community import CommunitySubscriber
 
+# Flask-SQLAlchemy
+from flask_sqlalchemy.pagination import Pagination
+
 
 class TestGetSubscriptionsByUser(BaseTestCase):
     def test_get_subscriptions_by_user(self):
@@ -24,24 +27,42 @@ class TestGetSubscriptionsByUser(BaseTestCase):
         for community in communities:
             CommunitySubscriber(community=community, user=user).save()
 
-        # Get the subscriptions
-        subscriptions = CommunitySubscriber.get_subscriptions_by_user(user)
+        # Set the args
+        args = {}
 
-        # Assert that subscriptions is a list
-        self.assertIsInstance(subscriptions, list)
+        # Get the subscriptions
+        subscriptions = CommunitySubscriber.get_subscriptions_by_user(user, args)
+
+        # Assert subscriptions is a Pagination object
+        self.assertIsInstance(subscriptions, Pagination)
+
+        # Get the items
+        subscriptions_items = subscriptions.items
+
+        # Assert that items is a list
+        self.assertIsInstance(subscriptions_items, list)
 
         # Assert the number of subscriptions
-        self.assertEqual(len(subscriptions), n)
+        self.assertEqual(len(subscriptions_items), n)
 
     def test_get_subscriptions_by_user_empty(self):
         # Create a user
         user = UserFactory()
 
+        # Set the args
+        args = {}
+
         # Get the subscriptions
-        subscriptions = CommunitySubscriber.get_subscriptions_by_user(user)
+        subscriptions = CommunitySubscriber.get_subscriptions_by_user(user, args)
 
-        # Assert that subscriptions is a list
-        self.assertIsInstance(subscriptions, list)
+        # Assert subscriptions is a Pagination object
+        self.assertIsInstance(subscriptions, Pagination)
 
-        # Assert that the subscriptions is an empty list
-        self.assertEqual(subscriptions, [])
+        # Get the items
+        subscriptions_items = subscriptions.items
+
+        # Assert that items is a list
+        self.assertIsInstance(subscriptions_items, list)
+
+        # Assert the number of subscriptions
+        self.assertEqual(len(subscriptions_items), 0)

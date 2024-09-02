@@ -88,13 +88,12 @@ class SubscriptionManager:
         CommunitySubscriber(user=user, community=community).save()
 
     @staticmethod
-    def read_subscriptions_by_user(user):
-        subscriptions = CommunitySubscriber.get_subscriptions_by_user(user)
+    def read_subscriptions_by_user(user, args):
+        paginated_subscriptions = CommunitySubscriber.get_subscriptions_by_user(user, args)
 
-        return subscriptions
+        return paginated_subscriptions
     
     @staticmethod
-    #@filtered_users
     def read_subscribers_by_community(community, args):
         paginated_subscribers = CommunitySubscriber.get_subscribers_by_community(community, args)
 

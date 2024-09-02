@@ -33,6 +33,8 @@ from app.schemas.user import me_schema
 from app.schemas.user import user_pagination_request_schema
 from app.schemas.user import user_pagination_response_schema
 from app.schemas.community import communities_schema
+from app.schemas.community import community_pagination_request_schema
+from app.schemas.community import community_pagination_response_schema
 from app.schemas.post import posts_schema
 from app.schemas.comment import comments_schema
 
@@ -130,13 +132,14 @@ def read_blocked(args):
 
 
 @user_routes.get('/<string:username>/subscriptions')
+@use_args(community_pagination_request_schema, location='query')
 @jwt_required(optional=True)
-def read_subscriptions(username):
+def read_subscriptions(args, username):
     user = User.get_by_username(username)
 
-    subscriptions = SubscriptionManager.read_subscriptions_by_user(user)
+    paginated_subscriptions = SubscriptionManager.read_subscriptions_by_user(user, args)
 
-    return communities_schema.dump(subscriptions)
+    return community_pagination_response_schema.dump(paginated_subscriptions),   HTTPStatus.OK
 
 
 @user_routes.get('/<string:username>/posts')

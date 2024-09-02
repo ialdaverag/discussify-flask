@@ -48,7 +48,7 @@ class CommunitySubscriber(db.Model):
         return subscription
     
     @classmethod
-    def get_subscriptions_by_user(cls, user):
+    def get_subscriptions_by_user(cls, user, args):
         """
         Get a list of communities the user is subscribed to.
 
@@ -56,6 +56,8 @@ class CommunitySubscriber(db.Model):
 
         :return: List of community objects.
         """
+        page = args.get('page')
+        per_page = args.get('per_page')
 
         query = (
             db.select(Community)
@@ -63,9 +65,14 @@ class CommunitySubscriber(db.Model):
             .where(cls.user_id == user.id)
         )
 
-        subscriptions = db.session.scalars(query).all()
+        paginated_subscriptions = db.paginate(
+            query, 
+            page=page, 
+            per_page=per_page, 
+            error_out=False
+        )
 
-        return subscriptions
+        return paginated_subscriptions
     
     @classmethod
     def get_subscribers_by_community(cls, community, args):
