@@ -10,40 +10,51 @@ from app.managers.post import PostVoteManager
 # Factories
 from tests.factories.post_vote_factory import PostVoteFactory
 
+# Flask-SQLAlchemy
+from flask_sqlalchemy.pagination import Pagination
+
 
 class TestReadDownvoters(BaseTestCase):
     def test_read_downvoters(self):
-         # Number of upvotes
+        # Number of downvotes
         n = 5
 
         # Create a post
         post = PostFactory()
 
         # Create some votes
-        downvotes = PostVoteFactory.create_batch(n, post=post, direction=1)
+        PostVoteFactory.create_batch(n, post=post, direction=-1)
+
+        # Set the args
+        args = {}
 
         # Read the post downvoters
-        downvoters = PostVoteManager.read_upvoters_by_post(post)
+        downvoters_by_post = PostVoteManager.read_downvoters_by_post(post, args)
 
-        # Assert the number of downvotes
-        self.assertEqual(len(downvoters), n)
+        # Assert that the downvoters are a Pagination object
+        self.assertIsInstance(downvoters_by_post, Pagination)
 
-        # Get the users
-        users = [downvote.user for downvote in downvotes]
+        # Get the items
+        downvoters = downvoters_by_post.items  
 
-        # Assert that the users are unique
-        self.assertEqual(downvoters, users) 
-
+        # Assert the number of downvoters
+        self.assertEqual(len(downvoters), n)     
 
     def test_read_downvoters_empty(self):
         # Create a post
         post = PostFactory()
 
+        # Set the args
+        args = {}
+
         # Read the downvoters of the post
-        downvoters = PostVoteManager.read_downvoters_by_post(post)
+        downvoters_by_post = PostVoteManager.read_downvoters_by_post(post, args)
+
+        # Assert that the downvoters are a Pagination object
+        self.assertIsInstance(downvoters_by_post, Pagination)
+
+        # Get the items
+        downvoters = downvoters_by_post.items
 
         # Assert that there are no downvoters
         self.assertEqual(len(downvoters), 0)
-
-        # Assert that the downvoters are an empty list
-        self.assertEqual(downvoters, [])

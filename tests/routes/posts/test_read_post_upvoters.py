@@ -67,7 +67,8 @@ class TestReadPostUpvoters(BaseTestCase):
 
         # Get the upvoters
         response = self.client.get(
-            f'{self.route.format(post.id)}?page=1&per_page=5'
+            self.route.format(post.id),
+            query_string={'page': 1, 'per_page': 5}
         )
 
         # Check status code
@@ -154,7 +155,8 @@ class TestReadPostUpvoters(BaseTestCase):
 
         # Get the upvoters
         response = self.client.get(
-            f'{self.route.format(post.id)}?page=1&per_page=5',
+            self.route.format(post.id),
+            query_string={'page': 1, 'per_page': 5},
             headers={'Authorization': f'Bearer {access_token}'}
         )
 
@@ -256,7 +258,8 @@ class TestReadPostUpvoters(BaseTestCase):
 
         # Get the upvoters
         response = self.client.get(
-            f'{self.route.format(post.id)}?page=1&per_page=5',
+            self.route.format(post.id),
+            query_string={'page': 1, 'per_page': 5},
             headers={'Authorization': f'Bearer {access_token}'}
         )
 
@@ -358,7 +361,8 @@ class TestReadPostUpvoters(BaseTestCase):
 
         # Get the upvoters
         response = self.client.get(
-            f'{self.route.format(post.id)}?page=1&per_page=5',
+            self.route.format(post.id),
+            query_string={'page': 1, 'per_page': 5},
             headers={'Authorization': f'Bearer {access_token}'}
         )
 
@@ -474,7 +478,8 @@ class TestReadPostUpvoters(BaseTestCase):
 
         # Get the upvoters
         response = self.client.get(
-            f'{self.route.format(post.id)}?page=1&per_page=5',
+            self.route.format(post.id),
+            query_string={'page': 1, 'per_page': 5},
             headers={'Authorization': f'Bearer {access_token}'}
         )
 
@@ -537,7 +542,8 @@ class TestReadPostUpvoters(BaseTestCase):
 
         # Get the upvoters
         response = self.client.get(
-            f'{self.route.format(post.id)}?page=1&per_page=5'
+            self.route.format(post.id),
+            query_string={'page': 1, 'per_page': 5}
         )
 
         # Check status code

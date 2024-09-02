@@ -186,18 +186,16 @@ class PostVoteManager:
         return downvotes
     
     @staticmethod
-    #@filtered_users
     def read_upvoters_by_post(post, args):
         paginated_upvoters = PostVote.get_upvoters_by_post(post, args)
 
         return paginated_upvoters
     
     @staticmethod
-    #@filtered_users
-    def read_downvoters_by_post(post):
-        downvoters = PostVote.get_downvoters_by_post(post)
+    def read_downvoters_by_post(post, args):
+        paginated_downvoters = PostVote.get_downvoters_by_post(post, args)
 
-        return downvoters
+        return paginated_downvoters
 
     @staticmethod
     def delete(user, post):

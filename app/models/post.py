@@ -111,17 +111,30 @@ class PostVote(db.Model):
         return upvoters
     
     @classmethod
-    @filtered_users
-    def get_downvoters_by_post(cls, post):
+    def get_downvoters_by_post(cls, post, args):
         from app.models.user import User
 
-        query = (
-            db.select(User)
-            .join(cls, User.id == cls.user_id)
-            .where(cls.post_id == post.id, cls.direction == -1)
-        )
+        page = args.get('page')
+        per_page = args.get('per_page')
 
-        upvoters = db.session.scalars(query).all()
+        @filtered_users_select
+        def get_query():
+            query = (
+                db.select(User)
+                .join(cls, User.id == cls.user_id)
+                .where(cls.post_id == post.id, cls.direction == -1)
+            )
+
+            return query
+        
+        query = get_query()
+
+        upvoters = db.paginate(
+            query,
+            page=page,
+            per_page=per_page,
+            error_out=False
+        )
 
         return upvoters
     

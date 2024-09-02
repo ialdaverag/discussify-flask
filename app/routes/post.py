@@ -152,13 +152,14 @@ def read_upvoters(args, id):
 
 
 @post_routes.get('/<int:id>/downvoters')
+@use_args(user_pagination_request_schema, location='query')
 @jwt_required(optional=True)
-def read_downvoters(id):
+def read_downvoters(args, id):
     post = Post.get_by_id(id)
     
-    downvoters = PostVoteManager.read_downvoters_by_post(post)
+    paginated_downvoters = PostVoteManager.read_downvoters_by_post(post, args)
 
-    return users_schema.dump(downvoters), HTTPStatus.OK
+    return user_pagination_response_schema.dump(paginated_downvoters), HTTPStatus.OK
 
 
 @post_routes.get('/<int:id>/comments')
