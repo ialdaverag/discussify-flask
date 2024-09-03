@@ -168,18 +168,16 @@ class PostVoteManager:
                 new_vote.save()
 
     @staticmethod
-    #@filtered_posts
     def read_upvoted_posts_by_user(user, args):
         paginated_upvotes = PostVote.get_upvoted_posts_by_user(user, args)
 
         return paginated_upvotes
     
     @staticmethod
-    #@filtered_posts
-    def read_downvoted_posts_by_user(user):
-        downvotes = PostVote.get_downvoted_posts_by_user(user)
+    def read_downvoted_posts_by_user(user, args):
+        paginated_downvotes = PostVote.get_downvoted_posts_by_user(user, args)
 
-        return downvotes
+        return paginated_downvotes
     
     @staticmethod
     def read_upvoters_by_post(post, args):

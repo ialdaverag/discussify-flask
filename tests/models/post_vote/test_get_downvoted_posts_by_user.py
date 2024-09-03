@@ -8,6 +8,9 @@ from tests.factories.post_vote_factory import PostVoteFactory
 # Models
 from app.models.post import PostVote
 
+# Flask-SQLAlchemy
+from flask_sqlalchemy.pagination import Pagination
+
 
 class TestGetDownvotedPostsByUser(BaseTestCase):
     def test_get_downvoted_posts_by_user(self):
@@ -18,33 +21,35 @@ class TestGetDownvotedPostsByUser(BaseTestCase):
         user = UserFactory()
 
         # Create some votes
-        votes = PostVoteFactory.create_batch(n, user=user, direction=-1)
+        PostVoteFactory.create_batch(n, user=user, direction=-1)
+
+        # Set the args
+        args = {}
 
         # Get the downvoted posts by user
-        downvoted_posts_by_user = PostVote.get_downvoted_posts_by_user(user)
+        downvoted_posts_by_user = PostVote.get_downvoted_posts_by_user(user, args)
+
+        # Assert downvoted_posts_by_user is a Pagination object
+        self.assertIsInstance(downvoted_posts_by_user, Pagination)
+
+        # Get the items
+        items = downvoted_posts_by_user.items
 
         # Assert the number of downvoted posts
-        self.assertEqual(len(votes), n)
-
-        # Get the downvoted posts
-        posts = [vote.post for vote in votes]
-
-        # Assert that the downvoted posts are the same
-        self.assertEqual(downvoted_posts_by_user, posts)
+        self.assertEqual(len(items), n)
 
     def test_get_downvoted_posts_by_user_none(self):
         # Create a user
         user = UserFactory()
 
+        # Set the args
+        args = {}
+
         # Get the downvoted posts by user
-        downvoted_posts_by_user = PostVote.get_downvoted_posts_by_user(user)
+        downvoted_posts_by_user = PostVote.get_downvoted_posts_by_user(user, args)
+
+        # Get the items
+        items = downvoted_posts_by_user.items
 
         # Assert the number of downvoted posts
-        self.assertEqual(len(downvoted_posts_by_user), 0)
-
-        # Assert that the downvoted posts list is empty
-        self.assertEqual(downvoted_posts_by_user, [])
-
-
-
-        
+        self.assertEqual(len(items), 0)
