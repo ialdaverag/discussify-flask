@@ -97,13 +97,15 @@ class CommentVote(db.Model):
     @classmethod
     @filtered_comments
     def get_downvoted_comments_by_user(cls, user):
-        query = db.select(cls).where(cls.user_id == user.id, cls.direction == -1)
+        query = (
+            db.select(Comment)
+            .join(cls, cls.comment_id == Comment.id)
+            .where(cls.user_id == user.id, cls.direction == -1)
+        )
 
-        downvotes = db.session.scalars(query).all()
+        downvoted_comments = db.session.scalars(query).all()
 
-        downvotes = [downvote.comment for downvote in downvotes]
-
-        return downvotes
+        return downvoted_comments
     
     @classmethod
     def get_upvoters_by_comment(cls, comment, args):
