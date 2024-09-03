@@ -157,17 +157,30 @@ class PostVote(db.Model):
         return upvoters
     
     @classmethod
-    @filtered_posts
-    def get_upvoted_posts_by_user(cls, user):
+    def get_upvoted_posts_by_user(cls, user, args):
         from app.models.post import Post
 
-        query = (
-            db.select(Post)
-            .join(cls, Post.id == cls.post_id)
-            .where(cls.user_id == user.id, cls.direction == 1)
-        )
+        page = args.get('page')
+        per_page = args.get('per_page')
 
-        upvoted_posts = db.session.scalars(query).all()
+        @filtered_posts_select
+        def get_query():
+            query = (
+                db.select(Post)
+                .join(cls, Post.id == cls.post_id)
+                .where(cls.user_id == user.id, cls.direction == 1)
+            )
+
+            return query
+        
+        query = get_query()
+
+        upvoted_posts = db.paginate(
+            query,
+            page=page,
+            per_page=per_page,
+            error_out=False
+        )
 
         return upvoted_posts
     

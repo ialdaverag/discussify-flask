@@ -179,11 +179,12 @@ def read_user_bookmarked_posts(args):
 
 
 @user_routes.get('/posts/upvoted')
+@use_args(post_pagination_request_schema, location='query')
 @jwt_required()
-def read_user_upvoted_posts():
-    upvotes = PostVoteManager.read_upvoted_posts_by_user(current_user)
+def read_user_upvoted_posts(args):
+    paginated_upvotes = PostVoteManager.read_upvoted_posts_by_user(current_user, args)
 
-    return posts_schema.dump(upvotes), HTTPStatus.OK
+    return post_pagination_response_schema.dump(paginated_upvotes), HTTPStatus.OK
 
 
 @user_routes.get('/posts/downvoted')

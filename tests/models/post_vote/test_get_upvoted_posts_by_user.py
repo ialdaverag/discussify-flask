@@ -8,6 +8,9 @@ from tests.factories.post_vote_factory import PostVoteFactory
 # Models
 from app.models.post import PostVote
 
+# Flask-SQLAlchemy
+from flask_sqlalchemy.pagination import Pagination
+
 
 class TestGetUpvotedPostsByUser(BaseTestCase):
     def test_get_upvoted_posts_by_user(self):
@@ -18,29 +21,35 @@ class TestGetUpvotedPostsByUser(BaseTestCase):
         user = UserFactory()
 
         # Create some votes
-        votes = PostVoteFactory.create_batch(n, user=user, direction=1)
+        PostVoteFactory.create_batch(n, user=user, direction=1)
+
+        # Set the args
+        args = {}
 
         # Get the upvoted posts by user
-        upvoted_posts_by_user = PostVote.get_upvoted_posts_by_user(user)
+        upvoted_posts_by_user = PostVote.get_upvoted_posts_by_user(user, args)
+
+        # Assert upvoted_posts_by_user is a Pagination object
+        self.assertIsInstance(upvoted_posts_by_user, Pagination)
+
+        # Get the items
+        items = upvoted_posts_by_user.items
 
         # Assert the number of upvoted posts
-        self.assertEqual(len(votes), n)
-
-        # Get the upvoted posts
-        posts = [vote.post for vote in votes]
-
-        # Assert that the upvoted posts are the same
-        self.assertEqual(posts, upvoted_posts_by_user)
+        self.assertEqual(len(items), n)
 
     def test_get_upvoted_posts_by_user_none(self):
         # Create a user
         user = UserFactory()
 
+        # Set the args
+        args = {}
+
         # Get the upvoted posts by user
-        upvoted_posts_by_user = PostVote.get_upvoted_posts_by_user(user)
+        upvoted_posts_by_user = PostVote.get_upvoted_posts_by_user(user, args)
+
+        # Get the items
+        items = upvoted_posts_by_user.items
 
         # Assert the number of upvoted posts
-        self.assertEqual(len(upvoted_posts_by_user), 0)
-
-        # Assert that the upvoters list is empty
-        self.assertEqual(upvoted_posts_by_user, [])
+        self.assertEqual(len(items), 0)
