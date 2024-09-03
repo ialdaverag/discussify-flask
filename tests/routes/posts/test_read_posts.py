@@ -10,6 +10,8 @@ from app.models.user import Block
 
 # utils
 from tests.utils.tokens import get_access_token
+from tests.utils.assert_pagination import assert_pagination_structure_posts
+from tests.utils.assert_list import assert_post_list
 
 
 class TestDeletePost(BaseTestCase):
@@ -20,7 +22,7 @@ class TestDeletePost(BaseTestCase):
         n = 5
 
         # Create multiple communities
-        posts = PostFactory.create_batch(n)
+        PostFactory.create_batch(n)
 
         # Get the posts
         response = self.client.get(self.route)
@@ -28,28 +30,59 @@ class TestDeletePost(BaseTestCase):
         # Assert the response status code
         self.assertEqual(response.status_code, 200)
 
+        # Get the response pagination
+        pagination = response.json
+
+        # Assert the pagination structure
+        assert_pagination_structure_posts(
+            self,
+            pagination,
+            expected_page=1,
+            expected_pages=1,
+            expected_per_page=10,
+            expected_total=n
+        )
+
         # Get the response data
-        data = response.json
+        posts = pagination['posts']
 
         # Assert the response data
-        self.assertIsInstance(data, list)
+        assert_post_list(self, posts, expected_count=n)
 
-        # Assert the number of posts
-        self.assertEqual(len(data), n)
+    def test_read_posts_args(self):
+        # Number of posts
+        n = 5
 
-        # Assert each post
-        for post in data:
-            self.assertIn('id', post)
-            self.assertIn('title', post)
-            self.assertIn('content', post)
-            self.assertIn('owner', post)
-            self.assertIn('community', post)
-            self.assertIn('bookmarked', post)
-            self.assertIn('upvoted', post)
-            self.assertIn('downvoted', post)
-            self.assertIn('stats', post)
-            self.assertIn('created_at', post)
-            self.assertIn('updated_at', post)
+        # Create multiple communities
+        PostFactory.create_batch(n)
+
+        # Get the posts
+        response = self.client.get(
+            self.route,
+            query_string={'page': 1, 'per_page': 5}
+        )
+
+        # Assert the response status code
+        self.assertEqual(response.status_code, 200)
+
+        # Get the response pagination
+        pagination = response.json
+
+        # Assert the pagination structure
+        assert_pagination_structure_posts(
+            self,
+            pagination,
+            expected_page=1,
+            expected_pages=1,
+            expected_per_page=5,
+            expected_total=n
+        )
+
+        # Get the response data
+        posts = pagination['posts']
+
+        # Assert the response data
+        assert_post_list(self, posts, expected_count=n)
 
     def test_read_posts_authenticated(self):
         # Number of posts
@@ -59,7 +92,7 @@ class TestDeletePost(BaseTestCase):
         user = UserFactory()
 
         # Create multiple communities
-        posts = PostFactory.create_batch(n)
+        PostFactory.create_batch(n)
 
         # Get user access token
         access_token = get_access_token(user)
@@ -73,28 +106,66 @@ class TestDeletePost(BaseTestCase):
         # Assert the response status code
         self.assertEqual(response.status_code, 200)
 
+        # Get the pagination
+        pagination = response.json
+
+        # Assert the pagination structure
+        assert_pagination_structure_posts(
+            self,
+            pagination,
+            expected_page=1,
+            expected_pages=1,
+            expected_per_page=10,
+            expected_total=n
+        )
+
         # Get the response data
-        data = response.json
+        posts = pagination['posts']
 
         # Assert the response data
-        self.assertIsInstance(data, list)
+        assert_post_list(self, posts, expected_count=n)
 
-        # Assert the number of posts
-        self.assertEqual(len(data), n)
+    def test_read_posts_authenticated_args(self):
+        # Number of posts
+        n = 5
 
-        # Assert each post
-        for post in data:
-            self.assertIn('id', post)
-            self.assertIn('title', post)
-            self.assertIn('content', post)
-            self.assertIn('owner', post)
-            self.assertIn('community', post)
-            self.assertIn('bookmarked', post)
-            self.assertIn('upvoted', post)
-            self.assertIn('downvoted', post)
-            self.assertIn('stats', post)
-            self.assertIn('created_at', post)
-            self.assertIn('updated_at', post)
+        # Create a user
+        user = UserFactory()
+
+        # Create multiple communities
+        PostFactory.create_batch(n)
+
+        # Get user access token
+        access_token = get_access_token(user)
+
+        # Get the posts
+        response = self.client.get(
+            self.route,
+            query_string={'page': 1, 'per_page': 5},
+            headers={'Authorization': f'Bearer {access_token}'}
+        )
+
+        # Assert the response status code
+        self.assertEqual(response.status_code, 200)
+
+        # Get the pagination
+        pagination = response.json
+
+        # Assert the pagination structure
+        assert_pagination_structure_posts(
+            self,
+            pagination,
+            expected_page=1,
+            expected_pages=1,
+            expected_per_page=5,
+            expected_total=n
+        )
+
+        # Get the response data
+        posts = pagination['posts']
+
+        # Assert the response data
+        assert_post_list(self, posts, expected_count=n)
 
     def test_read_posts_with_blocked(self):
         # Number of posts
@@ -125,28 +196,73 @@ class TestDeletePost(BaseTestCase):
         # Assert the response status code
         self.assertEqual(response.status_code, 200)
 
+        # Get the pagination
+        pagination = response.json
+
+        # Assert the pagination structure
+        assert_pagination_structure_posts(
+            self,
+            pagination,
+            expected_page=1,
+            expected_pages=1,
+            expected_per_page=10,
+            expected_total=n - b
+        )
+
         # Get the response data
-        data = response.json
+        data = pagination['posts']
 
         # Assert the response data
-        self.assertIsInstance(data, list)
+        assert_post_list(self, data, expected_count=n - b)
 
-        # Assert the number of posts
-        self.assertEqual(len(data), n - b)
+    def test_read_posts_with_blocked_args(self):
+        # Number of posts
+        n = 5
 
-        # Assert each post
-        for post in data:
-            self.assertIn('id', post)
-            self.assertIn('title', post)
-            self.assertIn('content', post)
-            self.assertIn('owner', post)
-            self.assertIn('community', post)
-            self.assertIn('bookmarked', post)
-            self.assertIn('upvoted', post)
-            self.assertIn('downvoted', post)
-            self.assertIn('stats', post)
-            self.assertIn('created_at', post)
-            self.assertIn('updated_at', post)
+        # Create multiple users using batch
+        posts = PostFactory.create_batch(n)
+
+        # Number of blocked users
+        b = 2
+
+        # Create a user
+        user = UserFactory()
+
+        # Block some users
+        for post in posts[:b]:
+            Block(blocker=user, blocked=post.owner).save()
+
+        # Get the access token
+        access_token = get_access_token(user)
+
+        # Get the posts
+        response = self.client.get(
+            self.route,
+            query_string={'page': 1, 'per_page': 5},
+            headers={'Authorization': f'Bearer {access_token}'}
+        )
+
+        # Assert the response status code
+        self.assertEqual(response.status_code, 200)
+
+        # Get the pagination
+        pagination = response.json
+
+        # Assert the pagination structure
+        assert_pagination_structure_posts(
+            self,
+            pagination,
+            expected_page=1,
+            expected_pages=1,
+            expected_per_page=5,
+            expected_total=n - b
+        )
+
+        # Get the response data
+        data = pagination['posts']
+
+        # Assert the response data
+        assert_post_list(self, data, expected_count=n - b)
 
     def test_read_posts_with_blockers(self):
         # Number of posts
@@ -177,28 +293,73 @@ class TestDeletePost(BaseTestCase):
         # Assert the response status code
         self.assertEqual(response.status_code, 200)
 
+        # Get the pagination
+        pagination = response.json
+
+        # Assert the pagination structure
+        assert_pagination_structure_posts(
+            self,
+            pagination,
+            expected_page=1,
+            expected_pages=1,
+            expected_per_page=10,
+            expected_total=n - b
+        )
+
         # Get the response data
-        data = response.json
+        data = pagination['posts']
 
         # Assert the response data
-        self.assertIsInstance(data, list)
+        assert_post_list(self, data, expected_count=n - b)
 
-        # Assert the number of posts
-        self.assertEqual(len(data), n - b)
+    def test_read_posts_with_blockers_args(self):
+        # Number of posts
+        n = 5
 
-        # Assert each post
-        for post in data:
-            self.assertIn('id', post)
-            self.assertIn('title', post)
-            self.assertIn('content', post)
-            self.assertIn('owner', post)
-            self.assertIn('community', post)
-            self.assertIn('bookmarked', post)
-            self.assertIn('upvoted', post)
-            self.assertIn('downvoted', post)
-            self.assertIn('stats', post)
-            self.assertIn('created_at', post)
-            self.assertIn('updated_at', post)
+        # Create multiple users using batch
+        posts = PostFactory.create_batch(n)
+
+        # Number of blocked users
+        b = 2
+
+        # Create a user
+        user = UserFactory()
+
+        # Block some users
+        for post in posts[:b]:
+            Block(blocker=post.owner, blocked=user).save()
+
+        # Get the access token
+        access_token = get_access_token(user)
+
+        # Get the posts
+        response = self.client.get(
+            self.route,
+            query_string={'page': 1, 'per_page': 5},
+            headers={'Authorization': f'Bearer {access_token}'}
+        )
+
+        # Assert the response status code
+        self.assertEqual(response.status_code, 200)
+
+        # Get the pagination
+        pagination = response.json
+
+        # Assert the pagination structure
+        assert_pagination_structure_posts(
+            self,
+            pagination,
+            expected_page=1,
+            expected_pages=1,
+            expected_per_page=5,
+            expected_total=n - b
+        )
+
+        # Get the response data
+        data = pagination['posts']
+
+        # Assert the response data
+        assert_post_list(self, data, expected_count=n - b)
 
     def test_read_posts_with_blocked_and_blockers(self):
         # Number of posts
@@ -236,14 +397,80 @@ class TestDeletePost(BaseTestCase):
         # Assert the response status code
         self.assertEqual(response.status_code, 200)
 
+        # Get the pagination
+        pagination = response.json
+
+        # Assert the pagination structure
+        assert_pagination_structure_posts(
+            self,
+            pagination,
+            expected_page=1,
+            expected_pages=1,
+            expected_per_page=10,
+            expected_total=n - b - c
+        )
+
         # Get the response data
-        data = response.json
+        data = pagination['posts']
 
         # Assert the response data
-        self.assertIsInstance(data, list)
+        assert_post_list(self, data, expected_count=n - b - c)
 
-        # Assert the number of posts
-        self.assertEqual(len(data), n - b - c)
+    def test_read_posts_with_blocked_and_blockers_args(self):
+        # Number of posts
+        n = 5
+
+        # Create multiple users using batch
+        posts = PostFactory.create_batch(n)
+
+        # Create a user
+        user = UserFactory()
+
+        # Number of blocked users
+        b = 2
+
+        # Block some users
+        for post in posts[:b]:
+            Block(blocker=user, blocked=post.owner).save()
+
+        # Number of blockers
+        c = 2
+
+        # Block some users
+        for post in posts[-c:]:
+            Block(blocker=post.owner, blocked=user).save()
+
+        # Get the access token
+        access_token = get_access_token(user)
+
+        # Get the posts
+        response = self.client.get(
+            self.route,
+            query_string={'page': 1, 'per_page': 5},
+            headers={'Authorization': f'Bearer {access_token}'}
+        )
+
+        # Assert the response status code
+        self.assertEqual(response.status_code, 200)
+
+        # Get the pagination
+        pagination = response.json
+
+        # Assert the pagination structure
+        assert_pagination_structure_posts(
+            self,
+            pagination,
+            expected_page=1,
+            expected_pages=1,
+            expected_per_page=5,
+            expected_total=n - b - c
+        )
+
+        # Get the response data
+        data = pagination['posts']
+
+        # Assert the response data
+        assert_post_list(self, data, expected_count=n - b - c)
 
     def test_read_posts_empty(self):
         # Get the posts
@@ -252,8 +479,50 @@ class TestDeletePost(BaseTestCase):
         # Assert the response status code
         self.assertEqual(response.status_code, 200)
 
-        # Get the response data
-        data = response.json
+        # Get the pagination
+        pagination = response.json
 
-        # Assert the community
-        self.assertEqual(len(data), 0)
+        # Assert the pagination structure
+        assert_pagination_structure_posts(
+            self,
+            pagination,
+            expected_page=1,
+            expected_pages=0,
+            expected_per_page=10,
+            expected_total=0
+        )
+
+        # Get the response data
+        posts = pagination['posts']
+
+        # Assert the response data
+        assert_post_list(self, posts, expected_count=0)
+
+    def test_read_posts_empty_args(self):
+        # Get the posts
+        response = self.client.get(
+            self.route,
+            query_string={'page': 1, 'per_page': 5}
+        )
+
+        # Assert the response status code
+        self.assertEqual(response.status_code, 200)
+
+        # Get the pagination
+        pagination = response.json
+
+        # Assert the pagination structure
+        assert_pagination_structure_posts(
+            self,
+            pagination,
+            expected_page=1,
+            expected_pages=0,
+            expected_per_page=5,
+            expected_total=0
+        )
+
+        # Get the response data
+        posts = pagination['posts']
+
+        # Assert the response data
+        assert_post_list(self, posts, expected_count=0)

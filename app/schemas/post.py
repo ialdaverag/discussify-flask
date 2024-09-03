@@ -6,6 +6,15 @@ from marshmallow import validate
 # Schemas
 from app.schemas.user import UserSchema
 from app.schemas.community import CommunitySchema
+from app.schemas.pagination import PaginationSchema
+
+
+class PostPaginationRequestSchema(Schema):
+    class Meta:
+        ordered = True
+
+    page = fields.Integer(load_default=1)
+    per_page = fields.Integer(load_default=10)
 
 
 class PostStatsSchema(Schema):
@@ -59,5 +68,14 @@ class PostSchema(Schema):
     updated_at = fields.DateTime(dump_only=True)
 
 
+class PostPaginationResponseSchema(PaginationSchema):
+    class Meta:
+        ordered = True
+
+    posts = fields.Nested(PostSchema, attribute="items", many=True)
+
+
+post_pagination_request_schema = PostPaginationRequestSchema()
+post_pagination_response_schema = PostPaginationResponseSchema()
 post_schema = PostSchema()
 posts_schema = PostSchema(many=True)

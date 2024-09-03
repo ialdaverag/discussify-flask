@@ -36,3 +36,25 @@ def assert_community_list(self, communities, expected_count=0):
         self.assertIn('stats', community)
         self.assertIn('created_at', community)
         self.assertIn('updated_at', community)
+
+
+def assert_post_list(self, posts, expected_count=0):
+    # Assert that the posts is a list
+    self.assertIsInstance(posts, list)
+
+    # Assert that the length of the posts is equal to the expected count
+    self.assertEqual(len(posts), expected_count)
+
+    # Assert each post in the posts list has the expected structure
+    for post in posts:
+        self.assertIn('id', post)
+        self.assertIn('title', post)
+        self.assertIn('content', post)
+        self.assertIn('owner', post)
+        self.assertIn('community', post)
+        self.assertIn('bookmarked', post)
+        self.assertIn('upvoted', post)
+        self.assertIn('downvoted', post)
+        self.assertIn('stats', post)
+        self.assertIn('created_at', post)
+        self.assertIn('updated_at', post)

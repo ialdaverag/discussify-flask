@@ -15,9 +15,10 @@ from webargs.flaskparser import use_args
 # Schemas
 from app.schemas.user import user_pagination_request_schema
 from app.schemas.user import user_pagination_response_schema
+from app.schemas.post import post_pagination_request_schema
+from app.schemas.post import post_pagination_response_schema
 from app.schemas.post import post_schema
 from app.schemas.post import posts_schema
-from app.schemas.user import users_schema
 from app.schemas.comment import comments_schema
 
 # Models
@@ -59,12 +60,12 @@ def read_post(id):
 
 
 @post_routes.get('/')
+@use_args(post_pagination_request_schema, location='query')
 @jwt_required(optional=True)
-def read_posts():
-    posts = PostManager.read_all()
+def read_users(args):
+    paginated_posts = PostManager.read_all(args)
 
-    return posts_schema.dump(posts), HTTPStatus.OK
-
+    return post_pagination_response_schema.dump(paginated_posts), HTTPStatus.OK
 
 @post_routes.patch('/<int:id>')
 @jwt_required()

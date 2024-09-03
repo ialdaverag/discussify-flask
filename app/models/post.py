@@ -12,6 +12,7 @@ from app.models.comment import Comment
 
 # Decorators
 from app.decorators.filtered_users_select import filtered_users_select
+from app.decorators.filtered_posts_select import filtered_posts_select
 from app.decorators.filtered_users import filtered_users
 from app.decorators.filtered_posts import filtered_posts
 
@@ -247,13 +248,24 @@ class Post(db.Model):
         return post
     
     @classmethod
-    @filtered_posts
-    def get_all(cls):
-        query = db.select(cls)
+    def get_all(cls, args):
+        page = args.get('page')
+        per_page = args.get('per_page')
 
-        posts = db.session.scalars(query).all()
+        @filtered_posts_select
+        def get_query():
+            return db.select(cls)
+        
+        query = get_query()
 
-        return posts
+        paginated_posts = db.paginate(
+            query, 
+            page=page, 
+            per_page=per_page, 
+            error_out=False
+        )
+
+        return paginated_posts
     
     @classmethod
     @filtered_posts

@@ -40,25 +40,22 @@ class PostManager:
         return post
     
     @staticmethod
-    #@filtered_posts
     def read_all_by_community(community):
         posts = Post.get_all_by_community(community)
 
         return posts
     
     @staticmethod
-    #@filtered_posts
     def read_all_by_user(user):
         posts = Post.get_all_by_user(user)
 
         return posts
 
     @staticmethod
-    #@filtered_posts
-    def read_all():
-        posts = Post.get_all()
+    def read_all(args):
+        paginated_posts = Post.get_all(args)
 
-        return posts
+        return paginated_posts
     
     @staticmethod
     def update(user, post, data):
