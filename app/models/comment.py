@@ -43,11 +43,13 @@ class CommentBookmark(db.Model):
     @classmethod
     @filtered_comments
     def get_bookmarks_by_user(cls, user):
-        query = db.select(cls).where(cls.user_id == user.id)
+        query = (
+            db.select(Comment)
+            .join(cls, cls.comment_id == Comment.id)
+            .where(cls.user_id == user.id)
+        )
 
         bookmarks = db.session.scalars(query).all()
-
-        bookmarks = [bookmark.comment for bookmark in bookmarks]
 
         return bookmarks
 
