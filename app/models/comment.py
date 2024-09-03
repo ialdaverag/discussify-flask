@@ -84,13 +84,15 @@ class CommentVote(db.Model):
     @classmethod
     @filtered_comments
     def get_upvoted_comments_by_user(cls, user):
-        query = db.select(cls).where(cls.user_id == user.id, cls.direction == 1)
+        query = (
+            db.select(Comment)
+            .join(cls, cls.comment_id == Comment.id)
+            .where(cls.user_id == user.id, cls.direction == 1)
+        )
 
-        upvotes = db.session.scalars(query).all()
+        upvoted_comments = db.session.scalars(query).all()
 
-        upvotes = [upvote.comment for upvote in upvotes]
-
-        return upvotes
+        return upvoted_comments
     
     @classmethod
     @filtered_comments
