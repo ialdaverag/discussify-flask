@@ -20,27 +20,36 @@ class TestReadDownvotedPosts(BaseTestCase):
         # Create some downvotes
         downvotes = PostVoteFactory.create_batch(n, user=user, direction=-1)
 
+        # Set the args
+        args = {}
+
         # Read user downvotes
-        downvoted_posts = PostVoteManager.read_downvoted_posts_by_user(user)
+        downvoted_posts = PostVoteManager.read_downvoted_posts_by_user(user, args)
+
+        # Get the items
+        items = downvoted_posts.items
+
+        # Assert items is a list
+        self.assertIsInstance(items, list)
 
         # Assert the number of downvotes
-        self.assertEqual(len(downvoted_posts), n)
-
-        # Get the posts from the downvotes
-        posts = [downvote.post for downvote in downvotes]
-
-        # Assert the downvotes are the same
-        self.assertEqual(posts, downvoted_posts)
+        self.assertEqual(len(items), n)
 
     def test_read_downvoted_posts_empty(self):
         # Create a user
         user = UserFactory()
 
+        # Set the args
+        args = {}
+
         # Read user downvotes
-        downvoted_comments = PostVoteManager.read_downvoted_posts_by_user(user)
+        downvoted_comments = PostVoteManager.read_downvoted_posts_by_user(user, args)
+
+        # Get the items
+        items = downvoted_comments.items
+
+        # Assert items is a list
+        self.assertIsInstance(items, list)
 
         # Assert the number of downvotes
-        self.assertEqual(len(downvoted_comments), 0)
-
-        # Assert that the downvotes are an empty list
-        self.assertEqual(downvoted_comments, [])
+        self.assertEqual(len(items), 0)

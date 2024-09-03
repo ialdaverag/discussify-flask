@@ -30,6 +30,8 @@ from app.schemas.community import community_pagination_response_schema
 from app.schemas.user import user_pagination_request_schema
 from app.schemas.user import user_pagination_response_schema
 from app.schemas.community import community_schema
+from app.schemas.post import post_pagination_request_schema
+from app.schemas.post import post_pagination_response_schema
 from app.schemas.post import posts_schema
 
 community_routes = Blueprint('community_routes', __name__)
@@ -204,10 +206,11 @@ def read_banned(args, name):
 
 
 @community_routes.get('/<string:name>/posts')
+@use_args(post_pagination_request_schema, location='query')
 @jwt_required(optional=True)
-def read_community_posts(name):
+def read_community_posts(args, name):
     community = Community.get_by_name(name)
 
-    posts = PostManager.read_all_by_community(community)
+    paginated_posts = PostManager.read_all_by_community(community, args)
     
-    return posts_schema.dump(posts), HTTPStatus.OK
+    return post_pagination_response_schema.dump(paginated_posts), HTTPStatus.OK

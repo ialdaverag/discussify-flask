@@ -40,10 +40,10 @@ class PostManager:
         return post
     
     @staticmethod
-    def read_all_by_community(community):
-        posts = Post.get_all_by_community(community)
+    def read_all_by_community(community, args):
+        paginated_posts = Post.get_all_by_community(community, args)
 
-        return posts
+        return paginated_posts
     
     @staticmethod
     def read_all_by_user(user, args):

@@ -307,13 +307,26 @@ class Post(db.Model):
         return paginated_posts
     
     @classmethod
-    @filtered_posts
-    def get_all_by_community(cls, community):
-        query = db.select(cls).where(cls.community_id == community.id)
+    def get_all_by_community(cls, community, args):
+        page = args.get('page')
+        per_page = args.get('per_page')
 
-        posts = db.session.scalars(query).all()
+        @filtered_posts_select
+        def get_query():
+            query = db.select(cls).where(cls.community_id == community.id)
 
-        return posts
+            return query
+        
+        query = get_query()
+
+        paginated_posts = db.paginate(
+            query,
+            page=page,
+            per_page=per_page,
+            error_out=False
+        )
+
+        return paginated_posts
     
     @classmethod
     def get_all_by_user(cls, user, args):
