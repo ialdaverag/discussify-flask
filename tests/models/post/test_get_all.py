@@ -7,24 +7,49 @@ from tests.factories.post_factory import PostFactory
 # Models
 from app.models.post import Post
 
+# Flask-SQLAlchemy
+from flask_sqlalchemy.pagination import Pagination
 
-class TestGetAll(BaseTestCase):
-    def test_get_all(self):
-        # Number of posts to create
+
+class GetAllPosts(BaseTestCase):
+    def test_get_posts(self):
+        # Number of posts
         n = 5
 
-        # Create a post
-        PostFactory.create_batch(n)
+        # Create some posts
+        posts = PostFactory.create_batch(n)
 
-        # Get all posts
-        posts = Post.get_all()
+        # Set the args
+        args = {}
+
+        # get the posts
+        get_posts = Post.get_all(args)
+
+        # Assert get_posts is a Pagination object
+        self.assertIsInstance(get_posts, Pagination)
+
+        # Get the items
+        get_posts_items = get_posts.items
 
         # Assert the number of posts
-        self.assertEqual(len(posts), n)
+        self.assertEqual(len(get_posts_items), n)
 
-    def test_get_all_empty(self):
-        # Get all posts
-        posts = Post.get_all()
+        # Assert that the posts are the same
+        self.assertEqual(posts, get_posts_items)
 
-        # Assert that posts is an empty list
-        self.assertEqual(posts, [])
+
+    def test_get_posts_empty(self):
+        # Set the args
+        args = {}
+
+        # get the posts
+        get_posts = Post.get_all(args)
+
+        # Assert get_posts is a Pagination object
+        self.assertIsInstance(get_posts, Pagination)
+
+        # Get the items
+        get_posts_items = get_posts.items
+
+        # Assert that there are no posts
+        self.assertEqual(len(get_posts_items), 0)

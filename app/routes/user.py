@@ -28,13 +28,13 @@ from app.managers.comment import CommentVoteManager
 
 # Schemas
 from app.schemas.user import user_schema
-from app.schemas.user import users_schema
 from app.schemas.user import me_schema
 from app.schemas.user import user_pagination_request_schema
 from app.schemas.user import user_pagination_response_schema
-from app.schemas.community import communities_schema
 from app.schemas.community import community_pagination_request_schema
 from app.schemas.community import community_pagination_response_schema
+from app.schemas.post import post_pagination_request_schema
+from app.schemas.post import post_pagination_response_schema
 from app.schemas.post import posts_schema
 from app.schemas.comment import comments_schema
 
@@ -143,13 +143,14 @@ def read_subscriptions(args, username):
 
 
 @user_routes.get('/<string:username>/posts')
+@use_args(post_pagination_request_schema, location='query')
 @jwt_required(optional=True)
-def read_user_posts(username):
+def read_user_posts(args, username):
     user = User.get_by_username(username)
 
-    posts = PostManager.read_all_by_user(user)
+    paginated_posts = PostManager.read_all_by_user(user, args)
     
-    return posts_schema.dump(posts)
+    return post_pagination_response_schema.dump(paginated_posts), HTTPStatus.OK
 
 
 @user_routes.get('/<string:username>/comments')

@@ -277,12 +277,25 @@ class Post(db.Model):
         return posts
     
     @classmethod
-    @filtered_posts
-    def get_all_by_user(cls, user):
-        query = db.select(cls).where(cls.user_id == user.id)
+    def get_all_by_user(cls, user, args):
+        page = args.get('page')
+        per_page = args.get('per_page')
 
-        posts = db.session.scalars(query).all()
+        @filtered_posts_select
+        def get_query():
+            query = db.select(cls).where(cls.user_id == user.id)
 
+            return query
+        
+        query = get_query()
+
+        posts = db.paginate(
+            query,
+            page=page,
+            per_page=per_page,
+            error_out=False
+        )
+        
         return posts
     
     @property

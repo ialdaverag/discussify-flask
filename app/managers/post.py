@@ -46,10 +46,10 @@ class PostManager:
         return posts
     
     @staticmethod
-    def read_all_by_user(user):
-        posts = Post.get_all_by_user(user)
+    def read_all_by_user(user, args):
+        paginated_posts = Post.get_all_by_user(user, args)
 
-        return posts
+        return paginated_posts
 
     @staticmethod
     def read_all(args):
