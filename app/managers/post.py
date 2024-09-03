@@ -102,11 +102,10 @@ class PostBookmarkManager:
         ).save()
 
     @staticmethod
-    #@filtered_posts
-    def read_bookmarked_posts_by_user(user):
-        bookmarks = PostBookmark.get_bookmarks_by_user(user)
+    def read_bookmarked_posts_by_user(user, args):
+        paginated_bookmarks = PostBookmark.get_bookmarks_by_user(user, args)
 
-        return bookmarks
+        return paginated_bookmarks
     
     @staticmethod
     def delete(user, post):

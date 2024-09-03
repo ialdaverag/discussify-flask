@@ -45,19 +45,32 @@ class PostBookmark(db.Model):
         return bookmark
     
     @classmethod
-    @filtered_posts
-    def get_bookmarks_by_user(cls, user):
+    def get_bookmarks_by_user(cls, user, args):
         from app.models.post import Post 
 
-        query = (
-            db.select(Post)
-            .join(cls, Post.id == cls.post_id)
-            .where(cls.user_id == user.id)
+        page = args.get('page')
+        per_page = args.get('per_page')
+
+        @filtered_posts_select
+        def get_query():
+            query = (
+                db.select(Post)
+                .join(cls, Post.id == cls.post_id)
+                .where(cls.user_id == user.id)
+            )
+
+            return query
+        
+        query = get_query()
+
+        paginated_bookmarks = db.paginate(
+            query,
+            page=page,
+            per_page=per_page,
+            error_out=False
         )
 
-        bookmarks = db.session.scalars(query).all()
-
-        return bookmarks
+        return paginated_bookmarks
 
 
 class PostVote(db.Model):

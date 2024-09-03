@@ -170,11 +170,12 @@ def me():
 
 
 @user_routes.get('/posts/bookmarked')
+@use_args(post_pagination_request_schema, location='query')
 @jwt_required()
-def read_user_bookmarked_posts():
-    bookmarks = PostBookmarkManager.read_bookmarked_posts_by_user(current_user)
+def read_user_bookmarked_posts(args):
+    paginated_bookmarks = PostBookmarkManager.read_bookmarked_posts_by_user(current_user, args)
 
-    return posts_schema.dump(bookmarks), HTTPStatus.OK
+    return post_pagination_response_schema.dump(paginated_bookmarks), HTTPStatus.OK
 
 
 @user_routes.get('/posts/upvoted')
