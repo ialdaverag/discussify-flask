@@ -261,13 +261,25 @@ class Comment(db.Model):
         return downvoted_comments
     
     @classmethod
-    @filtered_comments
-    def get_all_by_user(cls, user):
-        query = db.select(cls).where(cls.user_id == user.id)
+    def get_all_by_user(cls, user, args):
+        page = args.get('page')
+        per_page = args.get('per_page')
 
-        comments = db.session.scalars(query).all()
+        def get_query():
+            query = db.select(cls).where(cls.user_id == user.id)
 
-        return comments
+            return query
+        
+        query = get_query()
+
+        paginated_comments = db.paginate(
+            query,
+            page=page,
+            per_page=per_page,
+            error_out=False
+        )
+
+        return paginated_comments
     
     @classmethod
     def get_all_root_comments_by_post(cls, post, args):

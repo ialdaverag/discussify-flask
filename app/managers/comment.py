@@ -54,10 +54,10 @@ class CommentManager:
         return comment
     
     @staticmethod
-    def read_all_by_user(user):
-        comments = Comment.get_all_by_user(user)
+    def read_all_by_user(user, args):
+        paginated_comments = Comment.get_all_by_user(user, args)
 
-        return comments
+        return paginated_comments
     
     @staticmethod
     def read_all_root_comments_by_post(post, args):

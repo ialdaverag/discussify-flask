@@ -35,7 +35,8 @@ from app.schemas.community import community_pagination_request_schema
 from app.schemas.community import community_pagination_response_schema
 from app.schemas.post import post_pagination_request_schema
 from app.schemas.post import post_pagination_response_schema
-from app.schemas.post import posts_schema
+from app.schemas.comment import comment_pagination_request_schema
+from app.schemas.comment import comment_pagination_response_schema
 from app.schemas.comment import comments_schema
 
 user_routes = Blueprint('user_routes', __name__)
@@ -154,13 +155,14 @@ def read_user_posts(args, username):
 
 
 @user_routes.get('/<string:username>/comments')
+@use_args(comment_pagination_request_schema, location='query')
 @jwt_required(optional=True)
-def read_user_comments(username):
+def read_user_comments(args, username):
     user = User.get_by_username(username)
 
-    comments = CommentManager.read_all_by_user(user)
+    paginated_comments = CommentManager.read_all_by_user(user, args)
     
-    return comments_schema.dump(comments)
+    return comment_pagination_response_schema.dump(paginated_comments), HTTPStatus.OK
 
 
 @user_routes.get('/me')
