@@ -58,3 +58,24 @@ def assert_post_list(self, posts, expected_count=0):
         self.assertIn('stats', post)
         self.assertIn('created_at', post)
         self.assertIn('updated_at', post)
+
+def assert_comment_list(self, comments, expected_count=0):
+    # Assert that the comments is a list
+    self.assertIsInstance(comments, list)
+
+    # Assert that the length of the comments is equal to the expected count
+    self.assertEqual(len(comments), expected_count)
+
+    # Assert each comment in the comments list has the expected structure
+    for comment in comments:
+        self.assertIn('id', comment)
+        self.assertIn('content', comment)
+        self.assertIn('owner', comment)
+        self.assertIn('post', comment)
+        self.assertIn('bookmarked', comment)
+        self.assertIn('upvoted', comment)
+        self.assertIn('downvoted', comment)
+        self.assertIn('replies', comment)
+        self.assertIn('stats', comment)
+        self.assertIn('created_at', comment)
+        self.assertIn('updated_at', comment)

@@ -54,25 +54,22 @@ class CommentManager:
         return comment
     
     @staticmethod
-    #@filtered_comments
     def read_all_by_user(user):
         comments = Comment.get_all_by_user(user)
 
         return comments
     
     @staticmethod
-    #@filtered_comments
     def read_all_root_comments_by_post(post):
         comments = Comment.get_all_root_comments_by_post(post)
 
         return comments
 
     @staticmethod
-    #@filtered_comments
-    def read_all():
-        comments = Comment.get_all()
+    def read_all(args):
+        paginated_comments = Comment.get_all(args)
 
-        return comments
+        return paginated_comments
 
     @staticmethod
     def update(user, comment, data):

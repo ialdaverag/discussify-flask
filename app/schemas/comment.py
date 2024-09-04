@@ -6,6 +6,15 @@ from marshmallow import validate
 # Schemas
 from app.schemas.user import UserSchema
 from app.schemas.post import PostSchema
+from app.schemas.pagination import PaginationSchema
+
+
+class CommentPaginationRequestSchema(Schema):
+    class Meta:
+        ordered = True
+
+    page = fields.Integer(load_default=1)
+    per_page = fields.Integer(load_default=10)
 
 
 class CommentStatsSchema(Schema):
@@ -43,6 +52,15 @@ class CommentSchema(Schema):
     updated_at = fields.DateTime(dump_only=True)
 
 
+class CommentPaginationResponseSchema(PaginationSchema):
+    class Meta:
+        ordered = True
+
+    comments = fields.Nested(CommentSchema, attribute="items", many=True)
+
+
+comment_pagination_request_schema = CommentPaginationRequestSchema()
+comment_pagination_response_schema = CommentPaginationResponseSchema()
 comment_schema = CommentSchema()
 comment_update_schema = CommentSchema(only=('content',))
 comments_schema = CommentSchema(many=True)

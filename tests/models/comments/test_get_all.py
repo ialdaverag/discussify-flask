@@ -7,24 +7,46 @@ from tests.factories.comment_factory import CommentFactory
 # Models
 from app.models.comment import Comment
 
+# Flaks-SQLAlchemy
+from flask_sqlalchemy.pagination import Pagination
 
-class TestGetAll(BaseTestCase):
-    def test_get_all(self):
-        # Number of comments to create
+
+class TestGetComments(BaseTestCase):
+    def test_get_comments(self):
+        # Number of comments
         n = 5
 
         # Create a comment
         CommentFactory.create_batch(n)
 
-        # Get all comments
-        comments = Comment.get_all()
+        # Set the args
+        args = {}
+
+        # get the comment
+        comments = Comment.get_all(args)
+
+        # Assert comments is a Pagination object
+        self.assertIsInstance(comments, Pagination)
+
+        # Get the items
+        comments_items = comments.items
 
         # Assert the number of comments
-        self.assertEqual(len(comments), n)
+        self.assertEqual(len(comments_items), n)
 
-    def test_get_all_empty(self):
-        # Get all comments
-        comments = Comment.get_all()
 
-        # Assert that comments is an empty list
-        self.assertEqual(comments, [])
+    def test_get_comments_empty(self):
+        # Set the args
+        args = {}
+
+        # get the comment
+        comments = Comment.get_all(args)
+
+        # Assert comments is a Pagination object
+        self.assertIsInstance(comments, Pagination)
+
+        # Get the items
+        comments_items = comments.items
+
+        # Assert the number of comments
+        self.assertEqual(len(comments_items), 0)

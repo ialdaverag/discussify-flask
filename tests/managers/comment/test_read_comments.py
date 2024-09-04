@@ -7,6 +7,9 @@ from tests.factories.comment_factory import CommentFactory
 # Managers
 from app.managers.comment import CommentManager
 
+# Flaks-SQLAlchemy
+from flask_sqlalchemy.pagination import Pagination
+
 
 class TestReadComments(BaseTestCase):
     def test_read_comments(self):
@@ -14,23 +17,36 @@ class TestReadComments(BaseTestCase):
         n = 5
 
         # Create a comment
-        comments = CommentFactory.create_batch(n)
+        CommentFactory.create_batch(n)
+
+        # Set the args
+        args = {}
 
         # Read the comment
-        comment_to_read = CommentManager.read_all()
+        comments = CommentManager.read_all(args)
+
+        # Assert comments is a Pagination object
+        self.assertIsInstance(comments, Pagination)
+
+        # Get the items
+        comments_items = comments.items
 
         # Assert the number of comments
-        self.assertEqual(len(comment_to_read), n)
+        self.assertEqual(len(comments_items), n)
 
-        # Assert that the comment is the same
-        self.assertEqual(comments, comment_to_read)
 
     def test_read_comments_empty(self):
-        # Read the comments
-        read_comments = CommentManager.read_all()
+        # Set the args
+        args = {}
 
-        # Assert that there are no comments
-        self.assertEqual(len(read_comments), 0)
+        # Read the comment
+        comments = CommentManager.read_all(args)
 
-        # Assert that the comments are an empty list
-        self.assertEqual(read_comments, [])
+        # Assert comments is a Pagination object
+        self.assertIsInstance(comments, Pagination)
+
+        # Get the items
+        comments_items = comments.items
+
+        # Assert the number of comments
+        self.assertEqual(len(comments_items), 0)

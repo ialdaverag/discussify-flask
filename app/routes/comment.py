@@ -17,6 +17,8 @@ from app.schemas.user import user_pagination_request_schema
 from app.schemas.user import user_pagination_response_schema
 from app.schemas.comment import comment_schema
 from app.schemas.comment import comment_update_schema
+from app.schemas.comment import comment_pagination_request_schema
+from app.schemas.comment import comment_pagination_response_schema
 from app.schemas.comment import comments_schema
 from app.schemas.user import users_schema
 
@@ -67,11 +69,12 @@ def read_comment(id):
 
 
 @comment_routes.get('/')
+@use_args(comment_pagination_request_schema, location='query')
 @jwt_required(optional=True)
-def read_comments():
-    comments = CommentManager.read_all()
+def read_comments(args):
+    paginated_comments = CommentManager.read_all(args)
 
-    return comments_schema.dump(comments), HTTPStatus.OK
+    return comment_pagination_response_schema.dump(paginated_comments), HTTPStatus.OK
 
 
 @comment_routes.patch('/<string:id>')

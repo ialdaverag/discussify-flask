@@ -7,6 +7,7 @@ from app.extensions.database import db
 # Decorators
 from app.decorators.filtered_users_select import filtered_users_select
 from app.decorators.filtered_users import filtered_users
+from app.decorators.filtered_comments_select import filtered_comments_select
 from app.decorators.filtered_comments import filtered_comments
 
 # Errors
@@ -95,8 +96,7 @@ class CommentVote(db.Model):
         return upvoted_comments
     
     @classmethod
-    @filtered_comments
-    def get_downvoted_comments_by_user(cls, user):
+    def get_downvoted_comments_by_user(cls, user, args):
         query = (
             db.select(Comment)
             .join(cls, cls.comment_id == Comment.id)
@@ -238,13 +238,26 @@ class Comment(db.Model):
         return comment
     
     @classmethod
-    @filtered_comments
-    def get_all(cls):
-        query = db.select(cls)
+    def get_all(cls, args):
+        page = args.get('page')
+        per_page = args.get('per_page')
 
-        comments =  db.session.scalars(query).all()
+        @filtered_comments_select
+        def get_query():
+            query = db.select(cls)
 
-        return comments
+            return query
+        
+        query = get_query()
+
+        downvoted_comments = db.paginate(
+            query,
+            page=page,
+            per_page=per_page,
+            error_out=False
+        )
+
+        return downvoted_comments
     
     @classmethod
     @filtered_comments
