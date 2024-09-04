@@ -19,6 +19,8 @@ from app.schemas.post import post_pagination_request_schema
 from app.schemas.post import post_pagination_response_schema
 from app.schemas.post import post_schema
 from app.schemas.post import posts_schema
+from app.schemas.comment import comment_pagination_request_schema
+from app.schemas.comment import comment_pagination_response_schema
 from app.schemas.comment import comments_schema
 
 # Models
@@ -164,10 +166,11 @@ def read_downvoters(args, id):
 
 
 @post_routes.get('/<int:id>/comments')
+@use_args(comment_pagination_request_schema, location='query')
 @jwt_required(optional=True)
-def read_post_comments(id):
+def read_post_comments(args, id):
     post = Post.get_by_id(id)
 
-    comments = CommentManager.read_all_root_comments_by_post(post)
+    paginated_comments = CommentManager.read_all_root_comments_by_post(post, args)
     
-    return comments_schema.dump(comments), HTTPStatus.OK
+    return comment_pagination_response_schema.dump(paginated_comments), HTTPStatus.OK

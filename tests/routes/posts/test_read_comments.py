@@ -12,6 +12,8 @@ from app.models.community import CommunityModerator
 
 # Utils
 from tests.utils.tokens import get_access_token
+from tests.utils.assert_pagination import assert_pagination_structure_comments
+from tests.utils.assert_list import assert_comment_list
 
 
 class TestReadComments(BaseTestCase):
@@ -35,27 +37,24 @@ class TestReadComments(BaseTestCase):
         # Check status code
         self.assertEqual(response.status_code, 200)
 
-        # Get the data
-        data = response.json
+        # Get the pagination
+        pagination = response.json
 
-        # Assert that the response data is a list
-        self.assertIsInstance(data, list)
+        # Assert the pagination structure
+        assert_pagination_structure_comments(
+            self,
+            pagination,
+            expected_page=1,
+            expected_pages=1,
+            expected_per_page=10,
+            expected_total=n
+        )
 
-        # Assert the number of comments
-        self.assertEqual(len(data), n)
+        # Get the comments
+        comments = pagination['comments']
 
-        # Assert the response data structure
-        for comment in data:
-            self.assertIn('id', comment)
-            self.assertIn('content', comment)
-            self.assertIn('owner', comment)
-            self.assertIn('post', comment)
-            self.assertIn('bookmarked', comment)
-            self.assertIn('upvoted', comment)
-            self.assertIn('downvoted', comment)
-            self.assertIn('stats', comment)
-            self.assertIn('created_at', comment)
-            self.assertIn('updated_at', comment)
+        # Assert the comments list
+        assert_comment_list(self, comments, n)
 
     def test_read_comments_as_user(self):
         # Number of comments
@@ -82,27 +81,24 @@ class TestReadComments(BaseTestCase):
         # Check status code
         self.assertEqual(response.status_code, 200)
 
-        # Get the data
-        data = response.json
+        # Get the pagination
+        pagination = response.json
 
-        # Assert that the response data is a list
-        self.assertIsInstance(data, list)
+        # Assert the pagination structure
+        assert_pagination_structure_comments(
+            self,
+            pagination,
+            expected_page=1,
+            expected_pages=1,
+            expected_per_page=10,
+            expected_total=n
+        )
 
-        # Assert the number of comments
-        self.assertEqual(len(data), n)
+        # Get the comments
+        comments = pagination['comments']
 
-        # Assert the response data structure
-        for comment in data:
-            self.assertIn('id', comment)
-            self.assertIn('content', comment)
-            self.assertIn('owner', comment)
-            self.assertIn('post', comment)
-            self.assertIn('bookmarked', comment)
-            self.assertIn('upvoted', comment)
-            self.assertIn('downvoted', comment)
-            self.assertIn('stats', comment)
-            self.assertIn('created_at', comment)
-            self.assertIn('updated_at', comment)
+        # Assert the comments list
+        assert_comment_list(self, comments, n)
 
     def test_read_comments_as_user_with_blocked(self):
         # Number of comments
@@ -136,27 +132,24 @@ class TestReadComments(BaseTestCase):
         # Check status code
         self.assertEqual(response.status_code, 200)
 
-        # Get the data
-        data = response.json
+        # Get the pagination
+        pagination = response.json
 
-        # Assert that the response data is a list
-        self.assertIsInstance(data, list)
+        # Assert the pagination structure
+        assert_pagination_structure_comments(
+            self,
+            pagination,
+            expected_page=1,
+            expected_pages=1,
+            expected_per_page=10,
+            expected_total=n - b
+        )
 
-        # Assert the number of comments
-        self.assertEqual(len(data), n - b)
+        # Get the comments
+        comments = pagination['comments']
 
-        # Assert the response data structure
-        for comment in data:
-            self.assertIn('id', comment)
-            self.assertIn('content', comment)
-            self.assertIn('owner', comment)
-            self.assertIn('post', comment)
-            self.assertIn('bookmarked', comment)
-            self.assertIn('upvoted', comment)
-            self.assertIn('downvoted', comment)
-            self.assertIn('stats', comment)
-            self.assertIn('created_at', comment)
-            self.assertIn('updated_at', comment)
+        # Assert the comments list
+        assert_comment_list(self, comments, n - b)
 
     def test_read_comments_as_user_with_blockers(self):
         # Number of comments
@@ -190,27 +183,24 @@ class TestReadComments(BaseTestCase):
         # Check status code
         self.assertEqual(response.status_code, 200)
 
-        # Get the data
-        data = response.json
+        # Get the pagination
+        pagination = response.json
 
-        # Assert that the response data is a list
-        self.assertIsInstance(data, list)
+        # Assert the pagination structure
+        assert_pagination_structure_comments(
+            self,
+            pagination,
+            expected_page=1,
+            expected_pages=1,
+            expected_per_page=10,
+            expected_total=n - b
+        )
 
-        # Assert the number of comments
-        self.assertEqual(len(data), n - b)
+        # Get the comments
+        comments = pagination['comments']
 
-        # Assert the response data structure
-        for comment in data:
-            self.assertIn('id', comment)
-            self.assertIn('content', comment)
-            self.assertIn('owner', comment)
-            self.assertIn('post', comment)
-            self.assertIn('bookmarked', comment)
-            self.assertIn('upvoted', comment)
-            self.assertIn('downvoted', comment)
-            self.assertIn('stats', comment)
-            self.assertIn('created_at', comment)
-            self.assertIn('updated_at', comment)
+        # Assert the comments list
+        assert_comment_list(self, comments, n - b)
 
     def test_read_comments_as_user_with_blocked_and_blockers(self):
         # Number of comments
@@ -251,27 +241,24 @@ class TestReadComments(BaseTestCase):
         # Check status code
         self.assertEqual(response.status_code, 200)
 
-        # Get the data
-        data = response.json
+        # Get the pagination
+        pagination = response.json
 
-        # Assert that the response data is a list
-        self.assertIsInstance(data, list)
+        # Assert the pagination structure
+        assert_pagination_structure_comments(
+            self,
+            pagination,
+            expected_page=1,
+            expected_pages=1,
+            expected_per_page=10,
+            expected_total=n - b - c
+        )
 
-        # Assert the number of comments
-        self.assertEqual(len(data), n - b - c)
+        # Get the comments
+        comments = pagination['comments']
 
-        # Assert the response data structure
-        for comment in data:
-            self.assertIn('id', comment)
-            self.assertIn('content', comment)
-            self.assertIn('owner', comment)
-            self.assertIn('post', comment)
-            self.assertIn('bookmarked', comment)
-            self.assertIn('upvoted', comment)
-            self.assertIn('downvoted', comment)
-            self.assertIn('stats', comment)
-            self.assertIn('created_at', comment)
-            self.assertIn('updated_at', comment)
+        # Assert the comments list
+        assert_comment_list(self, comments, n - b - c)
     
     def test_read_comments_as_moderator(self):
         # Number of posts
@@ -311,27 +298,24 @@ class TestReadComments(BaseTestCase):
         # Assert the response status code
         self.assertEqual(response.status_code, 200)
 
-        # Get the response data
-        data = response.json
+        # Get the pagination
+        pagination = response.json
 
-        # Assert the response data is a list
-        self.assertIsInstance(data, list)
+        # Assert the pagination structure
+        assert_pagination_structure_comments(
+            self,
+            pagination,
+            expected_page=1,
+            expected_pages=1,
+            expected_per_page=10,
+            expected_total=n
+        )
 
-        # Assert the response data length
-        self.assertEqual(len(data), n)
+        # Get the comments
+        comments = pagination['comments']
 
-        # Assert the response data structure
-        for comment in data:
-            self.assertIn('id', comment)
-            self.assertIn('content', comment)
-            self.assertIn('owner', comment)
-            self.assertIn('post', comment)
-            self.assertIn('bookmarked', comment)
-            self.assertIn('upvoted', comment)
-            self.assertIn('downvoted', comment)
-            self.assertIn('stats', comment)
-            self.assertIn('created_at', comment)
-            self.assertIn('updated_at', comment)
+        # Assert the comments list
+        assert_comment_list(self, comments, n)
 
     def test_read_comments_as_moderator_with_blockers(self):
         # Number of posts
@@ -371,27 +355,24 @@ class TestReadComments(BaseTestCase):
         # Assert the response status code
         self.assertEqual(response.status_code, 200)
 
-        # Get the response data
-        data = response.json
+        # Get the pagination
+        pagination = response.json
 
-        # Assert the response data is a list
-        self.assertIsInstance(data, list)
+        # Assert the pagination structure
+        assert_pagination_structure_comments(
+            self,
+            pagination,
+            expected_page=1,
+            expected_pages=1,
+            expected_per_page=10,
+            expected_total=n
+        )
 
-        # Assert the response data length
-        self.assertEqual(len(data), n)
+        # Get the comments
+        comments = pagination['comments']
 
-        # Assert the response data structure
-        for comment in data:
-            self.assertIn('id', comment)
-            self.assertIn('content', comment)
-            self.assertIn('owner', comment)
-            self.assertIn('post', comment)
-            self.assertIn('bookmarked', comment)
-            self.assertIn('upvoted', comment)
-            self.assertIn('downvoted', comment)
-            self.assertIn('stats', comment)
-            self.assertIn('created_at', comment)
-            self.assertIn('updated_at', comment)
+        # Assert the comments list
+        assert_comment_list(self, comments, n)
 
     def test_read_comments_as_moderator_with_blocked_and_blockers(self):
         # Number of posts
@@ -438,14 +419,24 @@ class TestReadComments(BaseTestCase):
         # Assert the response status code
         self.assertEqual(response.status_code, 200)
 
-        # Get the response data
-        data = response.json
+        # Get the pagination
+        pagination = response.json
 
-        # Assert the response data is a list
-        self.assertIsInstance(data, list)
+        # Assert the pagination structure
+        assert_pagination_structure_comments(
+            self,
+            pagination,
+            expected_page=1,
+            expected_pages=1,
+            expected_per_page=10,
+            expected_total=n
+        )
 
-        # Assert the response data length
-        self.assertEqual(len(data), n)
+        # Get the comments
+        comments = pagination['comments']
+
+        # Assert the comments list
+        assert_comment_list(self, comments, n)
 
     def test_read_comments_empty(self):
         # Create a post
@@ -459,8 +450,21 @@ class TestReadComments(BaseTestCase):
         # Check status code
         self.assertEqual(response.status_code, 200)
 
-        # Get the data
-        data = response.json
+        # Get the pagination
+        pagination = response.json
 
-        # Assert that the response data is an empty list
-        self.assertEqual(data, [])
+        # Assert the pagination structure
+        assert_pagination_structure_comments(
+            self,
+            pagination,
+            expected_page=1,
+            expected_pages=0,
+            expected_per_page=10,
+            expected_total=0
+        )
+
+        # Get the comments
+        comments = pagination['comments']
+
+        # Assert the comments list
+        assert_comment_list(self, comments)

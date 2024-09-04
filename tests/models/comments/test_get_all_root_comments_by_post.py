@@ -8,6 +8,9 @@ from tests.factories.post_factory import PostFactory
 # Models
 from app.models.comment import Comment
 
+# Flask-SQLAlchemy
+from flask_sqlalchemy.pagination import Pagination
+
 
 class TestGetAllRootCommentsByPost(BaseTestCase):
     def test_get_all_root_comments_by_post(self):
@@ -20,18 +23,36 @@ class TestGetAllRootCommentsByPost(BaseTestCase):
         # Create a root comment
         CommentFactory.create_batch(n, post=post)
 
+        # Set the args
+        args = {}
+
         # Get all root comments by the post
-        root_comments_by_post = Comment.get_all_root_comments_by_post(post)
+        root_comments_by_post = Comment.get_all_root_comments_by_post(post, args)
+
+        # Assert the type of root_comments_by_post
+        self.assertIsInstance(root_comments_by_post, Pagination)
+
+        # Get the items
+        items = root_comments_by_post.items
 
         # Assert the number of root comments
-        self.assertEqual(len(root_comments_by_post), n)
+        self.assertEqual(len(items), n)
 
     def test_get_all_root_comments_by_post_empty(self):
         # Create a post
         post = PostFactory()
 
-        # Get all root comments by the post
-        root_comments_by_post = Comment.get_all_root_comments_by_post(post)
+        # Set the args
+        args = {}
 
-        # Assert that root_comments_by_post is an empty list
-        self.assertEqual(root_comments_by_post, [])
+        # Get all root comments by the post
+        root_comments_by_post = Comment.get_all_root_comments_by_post(post, args)
+
+        # Assert the type of root_comments_by_post
+        self.assertIsInstance(root_comments_by_post, Pagination)
+
+        # Get the items
+        items = root_comments_by_post.items
+
+        # Assert the number of root comments
+        self.assertEqual(len(items), 0)

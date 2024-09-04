@@ -96,7 +96,8 @@ class CommentVote(db.Model):
         return upvoted_comments
     
     @classmethod
-    def get_downvoted_comments_by_user(cls, user, args):
+    @filtered_comments
+    def get_downvoted_comments_by_user(cls, user):
         query = (
             db.select(Comment)
             .join(cls, cls.comment_id == Comment.id)
@@ -269,11 +270,36 @@ class Comment(db.Model):
         return comments
     
     @classmethod
-    @filtered_comments
-    def get_all_root_comments_by_post(cls, post):
-        query = db.select(cls).where(cls.comment_id == None, cls.post_id == post.id)
+    def get_all_root_comments_by_post(cls, post, args):
+        """
+        Get all root comments for a given post.
 
-        root_comments = db.session.scalars(query).all()
+        :param post: The post object.
+        :param args: The request arguments.
+
+        :return: Paginated list of root comments
+        """
+        
+        page = args.get('page')
+        per_page = args.get('per_page')
+
+        @filtered_comments_select
+        def get_query(post):
+            query = (
+                db.select(cls)
+                .where(cls.comment_id == None, cls.post_id == post.id)
+            )
+            
+            return query
+        
+        query = get_query(post)
+
+        root_comments = db.paginate(
+            query,
+            page=page,
+            per_page=per_page,
+            error_out=False
+        )
 
         return root_comments
     

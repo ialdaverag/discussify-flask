@@ -40,7 +40,7 @@ class TestDeleteComment(BaseTestCase):
             expected_page=1,
             expected_pages=1,
             expected_per_page=10,
-            expected_total=5
+            expected_total=n
         )
 
         # Get the comments
