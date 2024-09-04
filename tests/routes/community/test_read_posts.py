@@ -644,14 +644,14 @@ class TestReadPosts(BaseTestCase):
             expected_page=1,
             expected_pages=1,
             expected_per_page=10,
-            expected_total=n - b
+            expected_total=n
         )
 
         # Get the posts
         posts = pagination['posts']
 
         # Assert the posts list
-        assert_post_list(self, posts, n - b)
+        assert_post_list(self, posts, n)
 
     def test_read_posts_as_moderator_with_blocked_args(self):
         # Number of posts
@@ -699,14 +699,14 @@ class TestReadPosts(BaseTestCase):
             expected_page=1,
             expected_pages=1,
             expected_per_page=5,
-            expected_total=n - b
+            expected_total=n
         )
 
         # Get the posts
         posts = pagination['posts']
 
         # Assert the posts list
-        assert_post_list(self, posts, n - b)
+        assert_post_list(self, posts, n)
 
     def test_read_posts_as_moderator_with_blockers(self):
         # Number of posts
@@ -753,14 +753,14 @@ class TestReadPosts(BaseTestCase):
             expected_page=1,
             expected_pages=1,
             expected_per_page=10,
-            expected_total=n - b
+            expected_total=n
         )
 
         # Get the posts
         posts = pagination['posts']
 
         # Assert the posts list
-        assert_post_list(self, posts, n - b)
+        assert_post_list(self, posts, n)
 
     def test_read_posts_as_moderator_with_blockers_args(self):
         # Number of posts
@@ -808,14 +808,14 @@ class TestReadPosts(BaseTestCase):
             expected_page=1,
             expected_pages=1,
             expected_per_page=5,
-            expected_total=n - b
+            expected_total=n
         )
 
         # Get the posts
         posts = pagination['posts']
 
         # Assert the posts list
-        assert_post_list(self, posts, n - b)
+        assert_post_list(self, posts, n)
 
     def test_read_posts_as_moderator_with_blocked_and_blockers(self):
         # Number of posts
@@ -869,14 +869,14 @@ class TestReadPosts(BaseTestCase):
             expected_page=1,
             expected_pages=1,
             expected_per_page=10,
-            expected_total=n - b - c
+            expected_total=n
         )
 
         # Get the posts
         posts = pagination['posts']
 
         # Assert the posts list
-        assert_post_list(self, posts, n - b - c)
+        assert_post_list(self, posts, n)
 
     def test_read_posts_as_moderator_with_blocked_and_blockers_args(self):
         # Number of posts
@@ -931,14 +931,14 @@ class TestReadPosts(BaseTestCase):
             expected_page=1,
             expected_pages=1,
             expected_per_page=5,
-            expected_total=n - b - c
+            expected_total=n
         )
 
         # Get the posts
         posts = pagination['posts']
 
         # Assert the posts list
-        assert_post_list(self, posts, n - b - c)
+        assert_post_list(self, posts, n)
 
     def test_read_posts_empty(self):
         # Create a community

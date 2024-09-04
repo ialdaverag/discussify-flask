@@ -312,12 +312,12 @@ class Post(db.Model):
         per_page = args.get('per_page')
 
         @filtered_posts_select
-        def get_query():
+        def get_query(community):
             query = db.select(cls).where(cls.community_id == community.id)
-
+            
             return query
         
-        query = get_query()
+        query = get_query(community=community)
 
         paginated_posts = db.paginate(
             query,
