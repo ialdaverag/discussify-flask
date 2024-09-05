@@ -9,38 +9,58 @@ from tests.factories.comment_bookmark_factory import CommentBookmarkFactory
 from app.managers.comment import CommentBookmarkManager
 
 
-class TestReadBookmarkedComments(BaseTestCase):
-    def test_read_bookmarked_comments(self):
-        # Number of comments
+# Flask-SQLAlchemy
+from flask_sqlalchemy.pagination import Pagination
+
+
+class TestReadBookmarksByUser(BaseTestCase):
+    def test_read_bookmarks_by_user(self):
+        # Number of bookmarks
         n = 5
 
         # Create a user
         user = UserFactory()
 
         # Create some bookmarks
-        bookmarks = CommentBookmarkFactory.create_batch(n, user=user)
+        CommentBookmarkFactory.create_batch(n, user=user)
 
-        # Read user bookmarks
-        bookmarked_comments = CommentBookmarkManager.read_bookmarked_comments_by_user(user)
+        # Set the args
+        args = {}
+
+        # read the bookmarks by user
+        bookmarks_by_user = CommentBookmarkManager.read_bookmarked_comments_by_user(user, args)
+
+        # Assert bookmarks_by_user is a Pagination object
+        self.assertIsInstance(bookmarks_by_user, Pagination)
+
+        # read the items
+        items = bookmarks_by_user.items
+
+        # Assert items is a list
+        self.assertIsInstance(items, list)
 
         # Assert the number of bookmarks
-        self.assertEqual(len(bookmarked_comments), n)
+        self.assertEqual(len(items), n)
 
-        # Get the comments from the bookmarks
-        comments = [bookmark.comment for bookmark in bookmarks]
-
-        # Assert the bookmarks are the same
-        self.assertEqual(bookmarked_comments, comments)
-
-    def test_read_bookmarked_comments_empty(self):
+    def test_read_bookmarks_by_user_none(self):
         # Create a user
         user = UserFactory()
 
-        # Read user bookmarks
-        bookmarks_to_read = CommentBookmarkManager.read_bookmarked_comments_by_user(user)
+        # Set the args
+        args = {}
+
+        # read the bookmarks by user
+        bookmarks_by_user = CommentBookmarkManager.read_bookmarked_comments_by_user(user, args)
+
+        # Assert bookmarks_by_user is a Pagination object
+        self.assertIsInstance(bookmarks_by_user, Pagination)
+
+        # read the items
+        items = bookmarks_by_user.items
+
+        # Assert items is a list
+        self.assertIsInstance(items, list)
 
         # Assert the number of bookmarks
-        self.assertEqual(len(bookmarks_to_read), 0)
+        self.assertEqual(len(items), 0)
 
-        # Assert that the bookmarks are an empty list
-        self.assertEqual(bookmarks_to_read, [])

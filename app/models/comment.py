@@ -42,15 +42,28 @@ class CommentBookmark(db.Model):
         return bookmark
     
     @classmethod
-    @filtered_comments
-    def get_bookmarks_by_user(cls, user):
-        query = (
-            db.select(Comment)
-            .join(cls, cls.comment_id == Comment.id)
-            .where(cls.user_id == user.id)
-        )
+    def get_bookmarks_by_user(cls, user, args):
+        page = args.get('page')
+        per_page = args.get('per_page')
+                            
+        @filtered_comments_select
+        def get_query():
+            query = (
+                db.select(Comment)
+                .join(cls, cls.comment_id == Comment.id)
+                .where(cls.user_id == user.id)
+            )
 
-        bookmarks = db.session.scalars(query).all()
+            return query
+        
+        query = get_query()
+
+        bookmarks = db.paginate(
+            query,
+            page=page,
+            per_page=per_page,
+            error_out=False
+        )
 
         return bookmarks
 

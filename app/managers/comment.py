@@ -115,11 +115,10 @@ class CommentBookmarkManager:
         CommentBookmark(user=user, comment=comment).save()
 
     @staticmethod
-    #@filtered_comments
-    def read_bookmarked_comments_by_user(user):
-        bookmarks = CommentBookmark.get_bookmarks_by_user(user)
+    def read_bookmarked_comments_by_user(user, args):
+        paginated_bookmarks = CommentBookmark.get_bookmarks_by_user(user, args)
 
-        return bookmarks
+        return paginated_bookmarks
     
     @staticmethod
     def delete(user, comment):
@@ -180,7 +179,6 @@ class CommentVoteManager:
 
 
     @staticmethod
-    #@filtered_comments
     def read_upvoted_comments_by_user(user):
         upvotes = CommentVote.get_upvoted_comments_by_user(user)
 
@@ -188,21 +186,18 @@ class CommentVoteManager:
     
 
     @staticmethod
-    #@filtered_comments
     def read_downvoted_comments_by_user(user):
         downvotes = CommentVote.get_downvoted_comments_by_user(user)
 
         return downvotes
 
     @staticmethod
-    #@filtered_users
     def read_upvoters_by_comment(comment, args):
         paginated_upvoters = CommentVote.get_upvoters_by_comment(comment, args)
 
         return paginated_upvoters
     
     @staticmethod
-    #@filtered_users
     def read_downvoters_by_comment(comment, args):
         paginated_downvoters = CommentVote.get_downvoters_by_comment(comment, args)
 

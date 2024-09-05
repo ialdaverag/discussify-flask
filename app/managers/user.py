@@ -42,7 +42,6 @@ class UserManager:
         return target
 
     @staticmethod
-    #@filtered_users
     def read_all(user, args):
         paginated_users = User.get_all(args)
 
@@ -67,14 +66,12 @@ class FollowManager:
         ).save()
 
     @staticmethod
-    #@filtered_users
     def read_followed(user, args):
         paginated_following = Follow.get_followed(user, args)
         
         return paginated_following
     
     @staticmethod
-    #@filtered_users
     def read_followers(user, args):
         paginated_followers = Follow.get_followers(user, args)
         

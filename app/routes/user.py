@@ -199,11 +199,12 @@ def read_user_downvoted_posts(args):
 
 
 @user_routes.get('/comments/bookmarked')
+@use_args(comment_pagination_request_schema, location='query')
 @jwt_required()
-def read_user_bookmarked_comments():
-    bookmarks = CommentBookmarkManager.read_bookmarked_comments_by_user(current_user)
+def read_user_bookmarked_comments(args):
+    paginated_bookmarks = CommentBookmarkManager.read_bookmarked_comments_by_user(current_user, args)
     
-    return comments_schema.dump(bookmarks), HTTPStatus.OK
+    return comment_pagination_response_schema.dump(paginated_bookmarks), HTTPStatus.OK
 
 
 @user_routes.get('/comments/upvoted')
