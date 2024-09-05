@@ -8,6 +8,9 @@ from tests.factories.comment_vote_factory import CommentVoteFactory
 # Models
 from app.models.comment import CommentVote
 
+# Flask-SQLAlchemy
+from flask_sqlalchemy.pagination import Pagination
+
 
 class TestGetUpvotedCommentsByUser(BaseTestCase):
     def test_get_upvoted_comments_by_user(self):
@@ -18,29 +21,38 @@ class TestGetUpvotedCommentsByUser(BaseTestCase):
         user = UserFactory()
 
         # Create some votes
-        votes = CommentVoteFactory.create_batch(n, user=user, direction=1)
+        CommentVoteFactory.create_batch(n, user=user, direction=1)
+
+        # Set the args
+        args = {}
 
         # Get the upvoted comments by user
-        upvoted_comments_by_user = CommentVote.get_upvoted_comments_by_user(user)
+        upvoted_comments_by_user = CommentVote.get_upvoted_comments_by_user(user, args)
+
+        # Assert upvoted_comments_by_user is a Pagination object
+        self.assertIsInstance(upvoted_comments_by_user, Pagination)
+
+        # Get the items
+        items = upvoted_comments_by_user.items
 
         # Assert the number of upvoted comments
-        self.assertEqual(len(votes), n)
-
-        # Get the upvoted comments
-        comments = [vote.comment for vote in votes]
-
-        # Assert that the upvoted comments are the same
-        self.assertEqual(upvoted_comments_by_user, comments)
+        self.assertEqual(len(items), n)
 
     def test_get_upvoted_comments_by_user_none(self):
         # Create a user
         user = UserFactory()
 
+        # Set the args
+        args = {}
+
         # Get the upvoted comments by user
-        upvoted_comments_by_user = CommentVote.get_upvoted_comments_by_user(user)
+        upvoted_comments_by_user = CommentVote.get_upvoted_comments_by_user(user, args)
+
+        # Assert upvoted_comments_by_user is a Pagination object
+        self.assertIsInstance(upvoted_comments_by_user, Pagination)
+
+        # Get the items
+        items = upvoted_comments_by_user.items
 
         # Assert the number of upvoted comments
-        self.assertEqual(len(upvoted_comments_by_user), 0)
-
-        # Assert that the upvoted comments list is empty
-        self.assertEqual(upvoted_comments_by_user, [])
+        self.assertEqual(len(items), 0)

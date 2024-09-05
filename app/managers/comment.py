@@ -179,10 +179,10 @@ class CommentVoteManager:
 
 
     @staticmethod
-    def read_upvoted_comments_by_user(user):
-        upvotes = CommentVote.get_upvoted_comments_by_user(user)
+    def read_upvoted_comments_by_user(user, args):
+        paginated_upvotes = CommentVote.get_upvoted_comments_by_user(user, args)
 
-        return upvotes
+        return paginated_upvotes
     
 
     @staticmethod

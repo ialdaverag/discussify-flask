@@ -208,12 +208,12 @@ def read_user_bookmarked_comments(args):
 
 
 @user_routes.get('/comments/upvoted')
+@use_args(comment_pagination_request_schema, location='query')
 @jwt_required()
-def read_user_upvoted_comments():
-    upvotes = CommentVoteManager.read_upvoted_comments_by_user(current_user)
+def read_user_upvoted_comments(args):
+    paginated_upvotes = CommentVoteManager.read_upvoted_comments_by_user(current_user, args)
 
-    return comments_schema.dump(upvotes), HTTPStatus.OK
-
+    return comment_pagination_response_schema.dump(paginated_upvotes), HTTPStatus.OK
 
 @user_routes.get('/comments/downvoted')
 @jwt_required()
