@@ -216,8 +216,9 @@ def read_user_upvoted_comments(args):
     return comment_pagination_response_schema.dump(paginated_upvotes), HTTPStatus.OK
 
 @user_routes.get('/comments/downvoted')
+@use_args(comment_pagination_request_schema, location='query')
 @jwt_required()
-def read_user_downvoted_comments():
-    downvotes = CommentVoteManager.read_downvoted_comments_by_user(current_user)
+def read_user_downvoted_comments(args):
+    paginated_downvotes = CommentVoteManager.read_downvoted_comments_by_user(current_user, args)
 
-    return comments_schema.dump(downvotes), HTTPStatus.OK
+    return comment_pagination_response_schema.dump(paginated_downvotes), HTTPStatus.OK

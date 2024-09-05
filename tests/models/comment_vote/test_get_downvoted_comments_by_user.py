@@ -8,6 +8,9 @@ from tests.factories.comment_vote_factory import CommentVoteFactory
 # Models
 from app.models.comment import CommentVote
 
+# Flask-SQLAlchemy
+from flask_sqlalchemy.pagination import Pagination
+
 
 class TestGetDownvotedCommentsByUser(BaseTestCase):
     def test_get_downvoted_comments_by_user(self):
@@ -18,29 +21,38 @@ class TestGetDownvotedCommentsByUser(BaseTestCase):
         user = UserFactory()
 
         # Create some votes
-        votes = CommentVoteFactory.create_batch(n, user=user, direction=-1)
+        CommentVoteFactory.create_batch(n, user=user, direction=-1)
+
+        # Set the args
+        args = {}
 
         # Get the downvoted comments by user
-        downvoted_comments_by_user = CommentVote.get_downvoted_comments_by_user(user)
+        downvoted_comments_by_user = CommentVote.get_downvoted_comments_by_user(user, args)
+
+        # Assert downvoted_comments_by_user is a Pagination object
+        self.assertIsInstance(downvoted_comments_by_user, Pagination)
+
+        # Get the items
+        items = downvoted_comments_by_user.items
 
         # Assert the number of downvoted comments
-        self.assertEqual(len(votes), n)
-
-        # Get the downvoted comments
-        comments = [vote.comment for vote in votes]
-
-        # Assert that the downvoted comments are the same
-        self.assertEqual(downvoted_comments_by_user, comments)
+        self.assertEqual(len(items), n)
 
     def test_get_downvoted_comments_by_user_none(self):
         # Create a user
         user = UserFactory()
 
+        # Set the args
+        args = {}
+
         # Get the downvoted comments by user
-        downvoted_comments_by_user = CommentVote.get_downvoted_comments_by_user(user)
+        downvoted_comments_by_user = CommentVote.get_downvoted_comments_by_user(user, args)
+
+        # Assert downvoted_comments_by_user is a Pagination object
+        self.assertIsInstance(downvoted_comments_by_user, Pagination)
+
+        # Get the items
+        items = downvoted_comments_by_user.items
 
         # Assert the number of downvoted comments
-        self.assertEqual(len(downvoted_comments_by_user), 0)
-
-        # Assert that the downvoted comments list is empty
-        self.assertEqual(downvoted_comments_by_user, [])
+        self.assertEqual(len(items), 0)

@@ -186,10 +186,10 @@ class CommentVoteManager:
     
 
     @staticmethod
-    def read_downvoted_comments_by_user(user):
-        downvotes = CommentVote.get_downvoted_comments_by_user(user)
+    def read_downvoted_comments_by_user(user, args):
+        paginated_downvotes = CommentVote.get_downvoted_comments_by_user(user, args)
 
-        return downvotes
+        return paginated_downvotes
 
     @staticmethod
     def read_upvoters_by_comment(comment, args):
