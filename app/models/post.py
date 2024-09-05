@@ -11,10 +11,8 @@ from app.errors.errors import NotFoundError
 from app.models.comment import Comment
 
 # Decorators
-from app.decorators.filtered_users_select import filtered_users_select
-from app.decorators.filtered_posts_select import filtered_posts_select
-from app.decorators.filtered_users import filtered_users
-from app.decorators.filtered_posts import filtered_posts
+from app.decorators.filters import filtered_users
+from app.decorators.filters import filtered_posts
 
 
 class PostBookmark(db.Model):
@@ -51,7 +49,7 @@ class PostBookmark(db.Model):
         page = args.get('page')
         per_page = args.get('per_page')
 
-        @filtered_posts_select
+        @filtered_posts
         def get_query():
             query = (
                 db.select(Post)
@@ -107,7 +105,7 @@ class PostVote(db.Model):
         page = args.get('page')
         per_page = args.get('per_page')
 
-        @filtered_users_select
+        @filtered_users
         def get_query():
             query = (
                 db.select(User)
@@ -135,7 +133,7 @@ class PostVote(db.Model):
         page = args.get('page')
         per_page = args.get('per_page')
 
-        @filtered_users_select
+        @filtered_users
         def get_query():
             query = (
                 db.select(User)
@@ -163,7 +161,7 @@ class PostVote(db.Model):
         page = args.get('page')
         per_page = args.get('per_page')
 
-        @filtered_posts_select
+        @filtered_posts
         def get_query():
             query = (
                 db.select(Post)
@@ -191,7 +189,7 @@ class PostVote(db.Model):
         page = args.get('page')
         per_page = args.get('per_page')
 
-        @filtered_posts_select
+        @filtered_posts
         def get_query():
             query = (
                 db.select(Post)
@@ -291,7 +289,7 @@ class Post(db.Model):
         page = args.get('page')
         per_page = args.get('per_page')
 
-        @filtered_posts_select
+        @filtered_posts
         def get_query():
             return db.select(cls)
         
@@ -311,7 +309,7 @@ class Post(db.Model):
         page = args.get('page')
         per_page = args.get('per_page')
 
-        @filtered_posts_select
+        @filtered_posts
         def get_query(community):
             query = db.select(cls).where(cls.community_id == community.id)
             
@@ -333,7 +331,7 @@ class Post(db.Model):
         page = args.get('page')
         per_page = args.get('per_page')
 
-        @filtered_posts_select
+        @filtered_posts
         def get_query():
             query = db.select(cls).where(cls.user_id == user.id)
 

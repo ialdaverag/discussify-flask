@@ -13,8 +13,7 @@ from app.models.community import CommunityModerator
 from app.models.community import CommunityBan
 
 # Decorators
-from app.decorators.filtered_users import filtered_users
-from app.decorators.filtered_users_select import filtered_users_select
+from app.decorators.filters import filtered_users
 
 # Errors
 from app.errors.errors import NotFoundError
@@ -51,7 +50,7 @@ class Follow(db.Model):
         per_page = args.get('per_page')
 
 
-        @filtered_users_select
+        @filtered_users
         def get_query():
             query = (
                 db.select(User)
@@ -77,7 +76,7 @@ class Follow(db.Model):
         page = args.get('page')
         per_page = args.get('per_page')
                             
-        @filtered_users_select
+        @filtered_users
         def get_query():
             query = (
                 db.select(User)
@@ -274,7 +273,7 @@ class User(db.Model):
         page = args.get('page')
         per_page = args.get('per_page')
 
-        @filtered_users_select
+        @filtered_users
         def get_query():
             return db.select(cls)
         

@@ -5,7 +5,7 @@ from flask_jwt_extended import current_user
 from app.extensions.database import db
 
 # Decorators
-from app.decorators.filtered_users_select import filtered_users_select
+from app.decorators.filters import filtered_users
 
 # Errors
 from app.errors.errors import NotFoundError
@@ -90,7 +90,7 @@ class CommunitySubscriber(db.Model):
         page = args.get('page')
         per_page = args.get('per_page')
 
-        @filtered_users_select
+        @filtered_users
         def get_query(community):
             query = (
                 db.select(User)

@@ -11,10 +11,6 @@ from app.errors.errors import BookmarkError
 from app.errors.errors import VoteError
 from app.errors.errors import BlockError
 
-# Decorators
-from app.decorators.filtered_users import filtered_users
-from app.decorators.filtered_posts import filtered_posts
-
 
 class PostManager:
     @staticmethod

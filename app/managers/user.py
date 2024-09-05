@@ -11,9 +11,6 @@ from app.errors.errors import BlockError
 # Utils
 from app.utils.password import hash_password
 
-# Decorators
-from app.decorators.filtered_users import filtered_users
-
 class UserManager:
     @staticmethod
     def create(data):

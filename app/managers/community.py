@@ -12,9 +12,6 @@ from app.errors.errors import SubscriptionError
 from app.errors.errors import ModeratorError
 from app.errors.errors import UnauthorizedError
 
-# Decorators
-from app.decorators.filtered_users import filtered_users
-
 
 class CommunityManager:
     @staticmethod

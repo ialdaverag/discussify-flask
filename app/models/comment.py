@@ -5,10 +5,9 @@ from flask_jwt_extended import current_user
 from app.extensions.database import db
 
 # Decorators
-from app.decorators.filtered_users_select import filtered_users_select
-from app.decorators.filtered_users import filtered_users
-from app.decorators.filtered_comments_select import filtered_comments_select
-from app.decorators.filtered_comments import filtered_comments
+from app.decorators.filters import filtered_users
+from app.decorators.filters import filtered_comments
+
 
 # Errors
 from app.errors.errors import NotFoundError
@@ -46,7 +45,7 @@ class CommentBookmark(db.Model):
         page = args.get('page')
         per_page = args.get('per_page')
                             
-        @filtered_comments_select
+        @filtered_comments
         def get_query():
             query = (
                 db.select(Comment)
@@ -100,7 +99,7 @@ class CommentVote(db.Model):
         page = args.get('page')
         per_page = args.get('per_page')
                             
-        @filtered_comments_select
+        @filtered_comments
         def get_query():
             query = (
                 db.select(Comment)
@@ -126,7 +125,7 @@ class CommentVote(db.Model):
         page = args.get('page')
         per_page = args.get('per_page')
                             
-        @filtered_comments_select
+        @filtered_comments
         def get_query():
             query = (
                 db.select(Comment)
@@ -154,7 +153,7 @@ class CommentVote(db.Model):
         page = args.get('page')
         per_page = args.get('per_page')
 
-        @filtered_users_select
+        @filtered_users
         def get_query():
             query = (
                 db.select(User)
@@ -182,7 +181,7 @@ class CommentVote(db.Model):
         page = args.get('page')
         per_page = args.get('per_page')
 
-        @filtered_users_select
+        @filtered_users
         def get_query():
             query = (
                 db.select(User)
@@ -282,7 +281,7 @@ class Comment(db.Model):
         page = args.get('page')
         per_page = args.get('per_page')
 
-        @filtered_comments_select
+        @filtered_comments
         def get_query():
             query = db.select(cls)
 
@@ -334,7 +333,7 @@ class Comment(db.Model):
         page = args.get('page')
         per_page = args.get('per_page')
 
-        @filtered_comments_select
+        @filtered_comments
         def get_query(post):
             query = (
                 db.select(cls)
