@@ -15,11 +15,10 @@ from tests.utils.assert_pagination import assert_pagination_structure
 
 class TestReadUsers(BaseTestCase):
     route = '/user/'
-    route_with_args = '/user/?page={}&per_page={}'
 
     def test_read_users(self):
         # Number of users
-        n = 5
+        n = 10
 
         # Create multiple users using batch
         UserFactory.create_batch(n)
@@ -58,7 +57,8 @@ class TestReadUsers(BaseTestCase):
 
         # Get the users
         response = self.client.get(
-            self.route_with_args.format(2, 5)
+            self.route,
+            query_string={'page': 2, 'per_page': 5}
         )
 
         # Assert response status code
@@ -91,7 +91,7 @@ class TestReadUsers(BaseTestCase):
         user = UserFactory()
 
         # Create multiple users using batch
-        users = UserFactory.create_batch(n)
+        UserFactory.create_batch(n)
 
         # Get the access token
         access_token = get_access_token(user)
@@ -124,6 +124,8 @@ class TestReadUsers(BaseTestCase):
         # Assert list
         assert_user_list(self, data, n + 1)
 
+
+
     def test_read_users_authenticated_with_args(self):
         # Number of users
         n = 15
@@ -139,7 +141,8 @@ class TestReadUsers(BaseTestCase):
 
         # Get the users
         response = self.client.get(
-            self.route_with_args.format(2, 5),
+            self.route,
+            query_string={'page': 2, 'per_page': 5},
             headers={'Authorization': f'Bearer {access_token}'}
         )
 
@@ -236,7 +239,8 @@ class TestReadUsers(BaseTestCase):
 
         # Get the users
         response = self.client.get(
-            self.route_with_args.format(2, 5),
+            self.route,
+            query_string={'page': 2, 'per_page': 5},
             headers={'Authorization': f'Bearer {access_token}'}
         )
 
@@ -332,7 +336,8 @@ class TestReadUsers(BaseTestCase):
 
         # Get the users
         response = self.client.get(
-            self.route_with_args.format(2, 5),
+            self.route,
+            query_string={'page': 2, 'per_page': 5},
             headers={'Authorization': f'Bearer {access_token}'}
         )
 
@@ -442,7 +447,8 @@ class TestReadUsers(BaseTestCase):
 
         # Get the users
         response = self.client.get(
-            self.route_with_args.format(2, 5),
+            self.route,
+            query_string={'page': 2, 'per_page': 5},
             headers={'Authorization': f'Bearer {access_token}'}
         )
 
@@ -485,6 +491,35 @@ class TestReadUsers(BaseTestCase):
             expected_page=1,
             expected_pages=0,
             expected_per_page=10,
+            expected_total=0,
+        )
+
+        # Get the data
+        data = pagination['users']
+
+        # Assert list
+        assert_user_list(self, data, 0)
+
+    def test_read_users_empty_with_args(self):
+        # Get the users
+        response = self.client.get(
+            self.route,
+            query_string={'page': 2, 'per_page': 5}
+        )
+
+        # Assert response status code
+        self.assertEqual(response.status_code, 200)
+
+        # Get response pagination
+        pagination = response.json
+
+        # Assert pagination
+        assert_pagination_structure(
+            self,
+            pagination,
+            expected_page=2,
+            expected_pages=0,
+            expected_per_page=5,
             expected_total=0,
         )
 
