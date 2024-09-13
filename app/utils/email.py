@@ -23,7 +23,7 @@ def send_email(to, subject, template):
         subject, 
         recipients=[to], 
         html=template, 
-        sender=('Discussify', 'api.discussify@gmail.com')
+        sender=('Discussify', 'discussify1@gmail.com')
     )
 
     Thread(target=send_async_email, args=(app, msg)).start()

@@ -16,7 +16,7 @@ class Config:
     JWT_REFRESH_COOKIE_NAME = 'refresh_token'
 
     # Flask-Mail
-    MAIL_SERVER = 'smtp.gmail.com'
+    MAIL_SERVER = os.environ.get('MAIL_SERVER')
     MAIL_PORT = 465
     MAIL_USERNAME = os.environ.get('MAIL_USERNAME')
     MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD')

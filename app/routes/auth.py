@@ -6,6 +6,8 @@ from flask import Blueprint
 from flask import request
 from flask import make_response
 from flask import jsonify
+from flask import url_for
+from flask import render_template
 
 # Flask JWT Extended
 from flask_jwt_extended import create_access_token
@@ -33,8 +35,9 @@ from app.models.user import User
 from app.managers.user import UserManager
 
 # Utils
-from app.utils.password import hash_password
 from app.utils.password import check_password
+from app.utils.email import send_email
+from app.utils.token import generate_verification_token
 from app.utils.token import confirm_verification_token
 
 auth_routes = Blueprint('auth_routes', __name__)
@@ -49,6 +52,16 @@ def sign_up():
     data = user_schema.load(json_data)
 
     user = UserManager.create(data)
+
+    token = generate_verification_token(user.email, salt='activate')
+    subject = 'Please confirm your registration'
+    link = url_for('auth_routes.confirm_email', token=token, _external=True)
+
+    send_email(
+        to=user.email, 
+        subject=subject, 
+        template=render_template('email/confirmation.html', link=link)
+    )
 
     return user_schema.dump(user), HTTPStatus.CREATED
 
