@@ -1,5 +1,5 @@
 # Tests
-from tests.base.base_test_case import BaseTestCase
+from tests.routes.test_route import TestRoute
 
 # Factories
 from tests.factories.user_factory import UserFactory
@@ -12,7 +12,7 @@ from app.models.user import Block
 from tests.utils.tokens import get_access_token
 
 
-class TestBlockUser(BaseTestCase):
+class TestBlockUser(TestRoute):
     route = '/user/{}/block'
 
     def test_block_user(self):
@@ -26,13 +26,10 @@ class TestBlockUser(BaseTestCase):
         access_token = get_access_token(user1)
 
         # User1 blocks user2
-        response = self.client.post(
-            self.route.format(user2.username), 
-            headers={'Authorization': f'Bearer {access_token}'}
-        )
+        response = self.POSTRequest(self.route.format(user2.username), token=access_token)
 
-        # Assert that the response status code is 204 (No Content)
-        self.assertEqual(response.status_code, 204)
+        # Assert the response status code
+        self.assertStatusCode(response, 204)
 
     def test_block_user_following(self):
         # Create a user
@@ -48,13 +45,10 @@ class TestBlockUser(BaseTestCase):
         access_token = get_access_token(user1)
 
         # Try to block a user that is being followed
-        response = self.client.post(
-            self.route.format(user2.username), 
-            headers={'Authorization': f'Bearer {access_token}'}
-        )
+        response = self.POSTRequest(self.route.format(user2.username), token=access_token)
 
-        # Assert response status
-        self.assertEqual(response.status_code, 204)
+        # Assert the response status code
+        self.assertStatusCode(response, 204)
 
     def test_block_user_followed(self):
         # Create a user
@@ -70,13 +64,10 @@ class TestBlockUser(BaseTestCase):
         access_token = get_access_token(user1)
 
         # Try to block a user that is following the blocker
-        response = self.client.post(
-            self.route.format(user2.username), 
-            headers={'Authorization': f'Bearer {access_token}'}
-        )
+        response = self.POSTRequest(self.route.format(user2.username), token=access_token)
 
-        # Assert response status
-        self.assertEqual(response.status_code, 204)
+        # Assert the response status code
+        self.assertStatusCode(response, 204)
 
     def test_block_user_nonexistent(self):
         # Create a user
@@ -86,22 +77,13 @@ class TestBlockUser(BaseTestCase):
         access_token = get_access_token(user)
 
         # Try to block a nonexistent user
-        response = self.client.post(
-            self.route.format('inexistent'), 
-            headers={'Authorization': f'Bearer {access_token}'}
-        )
+        response = self.POSTRequest(self.route.format('nonexistent'), token=access_token)
 
-        # Assert response status
-        self.assertEqual(response.status_code, 404)
+        # Assert the response status code
+        self.assertStatusCode(response, 404)
 
-        # Get response data
-        data = response.json
-
-        # Assert user data structure
-        self.assertIn('message', data)
-
-        # Assert the error message
-        self.assertEqual(data['message'], 'User not found.')
+        # Assert the response message
+        self.assertMessage(response, 'User not found.')
 
     def test_block_user_already_blocked(self):
         # Create a user
@@ -117,19 +99,10 @@ class TestBlockUser(BaseTestCase):
         access_token = get_access_token(user1)
 
         # Try to block a user that is already blocked
-        response = self.client.post(
-            self.route.format(user2.username), 
-            headers={'Authorization': f'Bearer {access_token}'}
-        )
+        response = self.POSTRequest(self.route.format(user2.username), token=access_token)
 
-        # Assert response status
-        self.assertEqual(response.status_code, 400)
+        # Assert the response status code
+        self.assertStatusCode(response, 400)
 
-        # Get response data
-        data = response.json
-
-        # Assert user data structure
-        self.assertIn('message', data)
-
-        # Assert the error message
-        self.assertEqual(data['message'], 'You are already blocking this user.')
+        # Assert the response message
+        self.assertMessage(response, 'User already blocked.')

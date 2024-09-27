@@ -1,5 +1,5 @@
 # tests
-from tests.base.base_test_case import BaseTestCase
+from tests.routes.test_route import TestRoute
 
 # factories
 from tests.factories.user_factory import UserFactory
@@ -11,7 +11,7 @@ from app.models.user import Follow
 from tests.utils.tokens import get_access_token
 
 
-class TestUnfollowUser(BaseTestCase):
+class TestUnfollowUser(TestRoute):
     route = '/user/{}/unfollow'
 
     def test_unfollow_user(self):
@@ -28,13 +28,10 @@ class TestUnfollowUser(BaseTestCase):
         access_token = get_access_token(user1)
 
         # User1 unfollows user2
-        response = self.client.post(
-            self.route.format(user2.username), 
-            headers={'Authorization': f'Bearer {access_token}'}
-        )
+        response = self.POSTRequest(self.route.format(user2.username), token=access_token)
 
-        # Assert that the response status code is 204 (No Content)
-        self.assertEqual(response.status_code, 204)
+        # Assert the response status code
+        self.assertStatusCode(response, 204)
 
     def test_unfollow_user_nonexistent(self):
         # Create a user
@@ -44,22 +41,13 @@ class TestUnfollowUser(BaseTestCase):
         access_token = get_access_token(user)
 
         # Try to unfollow a nonexistent user
-        response = self.client.post(
-            self.route.format('nonexistent'), 
-            headers={'Authorization': f'Bearer {access_token}'}
-        )
+        response = self.POSTRequest(self.route.format('nonexistent'), token=access_token)
 
-        # Assert that the response status code is 404 (Not Found)
-        self.assertEqual(response.status_code, 404)
+        # Assert the response status code
+        self.assertStatusCode(response, 404)
 
-        # Get response data
-        data = response.json
-
-        # Assert user data structure
-        self.assertIn('message', data)
-
-        # Assert that the error message is 'User not found.'
-        self.assertEqual(data['message'], 'User not found.')
+        # Assert the response message
+        self.assertMessage(response, 'User not found.')
 
     def test_unfollow_user_not_followed(self):
         # Create a user
@@ -72,22 +60,13 @@ class TestUnfollowUser(BaseTestCase):
         access_token = get_access_token(user1)
 
         # Try to unfollow user2 without following them
-        response = self.client.post(
-            self.route.format(user2.username), 
-            headers={'Authorization': f'Bearer {access_token}'}
-        )
+        response = self.POSTRequest(self.route.format(user2.username), token=access_token)
 
-        # Assert that the response status code is 400 (Bad Request)
-        self.assertEqual(response.status_code, 400)
+        # Assert the response status code
+        self.assertStatusCode(response, 400)
 
-        # Get response data
-        data = response.json
-
-        # Assert user data structure
-        self.assertIn('message', data)
-
-        # Assert that the error message is 'User is not followed.'
-        self.assertEqual(data['message'], 'You are not following this user.')
+        # Assert the response message
+        self.assertMessage(response, 'You are not following this user.')
 
     def test_unfollow_user_self(self):
         # Create a user
@@ -97,19 +76,10 @@ class TestUnfollowUser(BaseTestCase):
         access_token = get_access_token(user)
 
         # Try to unfollow oneself
-        response = self.client.post(
-            self.route.format(user.username), 
-            headers={'Authorization': f'Bearer {access_token}'}
-        )
+        response = self.POSTRequest(self.route.format(user.username), token=access_token)
 
-        # Assert that the response status code is 400 (Bad Request)
-        self.assertEqual(response.status_code, 400)
+        # Assert the response status code
+        self.assertStatusCode(response, 400)
 
-        # Get response data
-        data = response.json
-
-        # Assert user data structure
-        self.assertIn('message', data)
-
-        # Assert that the error message is 'You cannot unfollow yourself.'
-        self.assertEqual(data['message'], 'You cannot unfollow yourself.')
+        # Assert the response message
+        self.assertMessage(response, 'You cannot unfollow yourself.')

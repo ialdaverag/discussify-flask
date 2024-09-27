@@ -205,9 +205,9 @@ class User(db.Model):
 
     # Community
     communities = db.relationship('Community', back_populates='owner', lazy='dynamic', cascade='all, delete')
-    subscriptions = db.relationship('CommunitySubscriber', back_populates='user')
-    moderations = db.relationship('CommunityModerator', back_populates='user')
-    bans = db.relationship('CommunityBan', back_populates='user')
+    subscriptions = db.relationship('CommunitySubscriber', back_populates='user', cascade="all, delete-orphan")
+    moderations = db.relationship('CommunityModerator', back_populates='user', cascade="all, delete-orphan")
+    bans = db.relationship('CommunityBan', back_populates='user', cascade="all, delete-orphan")
 
     # Post
     posts = db.relationship('Post', back_populates='owner', lazy='dynamic')

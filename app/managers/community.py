@@ -105,7 +105,7 @@ class SubscriptionManager:
             raise SubscriptionError('You are not subscribed to this community.')
         
         if user.is_moderator_of(community):
-            community.remove_moderator(user)
+            CommunityModerator.get_by_user_and_community(user, community).delete()
 
         CommunitySubscriber.get_by_user_and_community(user, community).delete()
 
@@ -163,10 +163,12 @@ class BanManager:
             raise BanError('You cannot ban the owner of the community.')
         
         if user in community.moderators:
-            community.remove_moderator(user)
+            CommunityModerator.get_by_user_and_community(user, community).delete()
         
         if not user.is_subscribed_to(community):
             raise SubscriptionError('The user is not subscribed to this community.')
+        
+        CommunityBan(user=user, community=community).save()
         
     @staticmethod
     def read_bans_by_community(community, args):

@@ -18,11 +18,8 @@ class CommunitySubscriber(db.Model):
     community_id = db.Column(db.Integer, db.ForeignKey('communities.id'), primary_key=True)
     created_at = db.Column(db.DateTime, default=db.func.now())
 
-    # User
-    user = db.relationship('User', foreign_keys=[user_id], back_populates='subscriptions')
-
-    # Community
-    community = db.relationship('Community', foreign_keys=[community_id], back_populates='subscribers')
+    user = db.relationship('User', back_populates='subscriptions')
+    community = db.relationship('Community', back_populates='subscribers')
 
     def save(self):
         db.session.add(self)
@@ -113,21 +110,14 @@ class CommunitySubscriber(db.Model):
 
 
 class CommunityModerator(db.Model):
-    """
-    The CommunityModerator model.
-    """
-
     __tablename__ = 'community_moderators'
 
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), primary_key=True, nullable=False)
     community_id = db.Column(db.Integer, db.ForeignKey('communities.id'), primary_key=True, nullable=False)
     created_at = db.Column(db.DateTime, default=db.func.now())
 
-    # User
-    user = db.relationship('User', foreign_keys=[user_id], back_populates='moderations')
-
-    # Community
-    community = db.relationship('Community', foreign_keys=[community_id], back_populates='moderators')
+    user = db.relationship('User', back_populates='moderations')
+    community = db.relationship('Community', back_populates='moderators')
 
     def save(self):
         db.session.add(self)
@@ -207,11 +197,8 @@ class CommunityBan(db.Model):
     community_id = db.Column(db.Integer, db.ForeignKey('communities.id'), primary_key=True, nullable=False)
     created_at = db.Column(db.DateTime, default=db.func.now())
 
-    # User
-    user = db.relationship('User', foreign_keys=[user_id], back_populates='bans')
-
-    # Community
-    community = db.relationship('Community', foreign_keys=[community_id], back_populates='banned')
+    user = db.relationship('User', back_populates='bans')
+    community = db.relationship('Community', back_populates='banned')
 
     def save(self):
         db.session.add(self)
@@ -316,16 +303,13 @@ class Community(db.Model):
     # User
     owner = db.relationship('User', back_populates='communities')
 
-    # Community
-    subscribers = db.relationship('CommunitySubscriber', back_populates='community')
-    moderators = db.relationship('CommunityModerator', back_populates='community')
-    banned = db.relationship('CommunityBan', back_populates='community')
+    subscribers = db.relationship('CommunitySubscriber', back_populates='community', cascade="all, delete-orphan")
+    moderators = db.relationship('CommunityModerator', back_populates='community', cascade="all, delete-orphan")
+    banned = db.relationship('CommunityBan', back_populates='community', cascade="all, delete-orphan")
+    stats = db.relationship('CommunityStats', back_populates='community', uselist=False, cascade="all, delete-orphan")
 
     # Post
     posts = db.relationship('Post', cascade='all, delete', back_populates='community', lazy='dynamic')
-
-    # Stats
-    stats = db.relationship('CommunityStats', uselist=False, back_populates='community')
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -460,7 +444,7 @@ def decrement_subscriptions_count_on_user_stats(mapper, connection, target):
 
     for subscriber in target.subscribers:
         update_query = user_stats_table.update().where(
-            user_stats_table.c.user_id == subscriber.id
+            user_stats_table.c.user_id == subscriber.user_id  # Cambiado de subscriber.id a subscriber.user_id
         ).values(
             subscriptions_count=user_stats_table.c.subscriptions_count - 1
         )
@@ -475,7 +459,7 @@ def decrement_moderations_count_on_user_stats(mapper, connection, target):
 
     for moderator in target.moderators:
         update_query = user_stats_table.update().where(
-            user_stats_table.c.user_id == moderator.id
+            user_stats_table.c.user_id == moderator.user_id  # Cambiado de moderator.id a moderator.user_id
         ).values(
             moderations_count=user_stats_table.c.moderations_count - 1
         )
