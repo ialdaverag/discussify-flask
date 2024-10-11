@@ -15,6 +15,9 @@ class PostPaginationRequestSchema(Schema):
 
     page = fields.Integer(load_default=1)
     per_page = fields.Integer(load_default=10)
+    time_filter = fields.Str(load_default='all')
+    sort_by = fields.Str(load_default='created_at')
+    sort_order = fields.Str(load_default='desc')
 
 
 class PostStatsSchema(Schema):

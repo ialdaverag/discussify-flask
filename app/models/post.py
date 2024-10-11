@@ -1,5 +1,11 @@
+# Datetime
+from datetime import datetime, timedelta, timezone
+
 # Flask-JWT-Extended
 from flask_jwt_extended import current_user
+
+# SQLAlchemy
+from sqlalchemy import func, case
 
 # Extensions
 from app.extensions.database import db
@@ -44,18 +50,55 @@ class PostBookmark(db.Model):
     
     @classmethod
     def get_bookmarks_by_user(cls, user, args):
-        from app.models.post import Post 
+        from app.models.post import Post
+        from app.models.post import PostStats
 
         page = args.get('page')
         per_page = args.get('per_page')
+        time_filter = args.get('time_filter')
+        sort_by = args.get('sort_by')
+        sort_order = args.get('sort_order')
 
         @filtered_posts
         def get_query():
+            # Get the posts marked as bookmarks and join with PostStats
             query = (
                 db.select(Post)
                 .join(cls, Post.id == cls.post_id)
+                .join(PostStats, Post.id == PostStats.post_id)
                 .where(cls.user_id == user.id)
             )
+
+            if time_filter != 'all':
+                now = datetime.now(timezone.utc)
+
+                if time_filter == 'day':
+                    start_date = now - timedelta(days=1)
+                elif time_filter == 'week':
+                    start_date = now - timedelta(weeks=1)
+                elif time_filter == 'month':
+                    start_date = now - timedelta(days=30)
+                elif time_filter == 'year':
+                    start_date = now - timedelta(days=365)
+                else:
+                    start_date = None
+
+                if start_date:
+                    query = query.filter(cls.created_at >= start_date)
+
+            # Determine the order column
+            if sort_by == 'upvotes':
+                order_column = PostStats.upvotes_count
+            elif sort_by == 'comments':
+                order_column = PostStats.comments_count
+            else:  # Default to 'created_at'
+                order_column = Post.created_at
+
+            # Apply sorting
+            if sort_order == 'asc':
+                query = query.order_by(order_column.asc())
+            else:
+                query = query.order_by(order_column.desc())
 
             return query
         
@@ -69,6 +112,7 @@ class PostBookmark(db.Model):
         )
 
         return paginated_bookmarks
+
 
 
 class PostVote(db.Model):
@@ -157,17 +201,51 @@ class PostVote(db.Model):
     @classmethod
     def get_upvoted_posts_by_user(cls, user, args):
         from app.models.post import Post
+        from app.models.post import PostStats
 
         page = args.get('page')
         per_page = args.get('per_page')
+        time_filter = args.get('time_filter')
+        sort_by = args.get('sort_by')
+        sort_order = args.get('sort_order')
 
         @filtered_posts
         def get_query():
             query = (
                 db.select(Post)
                 .join(cls, Post.id == cls.post_id)
+                .join(PostStats, Post.id == PostStats.post_id)
                 .where(cls.user_id == user.id, cls.direction == 1)
             )
+
+            if time_filter != 'all':
+                now = datetime.now(timezone.utc)
+
+                if time_filter == 'day':
+                    start_date = now - timedelta(days=1)
+                elif time_filter == 'week':
+                    start_date = now - timedelta(weeks=1)
+                elif time_filter == 'month':
+                    start_date = now - timedelta(days=30)
+                elif time_filter == 'year':
+                    start_date = now - timedelta(days=365)
+                else:
+                    start_date = None
+
+                if start_date:
+                    query = query.filter(cls.created_at >= start_date)
+
+            if sort_by == 'upvotes':
+                order_column = PostStats.upvotes_count
+            elif sort_by == 'comments':
+                order_column = PostStats.comments_count
+            else:
+                order_column = Post.created_at
+
+            if sort_order == 'asc':
+                query = query.order_by(order_column.asc())
+            else:
+                query = query.order_by(order_column.desc())
 
             return query
         
@@ -185,17 +263,51 @@ class PostVote(db.Model):
     @classmethod
     def get_downvoted_posts_by_user(cls, user, args):
         from app.models.post import Post
+        from app.models.post import PostStats
 
         page = args.get('page')
         per_page = args.get('per_page')
+        time_filter = args.get('time_filter')
+        sort_by = args.get('sort_by')
+        sort_order = args.get('sort_order')
 
         @filtered_posts
         def get_query():
             query = (
                 db.select(Post)
                 .join(cls, Post.id == cls.post_id)
+                .join(PostStats, Post.id == PostStats.post_id)
                 .where(cls.user_id == user.id, cls.direction == -1)
             )
+
+            if time_filter != 'all':
+                now = datetime.now(timezone.utc)
+
+                if time_filter == 'day':
+                    start_date = now - timedelta(days=1)
+                elif time_filter == 'week':
+                    start_date = now - timedelta(weeks=1)
+                elif time_filter == 'month':
+                    start_date = now - timedelta(days=30)
+                elif time_filter == 'year':
+                    start_date = now - timedelta(days=365)
+                else:
+                    start_date = None
+
+                if start_date:
+                    query = query.filter(Post.created_at >= start_date)
+
+            if sort_by == 'upvotes':
+                order_column = PostStats.upvotes_count
+            elif sort_by == 'comments':
+                order_column = PostStats.comments_count
+            else:
+                order_column = Post.created_at
+
+            if sort_order == 'asc':
+                query = query.order_by(order_column.asc())
+            else:
+                query = query.order_by(order_column.desc())
 
             return query
         
@@ -247,19 +359,29 @@ class Post(db.Model):
 
     # User
     owner = db.relationship('User', back_populates='posts')
-    bookmarkers = db.relationship('PostBookmark', back_populates='post')
+    bookmarkers = db.relationship('PostBookmark', 
+                                 back_populates='post',
+                                 cascade='all, delete-orphan')
 
     # Community
     community = db.relationship('Community', back_populates='posts')
 
     # Comment
-    comments = db.relationship('Comment', cascade='all, delete', back_populates='post', lazy='dynamic')
+    comments = db.relationship('Comment', 
+                              cascade='all, delete-orphan', 
+                              back_populates='post', 
+                              lazy='dynamic')
 
     # PostVote
-    post_votes = db.relationship('PostVote', cascade='all, delete', back_populates='post')
+    post_votes = db.relationship('PostVote', 
+                                cascade='all, delete-orphan', 
+                                back_populates='post')
 
     # Stats
-    stats = db.relationship('PostStats', uselist=False, back_populates='post')
+    stats = db.relationship('PostStats', 
+                           uselist=False, 
+                           back_populates='post',
+                           cascade='all, delete-orphan')
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -288,11 +410,45 @@ class Post(db.Model):
     def get_all(cls, args):
         page = args.get('page')
         per_page = args.get('per_page')
+        time_filter = args.get('time_filter', 'all')
+        sort_by = args.get('sort_by', 'created_at')
+        sort_order = args.get('sort_order', 'desc')
 
         @filtered_posts
         def get_query():
-            return db.select(cls)
-        
+            query = db.select(cls).join(PostStats, cls.id == PostStats.post_id)
+
+            if time_filter != 'all':
+                now = datetime.now(timezone.utc)
+
+                if time_filter == 'day':
+                    start_date = now - timedelta(days=1)
+                elif time_filter == 'week':
+                    start_date = now - timedelta(weeks=1)
+                elif time_filter == 'month':
+                    start_date = now - timedelta(days=30)
+                elif time_filter == 'year':
+                    start_date = now - timedelta(days=365)
+                else:
+                    start_date = None
+
+                if start_date:
+                    query = query.filter(cls.created_at >= start_date)
+
+            if sort_by == 'upvotes':
+                order_column = PostStats.upvotes_count
+            elif sort_by == 'comments':
+                order_column = PostStats.comments_count
+            else:
+                order_column = cls.created_at
+
+            if sort_order == 'asc':
+                query = query.order_by(order_column.asc())
+            else:
+                query = query.order_by(order_column.desc())
+
+            return query
+
         query = get_query()
 
         paginated_posts = db.paginate(
@@ -303,18 +459,50 @@ class Post(db.Model):
         )
 
         return paginated_posts
-    
+
     @classmethod
     def get_all_by_community(cls, community, args):
         page = args.get('page')
         per_page = args.get('per_page')
+        time_filter = args.get('time_filter')
+        sort_by = args.get('sort_by')
+        sort_order = args.get('sort_order') 
 
         @filtered_posts
         def get_query(community):
-            query = db.select(cls).where(cls.community_id == community.id)
-            
+            query = db.select(cls).join(PostStats, cls.id == PostStats.post_id).where(cls.community_id == community.id)
+
+            if time_filter != 'all':
+                now = datetime.now(timezone.utc)
+
+                if time_filter == 'day':
+                    start_date = now - timedelta(days=1)
+                elif time_filter == 'week':
+                    start_date = now - timedelta(weeks=1)
+                elif time_filter == 'month':
+                    start_date = now - timedelta(days=30)
+                elif time_filter == 'year':
+                    start_date = now - timedelta(days=365)
+                else:
+                    start_date = None
+
+                if start_date:
+                    query = query.filter(cls.created_at >= start_date)
+
+            if sort_by == 'upvotes':
+                order_column = PostStats.upvotes_count
+            elif sort_by == 'comments':
+                order_column = PostStats.comments_count
+            else:
+                order_column = cls.created_at
+
+            if sort_order == 'asc':
+                query = query.order_by(order_column.asc())
+            else:
+                query = query.order_by(order_column.desc())
+
             return query
-        
+
         query = get_query(community=community)
 
         paginated_posts = db.paginate(
@@ -330,23 +518,55 @@ class Post(db.Model):
     def get_all_by_user(cls, user, args):
         page = args.get('page')
         per_page = args.get('per_page')
+        time_filter = args.get('time_filter')
+        sort_by = args.get('sort_by')
+        sort_order = args.get('sort_order')
 
         @filtered_posts
-        def get_query():
-            query = db.select(cls).where(cls.user_id == user.id)
+        def get_query(user):
+            query = db.select(cls).join(PostStats, cls.id == PostStats.post_id).where(cls.user_id == user.id)
+
+            if time_filter != 'all':
+                now = datetime.now(timezone.utc)
+
+                if time_filter == 'day':
+                    start_date = now - timedelta(days=1)
+                elif time_filter == 'week':
+                    start_date = now - timedelta(weeks=1)
+                elif time_filter == 'month':
+                    start_date = now - timedelta(days=30)
+                elif time_filter == 'year':
+                    start_date = now - timedelta(days=365)
+                else:
+                    start_date = None
+
+                if start_date:
+                    query = query.filter(cls.created_at >= start_date)
+
+            if sort_by == 'upvotes':
+                order_column = PostStats.upvotes_count
+            elif sort_by == 'comments':
+                order_column = PostStats.comments_count
+            else:
+                order_column = cls.created_at
+
+            if sort_order == 'asc':
+                query = query.order_by(order_column.asc())
+            else:
+                query = query.order_by(order_column.desc())
 
             return query
-        
-        query = get_query()
 
-        posts = db.paginate(
+        query = get_query(user=user)
+
+        paginated_posts = db.paginate(
             query,
             page=page,
             per_page=per_page,
             error_out=False
         )
-        
-        return posts
+
+        return paginated_posts
     
     @property
     def bookmarked(self):

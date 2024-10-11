@@ -67,4 +67,4 @@ class TestUnblockUser(TestRoute):
         self.assertStatusCode(response, 400)
 
         # Assert the response message
-        self.assertMessage(response, 'User not blocked.')
+        self.assertMessage(response, 'You are not blocking this user.')

@@ -239,19 +239,29 @@ class Comment(db.Model):
 
     # User
     owner = db.relationship('User', back_populates='comments')
-    comment_bookmarkers = db.relationship('CommentBookmark', back_populates='comment')
+    comment_bookmarkers = db.relationship('CommentBookmark', 
+                                         back_populates='comment',
+                                         cascade='all, delete-orphan')
 
     # Post
     post = db.relationship('Post', back_populates='comments')
 
     # Comment
-    replies = db.relationship('Comment', backref=db.backref('comment', remote_side=[id]), lazy='dynamic')
+    replies = db.relationship('Comment', 
+                             backref=db.backref('comment', remote_side=[id]),
+                             cascade='all, delete-orphan',
+                             lazy='dynamic')
 
     # CommentVote
-    comment_votes = db.relationship('CommentVote', back_populates='comment', cascade='all, delete')
+    comment_votes = db.relationship('CommentVote', 
+                                   back_populates='comment', 
+                                   cascade='all, delete-orphan')
 
     # Stats
-    stats = db.relationship('CommentStats', uselist=False, back_populates='comment')
+    stats = db.relationship('CommentStats', 
+                           uselist=False, 
+                           back_populates='comment',
+                           cascade='all, delete-orphan')
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

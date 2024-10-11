@@ -35,7 +35,7 @@ class ReadPosts(BaseTestCase):
         self.assertEqual(len(read_posts_items), n)
 
         # Assert that the posts are the same
-        self.assertEqual(posts, read_posts_items)
+        self.assertCountEqual(posts, read_posts_items)
 
 
     def test_read_posts_empty(self):

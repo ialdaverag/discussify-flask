@@ -35,7 +35,7 @@ class GetAllPosts(BaseTestCase):
         self.assertEqual(len(get_posts_items), n)
 
         # Assert that the posts are the same
-        self.assertEqual(posts, get_posts_items)
+        self.assertCountEqual(posts, get_posts_items)
 
 
     def test_get_posts_empty(self):

@@ -63,7 +63,10 @@ def register_extensions(app):
     migrate = Migrate(app, db)
     jwt.init_app(app)
     mail.init_app(app)
-    cors.init_app(app, supports_credentials=True)
+    cors.init_app(
+        app, 
+        supports_credentials=True
+    )
     
 
     @jwt.user_lookup_loader

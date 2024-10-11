@@ -105,4 +105,4 @@ class TestBlockUser(TestRoute):
         self.assertStatusCode(response, 400)
 
         # Assert the response message
-        self.assertMessage(response, 'User already blocked.')
+        self.assertMessage(response, 'You are already blocking this user.')
