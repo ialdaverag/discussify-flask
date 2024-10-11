@@ -1,3 +1,6 @@
+# Datetime
+from datetime import datetime, timedelta, timezone
+
 # Flask-JWT-Extended
 from flask_jwt_extended import current_user
 
@@ -48,15 +51,51 @@ class Follow(db.Model):
     def get_followed(cls, user, args):
         page = args.get('page')
         per_page = args.get('per_page')
-
+        time_filter = args.get('time_filter')
+        sort_by = args.get('sort_by')
+        sort_order = args.get('sort_order')
 
         @filtered_users
         def get_query():
             query = (
                 db.select(User)
                 .join(cls, cls.followed_id == User.id)
+                .join(UserStats, User.id == UserStats.user_id)
                 .where(cls.follower_id == user.id)
             )
+
+            if time_filter != 'all':
+                now = datetime.now(timezone.utc)
+
+                if time_filter == 'day':
+                    start_date = now - timedelta(days=1)
+                elif time_filter == 'week':
+                    start_date = now - timedelta(weeks=1)
+                elif time_filter == 'month':
+                    start_date = now - timedelta(days=30)
+                elif time_filter == 'year':
+                    start_date = now - timedelta(days=365)
+                else:
+                    start_date = None
+
+                if start_date:
+                    query = query.filter(cls.created_at >= start_date)
+            
+            if sort_by == 'followers':
+                order_column = UserStats.followers_count
+            elif sort_by == 'communities':
+                order_column = UserStats.communities_count
+            elif sort_by == 'posts':
+                order_column = UserStats.posts_count
+            elif sort_by == 'comments':
+                order_column = UserStats.comments_count
+            else:
+                order_column = cls.created_at
+
+            if sort_order == 'asc':
+                query = query.order_by(order_column.asc())
+            else:
+                query = query.order_by(order_column.desc())
 
             return query
         
@@ -75,14 +114,51 @@ class Follow(db.Model):
     def get_followers(cls, user, args):
         page = args.get('page')
         per_page = args.get('per_page')
-                            
+        time_filter = args.get('time_filter')
+        sort_by = args.get('sort_by')
+        sort_order = args.get('sort_order')
+
         @filtered_users
         def get_query():
             query = (
                 db.select(User)
                 .join(cls, cls.follower_id == User.id)
+                .join(UserStats, User.id == UserStats.user_id)
                 .where(cls.followed_id == user.id)
             )
+
+            if time_filter != 'all':
+                now = datetime.now(timezone.utc)
+
+                if time_filter == 'day':
+                    start_date = now - timedelta(days=1)
+                elif time_filter == 'week':
+                    start_date = now - timedelta(weeks=1)
+                elif time_filter == 'month':
+                    start_date = now - timedelta(days=30)
+                elif time_filter == 'year':
+                    start_date = now - timedelta(days=365)
+                else:
+                    start_date = None
+
+                if start_date:
+                    query = query.filter(cls.created_at >= start_date)
+            
+            if sort_by == 'followers':
+                order_column = UserStats.followers_count
+            elif sort_by == 'communities':
+                order_column = UserStats.communities_count
+            elif sort_by == 'posts':
+                order_column = UserStats.posts_count
+            elif sort_by == 'comments':
+                order_column = UserStats.comments_count
+            else:
+                order_column = cls.created_at
+
+            if sort_order == 'asc':
+                query = query.order_by(order_column.asc())
+            else:
+                query = query.order_by(order_column.desc())
 
             return query
         
@@ -138,12 +214,48 @@ class Block(db.Model):
     def get_blocked_with_args(cls, user, args):
         page = args.get('page')
         per_page = args.get('per_page')
+        time_filter = args.get('time_filter')
+        sort_by = args.get('sort_by')
+        sort_order = args.get('sort_order')
 
         query = (
             db.select(User)
             .join(cls, cls.blocked_id == User.id)
             .where(cls.blocker_id == user.id)
         )
+
+        if time_filter != 'all':
+            now = datetime.now(timezone.utc)
+
+            if time_filter == 'day':
+                start_date = now - timedelta(days=1)
+            elif time_filter == 'week':
+                start_date = now - timedelta(weeks=1)
+            elif time_filter == 'month':
+                start_date = now - timedelta(days=30)
+            elif time_filter == 'year':
+                start_date = now - timedelta(days=365)
+            else:
+                start_date = None
+
+            if start_date:
+                query = query.filter(cls.created_at >= start_date)
+
+        if sort_by == 'followers':
+            order_column = UserStats.followers_count
+        elif sort_by == 'communities':
+            order_column = UserStats.communities_count
+        elif sort_by == 'posts':
+            order_column = UserStats.posts_count
+        elif sort_by == 'comments':
+            order_column = UserStats.comments_count
+        else:
+            order_column = cls.created_at
+
+        if sort_order == 'asc':
+            query = query.order_by(order_column.asc())
+        else:
+            query = query.order_by(order_column.desc())
 
         paginated_blocked = db.paginate(
             query, 
@@ -272,10 +384,48 @@ class User(db.Model):
     def get_all(cls, args):
         page = args.get('page')
         per_page = args.get('per_page')
+        time_filter = args.get('time_filter')
+        sort_by = args.get('sort_by')
+        sort_order = args.get('sort_order')
 
         @filtered_users
         def get_query():
-            return db.select(cls)
+            query = db.select(cls).join(UserStats, cls.id == UserStats.user_id)
+        
+            if time_filter != 'all':
+                now = datetime.now(timezone.utc)
+
+                if time_filter == 'day':
+                    start_date = now - timedelta(days=1)
+                elif time_filter == 'week':
+                    start_date = now - timedelta(weeks=1)
+                elif time_filter == 'month':
+                    start_date = now - timedelta(days=30)
+                elif time_filter == 'year':
+                    start_date = now - timedelta(days=365)
+                else:
+                    start_date = None
+
+                if start_date:
+                    query = query.filter(cls.created_at >= start_date)
+            
+            if sort_by == 'followers':
+                order_column = UserStats.followers_count
+            elif sort_by == 'communities':
+                order_column = UserStats.communities_count
+            elif sort_by == 'posts':
+                order_column = UserStats.posts_count
+            elif sort_by == 'comments':
+                order_column = UserStats.comments_count
+            else:
+                order_column = cls.created_at
+
+            if sort_order == 'asc':
+                query = query.order_by(order_column.asc())
+            else:
+                query = query.order_by(order_column.desc())
+
+            return query
         
         query = get_query()
 

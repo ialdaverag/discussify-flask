@@ -41,7 +41,7 @@ class TestReadUser(BaseTestCase):
         self.assertIsInstance(users_to_read_items, list)
 
         # Assert that the users are the same as the all users
-        self.assertEqual(users, users_to_read_items)
+        self.assertCountEqual(users, users_to_read_items)
 
     def test_read_users_empty(self):
         # Set args

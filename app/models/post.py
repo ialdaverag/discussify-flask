@@ -118,6 +118,7 @@ class PostVote(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), primary_key=True)
     post_id = db.Column(db.Integer, db.ForeignKey('posts.id'), primary_key=True)
     direction = db.Column(db.Integer, nullable=False)
+    created_at = db.Column(db.DateTime, default=db.func.now())
 
     # User
     user = db.relationship('User', back_populates='post_votes')
@@ -142,17 +143,55 @@ class PostVote(db.Model):
     @classmethod
     def get_upvoters_by_post(cls, post, args):
         from app.models.user import User
+        from app.models.user import UserStats
 
         page = args.get('page')
         per_page = args.get('per_page')
+        time_filter = args.get('time_filter')
+        sort_by = args.get('sort_by')
+        sort_order = args.get('sort_order')
 
         @filtered_users
         def get_query():
             query = (
                 db.select(User)
                 .join(cls, User.id == cls.user_id)
+                .join(UserStats, User.id == UserStats.user_id)
                 .where(cls.post_id == post.id, cls.direction == 1)
             )
+
+            if time_filter != 'all':
+                now = datetime.now(timezone.utc)
+
+                if time_filter == 'day':
+                    start_date = now - timedelta(days=1)
+                elif time_filter == 'week':
+                    start_date = now - timedelta(weeks=1)
+                elif time_filter == 'month':
+                    start_date = now - timedelta(days=30)
+                elif time_filter == 'year':
+                    start_date = now - timedelta(days=365)
+                else:
+                    start_date = None
+
+                if start_date:
+                    query = query.filter(cls.created_at >= start_date)
+
+            if sort_by == 'followers':
+                order_column = UserStats.followers_count
+            elif sort_by == 'communities':
+                order_column = UserStats.communities_count
+            elif sort_by == 'posts':
+                order_column = UserStats.posts_count
+            elif sort_by == 'comments':
+                order_column = UserStats.comments_count
+            else:
+                order_column = cls.created_at
+
+            if sort_order == 'asc':
+                query = query.order_by(order_column.asc())
+            else:
+                query = query.order_by(order_column.desc())
 
             return query
         
@@ -170,30 +209,68 @@ class PostVote(db.Model):
     @classmethod
     def get_downvoters_by_post(cls, post, args):
         from app.models.user import User
+        from app.models.user import UserStats
 
         page = args.get('page')
         per_page = args.get('per_page')
+        time_filter = args.get('time_filter')
+        sort_by = args.get('sort_by')
+        sort_order = args.get('sort_order')
 
         @filtered_users
         def get_query():
             query = (
                 db.select(User)
                 .join(cls, User.id == cls.user_id)
+                .join(UserStats, User.id == UserStats.user_id)
                 .where(cls.post_id == post.id, cls.direction == -1)
             )
+
+            if time_filter != 'all':
+                now = datetime.now(timezone.utc)
+
+                if time_filter == 'day':
+                    start_date = now - timedelta(days=1)
+                elif time_filter == 'week':
+                    start_date = now - timedelta(weeks=1)
+                elif time_filter == 'month':
+                    start_date = now - timedelta(days=30)
+                elif time_filter == 'year':
+                    start_date = now - timedelta(days=365)
+                else:
+                    start_date = None
+
+                if start_date:
+                    query = query.filter(cls.created_at >= start_date)
+
+            if sort_by == 'followers':
+                order_column = UserStats.followers_count
+            elif sort_by == 'communities':
+                order_column = UserStats.communities_count
+            elif sort_by == 'posts':
+                order_column = UserStats.posts_count
+            elif sort_by == 'comments':
+                order_column = UserStats.comments_count
+            else:
+                order_column = cls.created_at
+
+            if sort_order == 'asc':
+                query = query.order_by(order_column.asc())
+            else:
+                query = query.order_by(order_column.desc())
 
             return query
         
         query = get_query()
 
-        upvoters = db.paginate(
+        downvoters = db.paginate(
             query,
             page=page,
             per_page=per_page,
             error_out=False
         )
 
-        return upvoters
+        return downvoters
     
     @classmethod
     def get_upvoted_posts_by_user(cls, user, args):

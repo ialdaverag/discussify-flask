@@ -14,8 +14,8 @@ class UserFactory(BaseFactory):
         model = User
 
     id = factory.Sequence(lambda n: n + 1)
-    username = factory.Faker('user_name')
-    email = factory.Faker('email')
+    username = factory.Sequence(lambda n: f"user_{n}")
+    email = factory.Sequence(lambda n: f"user_{n}@test.com")
     password = factory.Faker('password')
     is_verified = factory.Faker('boolean')
     created_at = factory.Faker('date_time')

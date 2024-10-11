@@ -35,7 +35,7 @@ class TestGetAll(BaseTestCase):
         self.assertIsInstance(all_users_items, list)
 
         # Assert that the users are the same as the all users
-        self.assertEqual(users, all_users_items)
+        self.assertCountEqual(users, all_users_items)
 
     def test_get_all_empty(self):
         # Set args
