@@ -4,9 +4,6 @@ from datetime import datetime, timedelta, timezone
 # Flask-JWT-Extended
 from flask_jwt_extended import current_user
 
-# SQLAlchemy
-from sqlalchemy import func, case
-
 # Extensions
 from app.extensions.database import db
 

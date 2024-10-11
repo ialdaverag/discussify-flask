@@ -16,7 +16,7 @@ class CommunityFactory(BaseFactory):
         model = Community
 
     id = factory.Sequence(lambda n: n + 1)
-    name = factory.Faker('word')
+    name = factory.Sequence(lambda n: f"community_{n}")
     about = factory.Faker('sentence')
     created_at = factory.Faker('date_time')
     updated_at = factory.Faker('date_time')

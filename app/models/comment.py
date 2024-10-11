@@ -1,3 +1,6 @@
+# Datetime
+from datetime import datetime, timedelta, timezone
+
 # Flask-JWT-Extended
 from flask_jwt_extended import current_user
 
@@ -7,7 +10,6 @@ from app.extensions.database import db
 # Decorators
 from app.decorators.filters import filtered_users
 from app.decorators.filters import filtered_comments
-
 
 # Errors
 from app.errors.errors import NotFoundError
@@ -44,14 +46,45 @@ class CommentBookmark(db.Model):
     def get_bookmarks_by_user(cls, user, args):
         page = args.get('page')
         per_page = args.get('per_page')
-                            
+        time_filter = args.get('time_filter')
+        sort_by = args.get('sort_by')
+        sort_order = args.get('sort_order')
+              
         @filtered_comments
         def get_query():
             query = (
                 db.select(Comment)
                 .join(cls, cls.comment_id == Comment.id)
+                .join(CommentStats, Comment.id == CommentStats.comment_id)
                 .where(cls.user_id == user.id)
             )
+
+            if time_filter != 'all':
+                now = datetime.now(timezone.utc)
+
+                if time_filter == 'day':
+                    start_date = now - timedelta(days=1)
+                elif time_filter == 'week':
+                    start_date = now - timedelta(weeks=1)
+                elif time_filter == 'month':
+                    start_date = now - timedelta(days=30)
+                elif time_filter == 'year':
+                    start_date = now - timedelta(days=365)
+                else:
+                    start_date = None
+
+                if start_date:
+                    query = query.filter(cls.created_at >= start_date)
+
+            if sort_by == 'upvotes':
+                order_column = CommentStats.upvotes_count
+            else:
+                order_column = Comment.created_at
+
+            if sort_order == 'asc':
+                query = query.order_by(order_column.asc())
+            else:
+                query = query.order_by(order_column.desc())
 
             return query
         
@@ -98,14 +131,45 @@ class CommentVote(db.Model):
     def get_upvoted_comments_by_user(cls, user, args):
         page = args.get('page')
         per_page = args.get('per_page')
+        time_filter = args.get('time_filter')
+        sort_by = args.get('sort_by')
+        sort_order = args.get('sort_order')
                             
         @filtered_comments
         def get_query():
             query = (
                 db.select(Comment)
                 .join(cls, cls.comment_id == Comment.id)
+                .join(CommentStats, Comment.id == CommentStats.comment_id)
                 .where(cls.user_id == user.id, cls.direction == 1)
             )
+
+            if time_filter != 'all':
+                now = datetime.now(timezone.utc)
+
+                if time_filter == 'day':
+                    start_date = now - timedelta(days=1)
+                elif time_filter == 'week':
+                    start_date = now - timedelta(weeks=1)
+                elif time_filter == 'month':
+                    start_date = now - timedelta(days=30)
+                elif time_filter == 'year':
+                    start_date = now - timedelta(days=365)
+                else:
+                    start_date = None
+
+                if start_date:
+                    query = query.filter(cls.created_at >= start_date)
+
+            if sort_by == 'upvotes':
+                order_column = CommentStats.upvotes_count
+            else:
+                order_column = Comment.created_at
+
+            if sort_order == 'asc':
+                query = query.order_by(order_column.asc())
+            else:
+                query = query.order_by(order_column.desc())
 
             return query
         
@@ -124,14 +188,45 @@ class CommentVote(db.Model):
     def get_downvoted_comments_by_user(cls, user, args):
         page = args.get('page')
         per_page = args.get('per_page')
+        time_filter = args.get('time_filter')
+        sort_by = args.get('sort_by')
+        sort_order = args.get('sort_order')
                             
         @filtered_comments
         def get_query():
             query = (
                 db.select(Comment)
                 .join(cls, cls.comment_id == Comment.id)
+                .join(CommentStats, Comment.id == CommentStats.comment_id)
                 .where(cls.user_id == user.id, cls.direction == -1)
             )
+
+            if time_filter != 'all':
+                now = datetime.now(timezone.utc)
+
+                if time_filter == 'day':
+                    start_date = now - timedelta(days=1)
+                elif time_filter == 'week':
+                    start_date = now - timedelta(weeks=1)
+                elif time_filter == 'month':
+                    start_date = now - timedelta(days=30)
+                elif time_filter == 'year':
+                    start_date = now - timedelta(days=365)
+                else:
+                    start_date = None
+
+                if start_date:
+                    query = query.filter(cls.created_at >= start_date)
+
+            if sort_by == 'upvotes':
+                order_column = CommentStats.upvotes_count
+            else:
+                order_column = Comment.created_at
+
+            if sort_order == 'asc':
+                query = query.order_by(order_column.asc())
+            else:
+                query = query.order_by(order_column.desc())
 
             return query
         
@@ -279,6 +374,14 @@ class Comment(db.Model):
 
     @classmethod
     def get_by_id(cls, id):
+        '''
+        Get a comment by its ID.
+        
+        :param id: The comment ID.
+        
+        :return: The comment object.
+        '''
+
         comment = db.session.get(cls, id)
 
         if comment is None:
@@ -288,33 +391,111 @@ class Comment(db.Model):
     
     @classmethod
     def get_all(cls, args):
+        '''
+        Get all comments.
+        
+        :param args: The request arguments.
+        
+        :return: Paginated list of comments
+        '''
+
         page = args.get('page')
         per_page = args.get('per_page')
+        time_filter = args.get('time_filter')
+        sort_by = args.get('sort_by')
+        sort_order = args.get('sort_order')
 
         @filtered_comments
         def get_query():
-            query = db.select(cls)
+            query = db.select(cls).join(CommentStats, cls.id == CommentStats.comment_id)
+
+            if time_filter != 'all':
+                now = datetime.now(timezone.utc)
+
+                if time_filter == 'day':
+                    start_date = now - timedelta(days=1)
+                elif time_filter == 'week':
+                    start_date = now - timedelta(weeks=1)
+                elif time_filter == 'month':
+                    start_date = now - timedelta(days=30)
+                elif time_filter == 'year':
+                    start_date = now - timedelta(days=365)
+                else:
+                    start_date = None
+
+                if start_date:
+                    query = query.filter(cls.created_at >= start_date)
+            
+            if sort_by == 'upvotes':
+                order_column = Comment.upvotes_count
+            else:
+                order_column = cls.created_at
+
+            if sort_order == 'asc':
+                query = query.order_by(order_column.asc())
+            else:
+                query = query.order_by(order_column.desc())
 
             return query
-        
+
         query = get_query()
 
-        downvoted_comments = db.paginate(
+        paginated_comments = db.paginate(
             query,
             page=page,
             per_page=per_page,
             error_out=False
         )
 
-        return downvoted_comments
+        return paginated_comments
     
     @classmethod
     def get_all_by_user(cls, user, args):
+        '''
+        Get all comments by a given user.
+        
+        :param user: The user object.
+        :param args: The request arguments.
+        
+        :return: Paginated list of comments
+        '''
+
         page = args.get('page')
         per_page = args.get('per_page')
+        time_filter = args.get('time_filter')
+        sort_by = args.get('sort_by')
+        sort_order = args.get('sort_order')
 
+        @filtered_comments
         def get_query():
-            query = db.select(cls).where(cls.user_id == user.id)
+            query = db.select(cls).join(CommentStats, cls.id == CommentStats.comment_id).where(cls.user_id == user.id)
+
+            if time_filter != 'all':
+                now = datetime.now(timezone.utc)
+
+                if time_filter == 'day':
+                    start_date = now - timedelta(days=1)
+                elif time_filter == 'week':
+                    start_date = now - timedelta(weeks=1)
+                elif time_filter == 'month':
+                    start_date = now - timedelta(days=30)
+                elif time_filter == 'year':
+                    start_date = now - timedelta(days=365)
+                else:
+                    start_date = None
+
+                if start_date:
+                    query = query.filter(cls.created_at >= start_date)
+
+            if sort_by == 'upvotes':
+                order_column = Comment.upvotes_count
+            else:
+                order_column = cls.created_at
+
+            if sort_order == 'asc':
+                query = query.order_by(order_column.asc())
+            else:
+                query = query.order_by(order_column.desc())
 
             return query
         
@@ -342,13 +523,44 @@ class Comment(db.Model):
         
         page = args.get('page')
         per_page = args.get('per_page')
+        time_filter = args.get('time_filter')
+        sort_by = args.get('sort_by')
+        sort_order = args.get('sort_order')
 
         @filtered_comments
         def get_query(post):
             query = (
                 db.select(cls)
+                .join(CommentStats, cls.id == CommentStats.comment_id)
                 .where(cls.comment_id == None, cls.post_id == post.id)
             )
+
+            if time_filter != 'all':
+                now = datetime.now(timezone.utc)
+
+                if time_filter == 'day':
+                    start_date = now - timedelta(days=1)
+                elif time_filter == 'week':
+                    start_date = now - timedelta(weeks=1)
+                elif time_filter == 'month':
+                    start_date = now - timedelta(days=30)
+                elif time_filter == 'year':
+                    start_date = now - timedelta(days=365)
+                else:
+                    start_date = None
+
+                if start_date:
+                    query = query.filter(cls.created_at >= start_date)
+
+            if sort_by == 'upvotes':
+                order_column = CommentStats.upvotes_count
+            else:
+                order_column = cls.created_at
+
+            if sort_order == 'asc':
+                query = query.order_by(order_column.asc())
+            else:
+                query = query.order_by(order_column.desc())
             
             return query
         
@@ -385,19 +597,51 @@ class Comment(db.Model):
         return None
     
     def belongs_to(self, user):
+        '''
+        Check if the comment belongs to a given user.
+        
+        :param user: The user object.
+        
+        :return: True if the comment belongs to the user, False otherwise.
+        '''
+
         return self.owner.id == user.id
     
     def is_bookmarked_by(self, user):
+        '''
+        Check if the comment is bookmarked by a given user.
+        
+        :param user: The user object.
+        
+        :return: True if the comment is bookmarked by the user, False otherwise.
+        '''
+
         bookmark = CommentBookmark.get_by_user_and_comment(user, self)
 
         return bookmark is not None
 
     def is_upvoted_by(self, user):
+        '''
+        Check if the comment is upvoted by a given user.
+        
+        :param user: The user object.
+        
+        :return: True if the comment is upvoted by the user, False otherwise.
+        '''
+
         vote = CommentVote.get_by_user_and_comment(user, self)
 
         return vote.is_upvote() if vote else False
 
     def is_downvoted_by(self, user):
+        '''
+        Check if the comment is downvoted by a given user.
+        
+        :param user: The user object.
+        
+        :return: True if the comment is downvoted by the user, False otherwise.
+        '''
+
         vote = CommentVote.get_by_user_and_comment(user, self)
 
         return vote.is_downvote() if vote else False
