@@ -39,7 +39,7 @@ class TestReadCommunities(BaseTestCase):
         self.assertEqual(len(communities_to_read), n)
 
         # Assert the communities are the same
-        self.assertEqual(communities, communities_to_read)
+        self.assertCountEqual(communities, communities_to_read)
 
     def test_read_communities_empty(self):
         # Set the args

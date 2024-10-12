@@ -56,14 +56,50 @@ class CommunitySubscriber(db.Model):
 
         :return: List of community objects.
         """
+        
         page = args.get('page')
         per_page = args.get('per_page')
+        time_filter = args.get('time_filter')
+        sort_by = args.get('sort_by')
+        sort_order = args.get('sort_order')
 
         query = (
             db.select(Community)
             .join(cls, cls.community_id == Community.id)
+            .join(CommunityStats, Community.id == CommunityStats.community_id)
             .where(cls.user_id == user.id)
         )
+
+        if time_filter != 'all':
+            now = datetime.now(timezone.utc)
+
+            if time_filter == 'day':
+                start_date = now - timedelta(days=1)
+            elif time_filter == 'week':
+                start_date = now - timedelta(weeks=1)
+            elif time_filter == 'month':
+                start_date = now - timedelta(days=30)
+            elif time_filter == 'year':
+                start_date = now - timedelta(days=365)
+            else:
+                start_date = None
+
+            if start_date:
+                query = query.filter(cls.created_at >= start_date)
+
+        if sort_by == 'subscribers':
+            order_column = CommunityStats.subscribers_count
+        elif sort_by == 'posts':
+            order_column = CommunityStats.posts_count
+        elif sort_by == 'comments':
+            order_column = CommunityStats.comments_count
+        else:
+            order_column = cls.created_at
+
+        if sort_order == 'asc':
+            query = query.order_by(order_column.asc())
+        else:
+            query = query.order_by(order_column.desc())
 
         paginated_subscriptions = db.paginate(
             query, 
@@ -474,8 +510,42 @@ class Community(db.Model):
     def get_all(cls, args):
         page = args.get('page')
         per_page = args.get('per_page')
+        time_filter = args.get('time_filter')
+        sort_by = args.get('sort_by')
+        sort_order = args.get('sort_order')
         
-        query = db.select(cls)
+        query = db.select(cls).join(CommunityStats, cls.id == CommunityStats.community_id)
+
+        if time_filter != 'all':
+            now = datetime.now(timezone.utc)
+
+            if time_filter == 'day':
+                start_date = now - timedelta(days=1)
+            elif time_filter == 'week':
+                start_date = now - timedelta(weeks=1)
+            elif time_filter == 'month':
+                start_date = now - timedelta(days=30)
+            elif time_filter == 'year':
+                start_date = now - timedelta(days=365)
+            else:
+                start_date = None
+
+            if start_date:
+                query = query.filter(cls.created_at >= start_date)
+
+        if sort_by == 'subscribers':
+            order_column = CommunityStats.subscribers_count
+        elif sort_by == 'posts':
+            order_column = CommunityStats.posts_count
+        elif sort_by == 'comments':
+            order_column = CommunityStats.comments_count
+        else:
+            order_column = cls.created_at
+
+        if sort_order == 'asc':
+            query = query.order_by(order_column.asc())
+        else:
+            query = query.order_by(order_column.desc())
 
         paginated_communities = db.paginate(
             query, 
@@ -561,7 +631,7 @@ def decrement_subscriptions_count_on_user_stats(mapper, connection, target):
 
     for subscriber in target.subscribers:
         update_query = user_stats_table.update().where(
-            user_stats_table.c.user_id == subscriber.user_id  # Cambiado de subscriber.id a subscriber.user_id
+            user_stats_table.c.user_id == subscriber.user_id
         ).values(
             subscriptions_count=user_stats_table.c.subscriptions_count - 1
         )
@@ -576,7 +646,7 @@ def decrement_moderations_count_on_user_stats(mapper, connection, target):
 
     for moderator in target.moderators:
         update_query = user_stats_table.update().where(
-            user_stats_table.c.user_id == moderator.user_id  # Cambiado de moderator.id a moderator.user_id
+            user_stats_table.c.user_id == moderator.user_id
         ).values(
             moderations_count=user_stats_table.c.moderations_count - 1
         )
