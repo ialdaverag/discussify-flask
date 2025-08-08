@@ -32,7 +32,6 @@ from app.schemas.user import user_pagination_response_schema
 from app.schemas.community import community_schema
 from app.schemas.post import post_pagination_request_schema
 from app.schemas.post import post_pagination_response_schema
-from app.schemas.post import posts_schema
 
 community_routes = Blueprint('community_routes', __name__)
 

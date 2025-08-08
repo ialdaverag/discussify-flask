@@ -1,5 +1,5 @@
-# flask_jwt_extended
-from flask_jwt_extended import create_access_token
+# utils
+from tests.utils.tokens import get_access_token
 
 # utils
 from app.utils.password import hash_password
@@ -19,7 +19,7 @@ class TestLogOut(BaseTestCase):
         user = UserFactory(password=hash_password('Password1234.'))
 
         # Get the access token
-        access_token = create_access_token(identity=user.id)
+        access_token = get_access_token(user)
 
         # Log out
         response = self.client.post(

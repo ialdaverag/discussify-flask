@@ -1,5 +1,10 @@
+# functools
 from functools import wraps
+
+# inspect
 import inspect
+
+# Flask-JWT-Extended
 from flask_jwt_extended import current_user
 
 

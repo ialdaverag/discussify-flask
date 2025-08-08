@@ -1,5 +1,7 @@
 # Datetime
-from datetime import datetime, timedelta, timezone
+from datetime import datetime
+from datetime import timedelta
+from datetime import timezone
 
 # Flask-JWT-Extended
 from flask_jwt_extended import current_user

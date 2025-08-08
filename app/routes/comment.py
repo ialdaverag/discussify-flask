@@ -19,8 +19,6 @@ from app.schemas.comment import comment_schema
 from app.schemas.comment import comment_update_schema
 from app.schemas.comment import comment_pagination_request_schema
 from app.schemas.comment import comment_pagination_response_schema
-from app.schemas.comment import comments_schema
-from app.schemas.user import users_schema
 
 # Models
 from app.models.post import Post

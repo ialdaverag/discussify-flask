@@ -1,9 +1,14 @@
+# OS
 import os
+
+# datetime
 import datetime
 
+# load .env variables
 from dotenv import load_dotenv
 
 load_dotenv()
+
 
 class Config:
     # Flask

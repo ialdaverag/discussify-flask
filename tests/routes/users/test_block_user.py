@@ -99,7 +99,10 @@ class TestBlockUser(TestRoute):
         access_token = get_access_token(user1)
 
         # Try to block a user that is already blocked
-        response = self.POSTRequest(self.route.format(user2.username), token=access_token)
+        response = self.POSTRequest(
+            self.route.format(user2.username), 
+            token=access_token
+        )
 
         # Assert the response status code
         self.assertStatusCode(response, 400)

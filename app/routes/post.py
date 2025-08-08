@@ -21,7 +21,6 @@ from app.schemas.post import post_schema
 from app.schemas.post import posts_schema
 from app.schemas.comment import comment_pagination_request_schema
 from app.schemas.comment import comment_pagination_response_schema
-from app.schemas.comment import comments_schema
 
 # Models
 from app.models.community import Community

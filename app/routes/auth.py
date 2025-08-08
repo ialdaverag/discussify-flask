@@ -18,9 +18,6 @@ from flask_jwt_extended import get_jwt
 from flask_jwt_extended import set_refresh_cookies
 from flask_jwt_extended import unset_jwt_cookies
 
-# Marshmallow
-from marshmallow import ValidationError
-
 # Extensions
 from app.extensions.database import db
 
@@ -57,11 +54,11 @@ def sign_up():
     subject = 'Please confirm your registration'
     link = url_for('auth_routes.confirm_email', token=token, _external=True)
 
-    send_email(
-        to=user.email, 
-        subject=subject, 
-        template=render_template('email/confirmation.html', link=link)
-    )
+    # send_email(
+    #     to=user.email,
+    #     subject=subject,
+    #     template=render_template('email/confirmation.html', link=link)
+    # )
 
     return user_schema.dump(user), HTTPStatus.CREATED
 
@@ -83,8 +80,8 @@ def log_in():
     if not check_password(password, user.password):
         return {'message': 'Incorrect password.'}, HTTPStatus.UNAUTHORIZED
     
-    access_token = create_access_token(identity=user.id)
-    refresh_token = create_refresh_token(identity=user.id) 
+    access_token = create_access_token(identity=str(user.id))
+    refresh_token = create_refresh_token(identity=str(user.id))
 
     response = make_response(jsonify({'access_token': access_token}), HTTPStatus.OK)
 
@@ -111,7 +108,7 @@ def log_out():
 def get_new_access_token():
     current_user = get_jwt_identity()
 
-    token = create_access_token(identity=current_user)
+    token = create_access_token(identity=str(current_user))
 
     return {'access_token': token}, HTTPStatus.OK
 

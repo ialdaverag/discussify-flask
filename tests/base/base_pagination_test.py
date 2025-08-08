@@ -4,6 +4,7 @@ from tests.base.base_test_case import BaseTestCase
 # Factories
 from tests.factories.user_factory import UserFactory
 from app.models.user import Block
+from app.models.user import Follow
 
 # Utils
 from tests.utils.assert_pagination import assert_pagination_structure
@@ -12,8 +13,6 @@ from tests.utils.tokens import get_access_token
 
 
 class BasePaginationTest(BaseTestCase):
-    route = '/user/'
-
     def assert_pagination_response(
             self, 
             response, 
@@ -64,3 +63,9 @@ class BasePaginationTest(BaseTestCase):
         # Block users
         for _ in users[:count]:
             Block(blocker=blocker, blocked=blocked).save()
+
+    def follow_users(self, follower, followed, users, count):
+        # Follow users
+        for _ in users[:count]:
+            Follow(follower=follower, followed=followed).save()
+    
