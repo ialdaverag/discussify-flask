@@ -1,5 +1,5 @@
 # tests
-from tests.routes.test_route import TestRoute
+from tests.base.base_pagination_test import BasePaginationTest
 
 # factories
 from tests.factories.user_factory import UserFactory
@@ -9,11 +9,9 @@ from app.models.user import Block
 
 # utils
 from tests.utils.tokens import get_access_token
-from tests.utils.assert_list import assert_user_list
-from tests.utils.assert_pagination import assert_pagination_structure
 
 
-class TestReadUsers(TestRoute):
+class TestReadUsers(BasePaginationTest):
     route = '/user/'
 
     def test_read_users(self):
@@ -26,27 +24,8 @@ class TestReadUsers(TestRoute):
         # Get the users
         response = self.GETRequest(self.route)
 
-        # Assert response status code
-        self.assertStatusCode(response, 200)
-
-        # Get response pagination
-        pagination = response.json
-
-        # Assert pagination
-        assert_pagination_structure(
-            self, 
-            pagination,  
-            expected_page=1,
-            expected_pages=1,
-            expected_per_page=10,
-            expected_total=n,
-        )
-
-        # Get the data
-        data = pagination['users']
-
-        # Assert list
-        assert_user_list(self, data, n)
+        # Assert standard pagination response (page 1, 10 per page)
+        self.assert_standard_pagination_response(response, expected_total=n, data_key='users')
 
     def test_read_users_with_args(self):
         # Number of users
@@ -55,71 +34,34 @@ class TestReadUsers(TestRoute):
         # Create multiple users using batch
         UserFactory.create_batch(n)
 
-        # Get the users
+        # Get the users with pagination arguments
         response = self.GETRequest(
             self.route,
             query_string={'page': 2, 'per_page': 5}
         )
 
-        # Assert response status code
-        self.assertStatusCode(response, 200)
-
-        # Get response pagination
-        pagination = response.json
-
-        # Assert pagination
-        assert_pagination_structure(
-            self,
-            pagination,
-            expected_page=2,
-            expected_pages=3,
-            expected_per_page=5,
-            expected_total=n,
+        # Assert paginated response
+        self.assert_paginated_response(
+            response=response,
+            page=2, 
+            per_page=5, 
+            expected_total=n, 
+            data_key='users'
         )
-
-        # Get the data
-        data = pagination['users']
-
-        # Assert list
-        assert_user_list(self, data, 5)
 
     def test_read_users_authenticated(self):
         # Number of users
         n = 5
 
-        # Create a user
-        user = UserFactory()
-
-        # Create multiple users using batch
+        # Create a user and get users (including authenticated user)
+        user, access_token = self.setup_authenticated_user()
         UserFactory.create_batch(n)
-
-        # Get the access token
-        access_token = get_access_token(user)
 
         # Get the users
         response = self.GETRequest(self.route, token=access_token)
 
-        # Assert response status code
-        self.assertStatusCode(response, 200)
-
-        # Get response pagination
-        pagination = response.json
-
-        # Assert pagination
-        assert_pagination_structure(
-            self,
-            pagination,
-            expected_page=1,
-            expected_pages=1,
-            expected_per_page=10,
-            expected_total=n + 1,
-        )
-
-        # Get the data
-        data = pagination['users']
-
-        # Assert list
-        assert_user_list(self, data, n + 1)
+        # Assert standard pagination response (n + 1 for the authenticated user)
+        self.assert_standard_pagination_response(response, expected_total=n + 1, data_key='users')
 
 
 
@@ -127,392 +69,196 @@ class TestReadUsers(TestRoute):
         # Number of users
         n = 15
 
-        # Create a user
-        user = UserFactory()
-
-        # Create multiple users using batch
+        # Create a user and get users (including authenticated user)  
+        user, access_token = self.setup_authenticated_user()
         UserFactory.create_batch(n)
 
-        # Get the access token
-        access_token = get_access_token(user)
-
-        # Get the users
+        # Get the users with pagination arguments
         response = self.GETRequest(
             self.route,
             query_string={'page': 2, 'per_page': 5},
             headers={'Authorization': f'Bearer {access_token}'}
         )
 
-        # Assert response status code
-        self.assertStatusCode(response, 200)
-
-        # Get response pagination
-        pagination = response.json
-
-        # Assert pagination
-        assert_pagination_structure(
-            self,
-            pagination,
-            expected_page=2,
-            expected_pages=4,
-            expected_per_page=5,
-            expected_total=n + 1,
+        # Assert paginated response (n + 1 for the authenticated user)
+        self.assert_paginated_response(
+            response=response,
+            page=2, 
+            per_page=5, 
+            expected_total=n + 1, 
+            data_key='users'
         )
-
-        # Get the data
-        data = pagination['users']
-
-        # Assert list
-        assert_user_list(self, data, 5)
 
 
     def test_read_users_with_blocked(self):
         # Number of users
         n = 5
-
         # Number of blocked users
         b = 2
 
-        # Create a user
-        user = UserFactory()
-
-        # Create multiple users using batch
+        # Create a user and additional users
+        user, access_token = self.setup_authenticated_user()
         users = UserFactory.create_batch(n)
 
-        # Block some users
-        for u in users[:b]:
-            Block(blocker=user, blocked=u).save()
-
-        # Get the access token
-        access_token = get_access_token(user)
+        # Block some users using helper method
+        self.create_user_blocks(user, users[:b])
 
         # Get the users
         response = self.GETRequest(self.route, token=access_token)
 
-        # Assert response status code
-        self.assertStatusCode(response, 200)
-
-        # Get response pagination
-        pagination = response.json
-
-        # Assert pagination
-        assert_pagination_structure(
-            self,
-            pagination,
-            expected_page=1,
-            expected_pages=1,
-            expected_per_page=10,
-            expected_total=n - b + 1,
-        )
-
-        # Get the data
-        data = pagination['users']
-
-        # Assert list
-        assert_user_list(self, data, n - b + 1)
+        # Assert standard pagination response (total users - blocked + authenticated user)
+        self.assert_standard_pagination_response(response, expected_total=n - b + 1, data_key='users')
 
     def test_read_users_with_blocked_args(self):
         # Number of users
         n = 15
-
-        # Number of blockers users
+        # Number of blocked users
         b = 3
 
-        # Create a user
-        user = UserFactory()
-
-        # Create multiple users using batch
+        # Create a user and additional users
+        user, access_token = self.setup_authenticated_user()
         users = UserFactory.create_batch(n)
 
-        # Block the user
-        for u in users[:b]:
-            Block(blocker=user, blocked=u).save()
+        # Block some users using helper method
+        self.create_user_blocks(user, users[:b])
 
-        # Get the access token
-        access_token = get_access_token(user)
-
-        # Get the users
+        # Get the users with pagination arguments
         response = self.GETRequest(
             self.route,
             query_string={'page': 2, 'per_page': 5},
             headers={'Authorization': f'Bearer {access_token}'}
         )
 
-        # Assert response status code
-        self.assertStatusCode(response, 200)
-
-        # Get response pagination
-        pagination = response.json
-
-        # Assert pagination
-        assert_pagination_structure(
-            self,
-            pagination,
-            expected_page=2,
-            expected_pages=3,
-            expected_per_page=5,
-            expected_total=n - b + 1,
+        # Assert paginated response (total users - blocked + authenticated user)
+        self.assert_paginated_response(
+            response=response,
+            page=2, 
+            per_page=5, 
+            expected_total=n - b + 1, 
+            data_key='users'
         )
-
-        # Get the data
-        data = pagination['users']
-
-        # Assert list
-        assert_user_list(self, data, 5)
 
     def test_read_users_with_blockers(self):
         # Number of users
         n = 5
-
         # Number of blockers users
         b = 3
 
-        # Create a user
-        user = UserFactory()
-
-        # Create multiple users using batch
+        # Create a user and additional users
+        user, access_token = self.setup_authenticated_user()
         users = UserFactory.create_batch(n)
 
-        # Block the user
-        for u in users[:b]:
-            Block(blocker=u, blocked=user).save()
-
-        # Get the access token
-        access_token = get_access_token(user)
+        # Block the user (make other users block this user)
+        self.create_user_blockers(user, users[:b])
 
         # Get the users
         response = self.GETRequest(self.route, token=access_token)
 
-        # Assert response status code
-        self.assertStatusCode(response, 200)
-
-        # Get response pagination
-        pagination = response.json
-
-        # Assert pagination
-        assert_pagination_structure(
-            self,
-            pagination,
-            expected_page=1,
-            expected_pages=1,
-            expected_per_page=10,
-            expected_total=n - b + 1,
-        )
-
-        # Get the data
-        data = pagination['users']
-
-        # Assert list
-        assert_user_list(self, data, n - b + 1)
+        # Assert standard pagination response (total users - blockers + authenticated user)
+        self.assert_standard_pagination_response(response, expected_total=n - b + 1, data_key='users')
 
     def test_read_users_with_blockers_args(self):
         # Number of users
         n = 15
-
         # Number of blockers users
         b = 3
 
-        # Create a user
-        user = UserFactory()
-
-        # Create multiple users using batch
+        # Create a user and additional users
+        user, access_token = self.setup_authenticated_user()
         users = UserFactory.create_batch(n)
 
-        # Block the user
-        for u in users[:b]:
-            Block(blocker=u, blocked=user).save()
+        # Block the user (make other users block this user)
+        self.create_user_blockers(user, users[:b])
 
-        # Get the access token
-        access_token = get_access_token(user)
-
-        # Get the users
+        # Get the users with pagination arguments
         response = self.GETRequest(
             self.route,
             query_string={'page': 2, 'per_page': 5},
             headers={'Authorization': f'Bearer {access_token}'}
         )
 
-        # Assert response status code
-        self.assertStatusCode(response, 200)
-
-        # Get response pagination
-        pagination = response.json
-
-        # Assert pagination
-        assert_pagination_structure(
-            self,
-            pagination,
-            expected_page=2,
-            expected_pages=3,
-            expected_per_page=5,
-            expected_total=n - b + 1,
+        # Assert paginated response (total users - blockers + authenticated user)
+        self.assert_paginated_response(
+            response=response,
+            page=2, 
+            per_page=5, 
+            expected_total=n - b + 1, 
+            data_key='users'
         )
-
-        # Get the data
-        data = pagination['users']
-
-        # Assert list
-        assert_user_list(self, data, 5)
 
     def test_read_users_with_blocked_and_blockers(self):
         # Number of users
         n = 5
-
         # Number of blocked users
         b = 1
-
         # Number of blockers users
         c = 1
 
-        # Create a user
-        user = UserFactory()
-
-        # Create multiple users using batch
+        # Create a user and additional users
+        user, access_token = self.setup_authenticated_user()
         users = UserFactory.create_batch(n)
 
-        # Block some users
-        for u in users[:b]:
-            Block(blocker=user, blocked=u).save()
-
-        # Block the user
-        for u in users[b:b + c]:
-            Block(blocker=u, blocked=user).save()
-
-        # Get the access token
-        access_token = get_access_token(user)
+        # Block some users and have others block this user
+        self.create_user_blocks(user, users[:b])
+        self.create_user_blockers(user, users[b:b + c])
 
         # Get the users
         response = self.GETRequest(self.route, token=access_token)
 
-        # Assert response status code
-        self.assertStatusCode(response, 200)
-
-        # Get response pagination
-        pagination = response.json
-
-        # Assert pagination
-        assert_pagination_structure(
-            self,
-            pagination,
-            expected_page=1,
-            expected_pages=1,
-            expected_per_page=10,
-            expected_total=n - b - c + 1,
-        )
-
-        # Get the data
-        data = pagination['users']
-
-        # Assert list
-        assert_user_list(self, data, n - b - c + 1)
+        # Assert standard pagination response (total users - blocked - blockers + authenticated user)
+        self.assert_standard_pagination_response(response, expected_total=n - b - c + 1, data_key='users')
 
     def test_read_users_with_blocked_and_blockers_args(self):
         # Number of users
         n = 15
-
         # Number of blocked users
         b = 2
-
         # Number of blockers users
         c = 2
 
-        # Create a user
-        user = UserFactory()
-
-        # Create multiple users using batch
+        # Create a user and additional users
+        user, access_token = self.setup_authenticated_user()
         users = UserFactory.create_batch(n)
 
-        # Block some users
-        for u in users[:b]:
-            Block(blocker=user, blocked=u).save()
+        # Block some users and have others block this user
+        self.create_user_blocks(user, users[:b])
+        self.create_user_blockers(user, users[b:b + c])
 
-        # Block the user
-        for u in users[b:b + c]:
-            Block(blocker=u, blocked=user).save()
-
-        # Get the access token
-        access_token = get_access_token(user)
-
-        # Get the users
+        # Get the users with pagination arguments
         response = self.GETRequest(
             self.route,
             query_string={'page': 2, 'per_page': 5},
             headers={'Authorization': f'Bearer {access_token}'}
         )
 
-        # Assert response status code
-        self.assertStatusCode(response, 200)
-
-        # Get response pagination
-        pagination = response.json
-
-        # Assert pagination
-        assert_pagination_structure(
-            self,
-            pagination,
-            expected_page=2,
-            expected_pages=3,
-            expected_per_page=5,
-            expected_total=n - b - c + 1,
+        # Assert paginated response (total users - blocked - blockers + authenticated user)
+        self.assert_paginated_response(
+            response=response,
+            page=2, 
+            per_page=5, 
+            expected_total=n - b - c + 1, 
+            data_key='users'
         )
-
-        # Get the data
-        data = pagination['users']
-
-        # Assert list
-        assert_user_list(self, data, 5)
 
     def test_read_users_empty(self):
-        # Get the users
+        # Get the users (no users created)
         response = self.GETRequest(self.route)
 
-        # Assert response status code
-        self.assertStatusCode(response, 200)
-
-        # Get response pagination
-        pagination = response.json
-
-        # Assert pagination
-        assert_pagination_structure(
-            self,
-            pagination,
-            expected_page=1,
-            expected_pages=0,
-            expected_per_page=10,
-            expected_total=0,
-        )
-
-        # Get the data
-        data = pagination['users']
-
-        # Assert list
-        assert_user_list(self, data, 0)
+        # Assert standard pagination response with 0 total
+        self.assert_standard_pagination_response(response, expected_total=0, data_key='users')
 
     def test_read_users_empty_with_args(self):
-        # Get the users
+        # Get the users with pagination arguments (no users created)
         response = self.GETRequest(
             self.route,
             query_string={'page': 2, 'per_page': 5}
         )
 
-        # Assert response status code
-        self.assertStatusCode(response, 200)
-
-        # Get response pagination
-        pagination = response.json
-
-        # Assert pagination
-        assert_pagination_structure(
-            self,
-            pagination,
-            expected_page=2,
-            expected_pages=0,
-            expected_per_page=5,
-            expected_total=0,
+        # Assert paginated response with 0 total
+        self.assert_paginated_response(
+            response=response,
+            page=2, 
+            per_page=5, 
+            expected_total=0, 
+            data_key='users'
         )
-
-        # Get the data
-        data = pagination['users']
-
-        # Assert list
-        assert_user_list(self, data, 0)
