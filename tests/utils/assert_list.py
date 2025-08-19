@@ -1,81 +1,57 @@
+def assert_list_structure(self, items, expected_count=0, required_fields=None):
+    """
+    Generic function to assert list structure and item fields.
+    
+    Args:
+        self: Test case instance
+        items: List to validate
+        expected_count: Expected number of items in the list
+        required_fields: List of field names that each item must contain
+    """
+    # Assert that the items is a list
+    self.assertIsInstance(items, list)
+
+    # Assert that the length of the items is equal to the expected count
+    self.assertEqual(len(items), expected_count)
+
+    # Assert each item in the list has the expected structure
+    if required_fields:
+        for item in items:
+            for field in required_fields:
+                self.assertIn(field, item)
+
+
 def assert_user_list(self, users, expected_count=0):
-    # Assert that the users is a list
-    self.assertIsInstance(users, list)
+    """Assert structure and count of a user list."""
+    required_fields = [
+        'id', 'username', 'email', 'following', 'follower', 
+        'stats', 'created_at', 'updated_at'
+    ]
+    assert_list_structure(self, users, expected_count, required_fields)
 
-    # Assert that the length of the users is equal to the expected count
-    self.assertEqual(len(users), expected_count)
-
-    # Assert each user in the users list has the expected structure
-    for user in users:
-        self.assertIn('id', user)
-        self.assertIn('username', user)
-        self.assertIn('email', user)
-        self.assertIn('following', user)
-        self.assertIn('follower', user)
-        self.assertIn('stats', user)
-        self.assertIn('created_at', user)
-        self.assertIn('updated_at', user)
 
 def assert_community_list(self, communities, expected_count=0):
-    # Assert that the communities is a list
-    self.assertIsInstance(communities, list)
-
-    # Assert that the length of the communities is equal to the expected count
-    self.assertEqual(len(communities), expected_count)
-
-    # Assert each community in the communities list has the expected structure
-    for community in communities:
-        self.assertIn('id', community)
-        self.assertIn('name', community)
-        self.assertIn('about', community)
-        self.assertIn('owner', community)
-        self.assertIn('owned_by', community)
-        self.assertIn('subscriber', community)
-        self.assertIn('moderator', community)
-        self.assertIn('ban', community)
-        self.assertIn('stats', community)
-        self.assertIn('created_at', community)
-        self.assertIn('updated_at', community)
+    """Assert structure and count of a community list."""
+    required_fields = [
+        'id', 'name', 'about', 'owner', 'owned_by', 'subscriber', 
+        'moderator', 'ban', 'stats', 'created_at', 'updated_at'
+    ]
+    assert_list_structure(self, communities, expected_count, required_fields)
 
 
 def assert_post_list(self, posts, expected_count=0):
-    # Assert that the posts is a list
-    self.assertIsInstance(posts, list)
+    """Assert structure and count of a post list."""
+    required_fields = [
+        'id', 'title', 'content', 'owner', 'community', 'bookmarked', 
+        'upvoted', 'downvoted', 'stats', 'created_at', 'updated_at'
+    ]
+    assert_list_structure(self, posts, expected_count, required_fields)
 
-    # Assert that the length of the posts is equal to the expected count
-    self.assertEqual(len(posts), expected_count)
-
-    # Assert each post in the posts list has the expected structure
-    for post in posts:
-        self.assertIn('id', post)
-        self.assertIn('title', post)
-        self.assertIn('content', post)
-        self.assertIn('owner', post)
-        self.assertIn('community', post)
-        self.assertIn('bookmarked', post)
-        self.assertIn('upvoted', post)
-        self.assertIn('downvoted', post)
-        self.assertIn('stats', post)
-        self.assertIn('created_at', post)
-        self.assertIn('updated_at', post)
 
 def assert_comment_list(self, comments, expected_count=0):
-    # Assert that the comments is a list
-    self.assertIsInstance(comments, list)
-
-    # Assert that the length of the comments is equal to the expected count
-    self.assertEqual(len(comments), expected_count)
-
-    # Assert each comment in the comments list has the expected structure
-    for comment in comments:
-        self.assertIn('id', comment)
-        self.assertIn('content', comment)
-        self.assertIn('owner', comment)
-        self.assertIn('post', comment)
-        self.assertIn('bookmarked', comment)
-        self.assertIn('upvoted', comment)
-        self.assertIn('downvoted', comment)
-        self.assertIn('replies', comment)
-        self.assertIn('stats', comment)
-        self.assertIn('created_at', comment)
-        self.assertIn('updated_at', comment)
+    """Assert structure and count of a comment list."""
+    required_fields = [
+        'id', 'content', 'owner', 'post', 'bookmarked', 'upvoted', 
+        'downvoted', 'replies', 'stats', 'created_at', 'updated_at'
+    ]
+    assert_list_structure(self, comments, expected_count, required_fields)
