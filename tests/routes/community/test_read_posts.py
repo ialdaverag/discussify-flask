@@ -1,5 +1,5 @@
 # Tests
-from tests.base.base_test_case import BaseTestCase
+from tests.routes.test_route import TestRoute
 
 # Factories
 from tests.factories.community_factory import CommunityFactory
@@ -16,7 +16,7 @@ from tests.utils.assert_pagination import assert_pagination_structure_posts
 from tests.utils.assert_list import assert_post_list
 
 
-class TestReadPosts(BaseTestCase):
+class TestReadPosts(TestRoute):
     route = '/community/{}/posts'
 
     def test_read_posts(self):
@@ -30,10 +30,10 @@ class TestReadPosts(BaseTestCase):
         PostFactory.create_batch(n, community=community)
 
         # Read the community posts
-        response = self.client.get(self.route.format(community.name))
+        response = self.GETRequest(self.route.format(community.name))
 
         # Assert the response status code
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get the pagination
         pagination = response.json
@@ -65,13 +65,12 @@ class TestReadPosts(BaseTestCase):
         PostFactory.create_batch(n, community=community)
 
         # Read the community posts
-        response = self.client.get(
-            self.route.format(community.name),
+        response = self.GETRequest(self.route.format(community.name),
             query_string={'page': 1, 'per_page': 5}
         )
 
         # Assert the response status code
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get the pagination
         pagination = response.json
@@ -109,13 +108,10 @@ class TestReadPosts(BaseTestCase):
         access_token = get_access_token(user)
 
         # Read the community posts
-        response = self.client.get(
-            self.route.format(community.name), 
-            headers={'Authorization': f'Bearer {access_token}'}
-        )
+        response = self.GETRequest(self.route.format(community.name), token=access_token)
 
         # Assert the response status code
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get the pagination
         pagination = response.json
@@ -153,14 +149,13 @@ class TestReadPosts(BaseTestCase):
         access_token = get_access_token(user)
 
         # Read the community posts
-        response = self.client.get(
-            self.route.format(community.name),
+        response = self.GETRequest(self.route.format(community.name),
             query_string={'page': 1, 'per_page': 5},
             headers={'Authorization': f'Bearer {access_token}'}
         )
 
         # Assert the response status code
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get the pagination
         pagination = response.json
@@ -205,13 +200,10 @@ class TestReadPosts(BaseTestCase):
         access_token = get_access_token(user)
 
         # Read the community posts
-        response = self.client.get(
-            self.route.format(community.name), 
-            headers={'Authorization': f'Bearer {access_token}'}
-        )
+        response = self.GETRequest(self.route.format(community.name), token=access_token)
 
         # Assert the response status code
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get the pagination
         pagination = response.json
@@ -256,14 +248,13 @@ class TestReadPosts(BaseTestCase):
         access_token = get_access_token(user)
 
         # Read the community posts
-        response = self.client.get(
-            self.route.format(community.name),
+        response = self.GETRequest(self.route.format(community.name),
             query_string={'page': 1, 'per_page': 5},
             headers={'Authorization': f'Bearer {access_token}'}
         )
 
         # Assert the response status code
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get the pagination
         pagination = response.json
@@ -308,13 +299,10 @@ class TestReadPosts(BaseTestCase):
         access_token = get_access_token(user)
 
         # Read the community posts
-        response = self.client.get(
-            self.route.format(community.name), 
-            headers={'Authorization': f'Bearer {access_token}'}
-        )
+        response = self.GETRequest(self.route.format(community.name), token=access_token)
 
         # Assert the response status code
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get the pagination
         pagination = response.json
@@ -359,14 +347,13 @@ class TestReadPosts(BaseTestCase):
         access_token = get_access_token(user)
 
         # Read the community posts
-        response = self.client.get(
-            self.route.format(community.name),
+        response = self.GETRequest(self.route.format(community.name),
             query_string={'page': 1, 'per_page': 5},
             headers={'Authorization': f'Bearer {access_token}'}
         )
 
         # Assert the response status code
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get the pagination
         pagination = response.json
@@ -418,13 +405,10 @@ class TestReadPosts(BaseTestCase):
         access_token = get_access_token(user)
 
         # Read the community posts
-        response = self.client.get(
-            self.route.format(community.name), 
-            headers={'Authorization': f'Bearer {access_token}'}
-        )
+        response = self.GETRequest(self.route.format(community.name), token=access_token)
 
         # Assert the response status code
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get the pagination
         pagination = response.json
@@ -476,14 +460,13 @@ class TestReadPosts(BaseTestCase):
         access_token = get_access_token(user)
 
         # Read the community posts
-        response = self.client.get(
-            self.route.format(community.name),
+        response = self.GETRequest(self.route.format(community.name),
             query_string={'page': 1, 'per_page': 5},
             headers={'Authorization': f'Bearer {access_token}'}
         )
 
         # Assert the response status code
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get the pagination
         pagination = response.json
@@ -524,13 +507,10 @@ class TestReadPosts(BaseTestCase):
         access_token = get_access_token(user)
 
         # Read the community posts
-        response = self.client.get(
-            self.route.format(community.name), 
-            headers={'Authorization': f'Bearer {access_token}'}
-        )
+        response = self.GETRequest(self.route.format(community.name), token=access_token)
 
         # Assert the response status code
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get the pagination
         pagination = response.json
@@ -571,14 +551,13 @@ class TestReadPosts(BaseTestCase):
         access_token = get_access_token(user)
 
         # Read the community posts
-        response = self.client.get(
-            self.route.format(community.name),
+        response = self.GETRequest(self.route.format(community.name),
             query_string={'page': 1, 'per_page': 5},
             headers={'Authorization': f'Bearer {access_token}'}
         )
 
         # Assert the response status code
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get the pagination
         pagination = response.json
@@ -626,13 +605,10 @@ class TestReadPosts(BaseTestCase):
         access_token = get_access_token(user)
 
         # Read the community posts
-        response = self.client.get(
-            self.route.format(community.name), 
-            headers={'Authorization': f'Bearer {access_token}'}
-        )
+        response = self.GETRequest(self.route.format(community.name), token=access_token)
 
         # Assert the response status code
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get the pagination
         pagination = response.json
@@ -680,14 +656,13 @@ class TestReadPosts(BaseTestCase):
         access_token = get_access_token(user)
 
         # Read the community posts
-        response = self.client.get(
-            self.route.format(community.name),
+        response = self.GETRequest(self.route.format(community.name),
             query_string={'page': 1, 'per_page': 5},
             headers={'Authorization': f'Bearer {access_token}'}
         )
 
         # Assert the response status code
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get the pagination
         pagination = response.json
@@ -735,13 +710,10 @@ class TestReadPosts(BaseTestCase):
         access_token = get_access_token(user)
 
         # Read the community posts
-        response = self.client.get(
-            self.route.format(community.name), 
-            headers={'Authorization': f'Bearer {access_token}'}
-        )
+        response = self.GETRequest(self.route.format(community.name), token=access_token)
 
         # Assert the response status code
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get the pagination
         pagination = response.json
@@ -789,14 +761,13 @@ class TestReadPosts(BaseTestCase):
         access_token = get_access_token(user)
 
         # Read the community posts
-        response = self.client.get(
-            self.route.format(community.name),
+        response = self.GETRequest(self.route.format(community.name),
             query_string={'page': 1, 'per_page': 5},
             headers={'Authorization': f'Bearer {access_token}'}
         )
 
         # Assert the response status code
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get the pagination
         pagination = response.json
@@ -851,13 +822,10 @@ class TestReadPosts(BaseTestCase):
         access_token = get_access_token(user)
 
         # Read the community posts
-        response = self.client.get(
-            self.route.format(community.name), 
-            headers={'Authorization': f'Bearer {access_token}'}
-        )
+        response = self.GETRequest(self.route.format(community.name), token=access_token)
 
         # Assert the response status code
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get the pagination
         pagination = response.json
@@ -912,14 +880,13 @@ class TestReadPosts(BaseTestCase):
         access_token = get_access_token(user)
 
         # Read the community posts
-        response = self.client.get(
-            self.route.format(community.name),
+        response = self.GETRequest(self.route.format(community.name),
             query_string={'page': 1, 'per_page': 5},
             headers={'Authorization': f'Bearer {access_token}'}
         )
 
         # Assert the response status code
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get the pagination
         pagination = response.json
@@ -945,10 +912,10 @@ class TestReadPosts(BaseTestCase):
         community = CommunityFactory()
 
         # Read the community posts
-        response = self.client.get(self.route.format(community.name))
+        response = self.GETRequest(self.route.format(community.name))
 
         # Assert the response status code
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get the pagination
         pagination = response.json
@@ -974,13 +941,12 @@ class TestReadPosts(BaseTestCase):
         community = CommunityFactory()
 
         # Read the community posts
-        response = self.client.get(
-            self.route.format(community.name),
+        response = self.GETRequest(self.route.format(community.name),
             query_string={'page': 1, 'per_page': 5}
         )
 
         # Assert the response status code
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get the pagination
         pagination = response.json
@@ -1003,10 +969,10 @@ class TestReadPosts(BaseTestCase):
 
     def test_read_posts_nonexistent_community(self):
         # Try to get posts of a nonexistent community
-        response = self.client.get(self.route.format('nonexistent'))
+        response = self.GETRequest(self.route.format('nonexistent'))
 
         # Assert the response status code
-        self.assertEqual(response.status_code, 404)
+        self.assertStatusCode(response, 404)
 
         # Get the response data
         data = response.json

@@ -1,5 +1,5 @@
 # tests
-from tests.base.base_test_case import BaseTestCase
+from tests.routes.test_route import TestRoute
 
 # factories
 from tests.factories.user_factory import UserFactory
@@ -14,7 +14,7 @@ from tests.utils.assert_list import assert_user_list
 from tests.utils.assert_pagination import assert_pagination_structure
 
 
-class TestReadFollowed(BaseTestCase):
+class TestReadFollowed(TestRoute):
     route = '/user/{}/following'
     route_with_args = '/user/{}/following?page={}&per_page={}'
 
@@ -33,10 +33,10 @@ class TestReadFollowed(BaseTestCase):
             Follow(follower=user, followed=user_).save()
 
         # Get user followed
-        response = self.client.get(self.route.format(user.username))
+        response = self.GETRequest(self.route.format(user.username))
 
         # Assert the response status
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get response pagination
         pagination = response.json
@@ -77,7 +77,7 @@ class TestReadFollowed(BaseTestCase):
         )
 
         # Assert the response status
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get response pagination
         pagination = response.json
@@ -116,13 +116,10 @@ class TestReadFollowed(BaseTestCase):
         access_token = get_access_token(user)
 
         # Get user followed
-        response = self.client.get(
-            self.route.format(user.username), 
-            headers={'Authorization': f'Bearer {access_token}'}
-        )
+        response = self.GETRequest(self.route.format(user.username), token=access_token)
 
         # Assert the response status
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get response pagination
         pagination = response.json
@@ -167,7 +164,7 @@ class TestReadFollowed(BaseTestCase):
         )
 
         # Assert the response status
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get response pagination
         pagination = response.json
@@ -216,13 +213,10 @@ class TestReadFollowed(BaseTestCase):
         access_token = get_access_token(user)
 
         # Get the users
-        response = self.client.get(
-            self.route.format(user.username),
-            headers={'Authorization': f'Bearer {access_token}'}
-        )
+        response = self.GETRequest(self.route.format(user.username), token=access_token)
 
         # Assert response status code
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get response pagination
         pagination = response.json
@@ -277,7 +271,7 @@ class TestReadFollowed(BaseTestCase):
         )
 
         # Assert response status code
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get response pagination
         pagination = response.json
@@ -326,13 +320,10 @@ class TestReadFollowed(BaseTestCase):
         access_token = get_access_token(user)
 
         # Get the users
-        response = self.client.get(
-            self.route.format(user.username),
-            headers={'Authorization': f'Bearer {access_token}'}
-        )
+        response = self.GETRequest(self.route.format(user.username), token=access_token)
 
         # Assert response status code
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get response pagination
         pagination = response.json
@@ -387,7 +378,7 @@ class TestReadFollowed(BaseTestCase):
         )
 
         # Assert response status code
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get response pagination
         pagination = response.json
@@ -443,13 +434,10 @@ class TestReadFollowed(BaseTestCase):
         access_token = get_access_token(user)
 
         # Get the users
-        response = self.client.get(
-            self.route.format(user.username),
-            headers={'Authorization': f'Bearer {access_token}'}
-        )
+        response = self.GETRequest(self.route.format(user.username), token=access_token)
 
         # Assert response status code
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get response pagination
         pagination = response.json
@@ -511,7 +499,7 @@ class TestReadFollowed(BaseTestCase):
         )
 
         # Assert response status code
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get response pagination
         pagination = response.json
@@ -537,10 +525,10 @@ class TestReadFollowed(BaseTestCase):
         user = UserFactory()
 
         # Get the user followed
-        response = self.client.get(self.route.format(user.username))
+        response = self.GETRequest(self.route.format(user.username))
 
         # Assert the response status code
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get response pagination
         pagination = response.json
@@ -571,7 +559,7 @@ class TestReadFollowed(BaseTestCase):
         )
 
         # Assert the response status code
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get response pagination
         pagination = response.json
@@ -594,10 +582,10 @@ class TestReadFollowed(BaseTestCase):
 
     def test_read_followed_nonexistent_user(self):
         # Try to get followed users of a nonexistent user
-        response = self.client.get(self.route.format('inexistent'))
+        response = self.GETRequest(self.route.format('inexistent'))
 
         # Assert the response status code
-        self.assertEqual(response.status_code, 404)
+        self.assertStatusCode(response, 404)
 
         # Get response data
         data = response.json

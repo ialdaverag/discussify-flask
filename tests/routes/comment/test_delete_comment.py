@@ -1,5 +1,5 @@
 # Base
-from tests.base.base_test_case import BaseTestCase
+from tests.routes.test_route import TestRoute
 
 # Factories
 from tests.factories.user_factory import UserFactory
@@ -12,7 +12,7 @@ from tests.utils.tokens import get_access_token
 from app.models.community import CommunityModerator
 
 
-class TestDeleteComment(BaseTestCase):
+class TestDeleteComment(TestRoute):
     route = '/comment/{}'
 
     def test_delete_comment(self):
@@ -26,13 +26,10 @@ class TestDeleteComment(BaseTestCase):
         access_token = get_access_token(owner)
 
         # Delete the comment
-        response = self.client.delete(
-            self.route.format(comment.id),
-            headers={'Authorization': f'Bearer {access_token}'}
-        )
+        response = self.DELETERequest(self.route.format(comment.id), token=access_token)
 
         # Check status code
-        self.assertEqual(response.status_code, 204)
+        self.assertStatusCode(response, 204)
 
     def test_delete_comment_as_moderator(self):
         # Create a comment
@@ -51,13 +48,10 @@ class TestDeleteComment(BaseTestCase):
         access_token = get_access_token(user)
 
         # Delete the comment
-        response = self.client.delete(
-            self.route.format(comment.id),
-            headers={'Authorization': f'Bearer {access_token}'}
-        )
+        response = self.DELETERequest(self.route.format(comment.id), token=access_token)
 
         # Check status code
-        self.assertEqual(response.status_code, 204)
+        self.assertStatusCode(response, 204)
 
     def test_delete_comment_nonexistent(self):
         # Create a user
@@ -67,13 +61,10 @@ class TestDeleteComment(BaseTestCase):
         access_token = get_access_token(user)
 
         # Delete the comment
-        response = self.client.delete(
-            self.route.format(404),
-            headers={'Authorization': f'Bearer {access_token}'}
-        )
+        response = self.DELETERequest(self.route.format(404), token=access_token)
 
         # Check status code
-        self.assertEqual(response.status_code, 404)
+        self.assertStatusCode(response, 404)
 
         # Get the data
         data = response.json
@@ -95,13 +86,10 @@ class TestDeleteComment(BaseTestCase):
         access_token = get_access_token(user)
 
         # Delete the comment
-        response = self.client.delete(
-            self.route.format(comment.id),
-            headers={'Authorization': f'Bearer {access_token}'}
-        )
+        response = self.DELETERequest(self.route.format(comment.id), token=access_token)
 
         # Check status code
-        self.assertEqual(response.status_code, 403)
+        self.assertStatusCode(response, 403)
 
         # Get the data
         data = response.json

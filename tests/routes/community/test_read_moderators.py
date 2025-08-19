@@ -1,5 +1,5 @@
 # Tests
-from tests.base.base_test_case import BaseTestCase
+from tests.routes.test_route import TestRoute
 
 # Factories
 from tests.factories.user_factory import UserFactory
@@ -11,7 +11,7 @@ from tests.utils.assert_pagination import assert_pagination_structure
 from tests.utils.assert_list import assert_user_list
 
 
-class TestReadModerators(BaseTestCase):
+class TestReadModerators(TestRoute):
     route = '/community/{}/moderators'
 
     def test_read_moderators(self):
@@ -29,10 +29,10 @@ class TestReadModerators(BaseTestCase):
             CommunityModerator(community=community, user=moderator).save()
 
         # Read the community moderators
-        response = self.client.get(self.route.format(community.name))
+        response = self.GETRequest(self.route.format(community.name))
 
         # Assert that the response status code is 200
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get response pagination
         pagination = response.json
@@ -71,13 +71,12 @@ class TestReadModerators(BaseTestCase):
         args = {'page': 1, 'per_page': 2}
 
         # Read the community moderators
-        response = self.client.get(
-            self.route.format(community.name), 
+        response = self.GETRequest(self.route.format(community.name), 
             query_string=args
         )
 
         # Assert that the response status code is 200
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get response pagination
         pagination = response.json
@@ -103,10 +102,10 @@ class TestReadModerators(BaseTestCase):
         community = CommunityFactory()
 
         # Read the community moderators
-        response = self.client.get(self.route.format(community.name))
+        response = self.GETRequest(self.route.format(community.name))
 
         # Assert that the response status code is 200
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get response pagination
         pagination = response.json
@@ -135,13 +134,12 @@ class TestReadModerators(BaseTestCase):
         args = {'page': 1, 'per_page': 2}
 
         # Read the community moderators
-        response = self.client.get(
-            self.route.format(community.name), 
+        response = self.GETRequest(self.route.format(community.name), 
             query_string=args
         )
 
         # Assert that the response status code is 200
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get response pagination
         pagination = response.json
@@ -164,10 +162,10 @@ class TestReadModerators(BaseTestCase):
 
     def test_read_moderators_nonexistent_community(self):
         # Try to get moderators of a nonexistent community
-        response = self.client.get(self.route.format('nonexistent'))
+        response = self.GETRequest(self.route.format('nonexistent'))
 
         # Assert the response status code
-        self.assertEqual(response.status_code, 404)
+        self.assertStatusCode(response, 404)
 
         # Get response data
         data = response.json

@@ -1,5 +1,5 @@
 # Base
-from tests.base.base_test_case import BaseTestCase
+from tests.routes.test_route import TestRoute
 
 # Factories
 from tests.factories.user_factory import UserFactory
@@ -14,7 +14,7 @@ from app.models.community import CommunityBan
 from app.models.user import Block
 
 
-class TestCreateComment(BaseTestCase):
+class TestCreateComment(TestRoute):
     route = '/comment/'
 
     def test_create_comment(self):
@@ -45,7 +45,7 @@ class TestCreateComment(BaseTestCase):
         )
 
         # Check status code
-        self.assertEqual(response.status_code, 201)
+        self.assertStatusCode(response, 201)
 
         # Get the response data
         data = response.json
@@ -97,7 +97,7 @@ class TestCreateComment(BaseTestCase):
         )
 
         # Check status code
-        self.assertEqual(response.status_code, 404)
+        self.assertStatusCode(response, 404)
 
         # Get the data
         data = response.json
@@ -128,7 +128,7 @@ class TestCreateComment(BaseTestCase):
         )
 
         # Check status code
-        self.assertEqual(response.status_code, 400)
+        self.assertStatusCode(response, 400)
 
         # Get the response data
         data = response.json
@@ -165,7 +165,7 @@ class TestCreateComment(BaseTestCase):
         )
 
         # Check status code
-        self.assertEqual(response.status_code, 400)
+        self.assertStatusCode(response, 400)
 
         # Get the response data
         data = response.json
@@ -203,7 +203,7 @@ class TestCreateComment(BaseTestCase):
         )
 
         # Check status code
-        self.assertEqual(response.status_code, 400)
+        self.assertStatusCode(response, 400)
 
         # Get the response data
         data = response.json
@@ -253,7 +253,7 @@ class TestCreateComment(BaseTestCase):
         )
 
         # Check status code
-        self.assertEqual(response.status_code, 400)
+        self.assertStatusCode(response, 400)
 
         # Get the data
         data = response.json
@@ -300,7 +300,7 @@ class TestCreateComment(BaseTestCase):
         )
 
         # Check status code
-        self.assertEqual(response.status_code, 400)
+        self.assertStatusCode(response, 400)
 
         # Get the data
         data = response.json
@@ -335,7 +335,7 @@ class TestCreateComment(BaseTestCase):
         )
 
         # Check status code
-        self.assertEqual(response.status_code, 400)
+        self.assertStatusCode(response, 400)
 
         # Get the data
         data = response.json
@@ -375,7 +375,7 @@ class TestCreateComment(BaseTestCase):
         )
 
         # Check status code
-        self.assertEqual(response.status_code, 400)
+        self.assertStatusCode(response, 400)
 
         # Get the data
         data = response.json

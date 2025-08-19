@@ -1,5 +1,5 @@
 # tests
-from tests.base.base_test_case import BaseTestCase
+from tests.routes.test_route import TestRoute
 
 # factories
 from tests.factories.user_factory import UserFactory
@@ -13,7 +13,7 @@ from tests.utils.assert_list import assert_user_list
 from tests.utils.assert_pagination import assert_pagination_structure
 
 
-class TestReadUsers(BaseTestCase):
+class TestReadUsers(TestRoute):
     route = '/user/'
 
     def test_read_users(self):
@@ -24,10 +24,10 @@ class TestReadUsers(BaseTestCase):
         UserFactory.create_batch(n)
 
         # Get the users
-        response = self.client.get(self.route)
+        response = self.GETRequest(self.route)
 
         # Assert response status code
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get response pagination
         pagination = response.json
@@ -62,7 +62,7 @@ class TestReadUsers(BaseTestCase):
         )
 
         # Assert response status code
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get response pagination
         pagination = response.json
@@ -97,13 +97,10 @@ class TestReadUsers(BaseTestCase):
         access_token = get_access_token(user)
 
         # Get the users
-        response = self.client.get(
-            self.route,
-            headers={'Authorization': f'Bearer {access_token}'}
-        )
+        response = self.GETRequest(self.route, token=access_token)
 
         # Assert response status code
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get response pagination
         pagination = response.json
@@ -147,7 +144,7 @@ class TestReadUsers(BaseTestCase):
         )
 
         # Assert response status code
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get response pagination
         pagination = response.json
@@ -190,13 +187,10 @@ class TestReadUsers(BaseTestCase):
         access_token = get_access_token(user)
 
         # Get the users
-        response = self.client.get(
-            self.route,
-            headers={'Authorization': f'Bearer {access_token}'}
-        )
+        response = self.GETRequest(self.route, token=access_token)
 
         # Assert response status code
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get response pagination
         pagination = response.json
@@ -245,7 +239,7 @@ class TestReadUsers(BaseTestCase):
         )
 
         # Assert response status code
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get response pagination
         pagination = response.json
@@ -287,13 +281,10 @@ class TestReadUsers(BaseTestCase):
         access_token = get_access_token(user)
 
         # Get the users
-        response = self.client.get(
-            self.route,
-            headers={'Authorization': f'Bearer {access_token}'}
-        )
+        response = self.GETRequest(self.route, token=access_token)
 
         # Assert response status code
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get response pagination
         pagination = response.json
@@ -342,7 +333,7 @@ class TestReadUsers(BaseTestCase):
         )
 
         # Assert response status code
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get response pagination
         pagination = response.json
@@ -391,13 +382,10 @@ class TestReadUsers(BaseTestCase):
         access_token = get_access_token(user)
 
         # Get the users
-        response = self.client.get(
-            self.route,
-            headers={'Authorization': f'Bearer {access_token}'}
-        )
+        response = self.GETRequest(self.route, token=access_token)
 
         # Assert response status code
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get response pagination
         pagination = response.json
@@ -453,7 +441,7 @@ class TestReadUsers(BaseTestCase):
         )
 
         # Assert response status code
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get response pagination
         pagination = response.json
@@ -476,10 +464,10 @@ class TestReadUsers(BaseTestCase):
 
     def test_read_users_empty(self):
         # Get the users
-        response = self.client.get(self.route)
+        response = self.GETRequest(self.route)
 
         # Assert response status code
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get response pagination
         pagination = response.json
@@ -508,7 +496,7 @@ class TestReadUsers(BaseTestCase):
         )
 
         # Assert response status code
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get response pagination
         pagination = response.json

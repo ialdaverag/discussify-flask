@@ -1,5 +1,5 @@
 # tests
-from tests.base.base_test_case import BaseTestCase
+from tests.routes.test_route import TestRoute
 
 # factories
 from tests.factories.user_factory import UserFactory
@@ -13,7 +13,7 @@ from tests.utils.assert_pagination import assert_pagination_structure_communitie
 from tests.utils.assert_list import assert_community_list
 
 
-class TestReadSubscriptions(BaseTestCase):
+class TestReadSubscriptions(TestRoute):
     route = '/user/{}/subscriptions'
 
     def test_read_subscriptions(self):
@@ -31,10 +31,10 @@ class TestReadSubscriptions(BaseTestCase):
             CommunitySubscriber(community=community, user=user).save()
 
         # Get user subscriptions
-        response = self.client.get(self.route.format(user.username))
+        response = self.GETRequest(self.route.format(user.username))
 
         # Assert that the response status code is 200
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get response pagination
         pagination = response.json
@@ -70,8 +70,7 @@ class TestReadSubscriptions(BaseTestCase):
             CommunitySubscriber(community=community, user=user).save()
 
         # Get user subscriptions
-        response = self.client.get(
-            self.route.format(user.username),
+        response = self.GETRequest(self.route.format(user.username),
             query_string={
                 'page': 1,
                 'per_page': 2
@@ -79,7 +78,7 @@ class TestReadSubscriptions(BaseTestCase):
         )
 
         # Assert that the response status code is 200
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get response pagination
         pagination = response.json
@@ -105,10 +104,10 @@ class TestReadSubscriptions(BaseTestCase):
         user = UserFactory()
 
         # Get the user subscriptions
-        response = self.client.get(self.route.format(user.username))
+        response = self.GETRequest(self.route.format(user.username))
 
         # Assert that the response status code is 200
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get response pagination
         pagination = response.json
@@ -134,8 +133,7 @@ class TestReadSubscriptions(BaseTestCase):
         user = UserFactory()
 
         # Get the user subscriptions
-        response = self.client.get(
-            self.route.format(user.username),
+        response = self.GETRequest(self.route.format(user.username),
             query_string={
                 'page': 1,
                 'per_page': 10
@@ -143,7 +141,7 @@ class TestReadSubscriptions(BaseTestCase):
         )
 
         # Assert that the response status code is 200
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get response pagination
         pagination = response.json
@@ -166,10 +164,10 @@ class TestReadSubscriptions(BaseTestCase):
 
     def test_read_subscriptions_nonexistent_user(self):
         # Try to get subscriptions of a nonexistent user
-        response = self.client.get(self.route.format('nonexistent'))
+        response = self.GETRequest(self.route.format('nonexistent'))
 
         # Assert the response status code
-        self.assertEqual(response.status_code, 404)
+        self.assertStatusCode(response, 404)
 
         # Get response data
         data = response.json

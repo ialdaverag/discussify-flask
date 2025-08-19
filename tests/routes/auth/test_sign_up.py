@@ -1,11 +1,11 @@
 # tests
-from tests.base.base_test_case import BaseTestCase
+from tests.routes.test_route import TestRoute
 
 # factories
 from tests.factories.user_factory import UserFactory
 
 
-class SignUpTests(BaseTestCase):
+class SignUpTests(TestRoute):
     route = '/auth/signup'
 
     def test_sign_up(self) -> None:
@@ -23,7 +23,7 @@ class SignUpTests(BaseTestCase):
         )
 
         # Assert the response status code
-        self.assertEqual(response.status_code, 201)
+        self.assertStatusCode(response, 201)
 
         # Get the response data
         data = response.json
@@ -78,7 +78,7 @@ class SignUpTests(BaseTestCase):
         )
 
         # Assert the response status code
-        self.assertEqual(response.status_code, 400)
+        self.assertStatusCode(response, 400)
 
         # Get the response data
         data = response.json
@@ -109,7 +109,7 @@ class SignUpTests(BaseTestCase):
         )
 
         # assert response status code
-        self.assertEqual(response.status_code, 400)
+        self.assertStatusCode(response, 400)
 
         # assert response data
         data = response.json
@@ -139,7 +139,7 @@ class SignUpTests(BaseTestCase):
         )
 
         # assert response status code
-        self.assertEqual(response.status_code, 400)
+        self.assertStatusCode(response, 400)
 
         # assert response data
         data = response.json
@@ -168,7 +168,7 @@ class SignUpTests(BaseTestCase):
         )
 
         # assert response status code
-        self.assertEqual(response.status_code, 400)
+        self.assertStatusCode(response, 400)
 
         # assert response data
         data = response.json
@@ -198,7 +198,7 @@ class SignUpTests(BaseTestCase):
         )
 
         # assert response status code
-        self.assertEqual(response.status_code, 400)
+        self.assertStatusCode(response, 400)
 
         # assert response data
         data = response.json
@@ -227,7 +227,7 @@ class SignUpTests(BaseTestCase):
         )
 
         # assert response status code
-        self.assertEqual(response.status_code, 400)
+        self.assertStatusCode(response, 400)
 
         # assert response data
         data = response.json
@@ -258,7 +258,7 @@ class SignUpTests(BaseTestCase):
         )
 
         # assert response status code
-        self.assertEqual(response.status_code, 400)
+        self.assertStatusCode(response, 400)
 
         # assert response data
         data = response.json
@@ -286,7 +286,7 @@ class SignUpTests(BaseTestCase):
         )
 
         # assert response status code
-        self.assertEqual(response.status_code, 400)
+        self.assertStatusCode(response, 400)
 
         # assert response data
         data = response.json

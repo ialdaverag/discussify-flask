@@ -1,5 +1,5 @@
 # Base
-from tests.base.base_test_case import BaseTestCase
+from tests.routes.test_route import TestRoute
 
 # Factories
 from tests.factories.user_factory import UserFactory
@@ -10,7 +10,7 @@ from tests.factories.post_bookmark_factory import PostBookmarkFactory
 from tests.utils.tokens import get_access_token
 
 
-class TestUnbookmarkPost(BaseTestCase):
+class TestUnbookmarkPost(TestRoute):
     route = '/post/{}/unbookmark'
 
     def test_unbookmark_post(self):
@@ -27,13 +27,13 @@ class TestUnbookmarkPost(BaseTestCase):
         access_token = get_access_token(user)
 
         # Unbookmark the post
-        response = self.client.post(
+        response = self.POSTRequest(
             self.route.format(post.id),
-            headers={'Authorization': f'Bearer {access_token}'}
+            token=access_token
         )
 
         # Check status code
-        self.assertEqual(response.status_code, 204)
+        self.assertStatusCode(response, 204)
 
     def test_unbookmark_post_nonexistent(self):
         # Create a user
@@ -43,22 +43,16 @@ class TestUnbookmarkPost(BaseTestCase):
         access_token = get_access_token(user)
 
         # Unbookmark the post
-        response = self.client.post(
+        response = self.POSTRequest(
             self.route.format(404),
-            headers={'Authorization': f'Bearer {access_token}'}
+            token=access_token
         )
 
         # Check status code
-        self.assertEqual(response.status_code, 404)
-
-        # Get the data
-        data = response.json
-
-        # Assert message is in data
-        self.assertIn('message', data)
+        self.assertStatusCode(response, 404)
 
         # Assert the message
-        self.assertEqual(data['message'], 'Post not found.')
+        self.assertMessage(response, 'Post not found.')
 
     def test_unbookmark_post_not_bookmarked(self):
         # Create a post
@@ -71,19 +65,13 @@ class TestUnbookmarkPost(BaseTestCase):
         access_token = get_access_token(user)
 
         # Unbookmark the post
-        response = self.client.post(
+        response = self.POSTRequest(
             self.route.format(post.id),
-            headers={'Authorization': f'Bearer {access_token}'}
+            token=access_token
         )
 
         # Check status code
-        self.assertEqual(response.status_code, 400)
-
-        # Get the data
-        data = response.json
-
-        # Assert message is in data
-        self.assertIn('message', data)
+        self.assertStatusCode(response, 400)
 
         # Assert the message
-        self.assertEqual(data['message'], 'Post not bookmarked.')
+        self.assertMessage(response, 'Post not bookmarked.')

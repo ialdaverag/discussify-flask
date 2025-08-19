@@ -1,5 +1,5 @@
 # Tests
-from tests.base.base_test_case import BaseTestCase
+from tests.routes.test_route import TestRoute
 
 # Factories
 from tests.factories.user_factory import UserFactory
@@ -13,7 +13,7 @@ from app.models.community import CommunityModerator
 from app.models.community import CommunityBan
 
 
-class TestUnban(BaseTestCase):
+class TestUnban(TestRoute):
     route = '/community/{}/unban/{}'
 
     def test_unban(self):
@@ -39,7 +39,7 @@ class TestUnban(BaseTestCase):
         )
 
         # Assert the response status code
-        self.assertEqual(response.status_code, 204)
+        self.assertStatusCode(response, 204)
 
     def test_unban_user_nonexistent_community(self):
         # Create a user
@@ -58,7 +58,7 @@ class TestUnban(BaseTestCase):
         )
 
         # Assert the response status code
-        self.assertEqual(response.status_code, 404)
+        self.assertStatusCode(response, 404)
 
         # Get the response data
         data = response.json
@@ -83,7 +83,7 @@ class TestUnban(BaseTestCase):
         )
 
         # Assert the response status code
-        self.assertEqual(response.status_code, 404)
+        self.assertStatusCode(response, 404)
 
         # Get the response data
         data = response.json
@@ -116,7 +116,7 @@ class TestUnban(BaseTestCase):
         )
 
         # assert response status code
-        self.assertEqual(response.status_code, 401)
+        self.assertStatusCode(response, 401)
 
         # Get the response data
         data = response.json
@@ -146,7 +146,7 @@ class TestUnban(BaseTestCase):
         )
 
         # assert response status code
-        self.assertEqual(response.status_code, 400)
+        self.assertStatusCode(response, 400)
 
         # Get the response data
         data = response.json

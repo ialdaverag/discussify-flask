@@ -1,5 +1,5 @@
 # Tests
-from tests.base.base_test_case import BaseTestCase
+from tests.routes.test_route import TestRoute
 
 # Factories
 from tests.factories.user_factory import UserFactory
@@ -14,7 +14,7 @@ from app.models.community import CommunityModerator
 from app.models.community import CommunityBan
 
 
-class TestBan(BaseTestCase):
+class TestBan(TestRoute):
     route = '/community/{}/ban/{}'
 
     def test_ban(self):
@@ -40,7 +40,7 @@ class TestBan(BaseTestCase):
         )
 
         # assert response status code
-        self.assertEqual(response.status_code, 204)
+        self.assertStatusCode(response, 204)
 
     def test_ban_nonexistent_community(self):
         # create a user
@@ -56,7 +56,7 @@ class TestBan(BaseTestCase):
         )
 
         # assert response status code
-        self.assertEqual(response.status_code, 404)
+        self.assertStatusCode(response, 404)
 
         # get response data
         data = response.json
@@ -81,7 +81,7 @@ class TestBan(BaseTestCase):
         )
 
         # assert response status code
-        self.assertEqual(response.status_code, 404)
+        self.assertStatusCode(response, 404)
 
         # get response data
         data = response.json
@@ -113,7 +113,7 @@ class TestBan(BaseTestCase):
         )
 
         # assert response status code
-        self.assertEqual(response.status_code, 401)
+        self.assertStatusCode(response, 401)
 
         # get response data
         data = response.json
@@ -141,7 +141,7 @@ class TestBan(BaseTestCase):
         )
 
         # assert response status code
-        self.assertEqual(response.status_code, 401)
+        self.assertStatusCode(response, 401)
 
         # get response data
         data = response.json
@@ -174,7 +174,7 @@ class TestBan(BaseTestCase):
         )
 
         # assert response status code
-        self.assertEqual(response.status_code, 400)
+        self.assertStatusCode(response, 400)
 
         # get response data
         data = response.json

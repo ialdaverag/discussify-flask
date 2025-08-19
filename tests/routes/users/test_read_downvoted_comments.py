@@ -1,5 +1,5 @@
 # tests
-from tests.base.base_test_case import BaseTestCase
+from tests.routes.test_route import TestRoute
 
 # factories
 from tests.factories.user_factory import UserFactory
@@ -17,7 +17,7 @@ from tests.utils.assert_list import assert_comment_list
 from app.models.user import Block
 
 
-class TestReadDownvotedComments(BaseTestCase):
+class TestReadDownvotedComments(TestRoute):
     route = '/user/comments/downvoted'
 
     def test_read_downvoted_comments(self):
@@ -38,13 +38,10 @@ class TestReadDownvotedComments(BaseTestCase):
         access_token = get_access_token(user)
 
         # Get user downvoted comments
-        response = self.client.get(
-            self.route,
-            headers={'Authorization': f'Bearer {access_token}'}
-        )
+        response = self.GETRequest(self.route, token=access_token)
 
         # Assert that the response status code is 200
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get pagination
         pagination = response.json
@@ -90,7 +87,7 @@ class TestReadDownvotedComments(BaseTestCase):
         )
 
         # Assert that the response status code is 200
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get pagination
         pagination = response.json
@@ -135,13 +132,10 @@ class TestReadDownvotedComments(BaseTestCase):
         access_token = get_access_token(user)
 
         # Get user downvoted comments
-        response = self.client.get(
-            self.route,
-            headers={'Authorization': f'Bearer {access_token}'}
-        )
+        response = self.GETRequest(self.route, token=access_token)
 
         # Assert the response status code
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get pagination
         pagination = response.json
@@ -193,7 +187,7 @@ class TestReadDownvotedComments(BaseTestCase):
         )
 
         # Assert the response status code
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get pagination
         pagination = response.json
@@ -238,13 +232,10 @@ class TestReadDownvotedComments(BaseTestCase):
         access_token = get_access_token(user)
 
         # Get user downvoted comments
-        response = self.client.get(
-            self.route,
-            headers={'Authorization': f'Bearer {access_token}'}
-        )
+        response = self.GETRequest(self.route, token=access_token)
 
         # Assert the response status code
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get pagination
         pagination = response.json
@@ -296,7 +287,7 @@ class TestReadDownvotedComments(BaseTestCase):
         )
 
         # Assert the response status code
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get pagination
         pagination = response.json
@@ -347,13 +338,10 @@ class TestReadDownvotedComments(BaseTestCase):
         access_token = get_access_token(user)
 
         # Get user downvoted comments
-        response = self.client.get(
-            self.route,
-            headers={'Authorization': f'Bearer {access_token}'}
-        )
+        response = self.GETRequest(self.route, token=access_token)
 
         # Assert the response status code
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get pagination
         pagination = response.json
@@ -411,7 +399,7 @@ class TestReadDownvotedComments(BaseTestCase):
         )
 
         # Assert the response status code
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get pagination
         pagination = response.json
@@ -440,13 +428,10 @@ class TestReadDownvotedComments(BaseTestCase):
         access_token = get_access_token(user)
 
         # Get the user downvoted comments
-        response = self.client.get(
-            self.route,
-            headers={'Authorization': f'Bearer {access_token}'}
-        )
+        response = self.GETRequest(self.route, token=access_token)
 
         # Assert that the response status code is 200
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get pagination
         pagination = response.json
@@ -482,7 +467,7 @@ class TestReadDownvotedComments(BaseTestCase):
         )
 
         # Assert that the response status code is 200
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get pagination
         pagination = response.json

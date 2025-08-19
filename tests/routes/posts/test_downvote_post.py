@@ -1,5 +1,5 @@
 # Base
-from tests.base.base_test_case import BaseTestCase
+from tests.routes.test_route import TestRoute
 
 # Factories
 from tests.factories.user_factory import UserFactory
@@ -15,7 +15,7 @@ from app.models.community import CommunityBan
 from app.models.user import Block
 
 
-class TestDownvotePost(BaseTestCase):
+class TestDownvotePost(TestRoute):
     route = '/post/{}/vote/down'
 
     def test_downvote_post(self):
@@ -33,13 +33,10 @@ class TestDownvotePost(BaseTestCase):
         access_token = get_access_token(user)
 
         # Downvote the post
-        response = self.client.post(
-            self.route.format(post.id),
-            headers={'Authorization': f'Bearer {access_token}'}
-        )
+        response = self.POSTRequest(self.route.format(post.id), token=access_token)
 
         # Check status code
-        self.assertEqual(response.status_code, 204)
+        self.assertStatusCode(response, 204)
 
     def test_downvote_post_owner_blocked_by_user(self):
         # Create a post
@@ -64,13 +61,10 @@ class TestDownvotePost(BaseTestCase):
         access_token = get_access_token(user)
 
         # Downvote the post
-        response = self.client.post(
-            self.route.format(post.id),
-            headers={'Authorization': f'Bearer {access_token}'}
-        )
+        response = self.POSTRequest(self.route.format(post.id), token=access_token)
 
         # Check status code
-        self.assertEqual(response.status_code, 400)
+        self.assertStatusCode(response, 400)
 
         # Get the data
         data = response.json
@@ -104,13 +98,10 @@ class TestDownvotePost(BaseTestCase):
         access_token = get_access_token(user)
 
         # Downvote the post
-        response = self.client.post(
-            self.route.format(post.id),
-            headers={'Authorization': f'Bearer {access_token}'}
-        )
+        response = self.POSTRequest(self.route.format(post.id), token=access_token)
 
         # Check status code
-        self.assertEqual(response.status_code, 400)
+        self.assertStatusCode(response, 400)
 
         # Get the data
         data = response.json
@@ -130,13 +121,10 @@ class TestDownvotePost(BaseTestCase):
         access_token = get_access_token(user)
 
         # Downvote the post
-        response = self.client.post(
-            self.route.format(404),
-            headers={'Authorization': f'Bearer {access_token}'}
-        )
+        response = self.POSTRequest(self.route.format(404), token=access_token)
 
         # Check status code
-        self.assertEqual(response.status_code, 404)
+        self.assertStatusCode(response, 404)
 
         # Get the data
         data = response.json
@@ -166,13 +154,10 @@ class TestDownvotePost(BaseTestCase):
         access_token = get_access_token(user)
 
         # Downvote the post
-        response = self.client.post(
-            self.route.format(post.id),
-            headers={'Authorization': f'Bearer {access_token}'}
-        )
+        response = self.POSTRequest(self.route.format(post.id), token=access_token)
 
         # Check status code
-        self.assertEqual(response.status_code, 400)
+        self.assertStatusCode(response, 400)
 
         # Get the data
         data = response.json
@@ -194,13 +179,10 @@ class TestDownvotePost(BaseTestCase):
         access_token = get_access_token(user)
 
         # Downvote the post
-        response = self.client.post(
-            self.route.format(post.id),
-            headers={'Authorization': f'Bearer {access_token}'}
-        )
+        response = self.POSTRequest(self.route.format(post.id), token=access_token)
 
         # Check status code
-        self.assertEqual(response.status_code, 400)
+        self.assertStatusCode(response, 400)
 
         # Get the data
         data = response.json
@@ -233,13 +215,10 @@ class TestDownvotePost(BaseTestCase):
         )
 
         # Downvote the post
-        response = self.client.post(
-            self.route.format(post.id),
-            headers={'Authorization': f'Bearer {access_token}'}
-        )
+        response = self.POSTRequest(self.route.format(post.id), token=access_token)
 
         # Check status code
-        self.assertEqual(response.status_code, 400)
+        self.assertStatusCode(response, 400)
 
         # Get the data
         data = response.json

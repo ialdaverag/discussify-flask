@@ -2,13 +2,13 @@
 from app.utils.password import hash_password
 
 # tests
-from tests.base.base_test_case import BaseTestCase
+from tests.routes.test_route import TestRoute
 
 # factories
 from tests.factories.user_factory import UserFactory
 
 
-class TestLogIn(BaseTestCase):
+class TestLogIn(TestRoute):
     route = '/auth/login'
 
     def test_log_in(self):
@@ -27,7 +27,7 @@ class TestLogIn(BaseTestCase):
         )
 
         # Assert the response status code
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get the data
         data = response.json
@@ -55,7 +55,7 @@ class TestLogIn(BaseTestCase):
         )
 
         # Assert the response status code
-        self.assertEqual(response.status_code, 400)
+        self.assertStatusCode(response, 400)
 
         # Assert the response data
         data = response.json
@@ -88,7 +88,7 @@ class TestLogIn(BaseTestCase):
         )
 
         # Assert the response status code
-        self.assertEqual(response.status_code, 400)
+        self.assertStatusCode(response, 400)
 
         # Assert the response data
         data = response.json
@@ -122,7 +122,7 @@ class TestLogIn(BaseTestCase):
         )
 
         # Assert the response status code
-        self.assertEqual(response.status_code, 404)
+        self.assertStatusCode(response, 404)
 
         # Assert the response data
         data = response.json
@@ -147,7 +147,7 @@ class TestLogIn(BaseTestCase):
         )
 
         # Assert the response status code
-        self.assertEqual(response.status_code, 401)
+        self.assertStatusCode(response, 401)
 
         # Assert the response data
         data = response.json

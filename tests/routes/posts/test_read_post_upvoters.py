@@ -1,5 +1,5 @@
 # Base
-from tests.base.base_test_case import BaseTestCase
+from tests.routes.test_route import TestRoute
 
 # Factories
 from tests.factories.user_factory import UserFactory
@@ -15,7 +15,7 @@ from tests.utils.assert_pagination import assert_pagination_structure
 from tests.utils.assert_list import assert_user_list
 
 
-class TestReadPostUpvoters(BaseTestCase):
+class TestReadPostUpvoters(TestRoute):
     route = '/post/{}/upvoters'
 
     def test_read_post_upvoters(self):
@@ -29,12 +29,11 @@ class TestReadPostUpvoters(BaseTestCase):
         PostVoteFactory.create_batch(n, post=post, direction=1)
 
         # Get the upvoters
-        response = self.client.get(
-            self.route.format(post.id)
+        response = self.GETRequest(self.route.format(post.id)
         )
 
         # Check status code
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get the pagination
         pagination = response.json
@@ -66,13 +65,12 @@ class TestReadPostUpvoters(BaseTestCase):
         PostVoteFactory.create_batch(n, post=post, direction=1)
 
         # Get the upvoters
-        response = self.client.get(
-            self.route.format(post.id),
+        response = self.GETRequest(self.route.format(post.id),
             query_string={'page': 1, 'per_page': 5}
         )
 
         # Check status code
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get the pagination
         pagination = response.json
@@ -110,13 +108,10 @@ class TestReadPostUpvoters(BaseTestCase):
         access_token = get_access_token(user)
 
         # Get the upvoters
-        response = self.client.get(
-            self.route.format(post.id),
-            headers={'Authorization': f'Bearer {access_token}'}
-        )
+        response = self.GETRequest(self.route.format(post.id), token=access_token)
 
         # Check status code
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get the pagination
         pagination = response.json
@@ -154,14 +149,13 @@ class TestReadPostUpvoters(BaseTestCase):
         access_token = get_access_token(user)
 
         # Get the upvoters
-        response = self.client.get(
-            self.route.format(post.id),
+        response = self.GETRequest(self.route.format(post.id),
             query_string={'page': 1, 'per_page': 5},
             headers={'Authorization': f'Bearer {access_token}'}
         )
 
         # Check status code
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get the pagination
         pagination = response.json
@@ -206,13 +200,10 @@ class TestReadPostUpvoters(BaseTestCase):
         access_token = get_access_token(user)
 
         # Get the upvoters
-        response = self.client.get(
-            self.route.format(post.id),
-            headers={'Authorization': f'Bearer {access_token}'}
-        )
+        response = self.GETRequest(self.route.format(post.id), token=access_token)
 
         # Check status code
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get the pagination
         pagination = response.json
@@ -257,14 +248,13 @@ class TestReadPostUpvoters(BaseTestCase):
         access_token = get_access_token(user)
 
         # Get the upvoters
-        response = self.client.get(
-            self.route.format(post.id),
+        response = self.GETRequest(self.route.format(post.id),
             query_string={'page': 1, 'per_page': 5},
             headers={'Authorization': f'Bearer {access_token}'}
         )
 
         # Check status code
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get the pagination
         pagination = response.json
@@ -309,13 +299,10 @@ class TestReadPostUpvoters(BaseTestCase):
         access_token = get_access_token(user)
 
         # Get the upvoters
-        response = self.client.get(
-            self.route.format(post.id),
-            headers={'Authorization': f'Bearer {access_token}'}
-        )
+        response = self.GETRequest(self.route.format(post.id), token=access_token)
 
         # Check status code
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get the pagination
         pagination = response.json
@@ -360,14 +347,13 @@ class TestReadPostUpvoters(BaseTestCase):
         access_token = get_access_token(user)
 
         # Get the upvoters
-        response = self.client.get(
-            self.route.format(post.id),
+        response = self.GETRequest(self.route.format(post.id),
             query_string={'page': 1, 'per_page': 5},
             headers={'Authorization': f'Bearer {access_token}'}
         )
 
         # Check status code
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get the pagination
         pagination = response.json
@@ -419,13 +405,10 @@ class TestReadPostUpvoters(BaseTestCase):
         access_token = get_access_token(user)
 
         # Get the upvoters
-        response = self.client.get(
-            self.route.format(post.id),
-            headers={'Authorization': f'Bearer {access_token}'}
-        )
+        response = self.GETRequest(self.route.format(post.id), token=access_token)
 
         # Check status code
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get the pagination
         pagination = response.json
@@ -477,14 +460,13 @@ class TestReadPostUpvoters(BaseTestCase):
         access_token = get_access_token(user)
 
         # Get the upvoters
-        response = self.client.get(
-            self.route.format(post.id),
+        response = self.GETRequest(self.route.format(post.id),
             query_string={'page': 1, 'per_page': 5},
             headers={'Authorization': f'Bearer {access_token}'}
         )
 
         # Check status code
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get the pagination
         pagination = response.json
@@ -510,12 +492,11 @@ class TestReadPostUpvoters(BaseTestCase):
         post = PostFactory()
 
         # Get the upvoters
-        response = self.client.get(
-            self.route.format(post.id)
+        response = self.GETRequest(self.route.format(post.id)
         )
 
         # Check status code
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get the pagination
         pagination = response.json
@@ -541,13 +522,12 @@ class TestReadPostUpvoters(BaseTestCase):
         post = PostFactory()
 
         # Get the upvoters
-        response = self.client.get(
-            self.route.format(post.id),
+        response = self.GETRequest(self.route.format(post.id),
             query_string={'page': 1, 'per_page': 5}
         )
 
         # Check status code
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get the pagination
         pagination = response.json
@@ -576,10 +556,7 @@ class TestReadPostUpvoters(BaseTestCase):
         access_token = get_access_token(user)
 
         # Get the upvoters
-        response = self.client.get(
-            self.route.format(404),
-            headers={'Authorization': f'Bearer {access_token}'}
-        )
+        response = self.GETRequest(self.route.format(404), token=access_token)
 
         # Check status code
-        self.assertEqual(response.status_code, 404)
+        self.assertStatusCode(response, 404)

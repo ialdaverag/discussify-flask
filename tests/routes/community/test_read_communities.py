@@ -1,5 +1,5 @@
 # Tests
-from tests.base.base_test_case import BaseTestCase
+from tests.routes.test_route import TestRoute
 
 # Factories
 from tests.factories.community_factory import CommunityFactory
@@ -9,7 +9,7 @@ from tests.utils.assert_pagination import assert_pagination_structure_communitie
 from tests.utils.assert_list import assert_community_list
 
 
-class TestReadCommunities(BaseTestCase):
+class TestReadCommunities(TestRoute):
     route = '/community/'
 
     def test_read_communities(self):
@@ -20,10 +20,10 @@ class TestReadCommunities(BaseTestCase):
         CommunityFactory.create_batch(n)
 
         # Get the communities
-        response = self.client.get(self.route)
+        response = self.GETRequest(self.route)
 
         # Assert the response status code
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get the response pagination
         pagination = response.json
@@ -61,7 +61,7 @@ class TestReadCommunities(BaseTestCase):
         )
 
         # Assert the response status code
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get the response pagination
         pagination = response.json
@@ -84,10 +84,10 @@ class TestReadCommunities(BaseTestCase):
 
     def test_read_communities_empty(self):
         # Get the communities
-        response = self.client.get(self.route)
+        response = self.GETRequest(self.route)
 
         # Assert the response status code
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get the pagination
         pagination = response.json
@@ -119,7 +119,7 @@ class TestReadCommunities(BaseTestCase):
         )
 
         # Assert the response status code
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get the pagination
         pagination = response.json

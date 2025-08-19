@@ -1,5 +1,5 @@
 # Tests
-from tests.base.base_test_case import BaseTestCase
+from tests.routes.test_route import TestRoute
 
 # Factories
 from tests.factories.user_factory import UserFactory
@@ -10,7 +10,7 @@ from tests.utils.assert_pagination import assert_pagination_structure_posts
 from tests.utils.assert_list import assert_post_list
 
 
-class TestReadPosts(BaseTestCase):
+class TestReadPosts(TestRoute):
     route = '/user/{}/posts'
 
     def test_read_posts(self):
@@ -24,10 +24,10 @@ class TestReadPosts(BaseTestCase):
         PostFactory.create_batch(n, owner=user)
 
         # Get user posts
-        response = self.client.get(self.route.format(user.username))
+        response = self.GETRequest(self.route.format(user.username))
 
         # Assert the response status code
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get pagination
         pagination = response.json
@@ -59,13 +59,12 @@ class TestReadPosts(BaseTestCase):
         PostFactory.create_batch(n, owner=user)
 
         # Get user posts
-        response = self.client.get(
-            self.route.format(user.username), 
+        response = self.GETRequest(self.route.format(user.username), 
             query_string={'page': 2, 'per_page': 5}
         )
 
         # Assert the response status code
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get pagination
         pagination = response.json
@@ -92,10 +91,10 @@ class TestReadPosts(BaseTestCase):
         user = UserFactory()
 
         # Get the user posts
-        response = self.client.get(self.route.format(user.username))
+        response = self.GETRequest(self.route.format(user.username))
 
         # Assert the response status code
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get pagination
         pagination = response.json
@@ -121,13 +120,12 @@ class TestReadPosts(BaseTestCase):
         user = UserFactory()
 
         # Get the user posts
-        response = self.client.get(
-            self.route.format(user.username),
+        response = self.GETRequest(self.route.format(user.username),
             query_string={'page': 2, 'per_page': 5}
         )
 
         # Assert the response status code
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get pagination
         pagination = response.json
@@ -150,10 +148,10 @@ class TestReadPosts(BaseTestCase):
 
     def test_read_posts_nonexistent_user(self):
         # Try to get posts of a nonexistent user
-        response = self.client.get(self.route.format('inexistent'))
+        response = self.GETRequest(self.route.format('inexistent'))
 
         # Assert that the response status code is 404
-        self.assertEqual(response.status_code, 404)
+        self.assertStatusCode(response, 404)
 
         # Get response data
         data = response.json

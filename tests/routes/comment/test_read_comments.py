@@ -1,5 +1,5 @@
 # Base
-from tests.base.base_test_case import BaseTestCase
+from tests.routes.test_route import TestRoute
 
 # Factories
 from tests.factories.comment_factory import CommentFactory
@@ -14,7 +14,7 @@ from tests.utils.assert_pagination import assert_pagination_structure_comments
 from tests.utils.assert_list import assert_comment_list
 
 
-class TestDeleteComment(BaseTestCase):
+class TestDeleteComment(TestRoute):
     route = '/comment/'
 
     def test_read_comments(self):
@@ -25,10 +25,10 @@ class TestDeleteComment(BaseTestCase):
         comments = CommentFactory.create_batch(size=n)
 
         # Get the comments
-        response = self.client.get(self.route)
+        response = self.GETRequest(self.route)
 
         # Assert the response status code
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get the pagination
         pagination = response.json
@@ -63,7 +63,7 @@ class TestDeleteComment(BaseTestCase):
         )
 
         # Assert the response status code
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get the pagination
         pagination = response.json
@@ -98,13 +98,10 @@ class TestDeleteComment(BaseTestCase):
         access_token = get_access_token(user)
 
         # Get the comments
-        response = self.client.get(
-            self.route,
-            headers={'Authorization': f'Bearer {access_token}'}
-        )
+        response = self.GETRequest(self.route, token=access_token)
 
         # Assert the response status code
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get the pagination
         pagination = response.json
@@ -146,7 +143,7 @@ class TestDeleteComment(BaseTestCase):
         )
 
         # Assert the response status code
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get the pagination
         pagination = response.json
@@ -188,13 +185,10 @@ class TestDeleteComment(BaseTestCase):
         access_token = get_access_token(user)
 
         # Get the comments
-        response = self.client.get(
-            self.route,
-            headers={'Authorization': f'Bearer {access_token}'}
-        )
+        response = self.GETRequest(self.route, token=access_token)
 
         # Assert the response status code
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get the pagination
         pagination = response.json
@@ -243,7 +237,7 @@ class TestDeleteComment(BaseTestCase):
         )
 
         # Assert the response status code
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get the pagination
         pagination = response.json
@@ -284,13 +278,10 @@ class TestDeleteComment(BaseTestCase):
         access_token = get_access_token(user)
 
         # Get the comments
-        response = self.client.get(
-            self.route,
-            headers={'Authorization': f'Bearer {access_token}'}
-        )
+        response = self.GETRequest(self.route, token=access_token)
 
         # Assert the response status code
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get the pagination
         pagination = response.json
@@ -338,7 +329,7 @@ class TestDeleteComment(BaseTestCase):
         )
 
         # Assert the response status code
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get the pagination
         pagination = response.json
@@ -387,13 +378,10 @@ class TestDeleteComment(BaseTestCase):
         access_token = get_access_token(user)
 
         # Get the comments
-        response = self.client.get(
-            self.route,
-            headers={'Authorization': f'Bearer {access_token}'}
-        )
+        response = self.GETRequest(self.route, token=access_token)
 
         # Assert the response status code
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get the pagination
         pagination = response.json
@@ -449,7 +437,7 @@ class TestDeleteComment(BaseTestCase):
         )
 
         # Assert the response status code
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get the pagination
         pagination = response.json
@@ -472,10 +460,10 @@ class TestDeleteComment(BaseTestCase):
 
     def test_read_comments_empty(self):
         # Get the comments
-        response = self.client.get(self.route)
+        response = self.GETRequest(self.route)
 
         # Assert the response status code
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get the pagination
         pagination = response.json
@@ -504,7 +492,7 @@ class TestDeleteComment(BaseTestCase):
         )
 
         # Assert the response status code
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get the pagination
         pagination = response.json

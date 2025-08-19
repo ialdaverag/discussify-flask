@@ -1,5 +1,5 @@
 # Base
-from tests.base.base_test_case import BaseTestCase
+from tests.routes.test_route import TestRoute
 
 # Factories
 from tests.factories.user_factory import UserFactory
@@ -14,7 +14,7 @@ from app.models.post import PostBookmark
 from app.models.user import Block
 
 
-class TestBookmarkPost(BaseTestCase):
+class TestBookmarkPost(TestRoute):
     route = '/post/{}/bookmark'
 
     def test_bookmark_post(self):
@@ -28,13 +28,10 @@ class TestBookmarkPost(BaseTestCase):
         access_token = get_access_token(user)
 
         # Bookmark the post
-        response = self.client.post(
-            self.route.format(post.id),
-            headers={'Authorization': f'Bearer {access_token}'}
-        )
+        response = self.POSTRequest(self.route.format(post.id), token=access_token)
 
         # Check status code
-        self.assertEqual(response.status_code, 204)
+        self.assertStatusCode(response, 204)
 
     def test_bookmark_post_nonexistent(self):
         # Create a user
@@ -44,13 +41,10 @@ class TestBookmarkPost(BaseTestCase):
         access_token = get_access_token(user)
 
         # Bookmark the post
-        response = self.client.post(
-            self.route.format(1),
-            headers={'Authorization': f'Bearer {access_token}'}
-        )
+        response = self.POSTRequest(self.route.format(1), token=access_token)
 
         # Check status code
-        self.assertEqual(response.status_code, 404)
+        self.assertStatusCode(response, 404)
 
         # Get the data
         data = response.json
@@ -78,13 +72,10 @@ class TestBookmarkPost(BaseTestCase):
         access_token = get_access_token(user)
 
         # Bookmark the post
-        response = self.client.post(
-            self.route.format(post.id),
-            headers={'Authorization': f'Bearer {access_token}'}
-        )
+        response = self.POSTRequest(self.route.format(post.id), token=access_token)
 
         # Check status code
-        self.assertEqual(response.status_code, 400)
+        self.assertStatusCode(response, 400)
 
         # Get the data
         data = response.json
@@ -112,13 +103,10 @@ class TestBookmarkPost(BaseTestCase):
         access_token = get_access_token(user)
 
         # Bookmark the post
-        response = self.client.post(
-            self.route.format(post.id),
-            headers={'Authorization': f'Bearer {access_token}'}
-        )
+        response = self.POSTRequest(self.route.format(post.id), token=access_token)
 
         # Check status code
-        self.assertEqual(response.status_code, 400)
+        self.assertStatusCode(response, 400)
 
         # Get the data
         data = response.json
@@ -143,13 +131,10 @@ class TestBookmarkPost(BaseTestCase):
         access_token = get_access_token(user)
 
         # Bookmark the post again
-        response = self.client.post(
-            self.route.format(post.id),
-            headers={'Authorization': f'Bearer {access_token}'}
-        )
+        response = self.POSTRequest(self.route.format(post.id), token=access_token)
 
         # Check status code
-        self.assertEqual(response.status_code, 400)
+        self.assertStatusCode(response, 400)
 
         # Get the data
         data = response.json

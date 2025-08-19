@@ -19,11 +19,14 @@ class TestRoute(BaseTestCase):
 
         return self.client.post(route, json=data, headers=headers)
 
-    def GETRequest(self, route, token=None):
+    def GETRequest(self, route, token=None, query_string=None):
         """Makes a GET request with or without authentication."""
         headers = {'Authorization': f'Bearer {token}'} if token else {}
 
-        return self.client.get(route, headers=headers)
+        if query_string:
+            return self.client.get(route, headers=headers, query_string=query_string)
+        else:
+            return self.client.get(route, headers=headers)
 
     def PUTRequest(self, route, token=None, data=None):
         """Makes a PUT request with or without authentication."""
