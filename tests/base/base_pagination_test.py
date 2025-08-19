@@ -3,7 +3,7 @@ from tests.base.base_test_case import BaseTestCase
 
 # Factories
 from tests.factories.user_factory import UserFactory
-from app.models.user import Block
+from app.models.user import Block, Follow
 
 # Utils
 from tests.utils.assert_pagination import assert_pagination_structure
@@ -177,3 +177,24 @@ class BasePaginationTest(BaseTestCase):
         """Legacy method for backward compatibility."""
         for _ in users[:count]:
             Block(blocker=blocker, blocked=blocked).save()
+
+    def create_follow_relationships(self, followers, followed):
+        """Create follow relationships where followers follow the followed user."""
+        for follower in followers:
+            Follow(follower=follower, followed=followed).save()
+
+    def create_followers(self, user, count):
+        """Create followers for a user."""
+        followers = UserFactory.create_batch(count)
+        self.create_follow_relationships(followers, user)
+        return followers
+
+    def create_post_blocks(self, user, posts):
+        """Create blocks where user blocks post owners."""
+        for post in posts:
+            Block(blocker=user, blocked=post.owner).save()
+
+    def create_post_blockers(self, user, posts):
+        """Create blocks where post owners block the user."""
+        for post in posts:
+            Block(blocker=post.owner, blocked=user).save()
