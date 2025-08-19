@@ -1,5 +1,5 @@
 # Tests
-from tests.base.base_test_case import BaseTestCase
+from tests.routes.test_route import TestRoute
 
 # Factories
 from tests.factories.user_factory import UserFactory
@@ -13,7 +13,7 @@ from app.models.community import CommunityModerator
 from app.models.community import CommunityBan
 
 
-class TestUnban(BaseTestCase):
+class TestUnban(TestRoute):
     route = '/community/{}/unban/{}'
 
     def test_unban(self):
@@ -33,13 +33,13 @@ class TestUnban(BaseTestCase):
         access_token = get_access_token(community.owner)
 
         # Ban user from the community
-        response = self.client.post(
+        response = self.POSTRequest(
             self.route.format(community.name, user.username),
             headers={'Authorization': f'Bearer {access_token}'}
         )
 
         # Assert the response status code
-        self.assertEqual(response.status_code, 204)
+        self.assertStatusCode(response, 204)
 
     def test_unban_user_nonexistent_community(self):
         # Create a user
@@ -52,13 +52,13 @@ class TestUnban(BaseTestCase):
         access_token = get_access_token(user1)
 
         # Ban user from the community
-        response = self.client.post(
+        response = self.POSTRequest(
             self.route.format('nonexistent', user2.username),
             headers={'Authorization': f'Bearer {access_token}'}
         )
 
         # Assert the response status code
-        self.assertEqual(response.status_code, 404)
+        self.assertStatusCode(response, 404)
 
         # Get the response data
         data = response.json
@@ -77,13 +77,13 @@ class TestUnban(BaseTestCase):
         access_token = get_access_token(community.owner)
 
         # Ban user from the community
-        response = self.client.post(
+        response = self.POSTRequest(
             self.route.format(community.name, 'nonexistent'),
             headers={'Authorization': f'Bearer {access_token}'}
         )
 
         # Assert the response status code
-        self.assertEqual(response.status_code, 404)
+        self.assertStatusCode(response, 404)
 
         # Get the response data
         data = response.json
@@ -110,13 +110,13 @@ class TestUnban(BaseTestCase):
         access_token = get_access_token(user1)
 
         # ban user from the community
-        response = self.client.post(
+        response = self.POSTRequest(
             self.route.format(community.name, user2.username),
             headers={'Authorization': f'Bearer {access_token}'}
         )
 
         # assert response status code
-        self.assertEqual(response.status_code, 401)
+        self.assertStatusCode(response, 401)
 
         # Get the response data
         data = response.json
@@ -140,13 +140,13 @@ class TestUnban(BaseTestCase):
         access_token = get_access_token(community.owner)
 
         # ban user from the community
-        response = self.client.post(
+        response = self.POSTRequest(
             self.route.format(community.name, user.username),
             headers={'Authorization': f'Bearer {access_token}'}
         )
 
         # assert response status code
-        self.assertEqual(response.status_code, 400)
+        self.assertStatusCode(response, 400)
 
         # Get the response data
         data = response.json

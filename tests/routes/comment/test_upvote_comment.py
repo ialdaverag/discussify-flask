@@ -1,5 +1,5 @@
 # Base
-from tests.base.base_test_case import BaseTestCase
+from tests.routes.test_route import TestRoute
 
 # Factories
 from tests.factories.user_factory import UserFactory
@@ -15,7 +15,7 @@ from app.models.community import CommunityBan
 from app.models.user import Block
 
 
-class TestUpvoteComment(BaseTestCase):
+class TestUpvoteComment(TestRoute):
     route = '/comment/{}/vote/up'
 
     def test_upvote_comment(self):
@@ -35,13 +35,10 @@ class TestUpvoteComment(BaseTestCase):
         access_token = get_access_token(user)
 
         # Upvote the comment
-        response = self.client.post(
-            self.route.format(comment.id),
-            headers={'Authorization': f'Bearer {access_token}'}
-        )
+        response = self.POSTRequest(self.route.format(comment.id), token=access_token)
 
         # Check status code
-        self.assertEqual(response.status_code, 204)
+        self.assertStatusCode(response, 204)
 
     def test_upvote_comment_nonexistent(self):
         # Create a user
@@ -51,13 +48,10 @@ class TestUpvoteComment(BaseTestCase):
         access_token = get_access_token(user)
 
         # Upvote the comment
-        response = self.client.post(
-            self.route.format(404),
-            headers={'Authorization': f'Bearer {access_token}'}
-        )
+        response = self.POSTRequest(self.route.format(404), token=access_token)
 
         # Check status code
-        self.assertEqual(response.status_code, 404)
+        self.assertStatusCode(response, 404)
 
         # Get the data
         data = response.json
@@ -91,13 +85,10 @@ class TestUpvoteComment(BaseTestCase):
         access_token = get_access_token(user)
 
         # Upvote the comment
-        response = self.client.post(
-            self.route.format(comment.id),
-            headers={'Authorization': f'Bearer {access_token}'}
-        )
+        response = self.POSTRequest(self.route.format(comment.id), token=access_token)
 
         # Check status code
-        self.assertEqual(response.status_code, 400)
+        self.assertStatusCode(response, 400)
 
     def test_upvote_comment_user_blocked_by_owner(self):
         # Create a post
@@ -122,13 +113,10 @@ class TestUpvoteComment(BaseTestCase):
         access_token = get_access_token(user)
 
         # Upvote the comment
-        response = self.client.post(
-            self.route.format(comment.id),
-            headers={'Authorization': f'Bearer {access_token}'}
-        )
+        response = self.POSTRequest(self.route.format(comment.id), token=access_token)
 
         # Check status code
-        self.assertEqual(response.status_code, 400)
+        self.assertStatusCode(response, 400)
 
     def test_upvote_comment_being_banned(self):
         # Create a comment
@@ -145,13 +133,10 @@ class TestUpvoteComment(BaseTestCase):
         access_token = get_access_token(user)
 
         # Upvote the post
-        response = self.client.post(
-            self.route.format(comment.id),
-            headers={'Authorization': f'Bearer {access_token}'}
-        )
+        response = self.POSTRequest(self.route.format(comment.id), token=access_token)
 
         # Check status code
-        self.assertEqual(response.status_code, 400)
+        self.assertStatusCode(response, 400)
 
         # Get the data
         data = response.json
@@ -173,13 +158,10 @@ class TestUpvoteComment(BaseTestCase):
         access_token = get_access_token(user)
 
         # Upvote the post
-        response = self.client.post(
-            self.route.format(comment.id),
-            headers={'Authorization': f'Bearer {access_token}'}
-        )
+        response = self.POSTRequest(self.route.format(comment.id), token=access_token)
 
         # Check status code
-        self.assertEqual(response.status_code, 400)
+        self.assertStatusCode(response, 400)
 
         # Get the data
         data = response.json
@@ -208,13 +190,10 @@ class TestUpvoteComment(BaseTestCase):
         access_token = get_access_token(user)
 
         # Upvote the post
-        response = self.client.post(
-            self.route.format(comment.id),
-            headers={'Authorization': f'Bearer {access_token}'}
-        )
+        response = self.POSTRequest(self.route.format(comment.id), token=access_token)
 
         # Check status code
-        self.assertEqual(response.status_code, 400)
+        self.assertStatusCode(response, 400)
 
         # Get the data
         data = response.json

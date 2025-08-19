@@ -1,5 +1,5 @@
 # tests
-from tests.base.base_test_case import BaseTestCase
+from tests.routes.test_route import TestRoute
 
 # factories
 from tests.factories.user_factory import UserFactory
@@ -16,7 +16,7 @@ from tests.utils.assert_pagination import assert_pagination_structure_posts
 from tests.utils.assert_list import assert_post_list
 
 
-class TestReadBookmarkedPosts(BaseTestCase):
+class TestReadBookmarkedPosts(TestRoute):
     route = '/user/posts/bookmarked'
 
     def test_read_bookmarked_posts(self):
@@ -33,13 +33,10 @@ class TestReadBookmarkedPosts(BaseTestCase):
         access_token = get_access_token(user)
 
         # Get the user bookmarked posts
-        response = self.client.get(
-            self.route,
-            headers={'Authorization': f'Bearer {access_token}'}
-        )
+        response = self.GETRequest(self.route, token=access_token)
 
         # Assert that the response status code is 200
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get pagination data
         pagination = response.json
@@ -74,13 +71,10 @@ class TestReadBookmarkedPosts(BaseTestCase):
         access_token = get_access_token(user)
 
         # Get the user bookmarked posts
-        response = self.client.get(
-            f'{self.route}?page=1&per_page=5',
-            headers={'Authorization': f'Bearer {access_token}'}
-        )
+        response = self.GETRequest(f'{self.route}?page=1&per_page=5', token=access_token)
 
         # Assert that the response status code is 200
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get pagination data
         pagination = response.json
@@ -121,13 +115,10 @@ class TestReadBookmarkedPosts(BaseTestCase):
         access_token = get_access_token(user)
 
         # Get the user bookmarked posts
-        response = self.client.get(
-            self.route,
-            headers={'Authorization': f'Bearer {access_token}'}
-        )
+        response = self.GETRequest(self.route, token=access_token)
 
         # Assert that the response status code is 200
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get pagination
         pagination = response.json
@@ -168,13 +159,10 @@ class TestReadBookmarkedPosts(BaseTestCase):
         access_token = get_access_token(user)
 
         # Get the user bookmarked posts
-        response = self.client.get(
-            f'{self.route}?page=1&per_page=5',
-            headers={'Authorization': f'Bearer {access_token}'}
-        )
+        response = self.GETRequest(f'{self.route}?page=1&per_page=5', token=access_token)
 
         # Assert that the response status code is 200
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get pagination
         pagination = response.json
@@ -215,13 +203,10 @@ class TestReadBookmarkedPosts(BaseTestCase):
         access_token = get_access_token(user)
 
         # Get the user bookmarked posts
-        response = self.client.get(
-            self.route,
-            headers={'Authorization': f'Bearer {access_token}'}
-        )
+        response = self.GETRequest(self.route, token=access_token)
 
         # Assert that the response status code is 200
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get pagination
         pagination = response.json
@@ -262,13 +247,10 @@ class TestReadBookmarkedPosts(BaseTestCase):
         access_token = get_access_token(user)
 
         # Get the user bookmarked posts
-        response = self.client.get(
-            f'{self.route}?page=1&per_page=5',
-            headers={'Authorization': f'Bearer {access_token}'}
-        )
+        response = self.GETRequest(f'{self.route}?page=1&per_page=5', token=access_token)
 
         # Assert that the response status code is 200
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get pagination
         pagination = response.json
@@ -315,13 +297,10 @@ class TestReadBookmarkedPosts(BaseTestCase):
         access_token = get_access_token(user)
 
         # Get the user bookmarked posts
-        response = self.client.get(
-            self.route,
-            headers={'Authorization': f'Bearer {access_token}'}
-        )
+        response = self.GETRequest(self.route, token=access_token)
 
         # Assert that the response status code is 200
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get pagination
         pagination = response.json
@@ -368,13 +347,10 @@ class TestReadBookmarkedPosts(BaseTestCase):
         access_token = get_access_token(user)
 
         # Get the user bookmarked posts
-        response = self.client.get(
-            f'{self.route}?page=1&per_page=5',
-            headers={'Authorization': f'Bearer {access_token}'}
-        )
+        response = self.GETRequest(f'{self.route}?page=1&per_page=5', token=access_token)
 
         # Assert that the response status code is 200
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get pagination
         pagination = response.json
@@ -403,13 +379,10 @@ class TestReadBookmarkedPosts(BaseTestCase):
         access_token = get_access_token(user)
 
         # Get the user bookmarked posts
-        response = self.client.get(
-            self.route,
-            headers={'Authorization': f'Bearer {access_token}'}
-        )
+        response = self.GETRequest(self.route, token=access_token)
 
         # Assert that the response status code is 200
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get pagination
         pagination = response.json
@@ -438,13 +411,10 @@ class TestReadBookmarkedPosts(BaseTestCase):
         access_token = get_access_token(user)
 
         # Get the user bookmarked posts
-        response = self.client.get(
-            f'{self.route}?page=1&per_page=5',
-            headers={'Authorization': f'Bearer {access_token}'}
-        )
+        response = self.GETRequest(f'{self.route}?page=1&per_page=5', token=access_token)
 
         # Assert that the response status code is 200
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get pagination
         pagination = response.json

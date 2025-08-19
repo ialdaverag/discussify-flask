@@ -1,5 +1,5 @@
 # Tests
-from tests.base.base_test_case import BaseTestCase
+from tests.routes.test_route import TestRoute
 
 # Factories
 from tests.factories.user_factory import UserFactory
@@ -15,7 +15,7 @@ from tests.utils.assert_pagination import assert_pagination_structure
 from tests.utils.assert_list import assert_user_list
 
 
-class TestReadBanned(BaseTestCase):
+class TestReadBanned(TestRoute):
     route = '/community/{}/banned'
 
     def test_read_banned(self):
@@ -42,13 +42,10 @@ class TestReadBanned(BaseTestCase):
             CommunityBan(community=community, user=user).save()
 
         # Read the community banned users
-        response = self.client.get(
-            self.route.format(community.name),
-            headers={'Authorization': f'Bearer {access_token}'}
-        )
+        response = self.GETRequest(self.route.format(community.name), token=access_token)
 
         # Assert that the response status code is 200
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get response pagination
         pagination = response.json
@@ -99,14 +96,13 @@ class TestReadBanned(BaseTestCase):
         }
 
         # Read the community banned users
-        response = self.client.get(
-            self.route.format(community.name),
+        response = self.GETRequest(self.route.format(community.name),
             headers={'Authorization': f'Bearer {access_token}'},
             query_string=args
         )
 
         # Assert that the response status code is 200
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get response pagination
         pagination = response.json
@@ -138,13 +134,10 @@ class TestReadBanned(BaseTestCase):
         access_token = get_access_token(owner)
 
         # Read the community banned users
-        response = self.client.get(
-            self.route.format(community.name),
-            headers={'Authorization': f'Bearer {access_token}'}
-        )
+        response = self.GETRequest(self.route.format(community.name), token=access_token)
 
         # Assert that the response status code is 200
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get response pagination
         pagination = response.json
@@ -179,14 +172,13 @@ class TestReadBanned(BaseTestCase):
         args = {'page': 1, 'per_page': 2}
 
         # Read the community banned users
-        response = self.client.get(
-            self.route.format(community.name),
+        response = self.GETRequest(self.route.format(community.name),
             headers={'Authorization': f'Bearer {access_token}'},
             query_string=args
         )
 
         # Assert that the response status code is 200
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get response pagination
         pagination = response.json
@@ -209,10 +201,10 @@ class TestReadBanned(BaseTestCase):
 
     def test_read_banned_nonexistent_community(self):
         # Try to get banned users of a nonexistent community
-        response = self.client.get(self.route.format('nonexistent'))
+        response = self.GETRequest(self.route.format('nonexistent'))
 
         # Assert the response status code
-        self.assertEqual(response.status_code, 404)
+        self.assertStatusCode(response, 404)
 
         # Get response data
         data = response.json

@@ -1,5 +1,5 @@
 # Base
-from tests.base.base_test_case import BaseTestCase
+from tests.routes.test_route import TestRoute
 
 # Factories
 from tests.factories.user_factory import UserFactory
@@ -10,7 +10,7 @@ from tests.factories.comment_bookmark_factory import CommentBookmarkFactory
 from tests.utils.tokens import get_access_token
 
 
-class TestUnbookmarkComment(BaseTestCase):
+class TestUnbookmarkComment(TestRoute):
     route = '/comment/{}/unbookmark'
 
     def test_unbookmark_comment(self):
@@ -27,13 +27,10 @@ class TestUnbookmarkComment(BaseTestCase):
         access_token = get_access_token(user)
 
         # Unbookmark the comment
-        response = self.client.post(
-            self.route.format(comment.id),
-            headers={'Authorization': f'Bearer {access_token}'}
-        )
+        response = self.POSTRequest(self.route.format(comment.id), token=access_token)
 
         # Check status code
-        self.assertEqual(response.status_code, 204)
+        self.assertStatusCode(response, 204)
 
     def test_unbookmark_comment_nonexistent(self):
         # Create a user
@@ -43,13 +40,10 @@ class TestUnbookmarkComment(BaseTestCase):
         access_token = get_access_token(user)
 
         # Unbookmark the comment
-        response = self.client.post(
-            self.route.format(404),
-            headers={'Authorization': f'Bearer {access_token}'}
-        )
+        response = self.POSTRequest(self.route.format(404), token=access_token)
 
         # Check status code
-        self.assertEqual(response.status_code, 404)
+        self.assertStatusCode(response, 404)
 
         # Get the data
         data = response.json
@@ -71,13 +65,10 @@ class TestUnbookmarkComment(BaseTestCase):
         access_token = get_access_token(user)
 
         # Unbookmark the comment
-        response = self.client.post(
-            self.route.format(comment.id),
-            headers={'Authorization': f'Bearer {access_token}'}
-        )
+        response = self.POSTRequest(self.route.format(comment.id), token=access_token)
 
         # Check status code
-        self.assertEqual(response.status_code, 400)
+        self.assertStatusCode(response, 400)
 
         # Get the data
         data = response.json

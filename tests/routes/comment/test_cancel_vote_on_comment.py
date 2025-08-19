@@ -1,5 +1,5 @@
 # Base
-from tests.base.base_test_case import BaseTestCase
+from tests.routes.test_route import TestRoute
 
 # Factories
 from tests.factories.user_factory import UserFactory
@@ -14,7 +14,7 @@ from app.models.community import CommunitySubscriber
 from app.models.community import CommunityBan
 
 
-class TestCancelVoteOnComment(BaseTestCase):
+class TestCancelVoteOnComment(TestRoute):
     route = '/comment/{}/vote/cancel'
 
     def test_cancel_vote_on_comment(self):
@@ -35,13 +35,10 @@ class TestCancelVoteOnComment(BaseTestCase):
         access_token = get_access_token(user)
 
         # Upvote the comment
-        response = self.client.post(
-            self.route.format(comment.id),
-            headers={'Authorization': f'Bearer {access_token}'}
-        )
+        response = self.POSTRequest(self.route.format(comment.id), token=access_token)
 
         # Check status code
-        self.assertEqual(response.status_code, 204)
+        self.assertStatusCode(response, 204)
 
     def test_cancel_vote_on_comment_nonexistent(self):
         # Create a user
@@ -51,13 +48,10 @@ class TestCancelVoteOnComment(BaseTestCase):
         access_token = get_access_token(user)
 
         # Cancel the vote on the comment
-        response = self.client.post(
-            self.route.format(404),
-            headers={'Authorization': f'Bearer {access_token}'}
-        )
+        response = self.POSTRequest(self.route.format(404), token=access_token)
 
         # Check status code
-        self.assertEqual(response.status_code, 404)
+        self.assertStatusCode(response, 404)
 
         # Get the data
         data = response.json
@@ -86,13 +80,10 @@ class TestCancelVoteOnComment(BaseTestCase):
         access_token = get_access_token(user)
 
         # Cancel the vote on the comment
-        response = self.client.post(
-            self.route.format(comment.id),
-            headers={'Authorization': f'Bearer {access_token}'}
-        )
+        response = self.POSTRequest(self.route.format(comment.id), token=access_token)
 
         # Check status code
-        self.assertEqual(response.status_code, 400)
+        self.assertStatusCode(response, 400)
 
         # Get the data
         data = response.json
@@ -117,13 +108,10 @@ class TestCancelVoteOnComment(BaseTestCase):
         access_token = get_access_token(user)
 
         # Cancel the vote on the comment
-        response = self.client.post(
-            self.route.format(comment.id),
-            headers={'Authorization': f'Bearer {access_token}'}
-        )
+        response = self.POSTRequest(self.route.format(comment.id), token=access_token)
 
         # Check status code
-        self.assertEqual(response.status_code, 400)
+        self.assertStatusCode(response, 400)
 
         # Get the data
         data = response.json
@@ -149,13 +137,10 @@ class TestCancelVoteOnComment(BaseTestCase):
         access_token = get_access_token(user)
 
         # Cancel the vote on the comment
-        response = self.client.post(
-            self.route.format(comment.id),
-            headers={'Authorization': f'Bearer {access_token}'}
-        )
+        response = self.POSTRequest(self.route.format(comment.id), token=access_token)
 
         # Check status code
-        self.assertEqual(response.status_code, 400)
+        self.assertStatusCode(response, 400)
 
         # Get the data
         data = response.json

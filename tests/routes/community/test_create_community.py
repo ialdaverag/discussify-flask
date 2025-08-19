@@ -1,5 +1,5 @@
 # Tests
-from tests.base.base_test_case import BaseTestCase
+from tests.routes.test_route import TestRoute
 
 # Factories
 from tests.factories.user_factory import UserFactory
@@ -9,7 +9,7 @@ from tests.factories.community_factory import CommunityFactory
 from tests.utils.tokens import get_access_token
 
 
-class TestCreateCommunity(BaseTestCase):
+class TestCreateCommunity(TestRoute):
     route = '/community/'
 
     def test_create_community(self):
@@ -26,14 +26,14 @@ class TestCreateCommunity(BaseTestCase):
         }
 
         # Create a community
-        response = self.client.post(
+        response = self.POSTRequest(
             self.route,
             headers={'Authorization': f'Bearer {access_token}'},
             json=json
         )
 
         # Assert the response status code
-        self.assertEqual(response.status_code, 201)
+        self.assertStatusCode(response, 201)
 
         # Get the response data
         data = response.json
@@ -86,14 +86,14 @@ class TestCreateCommunity(BaseTestCase):
         }
 
         # Create a community
-        response = self.client.post(
+        response = self.POSTRequest(
             self.route,
             headers={'Authorization': f'Bearer {access_token}'},
             json=json
         )
 
         # Assert the response status code
-        self.assertEqual(response.status_code, 400)
+        self.assertStatusCode(response, 400)
 
         # Get the response data
         data = response.json
@@ -124,14 +124,14 @@ class TestCreateCommunity(BaseTestCase):
         }
 
         # Create a community
-        response = self.client.post(
+        response = self.POSTRequest(
             self.route,
             headers={'Authorization': f'Bearer {access_token}'},
             json=json
         )
 
         # Assert the response status code
-        self.assertEqual(response.status_code, 400)
+        self.assertStatusCode(response, 400)
 
         # Assert the response data
         data = response.json
@@ -162,14 +162,14 @@ class TestCreateCommunity(BaseTestCase):
         }
 
         # Create a community
-        response = self.client.post(
+        response = self.POSTRequest(
             self.route,
             headers={'Authorization': f'Bearer {access_token}'},
             json=json
         )
 
         # Assert that the response status code is 400
-        self.assertEqual(response.status_code, 400)
+        self.assertStatusCode(response, 400)
 
         # Assert response data
         data = response.json
@@ -203,14 +203,14 @@ class TestCreateCommunity(BaseTestCase):
         }
 
         # Create a community
-        response = self.client.post(
+        response = self.POSTRequest(
             self.route,
             headers={'Authorization': f'Bearer {access_token}'},
             json=json
         )
 
         # Assert the response status code
-        self.assertEqual(response.status_code, 400)
+        self.assertStatusCode(response, 400)
 
         # Assert the response data
         data = response.json

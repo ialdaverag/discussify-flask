@@ -1,5 +1,5 @@
 # tests
-from tests.base.base_test_case import BaseTestCase
+from tests.routes.test_route import TestRoute
 
 # factories
 from tests.factories.user_factory import UserFactory
@@ -13,7 +13,7 @@ from tests.utils.assert_list import assert_user_list
 from tests.utils.assert_pagination import assert_pagination_structure
 
 
-class TestReadBlocked(BaseTestCase):
+class TestReadBlocked(TestRoute):
     route = '/user/blocked'
 
     def test_read_blocked(self):
@@ -34,13 +34,10 @@ class TestReadBlocked(BaseTestCase):
         access_token = get_access_token(user)
 
         # Get the blocked
-        response = self.client.get(
-            self.route,
-            headers={'Authorization': f'Bearer {access_token}'}
-        )
+        response = self.GETRequest(self.route, token=access_token)
 
         # Assert the response status code
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get response pagination
         pagination = response.json
@@ -82,14 +79,14 @@ class TestReadBlocked(BaseTestCase):
         args = {'page': 1, 'per_page': 2}
 
         # Get the blocked
-        response = self.client.get(
+        response = self.GETRequest(
             self.route,
             headers={'Authorization': f'Bearer {access_token}'},
             query_string=args
         )
 
         # Assert the response status code
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get response pagination
         pagination = response.json
@@ -118,13 +115,10 @@ class TestReadBlocked(BaseTestCase):
         access_token = get_access_token(user)
 
         # Get the blocked
-        response = self.client.get(
-            self.route,
-            headers={'Authorization': f'Bearer {access_token}'}
-        )
+        response = self.GETRequest(self.route, token=access_token)
 
         # Assert the response status code
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get response pagination
         pagination = response.json
@@ -153,13 +147,10 @@ class TestReadBlocked(BaseTestCase):
         access_token = get_access_token(user)
 
         # Get the blocked
-        response = self.client.get(
-            self.route,
-            headers={'Authorization': f'Bearer {access_token}'}
-        )
+        response = self.GETRequest(self.route, token=access_token)
 
         # Assert the response status code
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get response pagination
         pagination = response.json

@@ -1,5 +1,5 @@
 # Base
-from tests.base.base_test_case import BaseTestCase
+from tests.routes.test_route import TestRoute
 
 # Factories
 from tests.factories.post_factory import PostFactory
@@ -12,7 +12,7 @@ from app.models.user import Block
 from tests.utils.tokens import get_access_token
 
 
-class TestReadPost(BaseTestCase):
+class TestReadPost(TestRoute):
     route = '/post/{}'
 
     def test_read_post_anonymous(self):
@@ -20,10 +20,10 @@ class TestReadPost(BaseTestCase):
         post = PostFactory()
 
         # Read the post
-        response = self.client.get(self.route.format(post.id))
+        response = self.GETRequest(self.route.format(post.id))
 
         # Assert the status code
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get the data
         data = response.json
@@ -52,13 +52,10 @@ class TestReadPost(BaseTestCase):
         access_token = get_access_token(user)
 
         # Read the post
-        response = self.client.get(
-            self.route.format(post.id),
-            headers={'Authorization': f'Bearer {access_token}'}
-        )
+        response = self.GETRequest(self.route.format(post.id), token=access_token)
 
         # Assert the status code
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get the data
         data = response.json
@@ -93,13 +90,10 @@ class TestReadPost(BaseTestCase):
         access_token = get_access_token(user)
 
         # Read the post
-        response = self.client.get(
-            self.route.format(post.id),
-            headers={'Authorization': f'Bearer {access_token}'}
-        )
+        response = self.GETRequest(self.route.format(post.id), token=access_token)
 
         # Assert the status code
-        self.assertEqual(response.status_code, 400)
+        self.assertStatusCode(response, 400)
 
         # Get the data
         data = response.json
@@ -127,13 +121,10 @@ class TestReadPost(BaseTestCase):
         access_token = get_access_token(user)
 
         # Read the post
-        response = self.client.get(
-            self.route.format(post.id),
-            headers={'Authorization': f'Bearer {access_token}'}
-        )
+        response = self.GETRequest(self.route.format(post.id), token=access_token)
 
         # Assert the status code
-        self.assertEqual(response.status_code, 400)
+        self.assertStatusCode(response, 400)
 
         # Get the data
         data = response.json
@@ -146,10 +137,10 @@ class TestReadPost(BaseTestCase):
 
     def test_read_post_nonexistent(self):
         # Read the post
-        response = self.client.get(self.route.format(404))
+        response = self.GETRequest(self.route.format(404))
 
         # Assert the status code
-        self.assertEqual(response.status_code, 404)
+        self.assertStatusCode(response, 404)
 
         # Get the data
         data = response.json

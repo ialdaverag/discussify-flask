@@ -2,10 +2,10 @@
 from flask import current_app
 
 # tests
-from tests.base.base_test_case import BaseTestCase
+from tests.routes.test_route import TestRoute
 
 
-class TestApp(BaseTestCase):
+class TestApp(TestRoute):
     def test_app(self) -> None:
         assert self.app is not None
         assert current_app == self.app

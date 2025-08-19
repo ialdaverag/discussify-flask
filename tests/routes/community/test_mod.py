@@ -1,5 +1,5 @@
 # Tests
-from tests.base.base_test_case import BaseTestCase
+from tests.routes.test_route import TestRoute
 
 # Factories
 from tests.factories.user_factory import UserFactory
@@ -14,7 +14,7 @@ from app.models.community import CommunityModerator
 from app.models.community import CommunityBan
 
 
-class TestMod(BaseTestCase):
+class TestMod(TestRoute):
     route = '/community/{}/mod/{}'
 
     def test_add_moderator(self):
@@ -31,13 +31,13 @@ class TestMod(BaseTestCase):
         access_token = get_access_token(community.owner)
 
         # Add moderator to the community
-        response = self.client.post(
+        response = self.POSTRequest(
             self.route.format(community.name, user.username),
             headers={'Authorization': f'Bearer {access_token}'}
         )
 
         # Assert the response status code
-        self.assertEqual(response.status_code, 204)
+        self.assertStatusCode(response, 204)
 
     def test_add_moderator_nonexistent_community(self):
         # Create a user
@@ -47,13 +47,13 @@ class TestMod(BaseTestCase):
         access_token = get_access_token(user)
 
         # Add moderator to the community
-        response = self.client.post(
+        response = self.POSTRequest(
             self.route.format('nonexistent', user.username),
             headers={'Authorization': f'Bearer {access_token}'}
         )
 
         # Assert the response status code
-        self.assertEqual(response.status_code, 404)
+        self.assertStatusCode(response, 404)
 
         # Get the response data
         data = response.json
@@ -72,13 +72,13 @@ class TestMod(BaseTestCase):
         access_token = get_access_token(community.owner)
 
         # Add moderator to the community
-        response = self.client.post(
+        response = self.POSTRequest(
             self.route.format(community.name, 'nonexistent'),
             headers={'Authorization': f'Bearer {access_token}'}
         )
 
         # Assert the response status code
-        self.assertEqual(response.status_code, 404)
+        self.assertStatusCode(response, 404)
 
         # Get the response data
         data = response.json
@@ -100,13 +100,13 @@ class TestMod(BaseTestCase):
         access_token = get_access_token(user)
 
         # Add moderator to the community
-        response = self.client.post(
+        response = self.POSTRequest(
             self.route.format(community.name, user.username),
             headers={'Authorization': f'Bearer {access_token}'}
         )
 
         # Assert the response status code
-        self.assertEqual(response.status_code, 403)
+        self.assertStatusCode(response, 403)
 
         # Get the response data
         data = response.json
@@ -128,13 +128,13 @@ class TestMod(BaseTestCase):
         access_token = get_access_token(community.owner)
 
         # Add moderator to the community
-        response = self.client.post(
+        response = self.POSTRequest(
             self.route.format(community.name, user.username),
             headers={'Authorization': f'Bearer {access_token}'}
         )
 
         # Assert the response status code
-        self.assertEqual(response.status_code, 400)
+        self.assertStatusCode(response, 400)
 
         # Get the response data
         data = response.json
@@ -159,13 +159,13 @@ class TestMod(BaseTestCase):
         access_token = get_access_token(community.owner)
 
         # Add moderator to the community
-        response = self.client.post(
+        response = self.POSTRequest(
             self.route.format(community.name, user.username),
             headers={'Authorization': f'Bearer {access_token}'}
         )
 
         # Assert the response status code
-        self.assertEqual(response.status_code, 400)
+        self.assertStatusCode(response, 400)
 
         # Get the response data
         data = response.json
@@ -190,13 +190,13 @@ class TestMod(BaseTestCase):
         access_token = get_access_token(community.owner)
 
         # Add moderator to the community
-        response = self.client.post(
+        response = self.POSTRequest(
             self.route.format(community.name, user.username),
             headers={'Authorization': f'Bearer {access_token}'}
         )
 
         # Assert the response status code
-        self.assertEqual(response.status_code, 400)
+        self.assertStatusCode(response, 400)
 
         # Get the response data
         data = response.json

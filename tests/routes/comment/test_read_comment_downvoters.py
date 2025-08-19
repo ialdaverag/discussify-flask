@@ -1,5 +1,5 @@
 # Base
-from tests.base.base_test_case import BaseTestCase
+from tests.routes.test_route import TestRoute
 
 # Factories
 from tests.factories.user_factory import UserFactory
@@ -15,7 +15,7 @@ from tests.utils.assert_pagination import assert_pagination_structure
 from tests.utils.assert_list import assert_user_list
 
 
-class TestReadCommentDownvoters(BaseTestCase):
+class TestReadCommentDownvoters(TestRoute):
     route = '/comment/{}/downvoters'
 
     def test_read_comment_downvoters(self):
@@ -29,10 +29,10 @@ class TestReadCommentDownvoters(BaseTestCase):
         CommentVoteFactory.create_batch(n, comment=comment, direction=-1)
 
         # Get the downvoters
-        response = self.client.get(self.route.format(comment.id))
+        response = self.GETRequest(self.route.format(comment.id))
 
         # Check status code
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get the pagination
         pagination = response.json
@@ -64,13 +64,12 @@ class TestReadCommentDownvoters(BaseTestCase):
         CommentVoteFactory.create_batch(n, comment=comment, direction=-1)
 
         # Get the downvoters
-        response = self.client.get(
-            self.route.format(comment.id),
+        response = self.GETRequest(self.route.format(comment.id),
             query_string={'page': 1, 'per_page': 5}
         )
 
         # Check status code
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get the pagination
         pagination = response.json
@@ -108,13 +107,10 @@ class TestReadCommentDownvoters(BaseTestCase):
         access_token = get_access_token(user)
 
         # Get the downvoters
-        response = self.client.get(
-            self.route.format(comment.id),
-            headers={'Authorization': f'Bearer {access_token}'}
-        )
+        response = self.GETRequest(self.route.format(comment.id), token=access_token)
 
         # Check status code
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get the pagination
         pagination = response.json
@@ -152,14 +148,13 @@ class TestReadCommentDownvoters(BaseTestCase):
         access_token = get_access_token(user)
 
         # Get the downvoters
-        response = self.client.get(
-            self.route.format(comment.id),
+        response = self.GETRequest(self.route.format(comment.id),
             query_string={'page': 1, 'per_page': 5},
             headers={'Authorization': f'Bearer {access_token}'}
         )
 
         # Check status code
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get the pagination
         pagination = response.json
@@ -204,13 +199,10 @@ class TestReadCommentDownvoters(BaseTestCase):
         access_token = get_access_token(user)
 
         # Get the downvoters
-        response = self.client.get(
-            self.route.format(comment.id),
-            headers={'Authorization': f'Bearer {access_token}'}
-        )
+        response = self.GETRequest(self.route.format(comment.id), token=access_token)
 
         # Check status code
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get the pagination
         pagination = response.json
@@ -255,14 +247,13 @@ class TestReadCommentDownvoters(BaseTestCase):
         access_token = get_access_token(user)
 
         # Get the downvoters
-        response = self.client.get(
-            self.route.format(comment.id),
+        response = self.GETRequest(self.route.format(comment.id),
             query_string={'page': 1, 'per_page': 5},
             headers={'Authorization': f'Bearer {access_token}'}
         )
 
         # Check status code
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get the pagination
         pagination = response.json
@@ -307,13 +298,10 @@ class TestReadCommentDownvoters(BaseTestCase):
         access_token = get_access_token(user)
 
         # Get the downvoters
-        response = self.client.get(
-            self.route.format(comment.id),
-            headers={'Authorization': f'Bearer {access_token}'}
-        )
+        response = self.GETRequest(self.route.format(comment.id), token=access_token)
 
         # Check status code
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get the pagination
         pagination = response.json
@@ -358,14 +346,13 @@ class TestReadCommentDownvoters(BaseTestCase):
         access_token = get_access_token(user)
 
         # Get the downvoters
-        response = self.client.get(
-            self.route.format(comment.id),
+        response = self.GETRequest(self.route.format(comment.id),
             query_string={'page': 1, 'per_page': 5},
             headers={'Authorization': f'Bearer {access_token}'}
         )
 
         # Check status code
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get the pagination
         pagination = response.json
@@ -417,13 +404,10 @@ class TestReadCommentDownvoters(BaseTestCase):
         access_token = get_access_token(user)
 
         # Get the downvoters
-        response = self.client.get(
-            self.route.format(comment.id),
-            headers={'Authorization': f'Bearer {access_token}'}
-        )
+        response = self.GETRequest(self.route.format(comment.id), token=access_token)
 
         # Check status code
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get the pagination
         pagination = response.json
@@ -475,14 +459,13 @@ class TestReadCommentDownvoters(BaseTestCase):
         access_token = get_access_token(user)
 
         # Get the downvoters
-        response = self.client.get(
-            self.route.format(comment.id),
+        response = self.GETRequest(self.route.format(comment.id),
             query_string={'page': 1, 'per_page': 5},
             headers={'Authorization': f'Bearer {access_token}'}
         )
 
         # Check status code
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get the pagination
         pagination = response.json
@@ -508,10 +491,10 @@ class TestReadCommentDownvoters(BaseTestCase):
         comment = CommentFactory()
 
         # Get the downvoters
-        response = self.client.get(self.route.format(comment.id))
+        response = self.GETRequest(self.route.format(comment.id))
 
         # Check status code
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get the pagination
         pagination = response.json
@@ -537,13 +520,12 @@ class TestReadCommentDownvoters(BaseTestCase):
         comment = CommentFactory()
 
         # Get the downvoters
-        response = self.client.get(
-            self.route.format(comment.id),
+        response = self.GETRequest(self.route.format(comment.id),
             query_string={'page': 1, 'per_page': 5}
         )
 
         # Check status code
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get the pagination
         pagination = response.json
@@ -566,7 +548,7 @@ class TestReadCommentDownvoters(BaseTestCase):
 
     def test_read_comment_downvoters_nonexistent(self):
         # Get the downvoters
-        response = self.client.get(self.route.format(404))
+        response = self.GETRequest(self.route.format(404))
 
         # Check status code
-        self.assertEqual(response.status_code, 404)
+        self.assertStatusCode(response, 404)

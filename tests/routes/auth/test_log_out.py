@@ -5,13 +5,13 @@ from flask_jwt_extended import create_access_token
 from app.utils.password import hash_password
 
 # tests
-from tests.base.base_test_case import BaseTestCase
+from tests.routes.test_route import TestRoute
 
 # factories
 from tests.factories.user_factory import UserFactory
 
 
-class TestLogOut(BaseTestCase):
+class TestLogOut(TestRoute):
     route = '/auth/logout'
 
     def test_log_out(self):
@@ -22,13 +22,13 @@ class TestLogOut(BaseTestCase):
         access_token = create_access_token(identity=user.id)
 
         # Log out
-        response = self.client.post(
+        response = self.POSTRequest(
             self.route,
             headers={'Authorization': f'Bearer {access_token}'},
         )
 
         # Assert the response status code
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Assert the response data
         data = response.json

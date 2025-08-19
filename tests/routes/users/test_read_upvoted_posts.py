@@ -1,5 +1,5 @@
 # tests
-from tests.base.base_test_case import BaseTestCase
+from tests.routes.test_route import TestRoute
 
 # factories
 from tests.factories.user_factory import UserFactory
@@ -17,7 +17,7 @@ from tests.utils.assert_list import assert_post_list
 from app.models.user import Block
 
 
-class TestReadUpvotedPosts(BaseTestCase):
+class TestReadUpvotedPosts(TestRoute):
     route = '/user/posts/upvoted'
 
     def test_read_upvoted_posts(self):
@@ -38,13 +38,10 @@ class TestReadUpvotedPosts(BaseTestCase):
         access_token = get_access_token(user)
 
         # Get user upvoted posts
-        response = self.client.get(
-            self.route,
-            headers={'Authorization': f'Bearer {access_token}'}
-        )
+        response = self.GETRequest(self.route, token=access_token)
 
         # Assert that the response status code is 200
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get pagination
         pagination = response.json
@@ -83,14 +80,14 @@ class TestReadUpvotedPosts(BaseTestCase):
         access_token = get_access_token(user)
 
         # Get user upvoted posts
-        response = self.client.get(
+        response = self.GETRequest(
             self.route,
             query_string={'page': 2, 'per_page': 5},
             headers={'Authorization': f'Bearer {access_token}'}
         )
 
         # Assert that the response status code is 200
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get pagination
         pagination = response.json
@@ -135,13 +132,10 @@ class TestReadUpvotedPosts(BaseTestCase):
         access_token = get_access_token(user)
 
         # Get user upvoted posts
-        response = self.client.get(
-            self.route,
-            headers={'Authorization': f'Bearer {access_token}'}
-        )
+        response = self.GETRequest(self.route, token=access_token)
 
         # Assert the response status code
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get pagination
         pagination = response.json
@@ -186,14 +180,14 @@ class TestReadUpvotedPosts(BaseTestCase):
         access_token = get_access_token(user)
 
         # Get user upvoted posts
-        response = self.client.get(
+        response = self.GETRequest(
             self.route,
             query_string={'page': 2, 'per_page': 5},
             headers={'Authorization': f'Bearer {access_token}'}
         )
 
         # Assert the response status code
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get pagination
         pagination = response.json
@@ -238,13 +232,10 @@ class TestReadUpvotedPosts(BaseTestCase):
         access_token = get_access_token(user)
 
         # Get user upvoted posts
-        response = self.client.get(
-            self.route,
-            headers={'Authorization': f'Bearer {access_token}'}
-        )
+        response = self.GETRequest(self.route, token=access_token)
 
         # Assert the response status code
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get pagination
         pagination = response.json
@@ -289,14 +280,14 @@ class TestReadUpvotedPosts(BaseTestCase):
         access_token = get_access_token(user)
 
         # Get user upvoted posts
-        response = self.client.get(
+        response = self.GETRequest(
             self.route,
             query_string={'page': 2, 'per_page': 5},
             headers={'Authorization': f'Bearer {access_token}'}
         )
 
         # Assert the response status code
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get pagination
         pagination = response.json
@@ -347,13 +338,10 @@ class TestReadUpvotedPosts(BaseTestCase):
         access_token = get_access_token(user)
 
         # Get user upvoted posts
-        response = self.client.get(
-            self.route,
-            headers={'Authorization': f'Bearer {access_token}'}
-        )
+        response = self.GETRequest(self.route, token=access_token)
 
         # Assert the response status code
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get pagination
         pagination = response.json
@@ -404,14 +392,14 @@ class TestReadUpvotedPosts(BaseTestCase):
         access_token = get_access_token(user)
 
         # Get user upvoted posts
-        response = self.client.get(
+        response = self.GETRequest(
             self.route,
             query_string={'page': 2, 'per_page': 5},
             headers={'Authorization': f'Bearer {access_token}'}
         )
 
         # Assert the response status code
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get pagination
         pagination = response.json
@@ -440,13 +428,10 @@ class TestReadUpvotedPosts(BaseTestCase):
         access_token = get_access_token(user)
 
         # Get the user upvoted posts
-        response = self.client.get(
-            self.route,
-            headers={'Authorization': f'Bearer {access_token}'}
-        )
+        response = self.GETRequest(self.route, token=access_token)
 
         # Assert that the response status code is 200
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get pagination
         pagination = response.json
@@ -475,14 +460,14 @@ class TestReadUpvotedPosts(BaseTestCase):
         access_token = get_access_token(user)
 
         # Get the user upvoted posts
-        response = self.client.get(
+        response = self.GETRequest(
             self.route,
             query_string={'page': 2, 'per_page': 5},
             headers={'Authorization': f'Bearer {access_token}'}
         )
 
         # Assert that the response status code is 200
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get pagination
         pagination = response.json

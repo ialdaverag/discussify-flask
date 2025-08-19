@@ -1,5 +1,5 @@
 # Base
-from tests.base.base_test_case import BaseTestCase
+from tests.routes.test_route import TestRoute
 
 # Factories
 from tests.factories.user_factory import UserFactory
@@ -12,7 +12,7 @@ from tests.utils.tokens import get_access_token
 from app.models.community import CommunityModerator
 
 
-class TestDeletePost(BaseTestCase):
+class TestDeletePost(TestRoute):
     route = '/post/{}'
 
     def test_delete_post(self):
@@ -26,13 +26,10 @@ class TestDeletePost(BaseTestCase):
         access_token = get_access_token(owner)
 
         # Delete the post
-        response = self.client.delete(
-            self.route.format(post.id),
-            headers={'Authorization': f'Bearer {access_token}'}
-        )
+        response = self.DELETERequest(self.route.format(post.id), token=access_token)
 
         # Check status code
-        self.assertEqual(response.status_code, 204)
+        self.assertStatusCode(response, 204)
 
     def test_delete_post_as_moderator(self):
         # Create a post
@@ -51,13 +48,10 @@ class TestDeletePost(BaseTestCase):
         access_token = get_access_token(user)
 
         # Delete the post
-        response = self.client.delete(
-            self.route.format(post.id),
-            headers={'Authorization': f'Bearer {access_token}'}
-        )
+        response = self.DELETERequest(self.route.format(post.id), token=access_token)
 
         # Check status code
-        self.assertEqual(response.status_code, 204)
+        self.assertStatusCode(response, 204)
 
     def test_delete_post_nonexistent(self):
         # Create a user
@@ -67,13 +61,10 @@ class TestDeletePost(BaseTestCase):
         access_token = get_access_token(user)
 
         # Delete the post
-        response = self.client.delete(
-            self.route.format(1),
-            headers={'Authorization': f'Bearer {access_token}'}
-        )
+        response = self.DELETERequest(self.route.format(1), token=access_token)
 
         # Check status code
-        self.assertEqual(response.status_code, 404)
+        self.assertStatusCode(response, 404)
 
         # Get the data
         data = response.json
@@ -95,13 +86,10 @@ class TestDeletePost(BaseTestCase):
         access_token = get_access_token(user)
 
         # Delete the post
-        response = self.client.delete(
-            self.route.format(post.id),
-            headers={'Authorization': f'Bearer {access_token}'}
-        )
+        response = self.DELETERequest(self.route.format(post.id), token=access_token)
 
         # Check status code
-        self.assertEqual(response.status_code, 403)
+        self.assertStatusCode(response, 403)
 
         # Get the data
         data = response.json

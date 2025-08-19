@@ -1,5 +1,5 @@
 # Tests
-from tests.base.base_test_case import BaseTestCase
+from tests.routes.test_route import TestRoute
 
 # Factories
 from tests.factories.user_factory import UserFactory
@@ -13,7 +13,7 @@ from app.models.community import CommunitySubscriber
 from app.models.community import CommunityBan
 
 
-class TestTransfer(BaseTestCase):
+class TestTransfer(TestRoute):
     route = '/community/{}/transfer/{}'
 
     def test_transfer(self):
@@ -30,13 +30,13 @@ class TestTransfer(BaseTestCase):
         access_token = get_access_token(community.owner)
 
         # add moderator to the community
-        response = self.client.post(
+        response = self.POSTRequest(
             self.route.format(community.name, user.username),
             headers={'Authorization': f'Bearer {access_token}'}
         )
 
         # assert response status code
-        self.assertEqual(response.status_code, 204)
+        self.assertStatusCode(response, 204)
 
     def test_transfer_nonexistent_community(self):
         # create a user
@@ -46,13 +46,13 @@ class TestTransfer(BaseTestCase):
         access_token = get_access_token(user)
 
         # add moderator to the community
-        response = self.client.post(
+        response = self.POSTRequest(
             self.route.format('nonexistent', user.username),
             headers={'Authorization': f'Bearer {access_token}'}
         )
 
         # assert response status code
-        self.assertEqual(response.status_code, 404)
+        self.assertStatusCode(response, 404)
 
     def test_transfer_nonexistent_user(self):
         # create a community
@@ -62,13 +62,13 @@ class TestTransfer(BaseTestCase):
         access_token = get_access_token(community.owner)
 
         # add moderator to the community
-        response = self.client.post(
+        response = self.POSTRequest(
             self.route.format(community.name, 'nonexistent'),
             headers={'Authorization': f'Bearer {access_token}'}
         )
 
         # assert response status code
-        self.assertEqual(response.status_code, 404)
+        self.assertStatusCode(response, 404)
 
     def test_transfer_not_being_owner(self):
         # create a community
@@ -81,13 +81,13 @@ class TestTransfer(BaseTestCase):
         access_token = get_access_token(user)
 
         # add moderator to the community
-        response = self.client.post(
+        response = self.POSTRequest(
             self.route.format(community.name, user.username),
             headers={'Authorization': f'Bearer {access_token}'}
         )
 
         # assert response status code
-        self.assertEqual(response.status_code, 403)
+        self.assertStatusCode(response, 403)
 
     def test_transfer_not_subscribed_user(self):
         # create a community
@@ -103,13 +103,13 @@ class TestTransfer(BaseTestCase):
         access_token = get_access_token(owner)
 
         # add moderator to the community
-        response = self.client.post(
+        response = self.POSTRequest(
             self.route.format(community.name, user.username),
             headers={'Authorization': f'Bearer {access_token}'}
         )
 
         # assert response status code
-        self.assertEqual(response.status_code, 400)
+        self.assertStatusCode(response, 400)
 
         # get response data
         data = response.json
@@ -137,13 +137,13 @@ class TestTransfer(BaseTestCase):
         CommunityBan(community=community, user=user).save()
 
         # add moderator to the community
-        response = self.client.post(
+        response = self.POSTRequest(
             self.route.format(community.name, user.username),
             headers={'Authorization': f'Bearer {access_token}'}
         )
 
         # assert response status code
-        self.assertEqual(response.status_code, 400)
+        self.assertStatusCode(response, 400)
 
         # get response data
         data = response.json
@@ -165,13 +165,13 @@ class TestTransfer(BaseTestCase):
         access_token = get_access_token(owner)
 
         # add moderator to the community
-        response = self.client.post(
+        response = self.POSTRequest(
             self.route.format(community.name, owner.username),
             headers={'Authorization': f'Bearer {access_token}'}
         )
 
         # assert response status code
-        self.assertEqual(response.status_code, 403)
+        self.assertStatusCode(response, 403)
 
         # get response data
         data = response.json

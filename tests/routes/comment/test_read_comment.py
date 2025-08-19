@@ -1,5 +1,5 @@
 # Base
-from tests.base.base_test_case import BaseTestCase
+from tests.routes.test_route import TestRoute
 
 # Factories
 from tests.factories.comment_factory import CommentFactory
@@ -12,7 +12,7 @@ from app.models.user import Block
 from tests.utils.tokens import get_access_token
 
 
-class TestReadComment(BaseTestCase):
+class TestReadComment(TestRoute):
     route = '/comment/{}'
 
     def test_read_comment_anonymous(self):
@@ -20,10 +20,10 @@ class TestReadComment(BaseTestCase):
         comment = CommentFactory()
 
         # Read the comment
-        response = self.client.get(self.route.format(comment.id))
+        response = self.GETRequest(self.route.format(comment.id))
 
         # Assert the status code
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get the data
         data = response.json
@@ -51,13 +51,10 @@ class TestReadComment(BaseTestCase):
         access_token = get_access_token(user)
 
         # Read the comment
-        response = self.client.get(
-            self.route.format(comment.id),
-            headers={'Authorization': f'Bearer {access_token}'}
-        )
+        response = self.GETRequest(self.route.format(comment.id), token=access_token)
 
         # Assert the status code
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get the data
         data = response.json
@@ -91,13 +88,10 @@ class TestReadComment(BaseTestCase):
         access_token = get_access_token(user)
 
         # Read the post
-        response = self.client.get(
-            self.route.format(comment.id),
-            headers={'Authorization': f'Bearer {access_token}'}
-        )
+        response = self.GETRequest(self.route.format(comment.id), token=access_token)
 
         # Assert the status code
-        self.assertEqual(response.status_code, 400)
+        self.assertStatusCode(response, 400)
 
         # Get the data
         data = response.json
@@ -125,13 +119,10 @@ class TestReadComment(BaseTestCase):
         access_token = get_access_token(user)
 
         # Read the post
-        response = self.client.get(
-            self.route.format(comment.id),
-            headers={'Authorization': f'Bearer {access_token}'}
-        )
+        response = self.GETRequest(self.route.format(comment.id), token=access_token)
 
         # Assert the status code
-        self.assertEqual(response.status_code, 400)
+        self.assertStatusCode(response, 400)
 
         # Get the data
         data = response.json
@@ -144,10 +135,10 @@ class TestReadComment(BaseTestCase):
 
     def test_read_comment_nonexistent(self):
         # Read the comment
-        response = self.client.get(self.route.format(404))
+        response = self.GETRequest(self.route.format(404))
 
         # Assert the status code
-        self.assertEqual(response.status_code, 404)
+        self.assertStatusCode(response, 404)
 
         # Get the data
         data = response.json

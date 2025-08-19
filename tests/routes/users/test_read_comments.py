@@ -1,5 +1,5 @@
 # tests
-from tests.base.base_test_case import BaseTestCase
+from tests.routes.test_route import TestRoute
 
 # factories
 from tests.factories.user_factory import UserFactory
@@ -10,7 +10,7 @@ from tests.utils.assert_pagination import assert_pagination_structure_comments
 from tests.utils.assert_list import assert_comment_list
 
 
-class TestReadComments(BaseTestCase):
+class TestReadComments(TestRoute):
     route = '/user/{}/comments'
 
     def test_read_comments(self):
@@ -24,10 +24,10 @@ class TestReadComments(BaseTestCase):
         CommentFactory.create_batch(n, owner=user)
 
         # Get user comments
-        response = self.client.get(self.route.format(user.username))
+        response = self.GETRequest(self.route.format(user.username))
 
         # Assert that the response status code is 200
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get the pagination
         pagination = response.json
@@ -59,10 +59,10 @@ class TestReadComments(BaseTestCase):
         CommentFactory.create_batch(n, owner=user)
 
         # Get user comments
-        response = self.client.get(self.route.format(user.username), query_string={'page': 1, 'per_page': 5})
+        response = self.GETRequest(self.route.format(user.username), query_string={'page': 1, 'per_page': 5})
 
         # Assert that the response status code is 200
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get the pagination
         pagination = response.json
@@ -88,10 +88,10 @@ class TestReadComments(BaseTestCase):
         user = UserFactory()
 
         # Get the user comments
-        response = self.client.get(self.route.format(user.username))
+        response = self.GETRequest(self.route.format(user.username))
 
         # Assert that the response status code is 200
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get the pagination
         pagination = response.json
@@ -117,10 +117,10 @@ class TestReadComments(BaseTestCase):
         user = UserFactory()
 
         # Get the user comments
-        response = self.client.get(self.route.format(user.username), query_string={'page': 1, 'per_page': 5})
+        response = self.GETRequest(self.route.format(user.username), query_string={'page': 1, 'per_page': 5})
 
         # Assert that the response status code is 200
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get the pagination
         pagination = response.json
@@ -143,10 +143,10 @@ class TestReadComments(BaseTestCase):
 
     def test_read_comments_nonexistent_user(self):
         # Try to get comments of a nonexistent user
-        response = self.client.get(self.route.format('nonexistent'))
+        response = self.GETRequest(self.route.format('nonexistent'))
 
         # Assert that the response status code is 404
-        self.assertEqual(response.status_code, 404)
+        self.assertStatusCode(response, 404)
 
         # Get response data
         data = response.json

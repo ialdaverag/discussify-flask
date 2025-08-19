@@ -1,5 +1,5 @@
 # Base
-from tests.base.base_test_case import BaseTestCase
+from tests.routes.test_route import TestRoute
 
 # Factories
 from tests.factories.user_factory import UserFactory
@@ -12,7 +12,7 @@ from tests.utils.tokens import get_access_token
 from app.models.community import CommunityBan
 
 
-class TestUpdateComment(BaseTestCase):
+class TestUpdateComment(TestRoute):
     route = '/comment/{}'
 
     def test_update_comment(self):
@@ -31,14 +31,10 @@ class TestUpdateComment(BaseTestCase):
         }
 
         # Update the comment
-        response = self.client.patch(
-            self.route.format(comment.id), 
-            json=json,
-            headers={'Authorization': f'Bearer {access_token}'}
-        )
+        response = self.PATCHRequest(self.route.format(comment.id), token=access_token, data=json)
 
         # Check status code
-        self.assertEqual(200, response.status_code)
+        self.assertStatusCode(response, 200)
 
         # Get the response data
         data = response.json
@@ -82,14 +78,10 @@ class TestUpdateComment(BaseTestCase):
         }
 
         # Update the comment
-        response = self.client.patch(
-            self.route.format(404), 
-            json=json,
-            headers={'Authorization': f'Bearer {access_token}'}
-        )
+        response = self.PATCHRequest(self.route.format(404), token=access_token, data=json)
 
         # Check status code
-        self.assertEqual(404, response.status_code)
+        self.assertStatusCode(response, 404)
 
         # Get the data
         data = response.json
@@ -114,14 +106,10 @@ class TestUpdateComment(BaseTestCase):
         json = {}
 
         # Update the comment
-        response = self.client.patch(
-            self.route.format(comment.id), 
-            json=json,
-            headers={'Authorization': f'Bearer {access_token}'}
-        )
+        response = self.PATCHRequest(self.route.format(comment.id), token=access_token, data=json)
 
         # Check status code
-        self.assertEqual(400, response.status_code)
+        self.assertStatusCode(response, 400)
 
         # Get the response data
         data = response.json
@@ -159,14 +147,10 @@ class TestUpdateComment(BaseTestCase):
         }
 
         # Update the comment
-        response = self.client.patch(
-            self.route.format(comment.id), 
-            json=json,
-            headers={'Authorization': f'Bearer {access_token}'}
-        )
+        response = self.PATCHRequest(self.route.format(comment.id), token=access_token, data=json)
 
         # Check status code
-        self.assertEqual(400, response.status_code)
+        self.assertStatusCode(response, 400)
 
         # Get the data
         data = response.json

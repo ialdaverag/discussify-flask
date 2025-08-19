@@ -1,5 +1,5 @@
 # tests
-from tests.base.base_test_case import BaseTestCase
+from tests.routes.test_route import TestRoute
 
 # factories
 from tests.factories.user_factory import UserFactory
@@ -11,7 +11,7 @@ from app.models.user import Block
 from tests.utils.tokens import get_access_token
 
 
-class TestReadUser(BaseTestCase):
+class TestReadUser(TestRoute):
     route = '/user/{}'
 
     def test_read_user_anonymous(self):
@@ -19,10 +19,10 @@ class TestReadUser(BaseTestCase):
         user = UserFactory()
 
         # Get the user
-        response = self.client.get(self.route.format(user.username))
+        response = self.GETRequest(self.route.format(user.username))
 
         # Assert response status code
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get response data
         data = response.json
@@ -48,13 +48,10 @@ class TestReadUser(BaseTestCase):
         access_token = get_access_token(user)
 
         # Get the user
-        response = self.client.get(
-            self.route.format(user.username),
-            headers={'Authorization': f'Bearer {access_token}'}
-        )
+        response = self.GETRequest(self.route.format(user.username), token=access_token)
 
         # Assert response status code
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get response data
         data = response.json
@@ -86,13 +83,10 @@ class TestReadUser(BaseTestCase):
         access_token = get_access_token(owner)
 
         # Get the user
-        response = self.client.get(
-            self.route.format(user.username),
-            headers={'Authorization': f'Bearer {access_token}'}
-        )
+        response = self.GETRequest(self.route.format(user.username), token=access_token)
 
         # Assert response status code
-        self.assertEqual(response.status_code, 400)
+        self.assertStatusCode(response, 400)
 
         # Get response data
         data = response.json
@@ -114,13 +108,10 @@ class TestReadUser(BaseTestCase):
         access_token = get_access_token(user)
 
         # Get the user
-        response = self.client.get(
-            self.route.format(owner.username),
-            headers={'Authorization': f'Bearer {access_token}'}
-        )
+        response = self.GETRequest(self.route.format(owner.username), token=access_token)
 
         # Assert response status code
-        self.assertEqual(response.status_code, 400)
+        self.assertStatusCode(response, 400)
 
         # Get response data
         data = response.json
@@ -130,10 +121,10 @@ class TestReadUser(BaseTestCase):
     
     def test_read_user_not_found(self):
         # Get the user
-        response = self.client.get('/user/inexistent')
+        response = self.GETRequest('/user/inexistent')
 
         # Assert response status code
-        self.assertEqual(response.status_code, 404)
+        self.assertStatusCode(response, 404)
 
         # Get response data
         data = response.json

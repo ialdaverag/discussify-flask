@@ -1,11 +1,11 @@
 # Tests
-from tests.base.base_test_case import BaseTestCase
+from tests.routes.test_route import TestRoute
 
 # Factories
 from tests.factories.community_factory import CommunityFactory
 
 
-class TestReadCommunity(BaseTestCase):
+class TestReadCommunity(TestRoute):
     route = '/community/{}'
 
     def test_read_community(self):
@@ -13,10 +13,10 @@ class TestReadCommunity(BaseTestCase):
         community = CommunityFactory()
 
         # Get the community
-        response = self.client.get(self.route.format(community.name))
+        response = self.GETRequest(self.route.format(community.name))
 
         # Assert the response status code
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get the response data
         data = response.json
@@ -43,10 +43,10 @@ class TestReadCommunity(BaseTestCase):
 
     def test_read_community_nonexistent(self):
         # Get the community
-        response = self.client.get(self.route.format('inexistent'))
+        response = self.GETRequest(self.route.format('inexistent'))
 
         # Assert the response status code
-        self.assertEqual(response.status_code, 404)
+        self.assertStatusCode(response, 404)
 
         # Get the response data
         data = response.json

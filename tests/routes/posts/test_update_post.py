@@ -1,5 +1,5 @@
 # Base
-from tests.base.base_test_case import BaseTestCase
+from tests.routes.test_route import TestRoute
 
 # Factories
 from tests.factories.user_factory import UserFactory
@@ -9,7 +9,7 @@ from tests.factories.post_factory import PostFactory
 from tests.utils.tokens import get_access_token
 
 
-class TestUpdatePost(BaseTestCase):
+class TestUpdatePost(TestRoute):
     route = '/post/{}'
 
     def test_update_post(self):
@@ -29,14 +29,14 @@ class TestUpdatePost(BaseTestCase):
         access_token = get_access_token(owner)
 
         # Update the post
-        response = self.client.patch(
+        response = self.PATCHRequest(
             self.route.format(post.id),
-            json=json,
-            headers={'Authorization': f'Bearer {access_token}'}
+            token=access_token,
+            data=json
         )
 
         # Check status code
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get the data
         data = response.json
@@ -91,14 +91,13 @@ class TestUpdatePost(BaseTestCase):
         access_token = get_access_token(user)
 
         # Update the post
-        response = self.client.patch(
-            self.route.format(404),
+        response = self.PATCHRequest(self.route.format(404),
             json=json,
             headers={'Authorization': f'Bearer {access_token}'}
         )
 
         # Assert status code
-        self.assertEqual(response.status_code, 404)
+        self.assertStatusCode(response, 404)
 
         # Get the response data
         data = response.json
@@ -126,14 +125,13 @@ class TestUpdatePost(BaseTestCase):
         access_token = get_access_token(owner)
 
         # Update the post
-        response = self.client.patch(
-            self.route.format(post.id),
+        response = self.PATCHRequest(self.route.format(post.id),
             json=json,
             headers={'Authorization': f'Bearer {access_token}'}
         )
 
         # Check status code
-        self.assertEqual(response.status_code, 400)
+        self.assertStatusCode(response, 400)
 
        # Get the data
         data = response.json
@@ -165,14 +163,13 @@ class TestUpdatePost(BaseTestCase):
         access_token = get_access_token(owner)
 
         # Update the post
-        response = self.client.patch(
-            self.route.format(post.id),
+        response = self.PATCHRequest(self.route.format(post.id),
             json=json,
             headers={'Authorization': f'Bearer {access_token}'}
         )
 
         # Check status code
-        self.assertEqual(response.status_code, 400)
+        self.assertStatusCode(response, 400)
 
        # Get the data
         data = response.json
@@ -204,14 +201,13 @@ class TestUpdatePost(BaseTestCase):
         access_token = get_access_token(user)
 
         # Update the post
-        response = self.client.patch(
-            self.route.format(post.id),
+        response = self.PATCHRequest(self.route.format(post.id),
             json=json,
             headers={'Authorization': f'Bearer {access_token}'}
         )
 
         # Check status code
-        self.assertEqual(response.status_code, 403)
+        self.assertStatusCode(response, 403)
 
         # Get the data
         data = response.json

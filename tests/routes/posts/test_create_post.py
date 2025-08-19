@@ -1,5 +1,5 @@
 # Base
-from tests.base.base_test_case import BaseTestCase
+from tests.routes.test_route import TestRoute
 
 # Factories
 from tests.factories.user_factory import UserFactory
@@ -13,7 +13,7 @@ from app.models.community import CommunitySubscriber
 from app.models.community import CommunityBan
 
 
-class TestCreatePost(BaseTestCase):
+class TestCreatePost(TestRoute):
     route = '/post/'
 
     def test_create_post(self):
@@ -36,14 +36,14 @@ class TestCreatePost(BaseTestCase):
             'content': 'This is a new post'
         }
 
-        response = self.client.post(
+        response = self.POSTRequest(
             self.route,
             headers={'Authorization': f'Bearer {access_token}'},
             json=json
         )
 
         # Assert the response status code
-        self.assertEqual(response.status_code, 201)
+        self.assertStatusCode(response, 201)
 
         # Get the response data
         data = response.json
@@ -110,14 +110,14 @@ class TestCreatePost(BaseTestCase):
             'content': 'This is a new post'
         }
 
-        response = self.client.post(
+        response = self.POSTRequest(
             self.route,
             headers={'Authorization': f'Bearer {access_token}'},
             json=json
         )
 
         # Assert the response status code
-        self.assertEqual(response.status_code, 400)
+        self.assertStatusCode(response, 400)
 
         # Get the response data
         data = response.json
@@ -150,14 +150,14 @@ class TestCreatePost(BaseTestCase):
             'content': 'This is a new post'
         }
 
-        response = self.client.post(
+        response = self.POSTRequest(
             self.route,
             headers={'Authorization': f'Bearer {access_token}'},
             json=json
         )
 
         # Assert the response status code
-        self.assertEqual(response.status_code, 400)
+        self.assertStatusCode(response, 400)
 
         # Get the response data
         data = response.json
@@ -190,14 +190,14 @@ class TestCreatePost(BaseTestCase):
             'title': 'New post',
         }
 
-        response = self.client.post(
+        response = self.POSTRequest(
             self.route,
             headers={'Authorization': f'Bearer {access_token}'},
             json=json
         )
 
         # Assert the response status code
-        self.assertEqual(response.status_code, 400)
+        self.assertStatusCode(response, 400)
 
         # Get the response data
         data = response.json
@@ -231,14 +231,14 @@ class TestCreatePost(BaseTestCase):
             'content': 'This is a new post'
         }
 
-        response = self.client.post(
+        response = self.POSTRequest(
             self.route,
             headers={'Authorization': f'Bearer {access_token}'},
             json=json
         )
 
         # Assert the response status code
-        self.assertEqual(response.status_code, 404)
+        self.assertStatusCode(response, 404)
 
          # Assert the response data
         data = response.json
@@ -269,14 +269,14 @@ class TestCreatePost(BaseTestCase):
             'content': 'This is a new post'
         }
 
-        response = self.client.post(
+        response = self.POSTRequest(
             self.route,
             headers={'Authorization': f'Bearer {access_token}'},
             json=json
         )
 
         # Assert the response status code
-        self.assertEqual(response.status_code, 400)
+        self.assertStatusCode(response, 400)
 
         # Get the response data
         data = response.json
@@ -310,14 +310,14 @@ class TestCreatePost(BaseTestCase):
             'content': ''
         }
 
-        response = self.client.post(
+        response = self.POSTRequest(
             self.route,
             headers={'Authorization': f'Bearer {access_token}'},
             json=json
         )
 
         # Assert the response status code
-        self.assertEqual(response.status_code, 400)
+        self.assertStatusCode(response, 400)
 
         # Get the response data
         data = response.json
@@ -348,14 +348,14 @@ class TestCreatePost(BaseTestCase):
             'content': 'This is a new post'
         }
 
-        response = self.client.post(
+        response = self.POSTRequest(
             self.route,
             headers={'Authorization': f'Bearer {access_token}'},
             json=json
         )
 
         # Assert the response status code
-        self.assertEqual(response.status_code, 400)
+        self.assertStatusCode(response, 400)
 
         # Get the response data
         data = response.json
@@ -386,14 +386,14 @@ class TestCreatePost(BaseTestCase):
             'content': 'This is a new post'
         }
 
-        response = self.client.post(
+        response = self.POSTRequest(
             self.route,
             headers={'Authorization': f'Bearer {access_token}'},
             json=json
         )
 
         # Assert the response status code
-        self.assertEqual(response.status_code, 400)
+        self.assertStatusCode(response, 400)
 
         # Get the response data
         data = response.json

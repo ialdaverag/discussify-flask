@@ -1,5 +1,5 @@
 # Tests
-from tests.base.base_test_case import BaseTestCase
+from tests.routes.test_route import TestRoute
 
 # Factories
 from tests.factories.user_factory import UserFactory
@@ -12,7 +12,7 @@ from tests.utils.tokens import get_access_token
 from app.models.community import CommunityModerator
 
 
-class TestUnmod(BaseTestCase):
+class TestUnmod(TestRoute):
     route = '/community/{}/unmod/{}'
 
     def test_unmod(self):
@@ -32,13 +32,13 @@ class TestUnmod(BaseTestCase):
         access_token = get_access_token(owner)
 
         # remove moderator from the community
-        response = self.client.post(
+        response = self.POSTRequest(
             self.route.format(community.name, user.username),
-            headers={'Authorization': f'Bearer {access_token}'}
+            token=access_token
         )
 
         # assert response status code
-        self.assertEqual(response.status_code, 204)
+        self.assertStatusCode(response, 204)
 
     def test_unmod_nonexistent_community(self):
         # create a user
@@ -48,22 +48,16 @@ class TestUnmod(BaseTestCase):
         access_token = get_access_token(user)
 
         # remove moderator from the community
-        response = self.client.post(
+        response = self.POSTRequest(
             self.route.format('nonexistent', user.username),
-            headers={'Authorization': f'Bearer {access_token}'}
+            token=access_token
         )
 
         # assert response status code
-        self.assertEqual(response.status_code, 404)
-
-        # get response data
-        data = response.json
-
-        # assert key in data
-        self.assertIn('message', data)
+        self.assertStatusCode(response, 404)
 
         # assert the error
-        self.assertEqual(data['message'], 'Community not found.')
+        self.assertMessage(response, 'Community not found.')
 
     def test_unmod_nonexistent_user(self):
         # create a community
@@ -73,13 +67,13 @@ class TestUnmod(BaseTestCase):
         access_token = get_access_token(community.owner)
 
         # remove moderator from the community
-        response = self.client.post(
+        response = self.POSTRequest(
             f'/community/{community.name}/unmod/nonexistent',
             headers={'Authorization': f'Bearer {access_token}'}
         )
 
         # assert response status code
-        self.assertEqual(response.status_code, 404)
+        self.assertStatusCode(response, 404)
 
         # get response data
         data = response.json
@@ -101,13 +95,13 @@ class TestUnmod(BaseTestCase):
         access_token = get_access_token(user)
 
         # remove moderator from the community
-        response = self.client.post(
+        response = self.POSTRequest(
             f'/community/{community.name}/unmod/{user.username}',
             headers={'Authorization': f'Bearer {access_token}'}
         )
 
         # assert response status code
-        self.assertEqual(response.status_code, 403)
+        self.assertStatusCode(response, 403)
 
         # get response data
         data = response.json
@@ -126,13 +120,13 @@ class TestUnmod(BaseTestCase):
         access_token = get_access_token(community.owner)
 
         # remove moderator from the community
-        response = self.client.post(
+        response = self.POSTRequest(
             f'/community/{community.name}/unmod/{community.owner.username}',
             headers={'Authorization': f'Bearer {access_token}'}
         )
 
         # assert response status code
-        self.assertEqual(response.status_code, 403)
+        self.assertStatusCode(response, 403)
 
         # get response data
         data = response.json
@@ -154,13 +148,13 @@ class TestUnmod(BaseTestCase):
         access_token = get_access_token(community.owner)
 
         # remove moderator from the community
-        response = self.client.post(
+        response = self.POSTRequest(
             f'/community/{community.name}/unmod/{user.username}',
             headers={'Authorization': f'Bearer {access_token}'}
         )
 
         # assert response status code
-        self.assertEqual(response.status_code, 400)
+        self.assertStatusCode(response, 400)
 
         # get response data
         data = response.json

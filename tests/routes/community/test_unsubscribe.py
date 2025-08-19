@@ -1,5 +1,5 @@
 # Tests
-from tests.base.base_test_case import BaseTestCase
+from tests.routes.test_route import TestRoute
 
 # Factories
 from tests.factories.user_factory import UserFactory
@@ -12,7 +12,7 @@ from tests.utils.tokens import get_access_token
 from app.models.community import CommunitySubscriber
 
 
-class TestUnsubscribe(BaseTestCase):
+class TestUnsubscribe(TestRoute):
     route = '/community/{}/unsubscribe'
 
     def test_unsubscribe(self):
@@ -29,13 +29,10 @@ class TestUnsubscribe(BaseTestCase):
         access_token = get_access_token(user)
 
         # Unsubscribe from the community
-        response = self.client.post(
-            f'/community/{community.name}/unsubscribe',
-            headers={'Authorization': f'Bearer {access_token}'}
-        )
+        response = self.POSTRequest(f'/community/{community.name}/unsubscribe', token=access_token)
 
         # Assert the response status code
-        self.assertEqual(response.status_code, 204)
+        self.assertStatusCode(response, 204)
 
     def test_unsubscribe_nonexistent(self):
         # Create a user
@@ -45,13 +42,10 @@ class TestUnsubscribe(BaseTestCase):
         access_token = get_access_token(user)
 
         # Unsubscribe from the community
-        response = self.client.post(
-            '/community/nonexistent/unsubscribe',
-            headers={'Authorization': f'Bearer {access_token}'}
-        )
+        response = self.POSTRequest('/community/nonexistent/unsubscribe', token=access_token)
 
         # Assert the response status code
-        self.assertEqual(response.status_code, 404)
+        self.assertStatusCode(response, 404)
 
         # Get the response data
         data = response.json
@@ -73,13 +67,10 @@ class TestUnsubscribe(BaseTestCase):
         access_token = get_access_token(user)
 
         # Unsubscribe from the community
-        response = self.client.post(
-            f'/community/{community.name}/unsubscribe',
-            headers={'Authorization': f'Bearer {access_token}'}
-        )
+        response = self.POSTRequest(f'/community/{community.name}/unsubscribe', token=access_token)
 
         # Assert the response status code
-        self.assertEqual(response.status_code, 400)
+        self.assertStatusCode(response, 400)
 
         # Get the response data
         data = response.json
@@ -101,13 +92,10 @@ class TestUnsubscribe(BaseTestCase):
         access_token = get_access_token(owner)
 
         # Unsubscribe from the community
-        response = self.client.post(
-            f'/community/{community.name}/unsubscribe',
-            headers={'Authorization': f'Bearer {access_token}'}
-        )
+        response = self.POSTRequest(f'/community/{community.name}/unsubscribe', token=access_token)
 
         # Assert the response status code
-        self.assertEqual(response.status_code, 403)
+        self.assertStatusCode(response, 403)
 
         # Get the response data
         data = response.json

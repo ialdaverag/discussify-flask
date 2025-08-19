@@ -1,5 +1,5 @@
 # Base
-from tests.base.base_test_case import BaseTestCase
+from tests.routes.test_route import TestRoute
 
 # Factories
 from tests.factories.post_factory import PostFactory
@@ -14,7 +14,7 @@ from tests.utils.assert_pagination import assert_pagination_structure_posts
 from tests.utils.assert_list import assert_post_list
 
 
-class TestDeletePost(BaseTestCase):
+class TestDeletePost(TestRoute):
     route = '/post/'
 
     def test_read_posts(self):
@@ -25,10 +25,10 @@ class TestDeletePost(BaseTestCase):
         PostFactory.create_batch(n)
 
         # Get the posts
-        response = self.client.get(self.route)
+        response = self.GETRequest(self.route)
 
         # Assert the response status code
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get the response pagination
         pagination = response.json
@@ -57,13 +57,13 @@ class TestDeletePost(BaseTestCase):
         PostFactory.create_batch(n)
 
         # Get the posts
-        response = self.client.get(
+        response = self.GETRequest(
             self.route,
             query_string={'page': 1, 'per_page': 5}
         )
 
         # Assert the response status code
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get the response pagination
         pagination = response.json
@@ -98,13 +98,10 @@ class TestDeletePost(BaseTestCase):
         access_token = get_access_token(user)
 
         # Get the posts
-        response = self.client.get(
-            self.route,
-            headers={'Authorization': f'Bearer {access_token}'}
-        )
+        response = self.GETRequest(self.route, token=access_token)
 
         # Assert the response status code
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get the pagination
         pagination = response.json
@@ -139,14 +136,14 @@ class TestDeletePost(BaseTestCase):
         access_token = get_access_token(user)
 
         # Get the posts
-        response = self.client.get(
+        response = self.GETRequest(
             self.route,
             query_string={'page': 1, 'per_page': 5},
             headers={'Authorization': f'Bearer {access_token}'}
         )
 
         # Assert the response status code
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get the pagination
         pagination = response.json
@@ -188,13 +185,10 @@ class TestDeletePost(BaseTestCase):
         access_token = get_access_token(user)
 
         # Get the posts
-        response = self.client.get(
-            self.route,
-            headers={'Authorization': f'Bearer {access_token}'}
-        )
+        response = self.GETRequest(self.route, token=access_token)
 
         # Assert the response status code
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get the pagination
         pagination = response.json
@@ -236,14 +230,14 @@ class TestDeletePost(BaseTestCase):
         access_token = get_access_token(user)
 
         # Get the posts
-        response = self.client.get(
+        response = self.GETRequest(
             self.route,
             query_string={'page': 1, 'per_page': 5},
             headers={'Authorization': f'Bearer {access_token}'}
         )
 
         # Assert the response status code
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get the pagination
         pagination = response.json
@@ -285,13 +279,10 @@ class TestDeletePost(BaseTestCase):
         access_token = get_access_token(user)
 
         # Get the posts
-        response = self.client.get(
-            self.route,
-            headers={'Authorization': f'Bearer {access_token}'}
-        )
+        response = self.GETRequest(self.route, token=access_token)
 
         # Assert the response status code
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get the pagination
         pagination = response.json
@@ -333,14 +324,14 @@ class TestDeletePost(BaseTestCase):
         access_token = get_access_token(user)
 
         # Get the posts
-        response = self.client.get(
+        response = self.GETRequest(
             self.route,
             query_string={'page': 1, 'per_page': 5},
             headers={'Authorization': f'Bearer {access_token}'}
         )
 
         # Assert the response status code
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get the pagination
         pagination = response.json
@@ -389,13 +380,10 @@ class TestDeletePost(BaseTestCase):
         access_token = get_access_token(user)
 
         # Get the posts
-        response = self.client.get(
-            self.route,
-            headers={'Authorization': f'Bearer {access_token}'}
-        )
+        response = self.GETRequest(self.route, token=access_token)
 
         # Assert the response status code
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get the pagination
         pagination = response.json
@@ -444,14 +432,14 @@ class TestDeletePost(BaseTestCase):
         access_token = get_access_token(user)
 
         # Get the posts
-        response = self.client.get(
+        response = self.GETRequest(
             self.route,
             query_string={'page': 1, 'per_page': 5},
             headers={'Authorization': f'Bearer {access_token}'}
         )
 
         # Assert the response status code
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get the pagination
         pagination = response.json
@@ -474,10 +462,10 @@ class TestDeletePost(BaseTestCase):
 
     def test_read_posts_empty(self):
         # Get the posts
-        response = self.client.get(self.route)
+        response = self.GETRequest(self.route)
 
         # Assert the response status code
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get the pagination
         pagination = response.json
@@ -500,13 +488,13 @@ class TestDeletePost(BaseTestCase):
 
     def test_read_posts_empty_args(self):
         # Get the posts
-        response = self.client.get(
+        response = self.GETRequest(
             self.route,
             query_string={'page': 1, 'per_page': 5}
         )
 
         # Assert the response status code
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get the pagination
         pagination = response.json

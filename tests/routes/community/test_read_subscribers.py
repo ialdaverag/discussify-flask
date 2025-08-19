@@ -1,5 +1,5 @@
 # Tests
-from tests.base.base_test_case import BaseTestCase
+from tests.routes.test_route import TestRoute
 
 # Factories
 from tests.factories.user_factory import UserFactory
@@ -15,7 +15,7 @@ from tests.utils.tokens import get_access_token
 from tests.utils.assert_pagination import assert_pagination_structure
 from tests.utils.assert_list import assert_user_list
 
-class TestReadSubscribers(BaseTestCase):
+class TestReadSubscribers(TestRoute):
     route = '/community/{}/subscribers'
     route_with_args = '/community/{}/subscribers?page={}&per_page={}'
 
@@ -34,10 +34,10 @@ class TestReadSubscribers(BaseTestCase):
             CommunitySubscriber(community=community, user=subscriber).save()
 
         # Read the community subscribers
-        response = self.client.get(self.route.format(community.name))
+        response = self.GETRequest(self.route.format(community.name))
 
         # Assert that the response status code is 200
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get response pagination
         pagination = response.json
@@ -73,10 +73,10 @@ class TestReadSubscribers(BaseTestCase):
             CommunitySubscriber(community=community, user=subscriber).save()
 
         # Read the community subscribers
-        response = self.client.get(self.route_with_args.format(community.name, 1, 5))
+        response = self.GETRequest(self.route_with_args.format(community.name, 1, 5))
 
         # Assert that the response status code is 200
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get response pagination
         pagination = response.json
@@ -118,13 +118,10 @@ class TestReadSubscribers(BaseTestCase):
         access_token = get_access_token(user)
 
         # Read the community subscribers
-        response = self.client.get(
-            self.route.format(community.name),
-            headers={'Authorization': f'Bearer {access_token}'}
-        )
+        response = self.GETRequest(self.route.format(community.name), token=access_token)
 
         # Assert that the response status code is 200
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get response pagination
         pagination = response.json
@@ -166,13 +163,13 @@ class TestReadSubscribers(BaseTestCase):
         access_token = get_access_token(user)
 
         # Read the community subscribers
-        response = self.client.get(
+        response = self.GETRequest(
             self.route_with_args.format(community.name, 1, 5),
             headers={'Authorization': f'Bearer {access_token}'}
         )
 
         # Assert that the response status code is 200
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get response pagination
         pagination = response.json
@@ -221,13 +218,10 @@ class TestReadSubscribers(BaseTestCase):
         access_token = get_access_token(user)
 
         # Read the community subscribers
-        response = self.client.get(
-            self.route.format(community.name),
-            headers={'Authorization': f'Bearer {access_token}'}
-        )
+        response = self.GETRequest(self.route.format(community.name), token=access_token)
 
         # Assert that the response status code is 200
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get response pagination
         pagination = response.json
@@ -276,13 +270,13 @@ class TestReadSubscribers(BaseTestCase):
         access_token = get_access_token(user)
 
         # Read the community subscribers
-        response = self.client.get(
+        response = self.GETRequest(
             self.route_with_args.format(community.name, 1, 5),
             headers={'Authorization': f'Bearer {access_token}'}
         )
 
         # Assert that the response status code is 200
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get response pagination
         pagination = response.json
@@ -331,13 +325,10 @@ class TestReadSubscribers(BaseTestCase):
         access_token = get_access_token(user)
 
         # Read the community subscribers
-        response = self.client.get(
-            self.route.format(community.name),
-            headers={'Authorization': f'Bearer {access_token}'}
-        )
+        response = self.GETRequest(self.route.format(community.name), token=access_token)
 
         # Assert that the response status code is 200
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get response pagination
         pagination = response.json
@@ -386,13 +377,13 @@ class TestReadSubscribers(BaseTestCase):
         access_token = get_access_token(user)
 
         # Read the community subscribers
-        response = self.client.get(
+        response = self.GETRequest(
             self.route_with_args.format(community.name, 1, 5),
             headers={'Authorization': f'Bearer {access_token}'}
         )
 
         # Assert that the response status code is 200
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get response pagination
         pagination = response.json
@@ -448,13 +439,10 @@ class TestReadSubscribers(BaseTestCase):
         access_token = get_access_token(user)
 
         # Read the community subscribers
-        response = self.client.get(
-            self.route.format(community.name),
-            headers={'Authorization': f'Bearer {access_token}'}
-        )
+        response = self.GETRequest(self.route.format(community.name), token=access_token)
 
         # Assert that the response status code is 200
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
        # Get response pagination
         pagination = response.json
@@ -510,13 +498,13 @@ class TestReadSubscribers(BaseTestCase):
         access_token = get_access_token(user)
 
         # Read the community subscribers
-        response = self.client.get(
+        response = self.GETRequest(
             self.route_with_args.format(community.name, 1, 5),
             headers={'Authorization': f'Bearer {access_token}'}
         )
 
         # Assert that the response status code is 200
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
        # Get response pagination
         pagination = response.json
@@ -561,13 +549,10 @@ class TestReadSubscribers(BaseTestCase):
         access_token = get_access_token(user)
 
         # Read the community subscribers
-        response = self.client.get(
-            self.route.format(community.name),
-            headers={'Authorization': f'Bearer {access_token}'}
-        )
+        response = self.GETRequest(self.route.format(community.name), token=access_token)
 
         # Assert that the response status code is 200
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get response pagination
         pagination = response.json
@@ -612,13 +597,13 @@ class TestReadSubscribers(BaseTestCase):
         access_token = get_access_token(user)
 
         # Read the community subscribers
-        response = self.client.get(
+        response = self.GETRequest(
             self.route_with_args.format(community.name, 1, 5),
             headers={'Authorization': f'Bearer {access_token}'}
         )
 
         # Assert that the response status code is 200
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get response pagination
         pagination = response.json
@@ -670,13 +655,10 @@ class TestReadSubscribers(BaseTestCase):
         access_token = get_access_token(user)
 
         # Read the community subscribers
-        response = self.client.get(
-            self.route.format(community.name),
-            headers={'Authorization': f'Bearer {access_token}'}
-        )
+        response = self.GETRequest(self.route.format(community.name), token=access_token)
 
         # Assert that the response status code is 200
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get response pagination
         pagination = response.json
@@ -728,13 +710,13 @@ class TestReadSubscribers(BaseTestCase):
         access_token = get_access_token(user)
 
         # Read the community subscribers
-        response = self.client.get(
+        response = self.GETRequest(
             self.route_with_args.format(community.name, 1, 5),
             headers={'Authorization': f'Bearer {access_token}'}
         )
 
         # Assert that the response status code is 200
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get response pagination
         pagination = response.json
@@ -786,13 +768,10 @@ class TestReadSubscribers(BaseTestCase):
         access_token = get_access_token(user)
 
         # Read the community subscribers
-        response = self.client.get(
-            self.route.format(community.name),
-            headers={'Authorization': f'Bearer {access_token}'}
-        )
+        response = self.GETRequest(self.route.format(community.name), token=access_token)
 
         # Assert that the response status code is 200
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get response pagination
         pagination = response.json
@@ -844,13 +823,13 @@ class TestReadSubscribers(BaseTestCase):
         access_token = get_access_token(user)
 
         # Read the community subscribers
-        response = self.client.get(
+        response = self.GETRequest(
             self.route_with_args.format(community.name, 1, 5),
             headers={'Authorization': f'Bearer {access_token}'}
         )
 
         # Assert that the response status code is 200
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get response pagination
         pagination = response.json
@@ -909,13 +888,10 @@ class TestReadSubscribers(BaseTestCase):
         access_token = get_access_token(user)
 
         # Read the community subscribers
-        response = self.client.get(
-            self.route.format(community.name),
-            headers={'Authorization': f'Bearer {access_token}'}
-        )
+        response = self.GETRequest(self.route.format(community.name), token=access_token)
 
         # Assert that the response status code is 200
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get response pagination
         pagination = response.json
@@ -974,13 +950,13 @@ class TestReadSubscribers(BaseTestCase):
         access_token = get_access_token(user)
 
         # Read the community subscribers
-        response = self.client.get(
+        response = self.GETRequest(
             self.route_with_args.format(community.name, 1, 5),
             headers={'Authorization': f'Bearer {access_token}'}
         )
 
         # Assert that the response status code is 200
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get response pagination
         pagination = response.json
@@ -1006,10 +982,10 @@ class TestReadSubscribers(BaseTestCase):
         community = CommunityFactory()
 
         # Read the community subscribers
-        response = self.client.get(self.route.format(community.name))
+        response = self.GETRequest(self.route.format(community.name))
 
         # Assert that the response status code is 200
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get response pagination
         pagination = response.json
@@ -1035,10 +1011,10 @@ class TestReadSubscribers(BaseTestCase):
         community = CommunityFactory()
 
         # Read the community subscribers
-        response = self.client.get(self.route_with_args.format(community.name, 1, 5))
+        response = self.GETRequest(self.route_with_args.format(community.name, 1, 5))
 
         # Assert that the response status code is 200
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get response pagination
         pagination = response.json
@@ -1061,10 +1037,10 @@ class TestReadSubscribers(BaseTestCase):
 
     def test_read_subscribers_nonexistent_community(self):
         # Try to get subscribers of a nonexistent community
-        response = self.client.get(self.route.format('nonexistent'))
+        response = self.GETRequest(self.route.format('nonexistent'))
 
         # Assert the response status code
-        self.assertEqual(response.status_code, 404)
+        self.assertStatusCode(response, 404)
 
         # Get response data
         data = response.json

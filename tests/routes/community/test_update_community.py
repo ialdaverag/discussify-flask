@@ -1,5 +1,5 @@
 # Tests
-from tests.base.base_test_case import BaseTestCase
+from tests.routes.test_route import TestRoute
 
 # Factories
 from tests.factories.user_factory import UserFactory
@@ -9,7 +9,7 @@ from tests.factories.community_factory import CommunityFactory
 from tests.utils.tokens import get_access_token
 
 
-class TestUpdateCommunity(BaseTestCase):
+class TestUpdateCommunity(TestRoute):
     route = '/community/{}'
 
     def test_update_community(self):
@@ -29,14 +29,13 @@ class TestUpdateCommunity(BaseTestCase):
         }
 
         # Update the community
-        response = self.client.patch(
-            self.route.format(community.name),
+        response = self.PATCHRequest(self.route.format(community.name),
             headers={'Authorization': f'Bearer {access_token}'},
             json=json
         )
 
         # Assert the response status code
-        self.assertEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Get the response data
         data = response.json
@@ -85,14 +84,13 @@ class TestUpdateCommunity(BaseTestCase):
         }
 
         # Update the community
-        response = self.client.patch(
-            self.route.format('inexistent'),
+        response = self.PATCHRequest(self.route.format('inexistent'),
             headers={'Authorization': f'Bearer {access_token}'},
             json=json
         )
 
         # Assert the response status code
-        self.assertEqual(response.status_code, 404)
+        self.assertStatusCode(response, 404)
 
         # Get the response data
         data = response.json
@@ -117,14 +115,13 @@ class TestUpdateCommunity(BaseTestCase):
         }
 
         # Update the community
-        response = self.client.patch(
-            self.route.format(community.name),
+        response = self.PATCHRequest(self.route.format(community.name),
             headers={'Authorization': f'Bearer {access_token}'},
             json=json
         )
 
         # Assert the response status code
-        self.assertEqual(response.status_code, 403)
+        self.assertStatusCode(response, 403)
 
         # Get the response data
         data = response.json
@@ -149,14 +146,13 @@ class TestUpdateCommunity(BaseTestCase):
         }
 
         # Update the community
-        response = self.client.patch(
-            self.route.format(community.name),
+        response = self.PATCHRequest(self.route.format(community.name),
             headers={'Authorization': f'Bearer {access_token}'},
             json=json
         )
 
         # Assert the response status code
-        self.assertEqual(response.status_code, 400)
+        self.assertStatusCode(response, 400)
 
         # Get the response data
         data = response.json
@@ -190,14 +186,13 @@ class TestUpdateCommunity(BaseTestCase):
         }
 
         # Update the community
-        response = self.client.patch(
-            self.route.format(community.name),
+        response = self.PATCHRequest(self.route.format(community.name),
             headers={'Authorization': f'Bearer {access_token}'},
             json=json
         )
 
         # Assert the response status code
-        self.assertEqual(response.status_code, 400)
+        self.assertStatusCode(response, 400)
 
         # Get the response data
         data = response.json
@@ -235,14 +230,13 @@ class TestUpdateCommunity(BaseTestCase):
         }
 
         # Update the community
-        response = self.client.patch(
-            self.route.format(community2.name),
+        response = self.PATCHRequest(self.route.format(community2.name),
             headers={'Authorization': f'Bearer {access_token}'},
             json=json
         )
 
         # Assert the response status code
-        self.assertEqual(response.status_code, 400)
+        self.assertStatusCode(response, 400)
 
         # Get the response data
         data = response.json

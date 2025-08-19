@@ -1,5 +1,5 @@
 # Tests
-from tests.base.base_test_case import BaseTestCase
+from tests.routes.test_route import TestRoute
 
 # Factories
 from tests.factories.user_factory import UserFactory
@@ -13,7 +13,7 @@ from app.models.community import CommunitySubscriber
 from app.models.community import CommunityBan
 
 
-class TestSubscribe(BaseTestCase):
+class TestSubscribe(TestRoute):
     route = '/community/{}/subscribe'
 
     def test_subscribe(self):
@@ -27,13 +27,10 @@ class TestSubscribe(BaseTestCase):
         access_token = get_access_token(user)
 
         # Subscribe to the community
-        response = self.client.post(
-            self.route.format(community.name),
-            headers={'Authorization': f'Bearer {access_token}'}
-        )
+        response = self.POSTRequest(self.route.format(community.name), token=access_token)
 
         # Assert the response status code
-        self.assertEqual(response.status_code, 204)
+        self.assertStatusCode(response, 204)
 
     def test_subscribe_nonexistent(self):
         # Create a user
@@ -43,13 +40,10 @@ class TestSubscribe(BaseTestCase):
         access_token = get_access_token(user)
 
         # Subscribe to the community
-        response = self.client.post(
-            self.route.format('nonexistent'),
-            headers={'Authorization': f'Bearer {access_token}'}
-        )
+        response = self.POSTRequest(self.route.format('nonexistent'), token=access_token)
 
         # Assert the response status code
-        self.assertEqual(response.status_code, 404)
+        self.assertStatusCode(response, 404)
 
         # Get the response data
         data = response.json
@@ -74,13 +68,10 @@ class TestSubscribe(BaseTestCase):
         access_token = get_access_token(user)
 
         # Subscribe to the community
-        response = self.client.post(
-            self.route.format(community.name),
-            headers={'Authorization': f'Bearer {access_token}'}
-        )
+        response = self.POSTRequest(self.route.format(community.name), token=access_token)
 
         # Assert the response status code
-        self.assertEqual(response.status_code, 400)
+        self.assertStatusCode(response, 400)
 
         # Get the response data
         data = response.json
@@ -105,13 +96,10 @@ class TestSubscribe(BaseTestCase):
         access_token = get_access_token(user)
 
         # Subscribe to the community
-        response = self.client.post(
-            self.route.format(community.name),
-            headers={'Authorization': f'Bearer {access_token}'}
-        )
+        response = self.POSTRequest(self.route.format(community.name), token=access_token)
 
         # Assert the response status code
-        self.assertEqual(response.status_code, 400)
+        self.assertStatusCode(response, 400)
 
         # Get the response data
         data = response.json
