@@ -34,7 +34,7 @@ class TestBan(TestRoute):
         access_token = get_access_token(community.owner)
 
         # ban user from the community
-        response = self.client.post(
+        response = self.POSTRequest(
             self.route.format(community.name, user.username),
             headers={'Authorization': f'Bearer {access_token}'}
         )
@@ -50,7 +50,7 @@ class TestBan(TestRoute):
         access_token = get_access_token(user)
 
         # ban user from the community
-        response = self.client.post(
+        response = self.POSTRequest(
             self.route.format('nonexistent', user.username),
             headers={'Authorization': f'Bearer {access_token}'}
         )
@@ -75,7 +75,7 @@ class TestBan(TestRoute):
         access_token = get_access_token(community.owner)
 
         # ban user from the community
-        response = self.client.post(
+        response = self.POSTRequest(
             self.route.format(community.name, 'nonexistent'),
             headers={'Authorization': f'Bearer {access_token}'}
         )
@@ -107,7 +107,7 @@ class TestBan(TestRoute):
         access_token = get_access_token(user)
 
         # ban user from the community
-        response = self.client.post(
+        response = self.POSTRequest(
             self.route.format(community.name, user_to_ban.username),
             headers={'Authorization': f'Bearer {access_token}'}
         )
@@ -135,7 +135,7 @@ class TestBan(TestRoute):
         access_token = get_access_token(community.owner)
 
         # ban user from the community
-        response = self.client.post(
+        response = self.POSTRequest(
             self.route.format(community.name, user.username),
             headers={'Authorization': f'Bearer {access_token}'}
         )
@@ -168,7 +168,7 @@ class TestBan(TestRoute):
         access_token = get_access_token(community.owner)
 
         # ban the user again
-        response = self.client.post(
+        response = self.POSTRequest(
             self.route.format(community.name, user_to_ban.username),
             headers={'Authorization': f'Bearer {access_token}'}
         )

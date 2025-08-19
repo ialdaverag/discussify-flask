@@ -52,7 +52,7 @@ class TestReadCommunities(TestRoute):
         CommunityFactory.create_batch(n)
 
         # Get the communities
-        response = self.client.get(
+        response = self.GETRequest(
             self.route,
             query_string={
                 'page': 1,
@@ -110,7 +110,7 @@ class TestReadCommunities(TestRoute):
 
     def test_read_communities_empty_args(self):
         # Get the communities
-        response = self.client.get(
+        response = self.GETRequest(
             self.route,
             query_string={
                 'page': 1,

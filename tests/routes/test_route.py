@@ -17,31 +17,31 @@ class TestRoute(BaseTestCase):
         """Makes a POST request with or without authentication."""
         headers = {'Authorization': f'Bearer {token}'} if token else {}
 
-        return self.client.post(route, json=data, headers=headers)
+        return self.POSTRequest(route, json=data, headers=headers)
 
     def GETRequest(self, route, token=None, query_string=None):
         """Makes a GET request with or without authentication."""
         headers = {'Authorization': f'Bearer {token}'} if token else {}
 
         if query_string:
-            return self.client.get(route, headers=headers, query_string=query_string)
+            return self.GETRequest(route, headers=headers, query_string=query_string)
         else:
-            return self.client.get(route, headers=headers)
+            return self.GETRequest(route, headers=headers)
 
     def PUTRequest(self, route, token=None, data=None):
         """Makes a PUT request with or without authentication."""
         headers = {'Authorization': f'Bearer {token}'} if token else {}
 
-        return self.client.put(route, json=data, headers=headers)
+        return self.PUTRequest(route, json=data, headers=headers)
 
     def PATCHRequest(self, route, token=None, data=None):
         """Makes a PATCH request with or without authentication."""
         headers = {'Authorization': f'Bearer {token}'} if token else {}
 
-        return self.client.patch(route, json=data, headers=headers)
+        return self.PATCHRequest(route, json=data, headers=headers)
 
     def DELETERequest(self, route, token=None):
         """Makes a DELETE request with or without authentication."""
         headers = {'Authorization': f'Bearer {token}'} if token else {}
         
-        return self.client.delete(route, headers=headers)
+        return self.DELETERequest(route, headers=headers)

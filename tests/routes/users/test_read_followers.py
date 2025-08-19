@@ -72,7 +72,7 @@ class TestReadFollowers(TestRoute):
             Follow(follower=follower, followed=user).save()
 
         # Get user followers
-        response = self.client.get(self.route_with_args.format(user.username, 1, 5))
+        response = self.GETRequest(self.route_with_args.format(user.username, 1, 5))
 
         # Assert that the response status code is 200
         self.assertStatusCode(response, 200)
@@ -158,7 +158,7 @@ class TestReadFollowers(TestRoute):
         access_token = get_access_token(user)
 
         # Get user followers
-        response = self.client.get(
+        response = self.GETRequest(
             self.route_with_args.format(user.username, 1, 5), 
             headers={'Authorization': access_token}
         )
@@ -265,7 +265,7 @@ class TestReadFollowers(TestRoute):
         access_token = get_access_token(user)
 
         # Get the users
-        response = self.client.get(
+        response = self.GETRequest(
             self.route_with_args.format(user.username, 1, 5),
             headers={'Authorization': f'Bearer {access_token}'}
         )
@@ -372,7 +372,7 @@ class TestReadFollowers(TestRoute):
         access_token = get_access_token(user)
 
         # Get the users
-        response = self.client.get(
+        response = self.GETRequest(
             self.route_with_args.format(user.username, 1, 5),
             headers={'Authorization': f'Bearer {access_token}'}
         )
@@ -493,7 +493,7 @@ class TestReadFollowers(TestRoute):
         access_token = get_access_token(user)
 
         # Get the users
-        response = self.client.get(
+        response = self.GETRequest(
             self.route_with_args.format(user.username, 1, 10),
             headers={'Authorization': f'Bearer {access_token}'}
         )
@@ -554,7 +554,7 @@ class TestReadFollowers(TestRoute):
         user = UserFactory()
 
         # Get the user followers
-        response = self.client.get(self.route_with_args.format(user.username, 1, 10))
+        response = self.GETRequest(self.route_with_args.format(user.username, 1, 10))
 
         # Assert that the response status code is 200
         self.assertStatusCode(response, 200)

@@ -67,13 +67,13 @@ class TestUnmod(TestRoute):
         access_token = get_access_token(community.owner)
 
         # remove moderator from the community
-        response = self.client.post(
+        response = self.POSTRequest(
             f'/community/{community.name}/unmod/nonexistent',
             headers={'Authorization': f'Bearer {access_token}'}
         )
 
         # assert response status code
-        self.assertEqual(response.status_code, 404)
+        self.assertStatusCode(response, 404)
 
         # get response data
         data = response.json
@@ -95,13 +95,13 @@ class TestUnmod(TestRoute):
         access_token = get_access_token(user)
 
         # remove moderator from the community
-        response = self.client.post(
+        response = self.POSTRequest(
             f'/community/{community.name}/unmod/{user.username}',
             headers={'Authorization': f'Bearer {access_token}'}
         )
 
         # assert response status code
-        self.assertEqual(response.status_code, 403)
+        self.assertStatusCode(response, 403)
 
         # get response data
         data = response.json
@@ -120,13 +120,13 @@ class TestUnmod(TestRoute):
         access_token = get_access_token(community.owner)
 
         # remove moderator from the community
-        response = self.client.post(
+        response = self.POSTRequest(
             f'/community/{community.name}/unmod/{community.owner.username}',
             headers={'Authorization': f'Bearer {access_token}'}
         )
 
         # assert response status code
-        self.assertEqual(response.status_code, 403)
+        self.assertStatusCode(response, 403)
 
         # get response data
         data = response.json
@@ -148,13 +148,13 @@ class TestUnmod(TestRoute):
         access_token = get_access_token(community.owner)
 
         # remove moderator from the community
-        response = self.client.post(
+        response = self.POSTRequest(
             f'/community/{community.name}/unmod/{user.username}',
             headers={'Authorization': f'Bearer {access_token}'}
         )
 
         # assert response status code
-        self.assertEqual(response.status_code, 400)
+        self.assertStatusCode(response, 400)
 
         # get response data
         data = response.json

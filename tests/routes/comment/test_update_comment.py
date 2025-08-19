@@ -34,7 +34,7 @@ class TestUpdateComment(TestRoute):
         response = self.PATCHRequest(self.route.format(comment.id), token=access_token, data=json)
 
         # Check status code
-        self.assertEqual(200, response.status_code)
+        self.assertStatusCode(response, 200)
 
         # Get the response data
         data = response.json
@@ -81,7 +81,7 @@ class TestUpdateComment(TestRoute):
         response = self.PATCHRequest(self.route.format(404), token=access_token, data=json)
 
         # Check status code
-        self.assertEqual(404, response.status_code)
+        self.assertStatusCode(response, 404)
 
         # Get the data
         data = response.json
@@ -109,7 +109,7 @@ class TestUpdateComment(TestRoute):
         response = self.PATCHRequest(self.route.format(comment.id), token=access_token, data=json)
 
         # Check status code
-        self.assertEqual(400, response.status_code)
+        self.assertStatusCode(response, 400)
 
         # Get the response data
         data = response.json
@@ -150,7 +150,7 @@ class TestUpdateComment(TestRoute):
         response = self.PATCHRequest(self.route.format(comment.id), token=access_token, data=json)
 
         # Check status code
-        self.assertEqual(400, response.status_code)
+        self.assertStatusCode(response, 400)
 
         # Get the data
         data = response.json

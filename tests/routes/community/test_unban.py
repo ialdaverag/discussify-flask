@@ -33,7 +33,7 @@ class TestUnban(TestRoute):
         access_token = get_access_token(community.owner)
 
         # Ban user from the community
-        response = self.client.post(
+        response = self.POSTRequest(
             self.route.format(community.name, user.username),
             headers={'Authorization': f'Bearer {access_token}'}
         )
@@ -52,7 +52,7 @@ class TestUnban(TestRoute):
         access_token = get_access_token(user1)
 
         # Ban user from the community
-        response = self.client.post(
+        response = self.POSTRequest(
             self.route.format('nonexistent', user2.username),
             headers={'Authorization': f'Bearer {access_token}'}
         )
@@ -77,7 +77,7 @@ class TestUnban(TestRoute):
         access_token = get_access_token(community.owner)
 
         # Ban user from the community
-        response = self.client.post(
+        response = self.POSTRequest(
             self.route.format(community.name, 'nonexistent'),
             headers={'Authorization': f'Bearer {access_token}'}
         )
@@ -110,7 +110,7 @@ class TestUnban(TestRoute):
         access_token = get_access_token(user1)
 
         # ban user from the community
-        response = self.client.post(
+        response = self.POSTRequest(
             self.route.format(community.name, user2.username),
             headers={'Authorization': f'Bearer {access_token}'}
         )
@@ -140,7 +140,7 @@ class TestUnban(TestRoute):
         access_token = get_access_token(community.owner)
 
         # ban user from the community
-        response = self.client.post(
+        response = self.POSTRequest(
             self.route.format(community.name, user.username),
             headers={'Authorization': f'Bearer {access_token}'}
         )

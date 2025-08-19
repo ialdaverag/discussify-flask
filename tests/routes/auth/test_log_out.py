@@ -22,7 +22,7 @@ class TestLogOut(TestRoute):
         access_token = create_access_token(identity=user.id)
 
         # Log out
-        response = self.client.post(
+        response = self.POSTRequest(
             self.route,
             headers={'Authorization': f'Bearer {access_token}'},
         )

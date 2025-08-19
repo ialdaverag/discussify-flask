@@ -73,7 +73,7 @@ class TestReadSubscribers(TestRoute):
             CommunitySubscriber(community=community, user=subscriber).save()
 
         # Read the community subscribers
-        response = self.client.get(self.route_with_args.format(community.name, 1, 5))
+        response = self.GETRequest(self.route_with_args.format(community.name, 1, 5))
 
         # Assert that the response status code is 200
         self.assertStatusCode(response, 200)
@@ -163,7 +163,7 @@ class TestReadSubscribers(TestRoute):
         access_token = get_access_token(user)
 
         # Read the community subscribers
-        response = self.client.get(
+        response = self.GETRequest(
             self.route_with_args.format(community.name, 1, 5),
             headers={'Authorization': f'Bearer {access_token}'}
         )
@@ -270,7 +270,7 @@ class TestReadSubscribers(TestRoute):
         access_token = get_access_token(user)
 
         # Read the community subscribers
-        response = self.client.get(
+        response = self.GETRequest(
             self.route_with_args.format(community.name, 1, 5),
             headers={'Authorization': f'Bearer {access_token}'}
         )
@@ -377,7 +377,7 @@ class TestReadSubscribers(TestRoute):
         access_token = get_access_token(user)
 
         # Read the community subscribers
-        response = self.client.get(
+        response = self.GETRequest(
             self.route_with_args.format(community.name, 1, 5),
             headers={'Authorization': f'Bearer {access_token}'}
         )
@@ -498,7 +498,7 @@ class TestReadSubscribers(TestRoute):
         access_token = get_access_token(user)
 
         # Read the community subscribers
-        response = self.client.get(
+        response = self.GETRequest(
             self.route_with_args.format(community.name, 1, 5),
             headers={'Authorization': f'Bearer {access_token}'}
         )
@@ -597,7 +597,7 @@ class TestReadSubscribers(TestRoute):
         access_token = get_access_token(user)
 
         # Read the community subscribers
-        response = self.client.get(
+        response = self.GETRequest(
             self.route_with_args.format(community.name, 1, 5),
             headers={'Authorization': f'Bearer {access_token}'}
         )
@@ -710,7 +710,7 @@ class TestReadSubscribers(TestRoute):
         access_token = get_access_token(user)
 
         # Read the community subscribers
-        response = self.client.get(
+        response = self.GETRequest(
             self.route_with_args.format(community.name, 1, 5),
             headers={'Authorization': f'Bearer {access_token}'}
         )
@@ -823,7 +823,7 @@ class TestReadSubscribers(TestRoute):
         access_token = get_access_token(user)
 
         # Read the community subscribers
-        response = self.client.get(
+        response = self.GETRequest(
             self.route_with_args.format(community.name, 1, 5),
             headers={'Authorization': f'Bearer {access_token}'}
         )
@@ -950,7 +950,7 @@ class TestReadSubscribers(TestRoute):
         access_token = get_access_token(user)
 
         # Read the community subscribers
-        response = self.client.get(
+        response = self.GETRequest(
             self.route_with_args.format(community.name, 1, 5),
             headers={'Authorization': f'Bearer {access_token}'}
         )
@@ -1011,7 +1011,7 @@ class TestReadSubscribers(TestRoute):
         community = CommunityFactory()
 
         # Read the community subscribers
-        response = self.client.get(self.route_with_args.format(community.name, 1, 5))
+        response = self.GETRequest(self.route_with_args.format(community.name, 1, 5))
 
         # Assert that the response status code is 200
         self.assertStatusCode(response, 200)

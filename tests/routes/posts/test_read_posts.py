@@ -57,7 +57,7 @@ class TestDeletePost(TestRoute):
         PostFactory.create_batch(n)
 
         # Get the posts
-        response = self.client.get(
+        response = self.GETRequest(
             self.route,
             query_string={'page': 1, 'per_page': 5}
         )
@@ -136,7 +136,7 @@ class TestDeletePost(TestRoute):
         access_token = get_access_token(user)
 
         # Get the posts
-        response = self.client.get(
+        response = self.GETRequest(
             self.route,
             query_string={'page': 1, 'per_page': 5},
             headers={'Authorization': f'Bearer {access_token}'}
@@ -230,7 +230,7 @@ class TestDeletePost(TestRoute):
         access_token = get_access_token(user)
 
         # Get the posts
-        response = self.client.get(
+        response = self.GETRequest(
             self.route,
             query_string={'page': 1, 'per_page': 5},
             headers={'Authorization': f'Bearer {access_token}'}
@@ -324,7 +324,7 @@ class TestDeletePost(TestRoute):
         access_token = get_access_token(user)
 
         # Get the posts
-        response = self.client.get(
+        response = self.GETRequest(
             self.route,
             query_string={'page': 1, 'per_page': 5},
             headers={'Authorization': f'Bearer {access_token}'}
@@ -432,7 +432,7 @@ class TestDeletePost(TestRoute):
         access_token = get_access_token(user)
 
         # Get the posts
-        response = self.client.get(
+        response = self.GETRequest(
             self.route,
             query_string={'page': 1, 'per_page': 5},
             headers={'Authorization': f'Bearer {access_token}'}
@@ -488,7 +488,7 @@ class TestDeletePost(TestRoute):
 
     def test_read_posts_empty_args(self):
         # Get the posts
-        response = self.client.get(
+        response = self.GETRequest(
             self.route,
             query_string={'page': 1, 'per_page': 5}
         )

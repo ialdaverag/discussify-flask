@@ -21,7 +21,7 @@ class TestLogIn(TestRoute):
         }
 
         # Log in
-        response = self.client.post(
+        response = self.POSTRequest(
             self.route,
             json=json,
         )
@@ -49,7 +49,7 @@ class TestLogIn(TestRoute):
         }
 
         # Log in
-        response = self.client.post(
+        response = self.POSTRequest(
             self.route,
             json=json,
         )
@@ -82,7 +82,7 @@ class TestLogIn(TestRoute):
         }
 
         # Log in
-        response = self.client.post(
+        response = self.POSTRequest(
             self.route,
             json=json,
         )
@@ -116,7 +116,7 @@ class TestLogIn(TestRoute):
         }
 
         # Log in
-        response = self.client.post(
+        response = self.POSTRequest(
             self.route,
             json=json,
         )
@@ -141,7 +141,7 @@ class TestLogIn(TestRoute):
         }
 
         # Log in
-        response = self.client.post(
+        response = self.POSTRequest(
             self.route,
             json=json,
         )

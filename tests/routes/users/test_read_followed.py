@@ -72,7 +72,7 @@ class TestReadFollowed(TestRoute):
             Follow(follower=user, followed=user_).save()
 
         # Get user followed
-        response = self.client.get(
+        response = self.GETRequest(
             self.route_with_args.format(user.username, 1, 5)
         )
 
@@ -158,7 +158,7 @@ class TestReadFollowed(TestRoute):
         access_token = get_access_token(user)
 
         # Get user followed
-        response = self.client.get(
+        response = self.GETRequest(
             self.route_with_args.format(user.username, 1, 5),
             headers={'Authorization': f'Bearer {access_token}'}
         )
@@ -265,7 +265,7 @@ class TestReadFollowed(TestRoute):
         access_token = get_access_token(user)
 
         # Get the users
-        response = self.client.get(
+        response = self.GETRequest(
             self.route_with_args.format(user.username, 1, 10),
             headers={'Authorization': f'Bearer {access_token}'}
         )
@@ -372,7 +372,7 @@ class TestReadFollowed(TestRoute):
         access_token = get_access_token(user)
 
         # Get the users
-        response = self.client.get(
+        response = self.GETRequest(
             self.route_with_args.format(user.username, 1, 10),
             headers={'Authorization': f'Bearer {access_token}'}
         )
@@ -493,7 +493,7 @@ class TestReadFollowed(TestRoute):
         access_token = get_access_token(user)
 
         # Get the users
-        response = self.client.get(
+        response = self.GETRequest(
             self.route_with_args.format(user.username, 1, 10),
             headers={'Authorization': f'Bearer {access_token}'}
         )
@@ -554,7 +554,7 @@ class TestReadFollowed(TestRoute):
         user = UserFactory()
 
         # Get the user followed
-        response = self.client.get(
+        response = self.GETRequest(
             self.route_with_args.format(user.username, 1, 10)
         )
 

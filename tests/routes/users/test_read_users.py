@@ -56,7 +56,7 @@ class TestReadUsers(TestRoute):
         UserFactory.create_batch(n)
 
         # Get the users
-        response = self.client.get(
+        response = self.GETRequest(
             self.route,
             query_string={'page': 2, 'per_page': 5}
         )
@@ -137,7 +137,7 @@ class TestReadUsers(TestRoute):
         access_token = get_access_token(user)
 
         # Get the users
-        response = self.client.get(
+        response = self.GETRequest(
             self.route,
             query_string={'page': 2, 'per_page': 5},
             headers={'Authorization': f'Bearer {access_token}'}
@@ -232,7 +232,7 @@ class TestReadUsers(TestRoute):
         access_token = get_access_token(user)
 
         # Get the users
-        response = self.client.get(
+        response = self.GETRequest(
             self.route,
             query_string={'page': 2, 'per_page': 5},
             headers={'Authorization': f'Bearer {access_token}'}
@@ -326,7 +326,7 @@ class TestReadUsers(TestRoute):
         access_token = get_access_token(user)
 
         # Get the users
-        response = self.client.get(
+        response = self.GETRequest(
             self.route,
             query_string={'page': 2, 'per_page': 5},
             headers={'Authorization': f'Bearer {access_token}'}
@@ -434,7 +434,7 @@ class TestReadUsers(TestRoute):
         access_token = get_access_token(user)
 
         # Get the users
-        response = self.client.get(
+        response = self.GETRequest(
             self.route,
             query_string={'page': 2, 'per_page': 5},
             headers={'Authorization': f'Bearer {access_token}'}
@@ -490,7 +490,7 @@ class TestReadUsers(TestRoute):
 
     def test_read_users_empty_with_args(self):
         # Get the users
-        response = self.client.get(
+        response = self.GETRequest(
             self.route,
             query_string={'page': 2, 'per_page': 5}
         )

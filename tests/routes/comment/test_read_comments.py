@@ -57,7 +57,7 @@ class TestDeleteComment(TestRoute):
         comments = CommentFactory.create_batch(size=n)
 
         # Get the comments
-        response = self.client.get(
+        response = self.GETRequest(
             self.route,
             query_string={'page': 1, 'per_page': 10}
         )
@@ -136,7 +136,7 @@ class TestDeleteComment(TestRoute):
         access_token = get_access_token(user)
 
         # Get the comments
-        response = self.client.get(
+        response = self.GETRequest(
             self.route,
             query_string={'page': 1, 'per_page': 10},
             headers={'Authorization': f'Bearer {access_token}'}
@@ -230,7 +230,7 @@ class TestDeleteComment(TestRoute):
         access_token = get_access_token(user)
 
         # Get the comments
-        response = self.client.get(
+        response = self.GETRequest(
             self.route,
             query_string={'page': 1, 'per_page': 10},
             headers={'Authorization': f'Bearer {access_token}'}
@@ -322,7 +322,7 @@ class TestDeleteComment(TestRoute):
         access_token = get_access_token(user)
 
         # Get the comments
-        response = self.client.get(
+        response = self.GETRequest(
             self.route,
             query_string={'page': 1, 'per_page': 10},
             headers={'Authorization': f'Bearer {access_token}'}
@@ -430,7 +430,7 @@ class TestDeleteComment(TestRoute):
         access_token = get_access_token(user)
 
         # Get the comments
-        response = self.client.get(
+        response = self.GETRequest(
             self.route,
             query_string={'page': 1, 'per_page': 10},
             headers={'Authorization': f'Bearer {access_token}'}
@@ -486,7 +486,7 @@ class TestDeleteComment(TestRoute):
 
     def test_read_comments_empty_args(self):
         # Get the comments
-        response = self.client.get(
+        response = self.GETRequest(
             self.route,
             query_string={'page': 1, 'per_page': 10}
         )

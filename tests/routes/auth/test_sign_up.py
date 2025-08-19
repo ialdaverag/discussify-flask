@@ -17,7 +17,7 @@ class SignUpTests(TestRoute):
         }
 
         # Sign Up
-        response = self.client.post(
+        response = self.POSTRequest(
             self.route,
             json=json,
         )
@@ -72,7 +72,7 @@ class SignUpTests(TestRoute):
         }
 
         # Sign Up
-        response = self.client.post(
+        response = self.POSTRequest(
             self.route,
             json=json,
         )
@@ -102,7 +102,7 @@ class SignUpTests(TestRoute):
             'password': 'Password1234.',
         }
 
-        response = self.client.post(
+        response = self.POSTRequest(
             self.route,
             content_type=content_type,
             json=json,
@@ -132,7 +132,7 @@ class SignUpTests(TestRoute):
             }
         }
 
-        response = self.client.post(
+        response = self.POSTRequest(
             self.route,
             content_type=content_type,
             json=json,
@@ -161,7 +161,7 @@ class SignUpTests(TestRoute):
             'password': 'Password1234.',
         }
 
-        response = self.client.post(
+        response = self.POSTRequest(
             self.route,
             content_type=content_type,
             json=json,
@@ -191,7 +191,7 @@ class SignUpTests(TestRoute):
             'password': 'password',
         }
 
-        response = self.client.post(
+        response = self.POSTRequest(
             self.route,
             content_type=content_type,
             json=json,
@@ -220,7 +220,7 @@ class SignUpTests(TestRoute):
             'password': 'Pass123',
         }
 
-        response = self.client.post(
+        response = self.POSTRequest(
             self.route,
             content_type=content_type,
             json=json,
@@ -251,7 +251,7 @@ class SignUpTests(TestRoute):
             'password': 'Password1234.',
         }
 
-        response = self.client.post(
+        response = self.POSTRequest(
             self.route,
             content_type=content_type,
             json=json,
@@ -279,7 +279,7 @@ class SignUpTests(TestRoute):
             'password': 'Password1234.',
         }
 
-        response = self.client.post(
+        response = self.POSTRequest(
             self.route,
             content_type=content_type,
             json=json,

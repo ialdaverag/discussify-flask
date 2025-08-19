@@ -26,7 +26,7 @@ class TestCreateCommunity(TestRoute):
         }
 
         # Create a community
-        response = self.client.post(
+        response = self.POSTRequest(
             self.route,
             headers={'Authorization': f'Bearer {access_token}'},
             json=json
@@ -86,7 +86,7 @@ class TestCreateCommunity(TestRoute):
         }
 
         # Create a community
-        response = self.client.post(
+        response = self.POSTRequest(
             self.route,
             headers={'Authorization': f'Bearer {access_token}'},
             json=json
@@ -124,7 +124,7 @@ class TestCreateCommunity(TestRoute):
         }
 
         # Create a community
-        response = self.client.post(
+        response = self.POSTRequest(
             self.route,
             headers={'Authorization': f'Bearer {access_token}'},
             json=json
@@ -162,7 +162,7 @@ class TestCreateCommunity(TestRoute):
         }
 
         # Create a community
-        response = self.client.post(
+        response = self.POSTRequest(
             self.route,
             headers={'Authorization': f'Bearer {access_token}'},
             json=json
@@ -203,7 +203,7 @@ class TestCreateCommunity(TestRoute):
         }
 
         # Create a community
-        response = self.client.post(
+        response = self.POSTRequest(
             self.route,
             headers={'Authorization': f'Bearer {access_token}'},
             json=json

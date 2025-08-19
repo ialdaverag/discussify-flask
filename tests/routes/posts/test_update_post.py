@@ -97,7 +97,7 @@ class TestUpdatePost(TestRoute):
         )
 
         # Assert status code
-        self.assertEqual(response.status_code, 404)
+        self.assertStatusCode(response, 404)
 
         # Get the response data
         data = response.json
@@ -131,7 +131,7 @@ class TestUpdatePost(TestRoute):
         )
 
         # Check status code
-        self.assertEqual(response.status_code, 400)
+        self.assertStatusCode(response, 400)
 
        # Get the data
         data = response.json
@@ -169,7 +169,7 @@ class TestUpdatePost(TestRoute):
         )
 
         # Check status code
-        self.assertEqual(response.status_code, 400)
+        self.assertStatusCode(response, 400)
 
        # Get the data
         data = response.json
@@ -207,7 +207,7 @@ class TestUpdatePost(TestRoute):
         )
 
         # Check status code
-        self.assertEqual(response.status_code, 403)
+        self.assertStatusCode(response, 403)
 
         # Get the data
         data = response.json

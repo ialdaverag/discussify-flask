@@ -36,7 +36,7 @@ class TestCreatePost(TestRoute):
             'content': 'This is a new post'
         }
 
-        response = self.client.post(
+        response = self.POSTRequest(
             self.route,
             headers={'Authorization': f'Bearer {access_token}'},
             json=json
@@ -110,7 +110,7 @@ class TestCreatePost(TestRoute):
             'content': 'This is a new post'
         }
 
-        response = self.client.post(
+        response = self.POSTRequest(
             self.route,
             headers={'Authorization': f'Bearer {access_token}'},
             json=json
@@ -150,7 +150,7 @@ class TestCreatePost(TestRoute):
             'content': 'This is a new post'
         }
 
-        response = self.client.post(
+        response = self.POSTRequest(
             self.route,
             headers={'Authorization': f'Bearer {access_token}'},
             json=json
@@ -190,7 +190,7 @@ class TestCreatePost(TestRoute):
             'title': 'New post',
         }
 
-        response = self.client.post(
+        response = self.POSTRequest(
             self.route,
             headers={'Authorization': f'Bearer {access_token}'},
             json=json
@@ -231,7 +231,7 @@ class TestCreatePost(TestRoute):
             'content': 'This is a new post'
         }
 
-        response = self.client.post(
+        response = self.POSTRequest(
             self.route,
             headers={'Authorization': f'Bearer {access_token}'},
             json=json
@@ -269,7 +269,7 @@ class TestCreatePost(TestRoute):
             'content': 'This is a new post'
         }
 
-        response = self.client.post(
+        response = self.POSTRequest(
             self.route,
             headers={'Authorization': f'Bearer {access_token}'},
             json=json
@@ -310,7 +310,7 @@ class TestCreatePost(TestRoute):
             'content': ''
         }
 
-        response = self.client.post(
+        response = self.POSTRequest(
             self.route,
             headers={'Authorization': f'Bearer {access_token}'},
             json=json
@@ -348,7 +348,7 @@ class TestCreatePost(TestRoute):
             'content': 'This is a new post'
         }
 
-        response = self.client.post(
+        response = self.POSTRequest(
             self.route,
             headers={'Authorization': f'Bearer {access_token}'},
             json=json
@@ -386,7 +386,7 @@ class TestCreatePost(TestRoute):
             'content': 'This is a new post'
         }
 
-        response = self.client.post(
+        response = self.POSTRequest(
             self.route,
             headers={'Authorization': f'Bearer {access_token}'},
             json=json

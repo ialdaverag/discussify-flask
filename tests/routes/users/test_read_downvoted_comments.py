@@ -80,7 +80,7 @@ class TestReadDownvotedComments(TestRoute):
         access_token = get_access_token(user)
 
         # Get user downvoted comments
-        response = self.client.get(
+        response = self.GETRequest(
             self.route,
             query_string={'page': 2, 'per_page': 5},
             headers={'Authorization': f'Bearer {access_token}'}
@@ -180,7 +180,7 @@ class TestReadDownvotedComments(TestRoute):
         access_token = get_access_token(user)
 
         # Get user downvoted comments
-        response = self.client.get(
+        response = self.GETRequest(
             self.route,
             query_string={'page': 2, 'per_page': 5},
             headers={'Authorization': f'Bearer {access_token}'}
@@ -280,7 +280,7 @@ class TestReadDownvotedComments(TestRoute):
         access_token = get_access_token(user)
 
         # Get user downvoted comments
-        response = self.client.get(
+        response = self.GETRequest(
             self.route,
             query_string={'page': 2, 'per_page': 5},
             headers={'Authorization': f'Bearer {access_token}'}
@@ -392,7 +392,7 @@ class TestReadDownvotedComments(TestRoute):
         access_token = get_access_token(user)
 
         # Get user downvoted comments
-        response = self.client.get(
+        response = self.GETRequest(
             self.route,
             query_string={'page': 2, 'per_page': 5},
             headers={'Authorization': f'Bearer {access_token}'}
@@ -460,7 +460,7 @@ class TestReadDownvotedComments(TestRoute):
         access_token = get_access_token(user)
 
         # Get the user downvoted comments
-        response = self.client.get(
+        response = self.GETRequest(
             self.route,
             query_string={'page': 2, 'per_page': 5},
             headers={'Authorization': f'Bearer {access_token}'}

@@ -38,7 +38,7 @@ class TestCreateComment(TestRoute):
         access_token = get_access_token(user)
 
         # Create a comment
-        response = self.client.post(
+        response = self.POSTRequest(
             self.route,
             headers={'Authorization': f'Bearer {access_token}'},
             json=json
@@ -90,7 +90,7 @@ class TestCreateComment(TestRoute):
         access_token = get_access_token(user)
 
         # Create a comment
-        response = self.client.post(
+        response = self.POSTRequest(
             self.route,
             headers={'Authorization': f'Bearer {access_token}'},
             json=json
@@ -121,7 +121,7 @@ class TestCreateComment(TestRoute):
         access_token = get_access_token(user)
 
         # Create a comment
-        response = self.client.post(
+        response = self.POSTRequest(
             self.route,
             headers={'Authorization': f'Bearer {access_token}'},
             json=json
@@ -158,7 +158,7 @@ class TestCreateComment(TestRoute):
         access_token = get_access_token(user)
 
         # Create a comment
-        response = self.client.post(
+        response = self.POSTRequest(
             self.route,
             headers={'Authorization': f'Bearer {access_token}'},
             json=json
@@ -196,7 +196,7 @@ class TestCreateComment(TestRoute):
         access_token = get_access_token(user)
 
         # Create a comment
-        response = self.client.post(
+        response = self.POSTRequest(
             self.route,
             headers={'Authorization': f'Bearer {access_token}'},
             json=json
@@ -246,7 +246,7 @@ class TestCreateComment(TestRoute):
         access_token = get_access_token(user)
 
         # Create a comment
-        response = self.client.post(
+        response = self.POSTRequest(
             self.route,
             headers={'Authorization': f'Bearer {access_token}'},
             json=json
@@ -293,7 +293,7 @@ class TestCreateComment(TestRoute):
         access_token = get_access_token(user)
 
         # Create a comment
-        response = self.client.post(
+        response = self.POSTRequest(
             self.route,
             headers={'Authorization': f'Bearer {access_token}'},
             json=json
@@ -328,7 +328,7 @@ class TestCreateComment(TestRoute):
         access_token = get_access_token(user)
 
         # Create a comment
-        response = self.client.post(
+        response = self.POSTRequest(
             self.route,
             headers={'Authorization': f'Bearer {access_token}'},
             json=json
@@ -368,7 +368,7 @@ class TestCreateComment(TestRoute):
         access_token = get_access_token(user)
 
         # Create a comment
-        response = self.client.post(
+        response = self.POSTRequest(
             self.route,
             headers={'Authorization': f'Bearer {access_token}'},
             json=json

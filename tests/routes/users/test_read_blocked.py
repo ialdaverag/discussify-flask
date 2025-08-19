@@ -79,7 +79,7 @@ class TestReadBlocked(TestRoute):
         args = {'page': 1, 'per_page': 2}
 
         # Get the blocked
-        response = self.client.get(
+        response = self.GETRequest(
             self.route,
             headers={'Authorization': f'Bearer {access_token}'},
             query_string=args

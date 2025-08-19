@@ -30,7 +30,7 @@ class TestTransfer(TestRoute):
         access_token = get_access_token(community.owner)
 
         # add moderator to the community
-        response = self.client.post(
+        response = self.POSTRequest(
             self.route.format(community.name, user.username),
             headers={'Authorization': f'Bearer {access_token}'}
         )
@@ -46,7 +46,7 @@ class TestTransfer(TestRoute):
         access_token = get_access_token(user)
 
         # add moderator to the community
-        response = self.client.post(
+        response = self.POSTRequest(
             self.route.format('nonexistent', user.username),
             headers={'Authorization': f'Bearer {access_token}'}
         )
@@ -62,7 +62,7 @@ class TestTransfer(TestRoute):
         access_token = get_access_token(community.owner)
 
         # add moderator to the community
-        response = self.client.post(
+        response = self.POSTRequest(
             self.route.format(community.name, 'nonexistent'),
             headers={'Authorization': f'Bearer {access_token}'}
         )
@@ -81,7 +81,7 @@ class TestTransfer(TestRoute):
         access_token = get_access_token(user)
 
         # add moderator to the community
-        response = self.client.post(
+        response = self.POSTRequest(
             self.route.format(community.name, user.username),
             headers={'Authorization': f'Bearer {access_token}'}
         )
@@ -103,7 +103,7 @@ class TestTransfer(TestRoute):
         access_token = get_access_token(owner)
 
         # add moderator to the community
-        response = self.client.post(
+        response = self.POSTRequest(
             self.route.format(community.name, user.username),
             headers={'Authorization': f'Bearer {access_token}'}
         )
@@ -137,7 +137,7 @@ class TestTransfer(TestRoute):
         CommunityBan(community=community, user=user).save()
 
         # add moderator to the community
-        response = self.client.post(
+        response = self.POSTRequest(
             self.route.format(community.name, user.username),
             headers={'Authorization': f'Bearer {access_token}'}
         )
@@ -165,7 +165,7 @@ class TestTransfer(TestRoute):
         access_token = get_access_token(owner)
 
         # add moderator to the community
-        response = self.client.post(
+        response = self.POSTRequest(
             self.route.format(community.name, owner.username),
             headers={'Authorization': f'Bearer {access_token}'}
         )
