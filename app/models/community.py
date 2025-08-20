@@ -465,6 +465,9 @@ class Community(db.Model):
 
     # Post
     posts = db.relationship('Post', cascade='all, delete', back_populates='community', lazy='dynamic')
+    
+    # Notifications
+    notifications = db.relationship('Notification', back_populates='community', cascade='all, delete-orphan')
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -711,6 +714,35 @@ def decrement_subscriptions_count_on_user_stats(mapper, connection, target):
     )
 
     connection.execute(update_query)
+
+
+@db.event.listens_for(CommunitySubscriber, 'after_insert')
+def create_community_join_notification(mapper, connection, target):
+    """Create notification when a user joins a community."""
+    from app.managers.notification import NotificationManager
+    from app.models.user import User
+    from app.models.community import Community
+    
+    try:
+        # Get user and community
+        user = User.query.get(target.user_id)
+        community = Community.query.get(target.community_id)
+        
+        if user and community and community.owner:
+            # Don't notify if the owner is subscribing to their own community
+            if user.id != community.user_id:
+                NotificationManager.create_notification(
+                    title="New Community Member",
+                    message=f"{user.username} joined your community {community.name}",
+                    notification_type='community_join',
+                    user_id=community.user_id,
+                    sender_id=user.id,
+                    community_id=community.id
+                )
+                
+    except Exception as e:
+        # Log error but don't fail the transaction
+        print(f"Error creating community join notification: {e}")
 
 
 @db.event.listens_for(CommunityModerator, 'after_insert')

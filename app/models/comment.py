@@ -436,6 +436,9 @@ class Comment(db.Model):
                            uselist=False, 
                            back_populates='comment',
                            cascade='all, delete-orphan')
+    
+    # Notifications
+    notifications = db.relationship('Notification', back_populates='comment', cascade='all, delete-orphan')
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -739,6 +742,55 @@ def increment_comments_count_on_user_stats(mapper, connection, target):
     )
 
     connection.execute(update_query)
+
+
+@db.event.listens_for(Comment, 'after_insert')
+def create_comment_notification(mapper, connection, target):
+    """Create notifications when a comment is posted."""
+    from app.managers.notification import NotificationManager
+    from app.models.comment import Comment
+    from app.models.post import Post
+    from app.models.user import User
+    
+    try:
+        # Get the comment with post and user info
+        comment = Comment.query.get(target.id)
+        if not comment or not comment.post:
+            return
+            
+        # Notify post owner about new comment (if not commenting on own post)
+        if comment.post.user_id != comment.user_id:
+            post_owner = User.query.get(comment.post.user_id)
+            if post_owner:
+                NotificationManager.create_notification(
+                    title="New Comment",
+                    message=f"{comment.owner.username} commented on your post",
+                    notification_type='comment',
+                    user_id=post_owner.id,
+                    sender_id=comment.user_id,
+                    post_id=comment.post_id,
+                    comment_id=comment.id
+                )
+        
+        # If this is a reply to another comment, notify the parent comment owner
+        if comment.comment_id:
+            parent_comment = Comment.query.get(comment.comment_id)
+            if parent_comment and parent_comment.user_id != comment.user_id:
+                parent_owner = User.query.get(parent_comment.user_id)
+                if parent_owner:
+                    NotificationManager.create_notification(
+                        title="New Reply",
+                        message=f"{comment.owner.username} replied to your comment",
+                        notification_type='reply',
+                        user_id=parent_owner.id,
+                        sender_id=comment.user_id,
+                        post_id=comment.post_id,
+                        comment_id=comment.id
+                    )
+                    
+    except Exception as e:
+        # Log error but don't fail the transaction
+        print(f"Error creating comment notification: {e}")
 
 
 @db.event.listens_for(Comment, 'after_delete')

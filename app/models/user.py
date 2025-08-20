@@ -331,6 +331,10 @@ class User(db.Model):
 
     # Stats
     stats = db.relationship('UserStats', uselist=False, back_populates='user')
+    
+    # Notifications
+    notifications = db.relationship('Notification', foreign_keys='Notification.user_id', back_populates='user', lazy='dynamic', cascade='all, delete-orphan')
+    sent_notifications = db.relationship('Notification', foreign_keys='Notification.sender_id', back_populates='sender', lazy='dynamic')
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -524,6 +528,32 @@ def increment_following_count_on_user_stats(mapper, connection, target):
     )
 
     connection.execute(update_query)
+
+
+@db.event.listens_for(Follow, 'after_insert')
+def create_follow_notification(mapper, connection, target):
+    """Create notification when a user follows another user."""
+    from app.managers.notification import NotificationManager
+    from app.models.user import User
+    
+    # Get users 
+    follower = User.query.get(target.follower_id)
+    followed = User.query.get(target.followed_id)
+    
+    if follower and followed:
+        # Create notification in a new session since we're in an event listener
+        from app.extensions.database import db
+        try:
+            NotificationManager.create_notification(
+                title="New Follower",
+                message=f"{follower.username} started following you",
+                notification_type='follow',
+                user_id=followed.id,
+                sender_id=follower.id
+            )
+        except Exception as e:
+            # Log error but don't fail the transaction
+            print(f"Error creating follow notification: {e}")
 
 
 @db.event.listens_for(Follow, 'after_delete')
