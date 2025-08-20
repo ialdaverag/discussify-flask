@@ -1,16 +1,12 @@
 # tests
-from tests.routes.test_route import TestRoute
+from tests.base.base_pagination_test import BasePaginationTest
 
 # factories
 from tests.factories.user_factory import UserFactory
 from tests.factories.comment_factory import CommentFactory
 
-# Utils
-from tests.utils.assert_pagination import assert_pagination_structure_comments
-from tests.utils.assert_list import assert_comment_list
 
-
-class TestReadComments(TestRoute):
+class TestReadComments(BasePaginationTest):
     route = '/user/{}/comments'
 
     def test_read_comments(self):
@@ -26,27 +22,8 @@ class TestReadComments(TestRoute):
         # Get user comments
         response = self.GETRequest(self.route.format(user.username))
 
-        # Assert that the response status code is 200
-        self.assertStatusCode(response, 200)
-
-        # Get the pagination
-        pagination = response.json
-
-        # Assert the pagination structure
-        assert_pagination_structure_comments(
-            self,
-            pagination,
-            expected_page=1,
-            expected_pages=1,
-            expected_per_page=10,
-            expected_total=n
-        )
-
-        # Get the comments
-        comments = pagination['comments']
-
-        # Assert that the comments list has the right length
-        assert_comment_list(self, comments, n)
+        # Assert standard pagination response for comments
+        self.assert_standard_pagination_response(response, expected_total=n, data_key='comments')
 
     def test_read_comments_args(self):
         # Number of comments
@@ -58,30 +35,17 @@ class TestReadComments(TestRoute):
         # Create some comments
         CommentFactory.create_batch(n, owner=user)
 
-        # Get user comments
+        # Get user comments with pagination
         response = self.GETRequest(self.route.format(user.username), query_string={'page': 1, 'per_page': 5})
 
-        # Assert that the response status code is 200
-        self.assertStatusCode(response, 200)
-
-        # Get the pagination
-        pagination = response.json
-
-        # Assert the pagination structure
-        assert_pagination_structure_comments(
-            self,
-            pagination,
-            expected_page=1,
-            expected_pages=1,
-            expected_per_page=5,
-            expected_total=n
+        # Assert paginated response
+        self.assert_paginated_response(
+            response=response,
+            page=1,
+            per_page=5,
+            expected_total=n,
+            data_key='comments'
         )
-
-        # Get the comments
-        comments = pagination['comments']
-
-        # Assert that the comments list has the right length
-        assert_comment_list(self, comments, n)
 
     def test_read_comments_empty(self):
         # Create a user
@@ -90,56 +54,24 @@ class TestReadComments(TestRoute):
         # Get the user comments
         response = self.GETRequest(self.route.format(user.username))
 
-        # Assert that the response status code is 200
-        self.assertStatusCode(response, 200)
-
-        # Get the pagination
-        pagination = response.json
-
-        # Assert the pagination structure
-        assert_pagination_structure_comments(
-            self,
-            pagination,
-            expected_page=1,
-            expected_pages=0,
-            expected_per_page=10,
-            expected_total=0
-        )
-
-        # Get the comments
-        comments = pagination['comments']
-
-        # Assert that the comments list is empty
-        assert_comment_list(self, comments)
+        # Assert standard pagination response with 0 total
+        self.assert_standard_pagination_response(response, expected_total=0, data_key='comments')
 
     def test_read_comments_empty_args(self):
         # Create a user
         user = UserFactory()
 
-        # Get the user comments
+        # Get the user comments with pagination
         response = self.GETRequest(self.route.format(user.username), query_string={'page': 1, 'per_page': 5})
 
-        # Assert that the response status code is 200
-        self.assertStatusCode(response, 200)
-
-        # Get the pagination
-        pagination = response.json
-
-        # Assert the pagination structure
-        assert_pagination_structure_comments(
-            self,
-            pagination,
-            expected_page=1,
-            expected_pages=0,
-            expected_per_page=5,
-            expected_total=0
+        # Assert paginated response with 0 total
+        self.assert_paginated_response(
+            response=response,
+            page=1,
+            per_page=5,
+            expected_total=0,
+            data_key='comments'
         )
-
-        # Get the comments
-        comments = pagination['comments']
-
-        # Assert that the comments list is empty
-        assert_comment_list(self, comments)
 
     def test_read_comments_nonexistent_user(self):
         # Try to get comments of a nonexistent user
