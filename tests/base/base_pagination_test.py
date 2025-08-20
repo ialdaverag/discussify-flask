@@ -198,3 +198,17 @@ class BasePaginationTest(BaseTestCase):
         """Create blocks where post owners block the user."""
         for post in posts:
             Block(blocker=post.owner, blocked=user).save()
+
+    def create_subscriptions(self, user, communities):
+        """Create subscriptions where user subscribes to communities."""
+        from app.models.community import CommunitySubscriber
+        for community in communities:
+            CommunitySubscriber(community=community, user=user).save()
+
+    def create_community_subscribers(self, community, count):
+        """Create subscribers for a community."""
+        from app.models.community import CommunitySubscriber
+        subscribers = UserFactory.create_batch(count)
+        for subscriber in subscribers:
+            CommunitySubscriber(community=community, user=subscriber).save()
+        return subscribers
