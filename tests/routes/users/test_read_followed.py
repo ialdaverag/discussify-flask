@@ -55,27 +55,14 @@ class TestReadFollowed(BasePaginationTest):
             self.route_with_args.format(user.username, 1, 5)
         )
 
-        # Assert the response status
-        self.assertStatusCode(response, 200)
-
-        # Get response pagination
-        pagination = response.json
-
-        # Assert pagination
-        assert_pagination_structure(
-            self,
-            pagination,
-            expected_page=1,
-            expected_pages=1,
-            expected_per_page=5,
-            expected_total=n
+        # Assert paginated response
+        self.assert_paginated_response(
+            response=response,
+            page=1,
+            per_page=5,
+            expected_total=n,
+            data_key='users'
         )
-
-        # Get the users
-        data = pagination['users']
-
-        # Assert list
-        assert_user_list(self, data, n)
 
     def test_read_followed_authenticated(self):
         # Number of followed users
@@ -97,27 +84,8 @@ class TestReadFollowed(BasePaginationTest):
         # Get user followed
         response = self.GETRequest(self.route.format(user.username), token=access_token)
 
-        # Assert the response status
-        self.assertStatusCode(response, 200)
-
-        # Get response pagination
-        pagination = response.json
-
-        # Assert pagination
-        assert_pagination_structure(
-            self,
-            pagination,
-            expected_page=1,
-            expected_pages=1,
-            expected_per_page=10,
-            expected_total=n
-        )
-
-        # Get response data
-        data = pagination['users']
-
-        # Assert list
-        assert_user_list(self, data, n)
+        # Assert standard pagination response
+        self.assert_standard_pagination_response(response, expected_total=n, data_key='users')
 
     def test_read_followed_authenticated_args(self):
         # Number of followed users
@@ -142,27 +110,14 @@ class TestReadFollowed(BasePaginationTest):
             headers={'Authorization': f'Bearer {access_token}'}
         )
 
-        # Assert the response status
-        self.assertStatusCode(response, 200)
-
-        # Get response pagination
-        pagination = response.json
-
-        # Assert pagination
-        assert_pagination_structure(
-            self,
-            pagination,
-            expected_page=1,
-            expected_pages=1,
-            expected_per_page=5,
-            expected_total=n
+        # Assert paginated response
+        self.assert_paginated_response(
+            response=response,
+            page=1,
+            per_page=5,
+            expected_total=n,
+            data_key='users'
         )
-
-        # Get response data
-        data = pagination['users']
-
-        # Assert list
-        assert_user_list(self, data, n)
 
     def test_read_followers_with_blocked(self):
         # Number of users
@@ -506,27 +461,8 @@ class TestReadFollowed(BasePaginationTest):
         # Get the user followed
         response = self.GETRequest(self.route.format(user.username))
 
-        # Assert the response status code
-        self.assertStatusCode(response, 200)
-
-        # Get response pagination
-        pagination = response.json
-
-        # Assert pagination
-        assert_pagination_structure(
-            self, 
-            pagination, 
-            expected_page=1, 
-            expected_pages=0, 
-            expected_per_page=10, 
-            expected_total=0
-        )
-
-        # Get response data
-        data = pagination['users']
-
-        # Assert list
-        assert_user_list(self, data, 0)
+        # Assert standard pagination response with 0 total
+        self.assert_standard_pagination_response(response, expected_total=0, data_key='users')
 
     def test_read_followed_empty_args(self):
         # Create a user
@@ -537,27 +473,14 @@ class TestReadFollowed(BasePaginationTest):
             self.route_with_args.format(user.username, 1, 10)
         )
 
-        # Assert the response status code
-        self.assertStatusCode(response, 200)
-
-        # Get response pagination
-        pagination = response.json
-
-        # Assert pagination
-        assert_pagination_structure(
-            self, 
-            pagination, 
-            expected_page=1, 
-            expected_pages=0, 
-            expected_per_page=10, 
-            expected_total=0
+        # Assert paginated response with 0 total
+        self.assert_paginated_response(
+            response=response,
+            page=1,
+            per_page=10,
+            expected_total=0,
+            data_key='users'
         )
-
-        # Get response data
-        data = pagination['users']
-
-        # Assert list
-        assert_user_list(self, data, 0)
 
     def test_read_followed_nonexistent_user(self):
         # Try to get followed users of a nonexistent user

@@ -51,27 +51,14 @@ class TestReadSubscriptions(BasePaginationTest):
             }
         )
 
-        # Assert that the response status code is 200
-        self.assertStatusCode(response, 200)
-
-        # Get response pagination
-        pagination = response.json
-
-        # Assert pagination structure
-        assert_pagination_structure_communities(
-            self, 
-            pagination, 
-            expected_page=1, 
-            expected_pages=3, 
-            expected_per_page=2, 
-            expected_total=n
+        # Assert paginated response for communities
+        self.assert_paginated_response(
+            response=response,
+            page=1,
+            per_page=2,
+            expected_total=n,
+            data_key='communities'
         )
-
-        # Get response communities
-        communities = pagination['communities']
-
-        # Assert that the response data is a list of communities
-        assert_community_list(self, communities, 2)
 
     def test_read_subscriptions_empty(self):
         # Create a user
@@ -80,27 +67,8 @@ class TestReadSubscriptions(BasePaginationTest):
         # Get the user subscriptions
         response = self.GETRequest(self.route.format(user.username))
 
-        # Assert that the response status code is 200
-        self.assertStatusCode(response, 200)
-
-        # Get response pagination
-        pagination = response.json
-
-        # Assert pagination structure
-        assert_pagination_structure_communities(
-            self, 
-            pagination, 
-            expected_page=1, 
-            expected_pages=0, 
-            expected_per_page=10, 
-            expected_total=0
-        )
-
-        # Get response communities
-        communities = pagination['communities']
-
-        # Assert that the response data is an empty list
-        assert_community_list(self, communities)
+        # Assert standard pagination response with 0 total
+        self.assert_standard_pagination_response(response, expected_total=0, data_key='communities')
 
     def test_read_subscriptions_empty_args(self):
         # Create a user
@@ -114,27 +82,14 @@ class TestReadSubscriptions(BasePaginationTest):
             }
         )
 
-        # Assert that the response status code is 200
-        self.assertStatusCode(response, 200)
-
-        # Get response pagination
-        pagination = response.json
-
-        # Assert pagination structure
-        assert_pagination_structure_communities(
-            self, 
-            pagination, 
-            expected_page=1, 
-            expected_pages=0, 
-            expected_per_page=10, 
-            expected_total=0
+        # Assert paginated response with 0 total
+        self.assert_paginated_response(
+            response=response,
+            page=1,
+            per_page=10,
+            expected_total=0,
+            data_key='communities'
         )
-
-        # Get response communities
-        communities = pagination['communities']
-
-        # Assert that the response data is an empty list
-        assert_community_list(self, communities)
 
     def test_read_subscriptions_nonexistent_user(self):
         # Try to get subscriptions of a nonexistent user
