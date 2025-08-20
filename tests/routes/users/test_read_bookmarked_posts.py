@@ -1,5 +1,5 @@
 # tests
-from tests.routes.test_route import TestRoute
+from tests.base.base_pagination_test import BasePaginationTest
 
 # factories
 from tests.factories.user_factory import UserFactory
@@ -12,11 +12,9 @@ from app.models.user import Block
 
 # utils
 from tests.utils.tokens import get_access_token
-from tests.utils.assert_pagination import assert_pagination_structure_posts
-from tests.utils.assert_list import assert_post_list
 
 
-class TestReadBookmarkedPosts(TestRoute):
+class TestReadBookmarkedPosts(BasePaginationTest):
     route = '/user/posts/bookmarked'
 
     def test_read_bookmarked_posts(self):
