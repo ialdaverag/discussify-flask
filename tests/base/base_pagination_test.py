@@ -3,11 +3,11 @@ from tests.base.base_test_case import BaseTestCase
 
 # Factories
 from tests.factories.user_factory import UserFactory
-from app.models.user import Block
+from app.models.user import Block, Follow
 
 # Utils
 from tests.utils.assert_pagination import assert_pagination_structure
-from tests.utils.assert_list import assert_user_list
+from tests.utils.assert_list import assert_user_list, assert_community_list, assert_post_list
 from tests.utils.tokens import get_access_token
 
 
@@ -21,7 +21,7 @@ class BasePaginationTest(BaseTestCase):
             expected_pages, 
             expected_per_page, 
             expected_total, 
-            expected_users,
+            expected_count,
             data_key='users'
         ):
         """Assert pagination response structure and data."""
@@ -45,8 +45,17 @@ class BasePaginationTest(BaseTestCase):
         # Get the data from the pagination
         data = pagination[data_key]
 
-        # Assert the user list
-        assert_user_list(self, data, expected_users)
+        # Assert the list based on data type
+        if data_key == 'users':
+            assert_user_list(self, data, expected_count)
+        elif data_key == 'communities':
+            assert_community_list(self, data, expected_count)
+        elif data_key == 'posts':
+            assert_post_list(self, data, expected_count)
+        else:
+            # Generic assertion for other data types (like comments)
+            self.assertIsInstance(data, list)
+            self.assertEqual(len(data), expected_count)
 
     def make_authenticated_request(self, route=None, method='GET', user=None, query_string=None, **kwargs):
         """Make an authenticated request with a user token."""
@@ -66,7 +75,54 @@ class BasePaginationTest(BaseTestCase):
             return self.client.get(route, **kwargs)
         elif method.upper() == 'POST':
             return self.client.post(route, **kwargs)
-        # Add other methods as needed
+        elif method.upper() == 'PUT':
+            return self.client.put(route, **kwargs)
+        elif method.upper() == 'PATCH':
+            return self.client.patch(route, **kwargs)
+        elif method.upper() == 'DELETE':
+            return self.client.delete(route, **kwargs)
+        else:
+            raise ValueError(f"Unsupported HTTP method: {method}")
+
+    # HTTP Request methods (similar to TestRoute)
+    def assertStatusCode(self, response, expected_status_code):
+        """Ensures that the response status code is as expected."""
+        self.assertEqual(response.status_code, expected_status_code)
+
+    def assertMessage(self, response, expected_message):
+        """Ensures that the response message is as expected."""
+        data = response.json
+        self.assertIn('message', data)
+        self.assertEqual(data['message'], expected_message)
+
+    def GETRequest(self, route, token=None, query_string=None):
+        """Makes a GET request with or without authentication."""
+        headers = {'Authorization': f'Bearer {token}'} if token else {}
+        
+        if query_string:
+            return self.client.get(route, headers=headers, query_string=query_string)
+        else:
+            return self.client.get(route, headers=headers)
+
+    def POSTRequest(self, route, token=None, data=None):
+        """Makes a POST request with or without authentication."""
+        headers = {'Authorization': f'Bearer {token}'} if token else {}
+        return self.client.post(route, json=data, headers=headers)
+
+    def PUTRequest(self, route, token=None, data=None):
+        """Makes a PUT request with or without authentication."""
+        headers = {'Authorization': f'Bearer {token}'} if token else {}
+        return self.client.put(route, json=data, headers=headers)
+
+    def PATCHRequest(self, route, token=None, data=None):
+        """Makes a PATCH request with or without authentication."""
+        headers = {'Authorization': f'Bearer {token}'} if token else {}
+        return self.client.patch(route, json=data, headers=headers)
+
+    def DELETERequest(self, route, token=None):
+        """Makes a DELETE request with or without authentication."""
+        headers = {'Authorization': f'Bearer {token}'} if token else {}
+        return self.client.delete(route, headers=headers)
         
     def assert_standard_pagination_response(self, response, expected_total, data_key='users', expected_count=None):
         """Assert a standard pagination response (page 1, 10 per page)."""
@@ -77,7 +133,7 @@ class BasePaginationTest(BaseTestCase):
             expected_pages=1 if expected_total <= 10 else ((expected_total - 1) // 10) + 1,
             expected_per_page=10,
             expected_total=expected_total,
-            expected_users=expected_count,
+            expected_count=expected_count,
             data_key=data_key
         )
         
@@ -92,7 +148,7 @@ class BasePaginationTest(BaseTestCase):
             expected_pages=expected_pages,
             expected_per_page=per_page,
             expected_total=expected_total,
-            expected_users=expected_count,
+            expected_count=expected_count,
             data_key=data_key
         )
 
@@ -121,3 +177,38 @@ class BasePaginationTest(BaseTestCase):
         """Legacy method for backward compatibility."""
         for _ in users[:count]:
             Block(blocker=blocker, blocked=blocked).save()
+
+    def create_follow_relationships(self, followers, followed):
+        """Create follow relationships where followers follow the followed user."""
+        for follower in followers:
+            Follow(follower=follower, followed=followed).save()
+
+    def create_followers(self, user, count):
+        """Create followers for a user."""
+        followers = UserFactory.create_batch(count)
+        self.create_follow_relationships(followers, user)
+        return followers
+
+    def create_post_blocks(self, user, posts):
+        """Create blocks where user blocks post owners."""
+        for post in posts:
+            Block(blocker=user, blocked=post.owner).save()
+
+    def create_post_blockers(self, user, posts):
+        """Create blocks where post owners block the user."""
+        for post in posts:
+            Block(blocker=post.owner, blocked=user).save()
+
+    def create_subscriptions(self, user, communities):
+        """Create subscriptions where user subscribes to communities."""
+        from app.models.community import CommunitySubscriber
+        for community in communities:
+            CommunitySubscriber(community=community, user=user).save()
+
+    def create_community_subscribers(self, community, count):
+        """Create subscribers for a community."""
+        from app.models.community import CommunitySubscriber
+        subscribers = UserFactory.create_batch(count)
+        for subscriber in subscribers:
+            CommunitySubscriber(community=community, user=subscriber).save()
+        return subscribers

@@ -1,21 +1,19 @@
 # Tests
-from tests.routes.test_route import TestRoute
+from tests.base.base_pagination_test import BasePaginationTest
 
 # Factories
 from tests.factories.user_factory import UserFactory
 from tests.factories.community_factory import CommunityFactory
 
 # Models
-from app.models.community import CommunitySubscriber
-from app.models.community import CommunityModerator
+from app.models.community import CommunitySubscriber, CommunityModerator
 from app.models.user import Block
 
 # Utils
 from tests.utils.tokens import get_access_token
-from tests.utils.assert_pagination import assert_pagination_structure
-from tests.utils.assert_list import assert_user_list
 
-class TestReadSubscribers(TestRoute):
+
+class TestReadSubscribers(BasePaginationTest):
     route = '/community/{}/subscribers'
     route_with_args = '/community/{}/subscribers?page={}&per_page={}'
 
@@ -23,60 +21,35 @@ class TestReadSubscribers(TestRoute):
         # Number of subscribers
         n = 5
 
-        # Create multiple subscribers
-        subscribers = UserFactory.create_batch(n)
-
-        # Create a community
+        # Create a community and subscribers
         community = CommunityFactory()
-
-        # Append the subscribers to the community
-        for subscriber in subscribers:
-            CommunitySubscriber(community=community, user=subscriber).save()
+        self.create_community_subscribers(community, n)
 
         # Read the community subscribers
         response = self.GETRequest(self.route.format(community.name))
 
-        # Assert that the response status code is 200
-        self.assertStatusCode(response, 200)
-
-        # Get response pagination
-        pagination = response.json
-
-        # Assert pagination
-        assert_pagination_structure(
-            self,
-            pagination,
-            expected_page=1,
-            expected_pages=1,
-            expected_per_page=10,
-            expected_total=n
-        )
-
-        # Get the users
-        data = pagination['users']
-
-        # Assert list
-        assert_user_list(self, data, n)
+        # Assert standard pagination response for users
+        self.assert_standard_pagination_response(response, expected_total=n, data_key='users')
 
     def test_read_subscribers_args(self):
         # Number of subscribers
         n = 5
 
-        # Create multiple subscribers
-        subscribers = UserFactory.create_batch(n)
-
-        # Create a community
+        # Create a community and subscribers
         community = CommunityFactory()
+        self.create_community_subscribers(community, n)
 
-        # Append the subscribers to the community
-        for subscriber in subscribers:
-            CommunitySubscriber(community=community, user=subscriber).save()
-
-        # Read the community subscribers
+        # Read the community subscribers with pagination
         response = self.GETRequest(self.route_with_args.format(community.name, 1, 5))
 
-        # Assert that the response status code is 200
-        self.assertStatusCode(response, 200)
+        # Assert paginated response
+        self.assert_paginated_response(
+            response=response,
+            page=1, 
+            per_page=5, 
+            expected_total=n, 
+            data_key='users'
+        )
 
         # Get response pagination
         pagination = response.json

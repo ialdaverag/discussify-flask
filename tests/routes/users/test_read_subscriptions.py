@@ -1,5 +1,5 @@
 # tests
-from tests.routes.test_route import TestRoute
+from tests.base.base_pagination_test import BasePaginationTest
 
 # factories
 from tests.factories.user_factory import UserFactory
@@ -8,52 +8,26 @@ from tests.factories.community_factory import CommunityFactory
 # Models
 from app.models.community import CommunitySubscriber
 
-# Utils
-from tests.utils.assert_pagination import assert_pagination_structure_communities
-from tests.utils.assert_list import assert_community_list
 
-
-class TestReadSubscriptions(TestRoute):
+class TestReadSubscriptions(BasePaginationTest):
     route = '/user/{}/subscriptions'
 
     def test_read_subscriptions(self):
         # Number of communities
         n = 5
 
-        # Create a user
+        # Create a user and communities
         user = UserFactory()
-
-        # Create some communities
         communities = CommunityFactory.create_batch(n)
 
-        # Make the user subscribe to the communities
-        for community in communities:
-            CommunitySubscriber(community=community, user=user).save()
+        # Make the user subscribe to the communities using helper
+        self.create_subscriptions(user, communities)
 
         # Get user subscriptions
         response = self.GETRequest(self.route.format(user.username))
 
-        # Assert that the response status code is 200
-        self.assertStatusCode(response, 200)
-
-        # Get response pagination
-        pagination = response.json
-
-        # Assert pagination structure
-        assert_pagination_structure_communities(
-            self, 
-            pagination, 
-            expected_page=1, 
-            expected_pages=1, 
-            expected_per_page=10, 
-            expected_total=n
-        )
-
-        # Get response communities
-        communities = pagination['communities']
-
-        # Assert that the response data is a list of communities
-        assert_community_list(self, communities, n)
+        # Assert standard pagination response for communities
+        self.assert_standard_pagination_response(response, expected_total=n, data_key='communities')
 
     def test_read_subscriptions_args(self):
         # Number of communities
