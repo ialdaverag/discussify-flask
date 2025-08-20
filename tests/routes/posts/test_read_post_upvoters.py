@@ -1,5 +1,5 @@
 # Base
-from tests.routes.test_route import TestRoute
+from tests.base.base_pagination_test import BasePaginationTest
 
 # Factories
 from tests.factories.user_factory import UserFactory
@@ -11,11 +11,9 @@ from app.models.user import Block
 
 # Utils
 from tests.utils.tokens import get_access_token
-from tests.utils.assert_pagination import assert_pagination_structure
-from tests.utils.assert_list import assert_user_list
 
 
-class TestReadPostUpvoters(TestRoute):
+class TestReadPostUpvoters(BasePaginationTest):
     route = '/post/{}/upvoters'
 
     def test_read_post_upvoters(self):
@@ -32,27 +30,8 @@ class TestReadPostUpvoters(TestRoute):
         response = self.GETRequest(self.route.format(post.id)
         )
 
-        # Check status code
-        self.assertStatusCode(response, 200)
-
-        # Get the pagination
-        pagination = response.json
-
-        # Assert pagination
-        assert_pagination_structure(
-            self, 
-            pagination, 
-            expected_page=1, 
-            expected_pages=1, 
-            expected_per_page=10, 
-            expected_total=n
-        )
-
-        # Get the users
-        users = pagination.get('users')
-
-        # Assert the response data structure
-        assert_user_list(self, users, n)
+        # Assert standard pagination response for users
+        self.assert_standard_pagination_response(response, expected_total=n, data_key='users')
 
     def test_read_post_upvoters_args(self):
         # Number of upvoters

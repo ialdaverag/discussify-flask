@@ -1,5 +1,5 @@
 # tests
-from tests.routes.test_route import TestRoute
+from tests.base.base_pagination_test import BasePaginationTest
 
 # factories
 from tests.factories.user_factory import UserFactory
@@ -9,11 +9,9 @@ from app.models.user import Block
 
 # utils
 from tests.utils.tokens import get_access_token
-from tests.utils.assert_list import assert_user_list
-from tests.utils.assert_pagination import assert_pagination_structure
 
 
-class TestReadBlocked(TestRoute):
+class TestReadBlocked(BasePaginationTest):
     route = '/user/blocked'
 
     def test_read_blocked(self):
@@ -36,27 +34,8 @@ class TestReadBlocked(TestRoute):
         # Get the blocked
         response = self.GETRequest(self.route, token=access_token)
 
-        # Assert the response status code
-        self.assertStatusCode(response, 200)
-
-        # Get response pagination
-        pagination = response.json
-
-        # Assert pagination
-        assert_pagination_structure(
-            self, 
-            pagination, 
-            expected_page=1, 
-            expected_pages=1, 
-            expected_per_page=10, 
-            expected_total=n
-        )
-
-        # Get the users
-        data = pagination['users']
-
-        # Assert list
-        assert_user_list(self, data, expected_count=n)
+        # Assert standard pagination response for users
+        self.assert_standard_pagination_response(response, expected_total=n, data_key='users')
 
     def test_read_blocked_args(self):
         # Number of blocked users
@@ -75,37 +54,21 @@ class TestReadBlocked(TestRoute):
         # Get the access token
         access_token = get_access_token(user)
 
-        # Set args
-        args = {'page': 1, 'per_page': 2}
-
-        # Get the blocked
+        # Get the blocked with pagination
         response = self.GETRequest(
             self.route,
             headers={'Authorization': f'Bearer {access_token}'},
-            query_string=args
+            query_string={'page': 1, 'per_page': 2}
         )
 
-        # Assert the response status code
-        self.assertStatusCode(response, 200)
-
-        # Get response pagination
-        pagination = response.json
-
-        # Assert pagination
-        assert_pagination_structure(
-            self,
-            pagination,
-            expected_page=1,
-            expected_pages=8,
-            expected_per_page=2,
-            expected_total=n
+        # Assert paginated response
+        self.assert_paginated_response(
+            response=response,
+            page=1,
+            per_page=2,
+            expected_total=n,
+            data_key='users'
         )
-
-        # Get the users
-        data = pagination['users']
-
-        # Assert list
-        assert_user_list(self, data, expected_count=2)
 
     def test_read_blocked_empty(self):
         # create a user
@@ -117,27 +80,8 @@ class TestReadBlocked(TestRoute):
         # Get the blocked
         response = self.GETRequest(self.route, token=access_token)
 
-        # Assert the response status code
-        self.assertStatusCode(response, 200)
-
-        # Get response pagination
-        pagination = response.json
-
-        # Assert pagination
-        assert_pagination_structure(
-            self,
-            pagination,
-            expected_page=1,
-            expected_pages=0,
-            expected_per_page=10,
-            expected_total=0
-        )
-
-        # Get response data
-        data = pagination['users']
-
-        # Assert list
-        assert_user_list(self, data, expected_count=0)
+        # Assert standard pagination response with 0 total
+        self.assert_standard_pagination_response(response, expected_total=0, data_key='users')
 
     def test_read_blocked_empty_args(self):
         # create a user
@@ -149,26 +93,7 @@ class TestReadBlocked(TestRoute):
         # Get the blocked
         response = self.GETRequest(self.route, token=access_token)
 
-        # Assert the response status code
-        self.assertStatusCode(response, 200)
-
-        # Get response pagination
-        pagination = response.json
-
-        # Assert pagination
-        assert_pagination_structure(
-            self,
-            pagination,
-            expected_page=1,
-            expected_pages=0,
-            expected_per_page=10,
-            expected_total=0
-        )
-
-        # Get response data
-        data = pagination['users']
-
-        # Assert list
-        assert_user_list(self, data, expected_count=0)
+        # Assert standard pagination response with 0 total
+        self.assert_standard_pagination_response(response, expected_total=0, data_key='users')
 
         

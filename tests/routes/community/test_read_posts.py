@@ -1,5 +1,5 @@
 # Tests
-from tests.routes.test_route import TestRoute
+from tests.base.base_pagination_test import BasePaginationTest
 
 # Factories
 from tests.factories.community_factory import CommunityFactory
@@ -12,11 +12,9 @@ from app.models.community import CommunityModerator
 
 # Utils
 from tests.utils.tokens import get_access_token
-from tests.utils.assert_pagination import assert_pagination_structure_posts
-from tests.utils.assert_list import assert_post_list
 
 
-class TestReadPosts(TestRoute):
+class TestReadPosts(BasePaginationTest):
     route = '/community/{}/posts'
 
     def test_read_posts(self):
@@ -32,21 +30,8 @@ class TestReadPosts(TestRoute):
         # Read the community posts
         response = self.GETRequest(self.route.format(community.name))
 
-        # Assert the response status code
-        self.assertStatusCode(response, 200)
-
-        # Get the pagination
-        pagination = response.json
-
-        # Assert the pagination structure
-        assert_pagination_structure_posts(
-            self,
-            pagination,
-            expected_page=1,
-            expected_pages=1,
-            expected_per_page=10,
-            expected_total=n
-        )
+        # Assert standard pagination response for posts
+        self.assert_standard_pagination_response(response, expected_total=n, data_key='posts')
 
         # Get the posts
         posts = pagination['posts']

@@ -1,16 +1,12 @@
 # Tests
-from tests.routes.test_route import TestRoute
+from tests.base.base_pagination_test import BasePaginationTest
 
 # Factories
 from tests.factories.user_factory import UserFactory
 from tests.factories.post_factory import PostFactory
 
-# Utils
-from tests.utils.assert_pagination import assert_pagination_structure_posts
-from tests.utils.assert_list import assert_post_list
 
-
-class TestReadPosts(TestRoute):
+class TestReadPosts(BasePaginationTest):
     route = '/user/{}/posts'
 
     def test_read_posts(self):
@@ -26,27 +22,8 @@ class TestReadPosts(TestRoute):
         # Get user posts
         response = self.GETRequest(self.route.format(user.username))
 
-        # Assert the response status code
-        self.assertStatusCode(response, 200)
-
-        # Get pagination
-        pagination = response.json
-
-        # Assert pagination data structure
-        assert_pagination_structure_posts(
-            self,
-            pagination,
-            expected_page=1,
-            expected_pages=1,
-            expected_per_page=10,
-            expected_total=n
-        )
-
-        # Get posts
-        posts = pagination['posts']
-
-        # Assert posts list
-        assert_post_list(self, posts, n)
+        # Assert standard pagination response for posts
+        self.assert_standard_pagination_response(response, expected_total=n, data_key='posts')
 
     def test_read_posts_args(self):
         # Number of posts
@@ -58,32 +35,19 @@ class TestReadPosts(TestRoute):
         # Create some posts
         PostFactory.create_batch(n, owner=user)
 
-        # Get user posts
+        # Get user posts with pagination
         response = self.GETRequest(self.route.format(user.username), 
             query_string={'page': 2, 'per_page': 5}
         )
 
-        # Assert the response status code
-        self.assertStatusCode(response, 200)
-
-        # Get pagination
-        pagination = response.json
-
-        # Assert pagination data structure
-        assert_pagination_structure_posts(
-            self,
-            pagination,
-            expected_page=2,
-            expected_pages=3,
-            expected_per_page=5,
-            expected_total=n
+        # Assert paginated response
+        self.assert_paginated_response(
+            response=response,
+            page=2,
+            per_page=5,
+            expected_total=n,
+            data_key='posts'
         )
-
-        # Get posts
-        posts = pagination['posts']
-
-        # Assert posts list
-        assert_post_list(self, posts, 5)
 
 
     def test_read_posts_empty(self):
@@ -93,58 +57,26 @@ class TestReadPosts(TestRoute):
         # Get the user posts
         response = self.GETRequest(self.route.format(user.username))
 
-        # Assert the response status code
-        self.assertStatusCode(response, 200)
-
-        # Get pagination
-        pagination = response.json
-
-        # Assert pagination data structure
-        assert_pagination_structure_posts(
-            self,
-            pagination,
-            expected_page=1,
-            expected_pages=0,
-            expected_per_page=10,
-            expected_total=0
-        )
-
-        # Get posts
-        posts = pagination['posts']
-
-        # Assert posts list
-        assert_post_list(self, posts)
+        # Assert standard pagination response with 0 total
+        self.assert_standard_pagination_response(response, expected_total=0, data_key='posts')
 
     def test_read_posts_empty_args(self):
         # Create a user
         user = UserFactory()
 
-        # Get the user posts
+        # Get the user posts with pagination
         response = self.GETRequest(self.route.format(user.username),
             query_string={'page': 2, 'per_page': 5}
         )
 
-        # Assert the response status code
-        self.assertStatusCode(response, 200)
-
-        # Get pagination
-        pagination = response.json
-
-        # Assert pagination data structure
-        assert_pagination_structure_posts(
-            self,
-            pagination,
-            expected_page=2,
-            expected_pages=0,
-            expected_per_page=5,
-            expected_total=0
+        # Assert paginated response with 0 total
+        self.assert_paginated_response(
+            response=response,
+            page=2,
+            per_page=5,
+            expected_total=0,
+            data_key='posts'
         )
-
-        # Get posts
-        posts = pagination['posts']
-
-        # Assert posts list
-        assert_post_list(self, posts)
 
     def test_read_posts_nonexistent_user(self):
         # Try to get posts of a nonexistent user
