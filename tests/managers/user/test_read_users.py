@@ -1,5 +1,5 @@
 # Base
-from tests.base.base_test_case import BaseTestCase
+from tests.base.base_pagination_test import BasePaginationTest
 
 # Factories
 from tests.factories.user_factory import UserFactory
@@ -17,7 +17,7 @@ from app.errors.errors import NotFoundError
 from flask_sqlalchemy.pagination import Pagination
 
 
-class TestReadUser(BaseTestCase):
+class TestReadUser(BasePaginationTest):
     def test_read_users(self):
         # Number of users to create
         n = 5

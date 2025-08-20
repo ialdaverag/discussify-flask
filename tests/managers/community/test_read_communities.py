@@ -1,5 +1,5 @@
 # Base
-from tests.base.base_test_case import BaseTestCase
+from tests.base.base_pagination_test import BasePaginationTest
 
 # Factories
 from tests.factories.user_factory import UserFactory
@@ -12,7 +12,7 @@ from app.managers.community import CommunityManager
 from flask_sqlalchemy.pagination import Pagination
 
 
-class TestReadCommunities(BaseTestCase):
+class TestReadCommunities(BasePaginationTest):
     def test_read_communities(self):
         # Number of communities
         n = 5

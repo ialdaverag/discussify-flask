@@ -1,5 +1,5 @@
 # Base
-from tests.base.base_test_case import BaseTestCase
+from tests.base.base_pagination_test import BasePaginationTest
 
 # Factories
 from tests.factories.user_factory import UserFactory
@@ -14,7 +14,7 @@ from app.managers.user import FollowManager
 from flask_sqlalchemy.pagination import Pagination
 
 
-class TestReadFollowers(BaseTestCase):
+class TestReadFollowers(BasePaginationTest):
     def test_read_followers(self):
         # Number of followers
         n = 5

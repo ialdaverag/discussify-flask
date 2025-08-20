@@ -1,5 +1,5 @@
 # Base
-from tests.base.base_test_case import BaseTestCase
+from tests.base.base_pagination_test import BasePaginationTest
 
 # Factories
 from tests.factories.user_factory import UserFactory
@@ -11,7 +11,7 @@ from app.models.user import Block
 from flask_sqlalchemy.pagination import Pagination
 
 
-class TestGetBlockers(BaseTestCase):
+class TestGetBlockers(BasePaginationTest):
     def test_get_blockers(self):
         # Number of users to create
         n = 5

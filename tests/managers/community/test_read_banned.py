@@ -1,5 +1,5 @@
 # Base
-from tests.base.base_test_case import BaseTestCase
+from tests.base.base_pagination_test import BasePaginationTest
 
 # Factories
 from tests.factories.user_factory import UserFactory
@@ -15,7 +15,7 @@ from app.models.community import CommunityBan
 from flask_sqlalchemy.pagination import Pagination
 
 
-class TestReadBanned(BaseTestCase):
+class TestReadBanned(BasePaginationTest):
     def test_read_banned(self):
         # Number of banned users
         n = 5

@@ -1,5 +1,5 @@
 # Base
-from tests.base.base_test_case import BaseTestCase
+from tests.base.base_pagination_test import BasePaginationTest
 
 # Factories
 from tests.factories.user_factory import UserFactory
@@ -12,7 +12,7 @@ from app.managers.post import PostBookmarkManager
 from flask_sqlalchemy.pagination import Pagination
 
 
-class TestReadBookmarksByUser(BaseTestCase):
+class TestReadBookmarksByUser(BasePaginationTest):
     def test_read_bookmarks_by_user(self):
         # Number of bookmarks
         n = 5

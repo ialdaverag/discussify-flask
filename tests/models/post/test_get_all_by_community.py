@@ -1,5 +1,5 @@
 # Base
-from tests.base.base_test_case import BaseTestCase
+from tests.base.base_pagination_test import BasePaginationTest
 
 # Factories
 from tests.factories.community_factory import CommunityFactory
@@ -12,7 +12,7 @@ from app.models.post import Post
 from flask_sqlalchemy.pagination import Pagination
 
 
-class TestGetAllByCommunity(BaseTestCase):
+class TestGetAllByCommunity(BasePaginationTest):
     def test_get_all_by_community(self):
         # Create a community
         community = CommunityFactory()

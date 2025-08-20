@@ -1,5 +1,5 @@
 # Base
-from tests.base.base_test_case import BaseTestCase
+from tests.base.base_pagination_test import BasePaginationTest
 
 # Factories
 from tests.factories.comment_factory import CommentFactory
@@ -11,7 +11,7 @@ from app.managers.comment import CommentManager
 from flask_sqlalchemy.pagination import Pagination
 
 
-class TestReadComments(BaseTestCase):
+class TestReadComments(BasePaginationTest):
     def test_read_comments(self):
         # Number of comments
         n = 5

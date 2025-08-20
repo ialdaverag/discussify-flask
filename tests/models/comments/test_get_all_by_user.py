@@ -1,5 +1,5 @@
 # Base
-from tests.base.base_test_case import BaseTestCase
+from tests.base.base_pagination_test import BasePaginationTest
 
 # Factories
 from tests.factories.user_factory import UserFactory
@@ -12,7 +12,7 @@ from app.models.comment import Comment
 from flask_sqlalchemy.pagination import Pagination
 
 
-class TestGetAllByUser(BaseTestCase):
+class TestGetAllByUser(BasePaginationTest):
     def test_get_all_by_user(self):
         # Create a user
         user = UserFactory()

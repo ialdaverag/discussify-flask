@@ -1,5 +1,5 @@
 # Base
-from tests.base.base_test_case import BaseTestCase
+from tests.base.base_pagination_test import BasePaginationTest
 
 # Factories
 from tests.factories.user_factory import UserFactory
@@ -12,7 +12,7 @@ from app.models.community import CommunitySubscriber
 from flask_sqlalchemy.pagination import Pagination
 
 
-class TestGetSubscriptionsByUser(BaseTestCase):
+class TestGetSubscriptionsByUser(BasePaginationTest):
     def test_get_subscriptions_by_user(self):
         # Number of communities to create
         n = 5

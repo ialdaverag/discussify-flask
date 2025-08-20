@@ -1,5 +1,5 @@
 # Base
-from tests.base.base_test_case import BaseTestCase
+from tests.base.base_pagination_test import BasePaginationTest
 
 # Factories
 from tests.factories.comment_factory import CommentFactory
@@ -12,7 +12,7 @@ from app.models.comment import Comment
 from flask_sqlalchemy.pagination import Pagination
 
 
-class TestGetAllRootCommentsByPost(BaseTestCase):
+class TestGetAllRootCommentsByPost(BasePaginationTest):
     def test_get_all_root_comments_by_post(self):
         # Create a post
         post = PostFactory()

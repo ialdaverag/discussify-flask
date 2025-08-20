@@ -1,5 +1,5 @@
 # Base
-from tests.base.base_test_case import BaseTestCase
+from tests.base.base_pagination_test import BasePaginationTest
 
 # Factories
 from tests.factories.post_factory import PostFactory
@@ -12,7 +12,7 @@ from app.models.post import PostVote
 from flask_sqlalchemy.pagination import Pagination
 
 
-class TestGetUpvotersByPost(BaseTestCase):
+class TestGetUpvotersByPost(BasePaginationTest):
     def test_get_upvoters_by_post(self):
         # Number of upvotes
         n = 5

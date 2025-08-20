@@ -1,5 +1,5 @@
 # Base
-from tests.base.base_test_case import BaseTestCase
+from tests.base.base_pagination_test import BasePaginationTest
 
 # Factories
 from tests.factories.user_factory import UserFactory
@@ -12,7 +12,7 @@ from app.models.comment import CommentVote
 from flask_sqlalchemy.pagination import Pagination
 
 
-class TestGetDownvotedCommentsByUser(BaseTestCase):
+class TestGetDownvotedCommentsByUser(BasePaginationTest):
     def test_get_downvoted_comments_by_user(self):
         # Number of downvotes
         n = 5

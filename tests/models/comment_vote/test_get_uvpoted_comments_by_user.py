@@ -1,5 +1,5 @@
 # Base
-from tests.base.base_test_case import BaseTestCase
+from tests.base.base_pagination_test import BasePaginationTest
 
 # Factories
 from tests.factories.user_factory import UserFactory
@@ -12,7 +12,7 @@ from app.models.comment import CommentVote
 from flask_sqlalchemy.pagination import Pagination
 
 
-class TestGetUpvotedCommentsByUser(BaseTestCase):
+class TestGetUpvotedCommentsByUser(BasePaginationTest):
     def test_get_upvoted_comments_by_user(self):
         # Number of upvotes
         n = 5
