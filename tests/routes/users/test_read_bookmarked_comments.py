@@ -1,22 +1,18 @@
 # tests
-from tests.routes.test_route import TestRoute
+from tests.base.base_pagination_test import BasePaginationTest
 
 # factories
 from tests.factories.user_factory import UserFactory
 from tests.factories.comment_bookmark_factory import CommentBookmarkFactory
-from tests.factories.user_factory import UserFactory
-from tests.factories.block_factory import BlockFactory
 
 # models
 from app.models.user import Block
 
 # utils
 from tests.utils.tokens import get_access_token
-from tests.utils.assert_pagination import assert_pagination_structure_comments
-from tests.utils.assert_list import assert_comment_list
 
 
-class TestReadBookmarkedComments(TestRoute):
+class TestReadBookmarkedComments(BasePaginationTest):
     route = '/user/comments/bookmarked'
 
     def test_read_bookmarked_comments(self):
@@ -35,27 +31,8 @@ class TestReadBookmarkedComments(TestRoute):
         # Get the user bookmarked comments
         response = self.GETRequest(self.route, token=access_token)
 
-        # Assert that the response status code is 200
-        self.assertStatusCode(response, 200)
-
-        # Get pagination data
-        pagination = response.json
-
-         # Assert pagination data structure
-        assert_pagination_structure_comments(
-            self,
-            pagination,
-            expected_page=1,
-            expected_pages=1,
-            expected_per_page=10,
-            expected_total=n
-        )
-
-        # Get comments
-        comments = pagination['comments']
-
-        # Assert comments list
-        assert_comment_list(self, comments, n)
+        # Assert standard pagination response for comments
+        self.assert_standard_pagination_response(response, expected_total=n, data_key='comments')
 
     def test_read_bookmarked_comments_args(self):
         # Number of comments
@@ -73,27 +50,14 @@ class TestReadBookmarkedComments(TestRoute):
         # Get the user bookmarked comments
         response = self.GETRequest(f'{self.route}?page=1&per_page=5', token=access_token)
 
-        # Assert that the response status code is 200
-        self.assertStatusCode(response, 200)
-
-        # Get pagination data
-        pagination = response.json
-
-        # Assert pagination data structure
-        assert_pagination_structure_comments(
-            self,
-            pagination,
-            expected_page=1,
-            expected_pages=3,
-            expected_per_page=5,
-            expected_total=n
+        # Assert paginated response
+        self.assert_paginated_response(
+            response=response,
+            page=1,
+            per_page=5,
+            expected_total=n,
+            data_key='comments'
         )
-
-        # Get comments
-        comments = pagination['comments']
-
-        # Assert comments list
-        assert_comment_list(self, comments, 5)
 
     def test_read_bookmarked_comments_with_blocked(self):
         # Number of comments
@@ -117,27 +81,8 @@ class TestReadBookmarkedComments(TestRoute):
         # Get the user bookmarked comments
         response = self.GETRequest(self.route, token=access_token)
 
-        # Assert that the response status code is 200
-        self.assertStatusCode(response, 200)
-
-        # Get pagination
-        pagination = response.json
-
-        # Assert pagination data structure
-        assert_pagination_structure_comments(
-            self,
-            pagination,
-            expected_page=1,
-            expected_pages=1,
-            expected_per_page=10,
-            expected_total=n - b
-        )
-
-        # Get comments
-        comments = pagination['comments']
-
-        # Assert comments list
-        assert_comment_list(self, comments, n - b)
+        # Assert standard pagination response
+        self.assert_standard_pagination_response(response, expected_total=n - b, data_key='comments')
 
     def test_read_bookmarked_comments_with_blocked_args(self):
         # Number of comments
@@ -161,27 +106,14 @@ class TestReadBookmarkedComments(TestRoute):
         # Get the user bookmarked comments
         response = self.GETRequest(f'{self.route}?page=1&per_page=5', token=access_token)
 
-        # Assert that the response status code is 200
-        self.assertStatusCode(response, 200)
-
-        # Get pagination
-        pagination = response.json
-
-        # Assert pagination data structure
-        assert_pagination_structure_comments(
-            self,
-            pagination,
-            expected_page=1,
-            expected_pages=3,
-            expected_per_page=5,
-            expected_total=n - b
+        # Assert paginated response
+        self.assert_paginated_response(
+            response=response,
+            page=1,
+            per_page=5,
+            expected_total=n - b,
+            data_key='comments'
         )
-
-        # Get comments
-        comments = pagination['comments']
-
-        # Assert comments list
-        assert_comment_list(self, comments, 5)
 
     def test_read_bookmarked_comments_with_blockers(self):
         # Number of comments
@@ -205,27 +137,8 @@ class TestReadBookmarkedComments(TestRoute):
         # Get the user bookmarked comments
         response = self.GETRequest(self.route, token=access_token)
 
-        # Assert that the response status code is 200
-        self.assertStatusCode(response, 200)
-
-        # Get pagination
-        pagination = response.json
-
-        # Assert pagination data structure
-        assert_pagination_structure_comments(
-            self,
-            pagination,
-            expected_page=1,
-            expected_pages=1,
-            expected_per_page=10,
-            expected_total=n - b
-        )
-
-        # Get comments
-        comments = pagination['comments']
-
-        # Assert comments list
-        assert_comment_list(self, comments, n - b)
+        # Assert standard pagination response
+        self.assert_standard_pagination_response(response, expected_total=n - b, data_key='comments')
 
     def test_read_bookmarked_comments_with_blockers_args(self):
         # Number of comments
@@ -249,27 +162,14 @@ class TestReadBookmarkedComments(TestRoute):
         # Get the user bookmarked comments
         response = self.GETRequest(f'{self.route}?page=1&per_page=5', token=access_token)
 
-        # Assert that the response status code is 200
-        self.assertStatusCode(response, 200)
-
-        # Get pagination
-        pagination = response.json
-
-        # Assert pagination data structure
-        assert_pagination_structure_comments(
-            self,
-            pagination,
-            expected_page=1,
-            expected_pages=3,
-            expected_per_page=5,
-            expected_total=n - b
+        # Assert paginated response
+        self.assert_paginated_response(
+            response=response,
+            page=1,
+            per_page=5,
+            expected_total=n - b,
+            data_key='comments'
         )
-
-        # Get comments
-        comments = pagination['comments']
-
-        # Assert comments list
-        assert_comment_list(self, comments, 5)
 
     def test_read_bookmarked_comments_with_blocked_and_blockers(self):
         # Number of comments
@@ -299,27 +199,8 @@ class TestReadBookmarkedComments(TestRoute):
         # Get the user bookmarked comments
         response = self.GETRequest(self.route, token=access_token)
 
-        # Assert that the response status code is 200
-        self.assertStatusCode(response, 200)
-
-        # Get pagination
-        pagination = response.json
-
-        # Assert pagination data structure
-        assert_pagination_structure_comments(
-            self,
-            pagination,
-            expected_page=1,
-            expected_pages=1,
-            expected_per_page=10,
-            expected_total=n - b
-        )
-
-        # Get comments
-        comments = pagination['comments']
-
-        # Assert comments list
-        assert_comment_list(self, comments, n - b)
+        # Assert standard pagination response
+        self.assert_standard_pagination_response(response, expected_total=n - b, data_key='comments')
 
     def test_read_bookmarked_comments_with_blocked_and_blockers_args(self):
         # Number of comments
@@ -349,27 +230,14 @@ class TestReadBookmarkedComments(TestRoute):
         # Get the user bookmarked comments
         response = self.GETRequest(f'{self.route}?page=1&per_page=5', token=access_token)
 
-        # Assert that the response status code is 200
-        self.assertStatusCode(response, 200)
-
-        # Get pagination
-        pagination = response.json
-
-        # Assert pagination data structure
-        assert_pagination_structure_comments(
-            self,
-            pagination,
-            expected_page=1,
-            expected_pages=3,
-            expected_per_page=5,
-            expected_total=n - b
+        # Assert paginated response
+        self.assert_paginated_response(
+            response=response,
+            page=1,
+            per_page=5,
+            expected_total=n - b,
+            data_key='comments'
         )
-
-        # Get comments
-        comments = pagination['comments']
-
-        # Assert comments list
-        assert_comment_list(self, comments, 5)
 
     def test_read_bookmarked_comments_empty(self):
         # Create a user
@@ -381,27 +249,8 @@ class TestReadBookmarkedComments(TestRoute):
         # Get the user bookmarked comments
         response = self.GETRequest(self.route, token=access_token)
 
-        # Assert that the response status code is 200
-        self.assertStatusCode(response, 200)
-
-        # Get pagination
-        pagination = response.json
-
-        # Assert pagination data structure
-        assert_pagination_structure_comments(
-            self,
-            pagination,
-            expected_page=1,
-            expected_pages=0,
-            expected_per_page=10,
-            expected_total=0
-        )
-
-        # Get comments
-        comments = pagination['comments']
-
-        # Assert comments list
-        assert_comment_list(self, comments)
+        # Assert standard pagination response with 0 total
+        self.assert_standard_pagination_response(response, expected_total=0, data_key='comments')
 
     def test_read_bookmarked_comments_empty_args(self):
         # Create a user
@@ -413,24 +262,11 @@ class TestReadBookmarkedComments(TestRoute):
         # Get the user bookmarked comments
         response = self.GETRequest(f'{self.route}?page=1&per_page=5', token=access_token)
 
-        # Assert that the response status code is 200
-        self.assertStatusCode(response, 200)
-
-        # Get pagination
-        pagination = response.json
-
-        # Assert pagination data structure
-        assert_pagination_structure_comments(
-            self,
-            pagination,
-            expected_page=1,
-            expected_pages=0,
-            expected_per_page=5,
-            expected_total=0
+        # Assert paginated response with 0 total
+        self.assert_paginated_response(
+            response=response,
+            page=1,
+            per_page=5,
+            expected_total=0,
+            data_key='comments'
         )
-
-        # Get comments
-        comments = pagination['comments']
-
-        # Assert comments list
-        assert_comment_list(self, comments)

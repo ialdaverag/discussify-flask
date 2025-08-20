@@ -1,5 +1,5 @@
 # tests
-from tests.routes.test_route import TestRoute
+from tests.base.base_pagination_test import BasePaginationTest
 
 # factories
 from tests.factories.user_factory import UserFactory
@@ -7,17 +7,13 @@ from tests.factories.post_factory import PostFactory
 
 # Models
 from app.models.post import PostVote
+from app.models.user import Block
 
 # utils
 from tests.utils.tokens import get_access_token
-from tests.utils.assert_pagination import assert_pagination_structure_posts
-from tests.utils.assert_list import assert_post_list
-
-# Models
-from app.models.user import Block
 
 
-class TestReadDownvotedPosts(TestRoute):
+class TestReadDownvotedPosts(BasePaginationTest):
     route = '/user/posts/downvoted'
 
     def test_read_downvoted_posts(self):
@@ -40,27 +36,8 @@ class TestReadDownvotedPosts(TestRoute):
         # Get user downvoted posts
         response = self.GETRequest(self.route, token=access_token)
 
-        # Assert that the response status code is 200
-        self.assertStatusCode(response, 200)
-
-        # Get pagination
-        pagination = response.json
-
-        # Assert the pagination structure
-        assert_pagination_structure_posts(
-            self,
-            pagination,
-            expected_page=1,
-            expected_pages=1,
-            expected_per_page=10,
-            expected_total=n
-        )
-
-        # Get the posts
-        posts = pagination['posts']
-
-        # Assert the posts list
-        assert_post_list(self, posts, n)
+        # Assert standard pagination response for posts
+        self.assert_standard_pagination_response(response, expected_total=n, data_key='posts')
 
     def test_read_downvoted_posts_args(self):
         # Number of posts
@@ -86,27 +63,14 @@ class TestReadDownvotedPosts(TestRoute):
             headers={'Authorization': f'Bearer {access_token}'}
         )
 
-        # Assert that the response status code is 200
-        self.assertStatusCode(response, 200)
-
-        # Get pagination
-        pagination = response.json
-
-        # Assert the pagination structure
-        assert_pagination_structure_posts(
-            self,
-            pagination,
-            expected_page=2,
-            expected_pages=3,
-            expected_per_page=5,
-            expected_total=n
+        # Assert paginated response
+        self.assert_paginated_response(
+            response=response,
+            page=2,
+            per_page=5,
+            expected_total=n,
+            data_key='posts'
         )
-
-        # Get the posts
-        posts = pagination['posts']
-
-        # Assert the posts list
-        assert_post_list(self, posts, 5)
 
     def test_read_downvoted_posts_with_blocked(self):
         # Number of posts
@@ -134,27 +98,8 @@ class TestReadDownvotedPosts(TestRoute):
         # Get user downvoted posts
         response = self.GETRequest(self.route, token=access_token)
 
-        # Assert the response status code
-        self.assertStatusCode(response, 200)
-
-        # Get pagination
-        pagination = response.json
-
-        # Assert the pagination structure
-        assert_pagination_structure_posts(
-            self,
-            pagination,
-            expected_page=1,
-            expected_pages=1,
-            expected_per_page=10,
-            expected_total=n - b
-        )
-
-        # Get the posts
-        posts = pagination['posts']
-
-        # Assert the posts list
-        assert_post_list(self, posts, n - b)
+        # Assert standard pagination response
+        self.assert_standard_pagination_response(response, expected_total=n - b, data_key='posts')
 
     def test_read_downvoted_posts_with_blocked_args(self):
         # Number of posts
@@ -186,27 +131,14 @@ class TestReadDownvotedPosts(TestRoute):
             headers={'Authorization': f'Bearer {access_token}'}
         )
 
-        # Assert the response status code
-        self.assertStatusCode(response, 200)
-
-        # Get pagination
-        pagination = response.json
-
-        # Assert the pagination structure
-        assert_pagination_structure_posts(
-            self,
-            pagination,
-            expected_page=2,
-            expected_pages=3,
-            expected_per_page=5,
-            expected_total=n - b
+        # Assert paginated response
+        self.assert_paginated_response(
+            response=response,
+            page=2,
+            per_page=5,
+            expected_total=n - b,
+            data_key='posts'
         )
-
-        # Get the posts
-        posts = pagination['posts']
-
-        # Assert the posts list
-        assert_post_list(self, posts, 5)
 
     def test_read_downvoted_posts_with_blockers(self):
         # Number of posts
@@ -234,27 +166,8 @@ class TestReadDownvotedPosts(TestRoute):
         # Get user downvoted posts
         response = self.GETRequest(self.route, token=access_token)
 
-        # Assert the response status code
-        self.assertStatusCode(response, 200)
-
-        # Get pagination
-        pagination = response.json
-
-        # Assert the pagination structure
-        assert_pagination_structure_posts(
-            self,
-            pagination,
-            expected_page=1,
-            expected_pages=1,
-            expected_per_page=10,
-            expected_total=n - b
-        )
-
-        # Get the posts
-        posts = pagination['posts']
-
-        # Assert the posts list
-        assert_post_list(self, posts, n - b)
+        # Assert standard pagination response
+        self.assert_standard_pagination_response(response, expected_total=n - b, data_key='posts')
 
     def test_read_downvoted_posts_with_blockers_args(self):
         # Number of posts
@@ -286,27 +199,14 @@ class TestReadDownvotedPosts(TestRoute):
             headers={'Authorization': f'Bearer {access_token}'}
         )
 
-        # Assert the response status code
-        self.assertStatusCode(response, 200)
-
-        # Get pagination
-        pagination = response.json
-
-        # Assert the pagination structure
-        assert_pagination_structure_posts(
-            self,
-            pagination,
-            expected_page=2,
-            expected_pages=3,
-            expected_per_page=5,
-            expected_total=n - b
+        # Assert paginated response
+        self.assert_paginated_response(
+            response=response,
+            page=2,
+            per_page=5,
+            expected_total=n - b,
+            data_key='posts'
         )
-
-        # Get the posts
-        posts = pagination['posts']
-
-        # Assert the posts list
-        assert_post_list(self, posts, 5)
 
     def test_read_downvoted_posts_with_blocked_and_blockers(self):
         # Number of posts
@@ -340,27 +240,8 @@ class TestReadDownvotedPosts(TestRoute):
         # Get user downvoted posts
         response = self.GETRequest(self.route, token=access_token)
 
-        # Assert the response status code
-        self.assertStatusCode(response, 200)
-
-        # Get pagination
-        pagination = response.json
-
-        # Assert the pagination structure
-        assert_pagination_structure_posts(
-            self,
-            pagination,
-            expected_page=1,
-            expected_pages=1,
-            expected_per_page=10,
-            expected_total=n - b - c
-        )
-
-        # Get the posts
-        posts = pagination['posts']
-
-        # Assert the posts list
-        assert_post_list(self, posts, n - b - c)
+        # Assert standard pagination response
+        self.assert_standard_pagination_response(response, expected_total=n - b - c, data_key='posts')
 
     def test_read_downvoted_posts_with_blocked_and_blockers_args(self):
         # Number of posts
@@ -398,27 +279,14 @@ class TestReadDownvotedPosts(TestRoute):
             headers={'Authorization': f'Bearer {access_token}'}
         )
 
-        # Assert the response status code
-        self.assertStatusCode(response, 200)
-
-        # Get pagination
-        pagination = response.json
-
-        # Assert the pagination structure
-        assert_pagination_structure_posts(
-            self,
-            pagination,
-            expected_page=2,
-            expected_pages=3,
-            expected_per_page=5,
-            expected_total=n - b - c
+        # Assert paginated response
+        self.assert_paginated_response(
+            response=response,
+            page=2,
+            per_page=5,
+            expected_total=n - b - c,
+            data_key='posts'
         )
-
-        # Get the posts
-        posts = pagination['posts']
-
-        # Assert the posts list
-        assert_post_list(self, posts, 5)
 
     def test_read_downvoted_posts_empty(self):
         # Create a user
@@ -430,27 +298,8 @@ class TestReadDownvotedPosts(TestRoute):
         # Get the user downvoted posts
         response = self.GETRequest(self.route, token=access_token)
 
-        # Assert that the response status code is 200
-        self.assertStatusCode(response, 200)
-
-        # Get pagination
-        pagination = response.json
-
-        # Assert the pagination structure
-        assert_pagination_structure_posts(
-            self,
-            pagination,
-            expected_page=1,
-            expected_pages=0,
-            expected_per_page=10,
-            expected_total=0
-        )
-
-        # Get the posts
-        posts = pagination['posts']
-
-        # Assert the posts list
-        assert_post_list(self, posts)
+        # Assert standard pagination response with 0 total
+        self.assert_standard_pagination_response(response, expected_total=0, data_key='posts')
 
     def test_read_downvoted_posts_empty_args(self):
         # Create a user
@@ -466,24 +315,11 @@ class TestReadDownvotedPosts(TestRoute):
             headers={'Authorization': f'Bearer {access_token}'}
         )
 
-        # Assert that the response status code is 200
-        self.assertStatusCode(response, 200)
-
-        # Get pagination
-        pagination = response.json
-
-        # Assert the pagination structure
-        assert_pagination_structure_posts(
-            self,
-            pagination,
-            expected_page=2,
-            expected_pages=0,
-            expected_per_page=5,
-            expected_total=0
+        # Assert paginated response with 0 total
+        self.assert_paginated_response(
+            response=response,
+            page=2,
+            per_page=5,
+            expected_total=0,
+            data_key='posts'
         )
-
-        # Get the posts
-        posts = pagination['posts']
-
-        # Assert the posts list
-        assert_post_list(self, posts)
