@@ -7,6 +7,7 @@ from app.extensions.database import db
 from app.extensions.jwt import jwt
 from app.extensions.email import mail
 from app.extensions.cors import cors
+from app.extensions.socketio import socketio
 
 from app.routes.auth import black_list
 from app.routes.auth import auth_routes
@@ -14,6 +15,7 @@ from app.routes.user import user_routes
 from app.routes.community import community_routes
 from app.routes.post import post_routes
 from app.routes.comment import comment_routes
+from app.routes.notification import notification_routes
 
 from app.models.user import User
 
@@ -67,6 +69,7 @@ def register_extensions(app):
         app, 
         supports_credentials=True
     )
+    socketio.init_app(app, cors_allowed_origins="*")
     
 
     @jwt.user_lookup_loader
@@ -89,6 +92,10 @@ def register_blueprints(app):
     app.register_blueprint(community_routes, url_prefix='/community')
     app.register_blueprint(post_routes, url_prefix='/post')
     app.register_blueprint(comment_routes, url_prefix='/comment')
+    app.register_blueprint(notification_routes, url_prefix='/notification')
+    
+    # Import socket events to register them
+    from app.events import socket_events
 
 
 def register_handlers(app):

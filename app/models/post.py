@@ -458,6 +458,9 @@ class Post(db.Model):
                            uselist=False, 
                            back_populates='post',
                            cascade='all, delete-orphan')
+    
+    # Notifications
+    notifications = db.relationship('Notification', back_populates='post', cascade='all, delete-orphan')
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
