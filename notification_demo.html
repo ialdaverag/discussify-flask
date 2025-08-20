@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Discussify Notifications Demo</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .notification {
+            background-color: #e3f2fd;
+            border: 1px solid #2196f3;
+            border-radius: 4px;
+            padding: 10px;
+            margin: 10px 0;
+        }
+        .notification.unread {
+            background-color: #fff3e0;
+            border-color: #ff9800;
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+        .status.connected {
+            background-color: #e8f5e8;
+            color: #2e7d32;
+        }
+        .status.disconnected {
+            background-color: #ffebee;
+            color: #c62828;
+        }
+        button {
+            background-color: #2196f3;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background-color: #1976d2;
+        }
+        button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+        input[type="text"] {
+            width: 200px;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin: 5px;
+        }
+        .form-group {
+            margin: 15px 0;
+        }
+        label {
+            display: inline-block;
+            width: 100px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔔 Discussify Notifications Demo</h1>
+        
+        <div id="status" class="status disconnected">
+            Disconnected
+        </div>
+        
+        <div class="form-group">
+            <label for="token">JWT Token:</label>
+            <input type="text" id="token" placeholder="Enter your JWT token" />
+            <button onclick="connect()">Connect</button>
+            <button onclick="disconnect()">Disconnect</button>
+        </div>
+        
+        <div class="form-group">
+            <h3>Test Notifications</h3>
+            <button onclick="simulateNotification('follow')">Simulate Follow</button>
+            <button onclick="simulateNotification('comment')">Simulate Comment</button>
+            <button onclick="simulateNotification('reply')">Simulate Reply</button>
+        </div>
+        
+        <div class="form-group">
+            <h3>API Actions</h3>
+            <button onclick="getNotifications()">Get Notifications</button>
+            <button onclick="getUnreadCount()">Get Unread Count</button>
+            <button onclick="markAllAsRead()">Mark All Read</button>
+        </div>
+        
+        <div id="notifications">
+            <h3>Notifications</h3>
+            <div id="notifications-list">
+                <p>No notifications yet. Connect and try the demo buttons above!</p>
+            </div>
+        </div>
+        
+        <div id="logs">
+            <h3>Connection Logs</h3>
+            <div id="logs-list" style="background-color: #f9f9f9; padding: 10px; border-radius: 4px; height: 200px; overflow-y: auto;">
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <script>
+        let socket = null;
+        let connected = false;
+        
+        function log(message) {
+            const logsList = document.getElementById('logs-list');
+            const timestamp = new Date().toLocaleTimeString();
+            logsList.innerHTML += `<div>[${timestamp}] ${message}</div>`;
+            logsList.scrollTop = logsList.scrollHeight;
+        }
+        
+        function updateStatus(isConnected) {
+            const statusDiv = document.getElementById('status');
+            connected = isConnected;
+            if (isConnected) {
+                statusDiv.textContent = 'Connected';
+                statusDiv.className = 'status connected';
+            } else {
+                statusDiv.textContent = 'Disconnected';
+                statusDiv.className = 'status disconnected';
+            }
+        }
+        
+        function connect() {
+            const token = document.getElementById('token').value;
+            if (!token) {
+                alert('Please enter a JWT token');
+                return;
+            }
+            
+            if (socket) {
+                socket.disconnect();
+            }
+            
+            log('Attempting to connect...');
+            
+            socket = io('http://localhost:5000', {
+                auth: {
+                    token: token
+                }
+            });
+            
+            socket.on('connect', () => {
+                log('Connected to server');
+                updateStatus(true);
+            });
+            
+            socket.on('disconnect', () => {
+                log('Disconnected from server');
+                updateStatus(false);
+            });
+            
+            socket.on('connected', (data) => {
+                log(`Server says: ${data.message}`);
+            });
+            
+            socket.on('new_notification', (notification) => {
+                log(`New notification received: ${notification.title}`);
+                addNotificationToUI(notification);
+            });
+            
+            socket.on('error', (error) => {
+                log(`Error: ${error.message || error}`);
+            });
+            
+            socket.on('connect_error', (error) => {
+                log(`Connection error: ${error.message}`);
+                updateStatus(false);
+            });
+        }
+        
+        function disconnect() {
+            if (socket) {
+                socket.disconnect();
+                socket = null;
+            }
+            updateStatus(false);
+            log('Disconnected');
+        }
+        
+        function addNotificationToUI(notification) {
+            const notificationsList = document.getElementById('notifications-list');
+            
+            // Clear the "no notifications" message
+            if (notificationsList.innerHTML.includes('No notifications yet')) {
+                notificationsList.innerHTML = '';
+            }
+            
+            const notifDiv = document.createElement('div');
+            notifDiv.className = notification.is_read ? 'notification' : 'notification unread';
+            notifDiv.innerHTML = `
+                <strong>${notification.title}</strong><br>
+                ${notification.message}<br>
+                <small>Type: ${notification.type} | Time: ${new Date(notification.created_at).toLocaleString()}</small>
+            `;
+            
+            notificationsList.insertBefore(notifDiv, notificationsList.firstChild);
+        }
+        
+        function simulateNotification(type) {
+            if (!connected) {
+                alert('Please connect first');
+                return;
+            }
+            
+            const notifications = {
+                follow: {
+                    title: 'New Follower',
+                    message: 'demo_user started following you',
+                    type: 'follow'
+                },
+                comment: {
+                    title: 'New Comment',
+                    message: 'demo_user commented on your post',
+                    type: 'comment'
+                },
+                reply: {
+                    title: 'New Reply',
+                    message: 'demo_user replied to your comment',
+                    type: 'reply'
+                }
+            };
+            
+            const notification = {
+                ...notifications[type],
+                id: Math.floor(Math.random() * 1000),
+                is_read: false,
+                created_at: new Date().toISOString(),
+                user_id: 1,
+                sender_id: 2
+            };
+            
+            // Simulate receiving a notification
+            addNotificationToUI(notification);
+            log(`Simulated ${type} notification`);
+        }
+        
+        function getNotifications() {
+            log('Getting notifications via API would require AJAX call with JWT token');
+            alert('This would make a GET request to /notification/ with your JWT token in the Authorization header');
+        }
+        
+        function getUnreadCount() {
+            log('Getting unread count via API would require AJAX call with JWT token');
+            alert('This would make a GET request to /notification/unread-count with your JWT token');
+        }
+        
+        function markAllAsRead() {
+            log('Marking all as read via API would require AJAX call with JWT token');
+            alert('This would make a PATCH request to /notification/mark-all-read with your JWT token');
+            
+            // Simulate marking all as read in UI
+            const notifications = document.querySelectorAll('.notification.unread');
+            notifications.forEach(notif => {
+                notif.classList.remove('unread');
+            });
+        }
+        
+        // Add some demo instructions
+        window.onload = function() {
+            log('Demo page loaded. To test:');
+            log('1. Start the Flask app with: python run_with_notifications.py');
+            log('2. Get a JWT token by logging in via the API');
+            log('3. Enter the token above and click Connect');
+            log('4. Try the simulation buttons to see notifications');
+        };
+    </script>
+</body>
+</html>
