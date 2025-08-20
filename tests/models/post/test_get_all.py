@@ -1,5 +1,5 @@
 # Base
-from tests.base.base_test_case import BaseTestCase
+from tests.base.base_pagination_test import BasePaginationTest
 
 # Factories
 from tests.factories.post_factory import PostFactory
@@ -11,7 +11,7 @@ from app.models.post import Post
 from flask_sqlalchemy.pagination import Pagination
 
 
-class GetAllPosts(BaseTestCase):
+class GetAllPosts(BasePaginationTest):
     def test_get_posts(self):
         # Number of posts
         n = 5
