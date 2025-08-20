@@ -1,5 +1,5 @@
 # tests
-from tests.routes.test_route import TestRoute
+from tests.base.base_pagination_test import BasePaginationTest
 
 # factories
 from tests.factories.user_factory import UserFactory
@@ -10,11 +10,9 @@ from app.models.user import Block
 
 # utils
 from tests.utils.tokens import get_access_token
-from tests.utils.assert_list import assert_user_list
-from tests.utils.assert_pagination import assert_pagination_structure
 
 
-class TestReadFollowed(TestRoute):
+class TestReadFollowed(BasePaginationTest):
     route = '/user/{}/following'
     route_with_args = '/user/{}/following?page={}&per_page={}'
 
@@ -35,27 +33,8 @@ class TestReadFollowed(TestRoute):
         # Get user followed
         response = self.GETRequest(self.route.format(user.username))
 
-        # Assert the response status
-        self.assertStatusCode(response, 200)
-
-        # Get response pagination
-        pagination = response.json
-
-        # Assert pagination
-        assert_pagination_structure(
-            self, 
-            pagination, 
-            expected_page=1, 
-            expected_pages=1, 
-            expected_per_page=10, 
-            expected_total=n
-        )
-
-        # Get the users
-        data = pagination['users']
-
-        # Assert list
-        assert_user_list(self, data, n)
+        # Assert standard pagination response for users
+        self.assert_standard_pagination_response(response, expected_total=n, data_key='users')
 
     def test_read_followed_args(self):
         # Number of followed users
