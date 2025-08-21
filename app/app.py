@@ -17,8 +17,11 @@ from app.routes.comment import comment_routes
 
 from app.models.user import User
 
-# Import events to register SQLAlchemy event handlers
-import app.events
+# Import and register SQLAlchemy event handlers
+from app.events.post_events import register_post_events
+from app.events.comment_events import register_comment_events  
+from app.events.community_events import register_community_events
+from app.events.user_events import register_user_events
 
 from app.errors.errors import ValidationError
 from app.errors.errors import NotFoundError
@@ -49,6 +52,14 @@ from app.handlers.errors import handler_bookmark_error
 from app.handlers.errors import handler_vote_error
 
 
+def register_events():
+    """Register all SQLAlchemy event handlers"""
+    register_post_events()
+    register_comment_events()
+    register_community_events()
+    register_user_events()
+
+
 def create_app(config_class=DevelopmentConfig):
     app = Flask(__name__)
     app.config.from_object(config_class)
@@ -57,6 +68,7 @@ def create_app(config_class=DevelopmentConfig):
     register_extensions(app)
     register_blueprints(app)
     register_handlers(app)
+    register_events()
 
     return app
 

@@ -185,5 +185,3 @@ def register_comment_events():
         connection.execute(update_query)
 
 
-# Register events when module is imported
-register_comment_events()

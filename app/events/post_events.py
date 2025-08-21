@@ -157,5 +157,3 @@ def register_post_events():
         connection.execute(update_query)
 
 
-# Register events when module is imported
-register_post_events()

@@ -204,5 +204,3 @@ def register_community_events():
         connection.execute(update_query)
 
 
-# Register events when module is imported
-register_community_events()
