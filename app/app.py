@@ -17,6 +17,9 @@ from app.routes.comment import comment_routes
 
 from app.models.user import User
 
+# Import events to register SQLAlchemy event handlers
+import app.events
+
 from app.errors.errors import ValidationError
 from app.errors.errors import NotFoundError
 from app.errors.errors import NameError
