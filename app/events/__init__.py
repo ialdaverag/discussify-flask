@@ -1,1 +1,1 @@
-# Event modules are imported and registered explicitly in app.py
+# Event modules are imported in app.py and register their events on import
