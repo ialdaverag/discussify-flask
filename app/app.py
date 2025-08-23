@@ -7,6 +7,7 @@ from app.extensions.database import db
 from app.extensions.jwt import jwt
 from app.extensions.email import mail
 from app.extensions.cors import cors
+from app.extensions.cache import cache
 
 from app.routes.auth import black_list
 from app.routes.auth import auth_routes
@@ -63,6 +64,7 @@ def register_extensions(app):
     migrate = Migrate(app, db)
     jwt.init_app(app)
     mail.init_app(app)
+    cache.init_app(app)
     cors.init_app(
         app, 
         supports_credentials=True

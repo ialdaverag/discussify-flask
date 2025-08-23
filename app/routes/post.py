@@ -12,6 +12,9 @@ from flask_jwt_extended import current_user
 # Webargs
 from webargs.flaskparser import use_args
 
+# Extensions
+from app.extensions.cache import cache
+
 # Schemas
 from app.schemas.user import user_pagination_request_schema
 from app.schemas.user import user_pagination_response_schema
@@ -47,11 +50,16 @@ def create_post():
 
     post = PostManager.create(current_user, community, data)
 
+    # Clear relevant caches after creating a post
+    cache.delete_memoized('read_users')  # Clear posts list cache
+    cache.delete_memoized('read_community_posts', community.name)  # Clear community posts cache
+
     return post_schema.dump(post), HTTPStatus.CREATED
 
 
 @post_routes.get('/<int:id>')
 @jwt_required(optional=True)
+@cache.cached(timeout=300, key_prefix='post_%s')  # Cache for 5 minutes
 def read_post(id):
     post = Post.get_by_id(id)
 
@@ -63,6 +71,7 @@ def read_post(id):
 @post_routes.get('/')
 @use_args(post_pagination_request_schema, location='query')
 @jwt_required(optional=True)
+@cache.cached(timeout=180, query_string=True)  # Cache for 3 minutes, vary by query params
 def read_users(args):
     paginated_posts = PostManager.read_all(args)
 
@@ -79,6 +88,10 @@ def update_post(id):
     
     post = PostManager.update(current_user, post, data)
 
+    # Clear relevant caches after updating a post
+    cache.delete_memoized('read_post', id)  # Clear individual post cache
+    cache.delete_memoized('read_users')  # Clear posts list cache
+
     return post_schema.dump(post), HTTPStatus.OK
 
 
@@ -88,6 +101,10 @@ def delete_post(id):
     post = Post.get_by_id(id)
 
     PostManager.delete(current_user, post)
+
+    # Clear relevant caches after deleting a post
+    cache.delete_memoized('read_post', id)  # Clear individual post cache
+    cache.delete_memoized('read_users')  # Clear posts list cache
 
     return {}, HTTPStatus.NO_CONTENT
 
@@ -119,6 +136,10 @@ def upvote(id):
 
     PostVoteManager.create(current_user, post, direction=1)
 
+    # Clear vote-related caches
+    cache.delete_memoized('read_upvoters', id)
+    cache.delete_memoized('read_downvoters', id)
+
     return {}, HTTPStatus.NO_CONTENT
 
 
@@ -128,6 +149,10 @@ def downvote(id):
     post = Post.get_by_id(id)
 
     PostVoteManager.create(current_user, post, direction=-1)
+
+    # Clear vote-related caches
+    cache.delete_memoized('read_upvoters', id)
+    cache.delete_memoized('read_downvoters', id)
 
     return {}, HTTPStatus.NO_CONTENT
 
@@ -139,12 +164,17 @@ def cancel(id):
 
     PostVoteManager.delete(current_user, post)
 
+    # Clear vote-related caches
+    cache.delete_memoized('read_upvoters', id)
+    cache.delete_memoized('read_downvoters', id)
+
     return {}, HTTPStatus.NO_CONTENT
 
 
 @post_routes.get('/<int:id>/upvoters')
 @use_args(user_pagination_request_schema, location='query')
 @jwt_required(optional=True)
+@cache.cached(timeout=300, query_string=True)  # Cache for 5 minutes
 def read_upvoters(args, id):
     post = Post.get_by_id(id)
     
@@ -156,6 +186,7 @@ def read_upvoters(args, id):
 @post_routes.get('/<int:id>/downvoters')
 @use_args(user_pagination_request_schema, location='query')
 @jwt_required(optional=True)
+@cache.cached(timeout=300, query_string=True)  # Cache for 5 minutes
 def read_downvoters(args, id):
     post = Post.get_by_id(id)
     
@@ -167,6 +198,7 @@ def read_downvoters(args, id):
 @post_routes.get('/<int:id>/comments')
 @use_args(comment_pagination_request_schema, location='query')
 @jwt_required(optional=True)
+@cache.cached(timeout=240, query_string=True)  # Cache for 4 minutes
 def read_post_comments(args, id):
     post = Post.get_by_id(id)
 

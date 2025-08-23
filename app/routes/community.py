@@ -12,6 +12,9 @@ from flask_jwt_extended import current_user
 # Webargs
 from webargs.flaskparser import use_args
 
+# Extensions
+from app.extensions.cache import cache
+
 # Models
 from app.models.community import Community
 from app.models.user import User
@@ -45,11 +48,15 @@ def create_community():
 
     community = CommunityManager.create(current_user, data)
 
+    # Clear communities list cache after creating a community
+    cache.delete_memoized('read_communities')
+
     return community_schema.dump(community), HTTPStatus.CREATED
 
 
 @community_routes.get('/<string:name>')
 @jwt_required(optional=True)
+@cache.cached(timeout=600, key_prefix='community_%s')  # Cache for 10 minutes
 def read_community(name):
     community = Community.get_by_name(name)
     
@@ -61,6 +68,7 @@ def read_community(name):
 @community_routes.get('/')
 @use_args(community_pagination_request_schema, location='query')
 @jwt_required(optional=True)
+@cache.cached(timeout=600, query_string=True)  # Cache for 10 minutes
 def read_communities(args):
     paginated_communities = CommunityManager.read_all(args)
 
@@ -77,6 +85,10 @@ def update_community(name):
     data = community_schema.load(json_data, partial=('name',))
     
     community = CommunityManager.update(current_user, community, data)
+
+    # Clear relevant caches after updating a community
+    cache.delete_memoized('read_community', name)
+    cache.delete_memoized('read_communities')
 
     return community_schema.dump(community), HTTPStatus.OK
 
@@ -98,6 +110,9 @@ def subscribe(name):
 
     SubscriptionManager.create(current_user, community)
 
+    # Clear subscribers cache after subscription
+    cache.delete_memoized('read_subscribers', name)
+
     return {}, HTTPStatus.NO_CONTENT
 
 
@@ -107,6 +122,9 @@ def unsubscribe(name):
     community = Community.get_by_name(name)
 
     SubscriptionManager.delete(current_user, community)
+
+    # Clear subscribers cache after unsubscription
+    cache.delete_memoized('read_subscribers', name)
 
     return {}, HTTPStatus.NO_CONTENT
 
@@ -174,6 +192,7 @@ def transfer(name, username):
 @community_routes.get('/<string:name>/subscribers')
 @use_args(user_pagination_request_schema, location='query')
 @jwt_required(optional=True)
+@cache.cached(timeout=300, query_string=True)  # Cache for 5 minutes
 def read_subscribers(args, name):
     community = Community.get_by_name(name)
 
@@ -185,6 +204,7 @@ def read_subscribers(args, name):
 @community_routes.get('/<string:name>/moderators')
 @use_args(user_pagination_request_schema, location='query')
 @jwt_required(optional=True)
+@cache.cached(timeout=900, query_string=True)  # Cache for 15 minutes (changes less frequently)
 def read_moderators(args, name):
     community = Community.get_by_name(name)
 
@@ -196,6 +216,7 @@ def read_moderators(args, name):
 @community_routes.get('/<string:name>/banned')
 @use_args(user_pagination_request_schema, location='query')
 @jwt_required(optional=True)
+@cache.cached(timeout=600, query_string=True)  # Cache for 10 minutes
 def read_banned(args, name):
     community = Community.get_by_name(name)
 
@@ -207,6 +228,7 @@ def read_banned(args, name):
 @community_routes.get('/<string:name>/posts')
 @use_args(post_pagination_request_schema, location='query')
 @jwt_required(optional=True)
+@cache.cached(timeout=180, query_string=True)  # Cache for 3 minutes (more dynamic content)
 def read_community_posts(args, name):
     community = Community.get_by_name(name)
 
