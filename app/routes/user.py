@@ -11,6 +11,9 @@ from flask_jwt_extended import current_user
 # Webargs
 from webargs.flaskparser import use_args
 
+# Extensions
+from app.extensions.cache import cache
+
 # Models
 from app.models.user import User
 
@@ -43,6 +46,7 @@ user_routes = Blueprint('user_routes', __name__)
 
 @user_routes.get('/<string:username>')
 @jwt_required(optional=True)
+@cache.cached(timeout=600, key_prefix='user_profile_%s')  # Cache for 10 minutes
 def read_user(username):
     user = User.get_by_username(username=username)
 
@@ -54,6 +58,7 @@ def read_user(username):
 @user_routes.get('/')
 @use_args(user_pagination_request_schema, location='query')
 @jwt_required(optional=True)
+@cache.cached(timeout=360, query_string=True)  # Cache for 6 minutes
 def read_users(args):
     paginated_users = UserManager.read_all(current_user, args)
 
@@ -103,6 +108,7 @@ def unblock_user(username):
 @user_routes.get('/<string:username>/following')
 @use_args(user_pagination_request_schema, location='query')
 @jwt_required(optional=True)
+@cache.cached(timeout=300, query_string=True)  # Cache for 5 minutes
 def read_following(args, username):
     user = User.get_by_username(username)
 
@@ -114,6 +120,7 @@ def read_following(args, username):
 @user_routes.get('/<string:username>/followers')
 @use_args(user_pagination_request_schema, location='query')
 @jwt_required(optional=True)
+@cache.cached(timeout=300, query_string=True)  # Cache for 5 minutes
 def read_followers(args, username):
     user = User.get_by_username(username)
 
@@ -134,6 +141,7 @@ def read_blocked(args):
 @user_routes.get('/<string:username>/subscriptions')
 @use_args(community_pagination_request_schema, location='query')
 @jwt_required(optional=True)
+@cache.cached(timeout=600, query_string=True)  # Cache for 10 minutes
 def read_subscriptions(args, username):
     user = User.get_by_username(username)
 
@@ -145,6 +153,7 @@ def read_subscriptions(args, username):
 @user_routes.get('/<string:username>/posts')
 @use_args(post_pagination_request_schema, location='query')
 @jwt_required(optional=True)
+@cache.cached(timeout=300, query_string=True)  # Cache for 5 minutes
 def read_user_posts(args, username):
     user = User.get_by_username(username)
 
@@ -156,6 +165,7 @@ def read_user_posts(args, username):
 @user_routes.get('/<string:username>/comments')
 @use_args(comment_pagination_request_schema, location='query')
 @jwt_required(optional=True)
+@cache.cached(timeout=300, query_string=True)  # Cache for 5 minutes
 def read_user_comments(args, username):
     user = User.get_by_username(username)
 

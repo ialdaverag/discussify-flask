@@ -12,6 +12,9 @@ from flask_jwt_extended import current_user
 # Webargs
 from webargs.flaskparser import use_args
 
+# Extensions
+from app.extensions.cache import cache
+
 # Schemas
 from app.schemas.user import user_pagination_request_schema
 from app.schemas.user import user_pagination_response_schema
@@ -53,11 +56,16 @@ def create_comment():
 
     new_comment = CommentManager.create(current_user, post, data, comment_to_reply)
 
+    # Clear relevant caches after creating a comment
+    cache.delete_memoized('read_comments')  # Clear comments list cache
+    cache.delete_memoized('read_post_comments', post_id)  # Clear post comments cache
+
     return comment_schema.dump(new_comment), HTTPStatus.CREATED
 
 
 @comment_routes.get('/<string:id>')
 @jwt_required(optional=True)
+@cache.cached(timeout=300, key_prefix='comment_%s')  # Cache for 5 minutes
 def read_comment(id):
     comment = Comment.get_by_id(id)
     
@@ -69,6 +77,7 @@ def read_comment(id):
 @comment_routes.get('/')
 @use_args(comment_pagination_request_schema, location='query')
 @jwt_required(optional=True)
+@cache.cached(timeout=240, query_string=True)  # Cache for 4 minutes
 def read_comments(args):
     paginated_comments = CommentManager.read_all(args)
 
@@ -86,6 +95,10 @@ def update_comment(id):
 
     comment = CommentManager.update(current_user, comment, data)
 
+    # Clear relevant caches after updating a comment
+    cache.delete_memoized('read_comment', id)  # Clear individual comment cache
+    cache.delete_memoized('read_comments')  # Clear comments list cache
+
     return comment_schema.dump(comment), HTTPStatus.OK
 
 
@@ -95,6 +108,10 @@ def delete_comment(id):
     comment = Comment.get_by_id(id)
 
     CommentManager.delete(current_user, comment)
+
+    # Clear relevant caches after deleting a comment
+    cache.delete_memoized('read_comment', id)  # Clear individual comment cache
+    cache.delete_memoized('read_comments')  # Clear comments list cache
 
     return {}, HTTPStatus.NO_CONTENT
     
@@ -126,6 +143,10 @@ def upvote_comment(id):
 
     CommentVoteManager.create(current_user, comment, direction=1)
 
+    # Clear vote-related caches
+    cache.delete_memoized('read_comment_upvoters', id)
+    cache.delete_memoized('read_comment_downvoters', id)
+
     return {}, HTTPStatus.NO_CONTENT
 
 
@@ -135,6 +156,10 @@ def downvote_comment(id):
     comment = Comment.get_by_id(id)
 
     CommentVoteManager.create(current_user, comment, direction=-1)
+
+    # Clear vote-related caches
+    cache.delete_memoized('read_comment_upvoters', id)
+    cache.delete_memoized('read_comment_downvoters', id)
 
     return {}, HTTPStatus.NO_CONTENT
 
@@ -146,12 +171,17 @@ def cancel_vote_on_comment(id):
 
     CommentVoteManager.delete(current_user, comment)
 
+    # Clear vote-related caches
+    cache.delete_memoized('read_comment_upvoters', id)
+    cache.delete_memoized('read_comment_downvoters', id)
+
     return {}, HTTPStatus.NO_CONTENT
 
 
 @comment_routes.get('/<int:id>/upvoters')
 @use_args(user_pagination_request_schema, location='query')
 @jwt_required(optional=True)
+@cache.cached(timeout=300, query_string=True)  # Cache for 5 minutes
 def read_comment_upvoters(args, id):
     comment = Comment.get_by_id(id)
     
@@ -163,6 +193,7 @@ def read_comment_upvoters(args, id):
 @comment_routes.get('/<int:id>/downvoters')
 @use_args(user_pagination_request_schema, location='query')
 @jwt_required(optional=True)
+@cache.cached(timeout=300, query_string=True)  # Cache for 5 minutes
 def read_comment_downvoters(args, id):
     comment = Comment.get_by_id(id)
 

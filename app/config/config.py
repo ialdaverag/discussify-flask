@@ -26,3 +26,7 @@ class Config:
     MAIL_USERNAME = os.environ.get('MAIL_USERNAME')
     MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD')
     MAIL_USE_SSL = True
+
+    # Flask-Caching
+    CACHE_TYPE = 'SimpleCache'  # In-memory cache for development
+    CACHE_DEFAULT_TIMEOUT = 300  # 5 minutes default timeout
